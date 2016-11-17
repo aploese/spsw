@@ -1,0 +1,4 @@
+-------------------------------------------------------------------------------
+Test set: net.sf.atmodem4j.spsw.tests.OnePortTest
+-------------------------------------------------------------------------------
+Tests run: 21, Failures: 0, Errors: 0, Skipped: 21, Time elapsed: 0.009 sec - in net.sf.atmodem4j.spsw.tests.OnePortTest

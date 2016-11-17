@@ -1,0 +1,4 @@
+-------------------------------------------------------------------------------
+Test set: net.sf.atmodem4j.spsw.tests.TwoPortSingleByteTest
+-------------------------------------------------------------------------------
+Tests run: 15, Failures: 0, Errors: 0, Skipped: 15, Time elapsed: 0.01 sec - in net.sf.atmodem4j.spsw.tests.TwoPortSingleByteTest

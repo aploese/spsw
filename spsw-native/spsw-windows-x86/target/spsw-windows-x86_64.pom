@@ -1,0 +1,83 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+  
+    <parent>
+        <groupId>net.sf.atmodem4j</groupId>
+        <artifactId>spsw-native</artifactId>
+        <version>0.0.7</version>
+    </parent>
+    
+    <groupId>net.sf.atmodem4j</groupId>
+    <artifactId>spsw-windows-x86_64</artifactId>
+    <version>0.0.7</version>
+    <name>SPSW Windows X86_64</name>
+    <url>http://maven.apache.org</url>
+	
+    <packaging>dll</packaging>
+
+    <dependencies>
+        <dependency>
+            <groupId>net.sf.atmodem4j</groupId>
+            <artifactId>spsw-java</artifactId>
+            <version>0.0.7</version>
+            <type>jar</type>
+            <scope>compile</scope>
+        </dependency>   
+    </dependencies>
+  
+    <profiles>
+  
+        <profile>
+            <!-- install gcc-multilib and g++-multilib to get this work -->
+            <id>x86_64-w64-mingw32-g++</id>
+            <activation>
+                <activeByDefault>true</activeByDefault>
+            </activation>
+            <build>
+                <plugins>
+		
+                    <plugin>
+                        <groupId>org.codehaus.mojo</groupId>
+                        <artifactId>native-maven-plugin</artifactId>
+                        <extensions>true</extensions>       
+                        <configuration>
+        
+                            <!--  trigger javah -->          
+                            <javahOS>win32</javahOS>
+                    
+                            <javahClassNames>
+                                <javahClassName>net.sf.atmodem4j.spsw.GenericWinSerialPortSocket</javahClassName>
+                                <javahClassName>net.sf.atmodem4j.spsw.SerialPortList</javahClassName>
+                            </javahClassNames>
+          
+                            <compilerProvider>generic</compilerProvider>
+                            <compilerExecutable>x86_64-w64-mingw32-gcc</compilerExecutable>
+                            <compilerStartOptions>
+                                <compilerStartOption>-std=c11 -m64 -Wall</compilerStartOption>
+                            </compilerStartOptions>
+
+                            <sources>
+                                <source>
+                                    <directory>../src/main/native/windows_comport_wrapper</directory>
+                                    <fileNames>
+                                        <fileName>GenericWinSerialPortSocket.c</fileName>
+                                        <fileName>SerialPortList.c</fileName>
+                                    </fileNames>
+                                </source>
+                            </sources>
+            
+                            <linkerExecutable>x86_64-w64-mingw32-gcc</linkerExecutable>
+                            <linkerStartOptions>
+                                <linkerStartOption>-m64 -static-libgcc -shared -Wl,--dll -Wl,--kill-at</linkerStartOption>
+                            </linkerStartOptions>
+          
+                        </configuration>
+				
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+
+    </profiles>
+
+</project>

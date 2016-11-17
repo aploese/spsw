@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <groupId>net.sf.atmodem4j</groupId>
+    <artifactId>atmodem4j</artifactId>
+    <packaging>pom</packaging>
+    <version>0.0.8-SNAPSHOt</version>
+    
+    <modules>
+        <module>parent</module>
+        <module>spsw-java</module>
+        <module>spsw-native</module>
+        <module>spsw-tests</module>
+        <!--manual resource no autobuild  module>spsw-nativelibs-bundle</module-->
+        <!--Not function anymore ... move to it???  module>atmodem4j-terminal-swing</module-->
+    </modules>
+
+</project>

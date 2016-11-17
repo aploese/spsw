@@ -1,0 +1,98 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>net.sf.atmodem4j</groupId>
+        <artifactId>atmodem4j-parent</artifactId>
+        <version>0.0.7</version>
+    </parent>
+
+
+    <groupId>net.sf.atmodem4j</groupId>
+    <artifactId>spsw-native</artifactId>
+    <version>0.0.7</version>
+    <name>SPSW Native Parent</name>
+    <packaging>pom</packaging>
+
+    <profiles>
+  
+        <profile>
+            <id>windows-x86</id>
+            <activation>
+                <os>
+                    <family>Windows</family>
+                    <arch>x86</arch>
+                </os>      
+            </activation>
+            <modules>
+                <module>spsw-Windows-x86</module>
+            </modules>
+        </profile>
+
+        <profile>
+            <id>windows-x86_64</id>
+            <activation>
+                <os>
+                    <family>Windows</family>
+                    <arch>x86_64</arch>
+                </os>      
+            </activation>
+            <modules>
+                <module>spsw-windows-x86_64</module>
+            </modules>
+        </profile>
+
+    <profile>
+      <id>linux-amd64</id>
+      <activation>
+        <os>
+          <name>linux</name>
+          <arch>amd64</arch>
+        </os>
+      </activation>
+      <modules>
+        <module>libspsw-linux-amd64</module>
+      </modules>
+    </profile>
+
+    <profile>
+      <id>all-cross-compile</id>
+      <modules>
+        <module>libspsw-linux-amd64</module>
+        <module>libspsw-linux-i386</module>
+        <module>libspsw-linux-armhf</module>
+        <module>spsw-windows-x86</module>
+        <module>spsw-windows-x86_64</module>
+      </modules>
+    </profile>
+
+    <profile>
+      <id>linux-i386</id>
+      <activation>
+        <os>
+          <name>linux</name>
+          <arch>i386</arch>
+        </os>
+      </activation>
+      <modules>
+        <module>libspsw-linux-i386</module>
+      </modules>
+    </profile>
+
+    <profile>
+      <id>linux-armhf</id>
+      <activation>
+        <os>
+          <name>linux</name>
+          <arch>arm</arch>
+        </os>
+      </activation>
+      <modules>
+        <module>libspsw-linux-armhf</module>
+      </modules>
+    </profile>
+
+    </profiles>
+
+</project>

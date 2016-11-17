@@ -1,0 +1,75 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+  
+    <parent>
+        <groupId>net.sf.atmodem4j</groupId>
+        <artifactId>spsw-native</artifactId>
+        <version>0.0.7</version>
+    </parent>
+    
+    <groupId>net.sf.atmodem4j</groupId>
+    <artifactId>libspsw-linux-amd64</artifactId>
+    <version>0.0.7</version>
+    <name>SPSW Linux-amd64</name>
+    <url>http://maven.apache.org</url>
+	
+    <packaging>so</packaging>
+
+    <dependencies>
+        <dependency>
+            <groupId>net.sf.atmodem4j</groupId>
+            <artifactId>spsw-java</artifactId>
+            <version>0.0.7</version>
+            <type>jar</type>
+            <scope>compile</scope>
+        </dependency>   
+    </dependencies>
+  
+    <profiles>
+        <profile>
+            <!-- install gcc-multilib and g++-multilib to get this work -->
+            <id>linux</id>
+            <activation>
+                <os>
+                    <name>linux</name>
+                </os>
+            </activation>
+            <build>
+                <plugins>
+		
+                    <plugin>
+                        <groupId>org.codehaus.mojo</groupId>
+                        <artifactId>native-maven-plugin</artifactId>
+                        <extensions>true</extensions>       
+                        <configuration>
+        
+                            <!--  trigger javah -->          
+                            <javahOS>linux</javahOS>
+                            <javahClassNames>
+                                <javahClassName>net.sf.atmodem4j.spsw.GenericTermiosSerialPortSocket</javahClassName>
+                            </javahClassNames>
+          
+                            <compilerProvider>generic</compilerProvider>
+                            <compilerStartOptions>
+                                <compilerStartOption>-fPIC -O -m64</compilerStartOption>
+                            </compilerStartOptions>
+                            <sources>
+                                <source>
+                                    <directory>../src/main/native/posix_termios_wrapper</directory>
+                                    <fileNames>
+                                        <fileName>GenericTermiosSerialPortSocket.c</fileName>
+                                    </fileNames>
+                                </source>
+                            </sources>
+            
+                            <linkerStartOptions>
+                                <linkerStartOption>-shared -lc -ldl -m64</linkerStartOption>
+                            </linkerStartOptions>
+          
+                        </configuration>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+    </profiles>
+</project>

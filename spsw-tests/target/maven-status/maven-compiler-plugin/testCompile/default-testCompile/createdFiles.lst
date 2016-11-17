@@ -1,0 +1,7 @@
+net/sf/atmodem4j/spsw/tests/TwoPortMultipleBytesTest$ReceiverThread.class
+net/sf/atmodem4j/spsw/tests/TwoPortSingleByteTest.class
+net/sf/atmodem4j/spsw/tests/OnePortTest.class
+net/sf/atmodem4j/spsw/tests/TwoPortSingleByteTest$ReceiverThread.class
+net/sf/atmodem4j/spsw/tests/TwoPortMultipleBytesTest.class
+net/sf/atmodem4j/spsw/tests/OnePortTest$TestRead.class
+net/sf/atmodem4j/spsw/tests/IteratePortTest.class

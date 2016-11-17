@@ -1,0 +1,4 @@
+-------------------------------------------------------------------------------
+Test set: net.sf.atmodem4j.spsw.logging.LogFileCompressorTest
+-------------------------------------------------------------------------------
+Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.13 sec - in net.sf.atmodem4j.spsw.logging.LogFileCompressorTest
