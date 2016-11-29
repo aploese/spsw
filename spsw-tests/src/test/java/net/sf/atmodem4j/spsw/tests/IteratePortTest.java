@@ -1,4 +1,4 @@
-package net.sf.atmodem4j.spsw.tests;
+package de.ibapl.spsw.tests;
 
 /*
  * #%L
@@ -31,7 +31,7 @@ package net.sf.atmodem4j.spsw.tests;
 import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import net.sf.atmodem4j.spsw.SerialPortList;
+import de.ibapl.spsw.SerialPortList;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.BeforeClass;

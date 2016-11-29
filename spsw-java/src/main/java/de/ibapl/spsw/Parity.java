@@ -1,4 +1,4 @@
-package net.sf.atmodem4j.spsw;
+package de.ibapl.spsw;
 
 /*
  * #%L

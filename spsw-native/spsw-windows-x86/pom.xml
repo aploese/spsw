@@ -2,22 +2,21 @@
     <modelVersion>4.0.0</modelVersion>
   
     <parent>
-        <groupId>net.sf.atmodem4j</groupId>
+        <groupId>de.ibapl.spsw</groupId>
         <artifactId>spsw-native</artifactId>
         <version>0.0.8-SNAPSHOT</version>
     </parent>
     
-    <groupId>net.sf.atmodem4j</groupId>
+    <groupId>de.ibapl.spsw</groupId>
     <artifactId>spsw-windows-x86_64</artifactId>
     <version>0.0.8-SNAPSHOT</version>
     <name>SPSW Windows X86_64</name>
-    <url>http://maven.apache.org</url>
 	
     <packaging>dll</packaging>
 
     <dependencies>
         <dependency>
-            <groupId>net.sf.atmodem4j</groupId>
+            <groupId>de.ibapl.spsw</groupId>
             <artifactId>spsw-java</artifactId>
             <version>0.0.8-SNAPSHOT</version>
             <type>jar</type>
@@ -46,8 +45,8 @@
                             <javahOS>win32</javahOS>
                     
                             <javahClassNames>
-                                <javahClassName>net.sf.atmodem4j.spsw.GenericWinSerialPortSocket</javahClassName>
-                                <javahClassName>net.sf.atmodem4j.spsw.SerialPortList</javahClassName>
+                                <javahClassName>de.ibapl.spsw.GenericWinSerialPortSocket</javahClassName>
+                                <javahClassName>de.ibapl.spsw.SerialPortList</javahClassName>
                             </javahClassNames>
           
                             <compilerProvider>generic</compilerProvider>

@@ -2,22 +2,21 @@
     <modelVersion>4.0.0</modelVersion>
   
     <parent>
-        <groupId>net.sf.atmodem4j</groupId>
+        <groupId>de.ibapl.spsw</groupId>
         <artifactId>spsw-native</artifactId>
         <version>0.0.8-SNAPSHOT</version>
     </parent>
     
-    <groupId>net.sf.atmodem4j</groupId>
+    <groupId>de.ibapl.spsw</groupId>
     <artifactId>libspsw-linux-amd64</artifactId>
     <version>0.0.8-SNAPSHOT</version>
     <name>SPSW Linux-amd64</name>
-    <url>http://maven.apache.org</url>
 	
     <packaging>so</packaging>
 
     <dependencies>
         <dependency>
-            <groupId>net.sf.atmodem4j</groupId>
+            <groupId>de.ibapl.spsw</groupId>
             <artifactId>spsw-java</artifactId>
             <version>0.0.8-SNAPSHOT</version>
             <type>jar</type>
@@ -46,7 +45,7 @@
                             <!--  trigger javah -->          
                             <javahOS>linux</javahOS>
                             <javahClassNames>
-                                <javahClassName>net.sf.atmodem4j.spsw.GenericTermiosSerialPortSocket</javahClassName>
+                                <javahClassName>de.ibapl.spsw.GenericTermiosSerialPortSocket</javahClassName>
                             </javahClassNames>
           
                             <compilerProvider>generic</compilerProvider>

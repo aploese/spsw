@@ -22,7 +22,7 @@
  * e-mail: scream3r.org@gmail.com
  * web-site: http://scream3r.org | http://code.google.com/p/java-simple-serial-connector/
  */
-package net.sf.atmodem4j.spsw;
+package de.ibapl.spsw;
 
 /*
  * #%L

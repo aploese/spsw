@@ -1,14 +1,14 @@
 #include <jni.h>
 #include <stdlib.h>
 #include <windows.h>
-#include "net_sf_atmodem4j_spsw_SerialPortList.h"
+#include "de_ibapl_spsw_SerialPortList.h"
 
 /*
- * Class:     net_sf_atmodem4j_spsw_SerialPortList
+ * Class:     de_ibapl_spsw_SerialPortList
  * Method:    getWindowsBasedPortNames
  * Signature: (Z)[Ljava/lang/String;
  */
-JNIEXPORT jobjectArray JNICALL Java_net_sf_atmodem4j_spsw_SerialPortList_getWindowsBasedPortNames
+JNIEXPORT jobjectArray JNICALL Java_de_ibapl_spsw_SerialPortList_getWindowsBasedPortNames
   (JNIEnv *env, jclass clazz, jboolean value) {
     HKEY phkResult;
     LPCSTR lpSubKey = "HARDWARE\\DEVICEMAP\\SERIALCOMM\\";

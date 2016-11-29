@@ -22,7 +22,7 @@
  * e-mail: scream3r.org@gmail.com
  * web-site: http://scream3r.org | http://code.google.com/p/java-simple-serial-connector/
  */
-package net.sf.atmodem4j.spsw;
+package de.ibapl.spsw;
 
 /*
  * #%L
@@ -68,7 +68,7 @@ import java.util.regex.Pattern;
  */
 public class SerialPortList {
     
-    private final static Logger LOG = Logger.getLogger("net.sf.atmodem4j.spsw");
+    private final static Logger LOG = Logger.getLogger("de.ibapl.spsw");
 
     private static final Pattern PORTNAMES_REGEXP;
     private static final String PORTNAMES_PATH;

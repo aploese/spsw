@@ -1,4 +1,4 @@
-package net.sf.atmodem4j.spsw;
+package de.ibapl.spsw;
 
 /*
  * #%L
@@ -48,7 +48,7 @@ import java.util.logging.Logger;
  */
 public abstract class AbstractSerialPortSocket implements SerialPortSocket {
 
-    protected final static Logger LOG = Logger.getLogger("net.sf.atmodem4j.spsw");
+    protected final static Logger LOG = Logger.getLogger("de.ibapl.spsw");
 
     static final int PORT_MODE_UNCHANGED = 0;
     static final int PORT_MODE_RAW = 0x01;
@@ -71,7 +71,7 @@ public abstract class AbstractSerialPortSocket implements SerialPortSocket {
 
     private static boolean libLoaded;
     private static String libName;
-    public final static String SPSW_PROPERTIES = "net/sf/atmodem4j/spsw/spsw.properties";
+    public final static String SPSW_PROPERTIES = "de/ibapl/spsw/spsw.properties";
 
     public static boolean isLibLoaded() {
         return libLoaded;
@@ -103,6 +103,8 @@ public abstract class AbstractSerialPortSocket implements SerialPortSocket {
                                 }
                             }
                         } catch (Exception ex) {
+                            LOG.severe("Please install binutils to detect architecture ... use hf as default");
+                            floatStr = "hf";
                             //Do nothing
                         }
                     }
@@ -260,9 +262,11 @@ public abstract class AbstractSerialPortSocket implements SerialPortSocket {
             return true;
         } catch (Throwable t) {
             LOG.log(Level.SEVERE, "Giving up cant load the lib \"{0}\" List System Properties", tmpLib.getAbsolutePath());
+            StringBuilder sb = new StringBuilder();
             for (String name : System.getProperties().stringPropertyNames()) {
-                LOG.log(Level.SEVERE, "System.property {0} = {1} ", new Object[]{name, System.getProperty(name)});
+                sb.append("\t").append(name).append(" = ").append(System.getProperty(name)).append("\n");
             }
+            LOG.log(Level.SEVERE, "System.properties\n{0}", new Object[]{sb.toString()});
             LOG.log(Level.SEVERE, "Giving up cant load the lib \"" + tmpLib.getAbsolutePath() + "\" ", t);
             throw new RuntimeException("Can't load spsw native lib, giving up!", t);
         }

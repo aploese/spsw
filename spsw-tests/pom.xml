@@ -2,12 +2,14 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <parent>
-        <groupId>net.sf.atmodem4j</groupId>
-        <artifactId>atmodem4j-parent</artifactId>
+        <groupId>de.ibapl.spsw</groupId>
+        <artifactId>parent</artifactId>
         <version>0.0.8-SNAPSHOT</version>
+        <relativePath>../parent/pom.xml</relativePath>
     </parent>
+  
     
-    <groupId>net.sf.atmodem4j</groupId>
+    <groupId>de.ibapl.spsw</groupId>
     <artifactId>spsw-tests</artifactId>
     <version>0.0.8-SNAPSHOT</version>
     <name>SPSW Tests</name>
@@ -19,7 +21,7 @@
             <artifactId>junit</artifactId>
         </dependency>
         <dependency>
-            <groupId>net.sf.atmodem4j</groupId>
+            <groupId>de.ibapl.spsw</groupId>
             <artifactId>spsw-java</artifactId>
             <version>0.0.8-SNAPSHOT</version>
             <scope>test</scope>
@@ -39,7 +41,7 @@
                 </activation>
                 <dependencies>
                     <dependency>
-                        <groupId>net.sf.atmodem4j</groupId>
+                        <groupId>de.ibapl.spsw</groupId>
                         <artifactId>spsw-windows-x86</artifactId>
                         <version>0.0.8-SNAPSHOT</version>
                         <type>dll</type>
@@ -62,7 +64,7 @@
                                     <configuration>
                                         <artifactItems>
                                             <artifactItem>
-                                                <groupId>net.sf.atmodem4j</groupId>
+                                                <groupId>de.ibapl.spsw</groupId>
                                                 <artifactId>spsw-windows-x86</artifactId>
                                                 <type>dll</type>
                                                 <outputDirectory>${project.build.directory}/test-classes</outputDirectory>
@@ -87,7 +89,7 @@
                 </activation>
                 <dependencies>
                     <dependency>
-                        <groupId>net.sf.atmodem4j</groupId>
+                        <groupId>de.ibapl.spsw</groupId>
                         <artifactId>spsw-windows-x86_64</artifactId>
                         <version>0.0.8-SNAPSHOT</version>
                         <type>dll</type>
@@ -110,7 +112,7 @@
                                     <configuration>
                                         <artifactItems>
                                             <artifactItem>
-                                                <groupId>net.sf.atmodem4j</groupId>
+                                                <groupId>de.ibapl.spsw</groupId>
                                                 <artifactId>spsw-windows-x86_64</artifactId>
                                                 <type>dll</type>
                                                 <outputDirectory>${project.build.directory}/test-classes</outputDirectory>
@@ -135,7 +137,7 @@
                 </activation>
                 <dependencies>
                     <dependency>
-                        <groupId>net.sf.atmodem4j</groupId>
+                        <groupId>de.ibapl.spsw</groupId>
                         <artifactId>libspsw-linux-amd64</artifactId>
                         <version>0.0.8-SNAPSHOT</version>
                         <type>so</type>
@@ -158,7 +160,7 @@
                                     <configuration>
                                         <artifactItems>
                                             <artifactItem>
-                                                <groupId>net.sf.atmodem4j</groupId>
+                                                <groupId>de.ibapl.spsw</groupId>
                                                 <artifactId>libspsw-linux-amd64</artifactId>
                                                 <type>so</type>
                                                 <outputDirectory>${project.build.directory}/test-classes</outputDirectory>
@@ -183,7 +185,7 @@
                 </activation>
                 <dependencies>
                     <dependency>
-                        <groupId>net.sf.atmodem4j</groupId>
+                        <groupId>de.ibapl.spsw</groupId>
                         <artifactId>libspsw-linux-i386</artifactId>
                         <version>0.0.8-SNAPSHOT</version>
                         <type>so</type>
@@ -206,7 +208,7 @@
                                     <configuration>
                                         <artifactItems>
                                             <artifactItem>
-                                                <groupId>net.sf.atmodem4j</groupId>
+                                                <groupId>de.ibapl.spsw</groupId>
                                                 <artifactId>libspsw-linux-i386</artifactId>
                                                 <type>so</type>
                                                 <outputDirectory>${project.build.directory}/test-classes</outputDirectory>
@@ -232,7 +234,7 @@
                 </activation>
                 <dependencies>
                     <dependency>
-                        <groupId>net.sf.atmodem4j</groupId>
+                        <groupId>de.ibapl.spsw</groupId>
                         <artifactId>libspsw-linux-armhf</artifactId>
                         <version>0.0.8-SNAPSHOT</version>
                         <type>so</type>
@@ -255,7 +257,7 @@
                                     <configuration>
                                         <artifactItems>
                                             <artifactItem>
-                                                <groupId>net.sf.atmodem4j</groupId>
+                                                <groupId>de.ibapl.spsw</groupId>
                                                 <artifactId>libspsw-linux-armhf</artifactId>
                                                 <type>so</type>
                                                 <outputDirectory>${project.build.directory}/test-classes</outputDirectory>

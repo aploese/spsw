@@ -3,7 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package net.sf.atmodem4j.spsw.logging;
+package de.ibapl.spsw.logging;
 
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
@@ -13,12 +13,12 @@ import java.io.OutputStream;
 import java.io.PrintStream;
 import java.util.Date;
 import java.util.Set;
-import net.sf.atmodem4j.spsw.Baudrate;
-import net.sf.atmodem4j.spsw.DataBits;
-import net.sf.atmodem4j.spsw.FlowControl;
-import net.sf.atmodem4j.spsw.Parity;
-import net.sf.atmodem4j.spsw.SerialPortSocket;
-import net.sf.atmodem4j.spsw.StopBits;
+import de.ibapl.spsw.Baudrate;
+import de.ibapl.spsw.DataBits;
+import de.ibapl.spsw.FlowControl;
+import de.ibapl.spsw.Parity;
+import de.ibapl.spsw.SerialPortSocket;
+import de.ibapl.spsw.StopBits;
 
 /**
  *

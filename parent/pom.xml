@@ -1,16 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
     <modelVersion>4.0.0</modelVersion>
-    <groupId>net.sf.atmodem4j</groupId>
-    <artifactId>atmodem4j-parent</artifactId>
+    <groupId>de.ibapl.spsw</groupId>
+    <artifactId>parent</artifactId>
     <packaging>pom</packaging>
     <version>0.0.8-SNAPSHOT</version>
-    <name>atmodem4j-parent</name>
+    <name>SPSW Parent</name>
     <inceptionYear>2009</inceptionYear>
-    <url>http://atmodem4j.sf.net</url>
     <description>
-        Access the serial port with spsw subpackage
-        control at modem with atmodem4j-core
+        Access the serial port with spsw subpackage.
     </description>
     
     <properties>
@@ -23,29 +21,18 @@
         <arguments />
 
     </properties>
-
-    <!-- Developers and Contributors -->
-    <organization>
-        <name>atmodem4j</name>
-        <url>http://sourceforge.net/projects/atmodem4j/</url>
-    </organization>
     
     <developers>
         <developer>
             <id>apl</id>
             <name>Arne Plöse</name>
-            <email>arnep@users.sourceforge.net</email>
-            <url>http://sourceforge.net/users/arnep/</url>
-            <organization>Sourceforge User</organization>
-            <organizationUrl>http://www.sourceforge.net</organizationUrl>
+            <email>aploese@gmx.de</email>
+            <url>http://github.com/aploese</url>
             <roles>
                 <role>architect</role>
                 <role>developer</role>
             </roles>
             <timezone>+1</timezone>
-            <!--properties>
-              <picUrl>http://tinyurl.com/prv4t</picUrl>
-            </properties-->
         </developer>
     </developers>
 
@@ -58,11 +45,6 @@
         </license>
     </licenses>
     
-    <issueManagement>
-        <system>Sourceforge</system>
-        <url>https://sourceforge.net/tracker/?group_id=247376&amp;atid=1126736</url>
-    </issueManagement>
-
     <repositories>
         <repository>
             <id>sonatype-nexus-snapshots</id>
@@ -91,9 +73,9 @@
     </distributionManagement>
 
     <scm>
-        <developerConnection>scm:svn:https://svn.code.sf.net/p/atmodem4j/code/trunk</developerConnection>
-        <connection>scm:svn:http://svn.code.sf.net/p/atmodem4j/code/trunk</connection>
-        <url>http://sourceforge.net/p/atmodem4j/code/HEAD/tree/</url>
+        <developerConnection>http://github.com/aploese/spsw</developerConnection>
+        <connection>http://github.com/aploese/spsw</connection>
+        <url>http://github.com/aploese/spsw</url>
     </scm>
 
 <!-- Dependency Management and Dependencies to Inherit -->
@@ -116,14 +98,6 @@
 
 
     <build>
-        <extensions>
-            <!-- Enabling the use of FTP -->
-            <extension>
-                <groupId>org.apache.maven.wagon</groupId>
-                <artifactId>wagon-ssh</artifactId>
-            </extension>
-        </extensions>
-        
         <pluginManagement>
             <plugins>
                 <plugin>

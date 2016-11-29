@@ -1,4 +1,4 @@
-package net.sf.atmodem4j.spsw.tests;
+package de.ibapl.spsw.tests;
 
 /*
  * #%L
@@ -34,14 +34,14 @@ import java.util.Arrays;
 import java.util.Properties;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import net.sf.atmodem4j.spsw.Baudrate;
-import net.sf.atmodem4j.spsw.DataBits;
-import net.sf.atmodem4j.spsw.FlowControl;
-import net.sf.atmodem4j.spsw.GenericTermiosSerialPortSocket;
-import net.sf.atmodem4j.spsw.logging.LoggingSerialPortSocket;
-import net.sf.atmodem4j.spsw.Parity;
-import net.sf.atmodem4j.spsw.SerialPortSocket;
-import net.sf.atmodem4j.spsw.StopBits;
+import de.ibapl.spsw.Baudrate;
+import de.ibapl.spsw.DataBits;
+import de.ibapl.spsw.FlowControl;
+import de.ibapl.spsw.GenericTermiosSerialPortSocket;
+import de.ibapl.spsw.logging.LoggingSerialPortSocket;
+import de.ibapl.spsw.Parity;
+import de.ibapl.spsw.SerialPortSocket;
+import de.ibapl.spsw.StopBits;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Assume;

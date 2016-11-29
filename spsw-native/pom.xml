@@ -3,13 +3,14 @@
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
-        <groupId>net.sf.atmodem4j</groupId>
-        <artifactId>atmodem4j-parent</artifactId>
+        <groupId>de.ibapl.spsw</groupId>
+        <artifactId>parent</artifactId>
         <version>0.0.8-SNAPSHOT</version>
+        <relativePath>../parent/pom.xml</relativePath>
     </parent>
+  
 
-
-    <groupId>net.sf.atmodem4j</groupId>
+    <groupId>de.ibapl.spsw</groupId>
     <artifactId>spsw-native</artifactId>
     <version>0.0.8-SNAPSHOT</version>
     <name>SPSW Native Parent</name>

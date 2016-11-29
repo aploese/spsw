@@ -3,7 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package net.sf.atmodem4j.spsw.logging;
+package de.ibapl.spsw.logging;
 
 import java.io.ByteArrayOutputStream;
 import java.io.FileOutputStream;
