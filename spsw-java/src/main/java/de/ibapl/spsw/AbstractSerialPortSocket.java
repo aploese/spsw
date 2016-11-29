@@ -34,8 +34,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
-import java.security.AccessController;
-import java.security.PrivilegedExceptionAction;
 import java.util.EnumSet;
 import java.util.Properties;
 import java.util.Set;
@@ -203,6 +201,7 @@ public abstract class AbstractSerialPortSocket implements SerialPortSocket {
             LOG.log(Level.INFO, "Lib was Loaded");
             return false;
         }
+        final SecurityManager security = System.getSecurityManager();
         Properties p = new Properties();
         try {
             p.load(AbstractSerialPortSocket.class.getClassLoader().getResourceAsStream(SPSW_PROPERTIES));
@@ -214,6 +213,10 @@ public abstract class AbstractSerialPortSocket implements SerialPortSocket {
         final String rawLibName = String.format("spsw-%s-%s-%s", getOsName(), getArch(), p.getProperty("version"));
         LOG.log(Level.INFO, "Raw Libname: {0}", rawLibName);
         libName = System.mapLibraryName(rawLibName);
+        if (security != null) {
+            security.checkRead(libName);
+        }
+
         LOG.log(Level.INFO, "Libname: {0}", libName);
 
         try {
@@ -226,6 +229,9 @@ public abstract class AbstractSerialPortSocket implements SerialPortSocket {
         }
         try {
             String file = AbstractSerialPortSocket.class.getClassLoader().getResource(libName).getFile();
+            if (security != null) {
+                security.checkWrite(libName);
+            }
             System.load(file);
             libLoaded = true;
             libName = file;
@@ -275,13 +281,19 @@ public abstract class AbstractSerialPortSocket implements SerialPortSocket {
     protected SerialInputStream is;
     protected SerialOutputStream os;
 
-    private String portName;
+    private final String portName;
     private boolean open = false;
 
     public AbstractSerialPortSocket(String portName) {
+        SecurityManager security = System.getSecurityManager();
+        if (security != null) {
+            security.checkRead(portName);
+            security.checkWrite(portName);
+        }
         if (portName == null) {
             throw new IllegalArgumentException("portname must not null!");
         }
+
         if (!libLoaded) {
             loadNativeLib();
         }
@@ -313,47 +325,23 @@ public abstract class AbstractSerialPortSocket implements SerialPortSocket {
         if (!isOpen()) {
             throw new SerialPortException(portName, "Port is not opend");
         }
-        InputStream result;
-        try {
-            result = AccessController.doPrivileged(
-                    new PrivilegedExceptionAction<InputStream>() {
-                        @Override
-                        public InputStream run() throws IOException {
-                            if (is == null) {
-                                is = new SerialInputStream();
-                                is.open = isOpen();
-                            }
-                            return is;
-                        }
-                    });
-        } catch (java.security.PrivilegedActionException e) {
-            throw (IOException) e.getException();
+        if (is == null) {
+            is = new SerialInputStream();
+            is.open = isOpen();
         }
-        return result;
+        return is;
     }
 
     @Override
-    public OutputStream getOutputStream() throws IOException {
+    public synchronized OutputStream getOutputStream() throws IOException {
         if (!isOpen()) {
             throw new SerialPortException(portName, "Port is not opend");
         }
-        OutputStream result;
-        try {
-            result = AccessController.doPrivileged(
-                    new PrivilegedExceptionAction<OutputStream>() {
-                        @Override
-                        public OutputStream run() throws IOException {
-                            if (os == null) {
-                                os = new SerialOutputStream();
-                                os.open = isOpen();
-                            }
-                            return os;
-                        }
-                    });
-        } catch (java.security.PrivilegedActionException e) {
-            throw (IOException) e.getException();
+        if (os == null) {
+            os = new SerialOutputStream();
+            os.open = isOpen();
         }
-        return result;
+        return os;
     }
 
     @Override
@@ -453,6 +441,7 @@ public abstract class AbstractSerialPortSocket implements SerialPortSocket {
 
     /**
      * Close port
+     *
      * @throws java.io.IOException
      */
     protected abstract void close0() throws IOException;
@@ -635,7 +624,7 @@ public abstract class AbstractSerialPortSocket implements SerialPortSocket {
             } else if (b.length == 0) {
                 return 0;
             }
-            
+
             if (open) {
                 return AbstractSerialPortSocket.this.readBytes(b, 0, b.length);
             } else {
@@ -652,7 +641,7 @@ public abstract class AbstractSerialPortSocket implements SerialPortSocket {
             } else if (len == 0) {
                 return 0;
             }
-            
+
             if (open) {
                 return AbstractSerialPortSocket.this.readBytes(b, off, len);
             } else {
