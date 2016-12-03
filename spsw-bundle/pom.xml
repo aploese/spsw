@@ -8,9 +8,9 @@
         <relativePath>../parent/pom.xml</relativePath>
     </parent>
     <groupId>de.ibapl.spsw</groupId>
-    <artifactId>spsw-nativelibs-bundle</artifactId>
+    <artifactId>spsw-bundle</artifactId>
     <version>0.0.8-SNAPSHOT</version>
-    <name>SPSW Native Libs Bundle</name>
+    <name>SPSW Bundle java classes and native libs</name>
 
     <dependencies>
         <dependency>

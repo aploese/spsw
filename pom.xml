@@ -11,7 +11,7 @@
         <module>spsw-java</module>
         <module>spsw-native</module>
         <module>spsw-tests</module>
-        <!--manual resource no autobuild  module>spsw-nativelibs-bundle</module-->
+        <!--manual resource no autobuild  module>spsw-bundle</module-->
         <!--Not function anymore ... move to it???  module>atmodem4j-terminal-swing</module-->
     </modules>
 
