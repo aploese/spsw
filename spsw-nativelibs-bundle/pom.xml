@@ -11,7 +11,6 @@
     <artifactId>spsw-nativelibs-bundle</artifactId>
     <version>0.0.8-SNAPSHOT</version>
     <name>SPSW Native Libs Bundle</name>
-    <url>http://maven.apache.org</url>
 
     <dependencies>
         <dependency>
@@ -19,39 +18,70 @@
             <artifactId>libspsw-linux-amd64</artifactId>
             <version>0.0.8-SNAPSHOT</version>
             <type>so</type>
+            <optional>true</optional>
         </dependency>
         <dependency>
             <groupId>de.ibapl.spsw</groupId>
             <artifactId>libspsw-linux-i386</artifactId>
             <version>0.0.8-SNAPSHOT</version>
             <type>so</type>
+            <optional>true</optional>
         </dependency>
         <dependency>
             <groupId>de.ibapl.spsw</groupId>
             <artifactId>libspsw-linux-armhf</artifactId>
             <version>0.0.8-SNAPSHOT</version>
             <type>so</type>
+            <optional>true</optional>
         </dependency>
         <dependency>
             <groupId>de.ibapl.spsw</groupId>
             <artifactId>spsw-windows-x86_64</artifactId>
             <version>0.0.8-SNAPSHOT</version>
             <type>dll</type>
+            <optional>true</optional>
         </dependency>
         <dependency>
             <groupId>de.ibapl.spsw</groupId>
             <artifactId>spsw-windows-x86</artifactId>
             <version>0.0.8-SNAPSHOT</version>
             <type>dll</type>
+            <optional>true</optional>
         </dependency>
+        <dependency>
+            <groupId>de.ibapl.spsw</groupId>
+            <artifactId>spsw-java</artifactId>
+            <version>0.0.8-SNAPSHOT</version>
+            <type>jar</type>
+            <scope>compile</scope>
+            <optional>true</optional>
+        </dependency>   
+
     </dependencies>
     
     <build>
-    
         <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-jar-plugin</artifactId>
+                <configuration>
+                    <archive>
+                        <manifestEntries>
+                            <Manifest-Version>1.0</Manifest-Version>
+                            <Bundle-ManifestVersion>2</Bundle-ManifestVersion>
+                            <Export-Package>de.ibapl.spsw;version="${pom.version}"</Export-Package>
+                            <Bundle-SymbolicName>${pom.groupId}.${pom.artifactId}</Bundle-SymbolicName>
+                            <Bundle-Name>${pom.name}</Bundle-Name>
+                            <Bundle-Description>${pom.description}</Bundle-Description>
+                            <Bundle-Version>${pom.version}</Bundle-Version>
+                        </manifestEntries>
+                    </archive>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-dependency-plugin</artifactId>
+                <version>2.10</version>
                 <executions>
                     <execution>
                         <id>copy</id>
@@ -60,43 +90,50 @@
                             <goal>copy</goal>
                         </goals>
                         <configuration>
+                            <outputDirectory>${project.build.directory}/classes/lib</outputDirectory>
                             <artifactItems>
                                 <artifactItem>
                                     <groupId>de.ibapl.spsw</groupId>
                                     <artifactId>libspsw-linux-amd64</artifactId>
                                     <type>so</type>
-                                    <outputDirectory>${project.build.directory}/classes</outputDirectory>
-                                    <destFileName>${so.name}</destFileName>
                                 </artifactItem>
                                 <artifactItem>
                                     <groupId>de.ibapl.spsw</groupId>
                                     <artifactId>libspsw-linux-i386</artifactId>
                                     <type>so</type>
-                                    <outputDirectory>${project.build.directory}/classes</outputDirectory>
-                                    <destFileName>${so.name}</destFileName>
                                 </artifactItem>
                                 <artifactItem>
                                     <groupId>de.ibapl.spsw</groupId>
                                     <artifactId>libspsw-linux-armhf</artifactId>
                                     <type>so</type>
-                                    <outputDirectory>${project.build.directory}/classes</outputDirectory>
-                                    <destFileName>${so.name}</destFileName>
                                 </artifactItem>
                                 <artifactItem>
                                     <groupId>de.ibapl.spsw</groupId>
                                     <artifactId>spsw-windows-x86_64</artifactId>
                                     <type>dll</type>
-                                    <outputDirectory>${project.build.directory}/classes</outputDirectory>
-                                    <destFileName>${dll.name}</destFileName>
                                 </artifactItem>
                                 <artifactItem>
                                     <groupId>de.ibapl.spsw</groupId>
                                     <artifactId>spsw-windows-x86</artifactId>
                                     <type>dll</type>
-                                    <outputDirectory>${project.build.directory}/classes</outputDirectory>
-                                    <destFileName>${dll.name}</destFileName>
                                 </artifactItem>
-
+                            </artifactItems>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>unpack-jar</id>
+                        <phase>prepare-package</phase>
+                        <goals>
+                            <goal>unpack</goal>
+                        </goals>
+                        <configuration>
+                            <artifactItems> 
+                                <artifactItem>
+                                    <groupId>de.ibapl.spsw</groupId>
+                                    <artifactId>spsw-java</artifactId>
+                                    <type>jar</type>
+                                    <outputDirectory>${project.build.directory}/classes</outputDirectory>
+                                </artifactItem>
                             </artifactItems>
                         </configuration>
                     </execution>

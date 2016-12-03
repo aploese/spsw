@@ -94,15 +94,34 @@ jfieldID spsw_open; /* id for field 'open'  */
 
 JNIEXPORT jint JNICALL JNI_OnLoad(JavaVM *jvm, void *reserved) {
     JNIEnv *env;
-    if ((*jvm)->GetEnv(jvm, (void **) &env, JNI_VERSION_1_2)) {
-        return JNI_EVERSION;
+    jint getEnvResult = ((*jvm)->GetEnv(jvm, (void **) &env, JNI_VERSION_1_2));
+    if (getEnvResult != JNI_OK){
+        return getEnvResult;
     }
     jclass spswClass = (*env)->FindClass(env, "Lde/ibapl/spsw/GenericTermiosSerialPortSocket;");
     spsw_fd = (*env)->GetFieldID(env, spswClass, "fd", "I");
     spsw_open = (*env)->GetFieldID(env, spswClass, "open", "Z");
     spsw_portName = (*env)->GetFieldID(env, spswClass, "portName", "Ljava/lang/String;");
+    
+    // mark that the lib was loaded
+    jclass spswAbstractSerialPortSocket = (*env)->FindClass(env, "Lde/ibapl/spsw/AbstractSerialPortSocket;");
+    jfieldID spsw_libLoaded = (*env)->GetStaticFieldID(env, spswAbstractSerialPortSocket, "libLoaded", "Z");
+    (*env)->SetStaticBooleanField(env, spswAbstractSerialPortSocket, spsw_libLoaded, JNI_TRUE);
     return JNI_VERSION_1_2;
 }
+
+JNIEXPORT void JNICALL JNI_OnUnLoad(JavaVM *jvm, void *reserved) {
+    JNIEnv *env;
+    spsw_fd = 0;
+    spsw_open = 0;
+    spsw_portName = 0;
+    
+    // mark that the lib was unloaded
+    jclass spswAbstractSerialPortSocket = (*env)->FindClass(env, "Lde/ibapl/spsw/AbstractSerialPortSocket;");
+    jfieldID spsw_libLoaded = (*env)->GetStaticFieldID(env, spswAbstractSerialPortSocket, "libLoaded", "Z");
+    (*env)->SetStaticBooleanField(env, spswAbstractSerialPortSocket, spsw_libLoaded, JNI_FALSE);
+}
+
 
 
 // Helper method

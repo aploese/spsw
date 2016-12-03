@@ -178,23 +178,6 @@ public abstract class AbstractSerialPortSocket implements SerialPortSocket {
 
     }
 
-    /**
-     * Someone else has loaded the correct native lib somplace else, Or know
-     * what she is doingt...
-     *
-     * @param libName the name of the lib
-     * @return false if the lib was loaded before, false otherwise.
-     */
-    public static synchronized boolean yesIhaveLoadedTheNativeLibMyself(String libName) {
-
-        if (libLoaded) {
-            return false;
-        }
-        libLoaded = true;
-        AbstractSerialPortSocket.libName = libName;
-        return true;
-    }
-
     //TODO usable LOG INFOS ...
     public static synchronized boolean loadNativeLib() {
         if (libLoaded) {
@@ -222,18 +205,23 @@ public abstract class AbstractSerialPortSocket implements SerialPortSocket {
         try {
             System.loadLibrary(libName);
             LOG.log(Level.INFO, "Lib Loaded via System.loadLibrary(\"{0}\")", libName);
-            libLoaded = true;
             return true;
         } catch (Throwable t) {
-
+            LOG.log(Level.INFO, "Native Lib Loaded says(\"{0}\")", libLoaded);
+            libLoaded = false;
         }
         try {
             String file = AbstractSerialPortSocket.class.getClassLoader().getResource(libName).getFile();
             if (security != null) {
                 security.checkWrite(libName);
             }
-            System.load(file);
-            libLoaded = true;
+            try {
+                System.load(file);
+            } catch (Throwable t) {
+                LOG.log(Level.INFO, "Native Lib Loaded says(\"{0}\")", libLoaded);
+                libLoaded = false;
+                throw t;
+            }
             libName = file;
             LOG.log(Level.INFO, "Lib Loaded via System.load(\"{0}\")", file);
             return true;
@@ -260,9 +248,13 @@ public abstract class AbstractSerialPortSocket implements SerialPortSocket {
                 }
                 fos.flush();
             }
-
-            System.load(tmpLib.getAbsolutePath());
-            libLoaded = true;
+            try {
+                System.load(tmpLib.getAbsolutePath());
+            } catch (Throwable t) {
+                LOG.log(Level.INFO, "Native Lib Loaded says(\"{0}\")", libLoaded);
+                libLoaded = false;
+                throw t;
+            }
             libName = tmpLib.getAbsolutePath();
             LOG.log(Level.INFO, "Lib Loaded via System.load(\"{0}\")", tmpLib.getAbsolutePath());
             return true;

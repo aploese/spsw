@@ -28,11 +28,14 @@ package de.ibapl.spsw.tests;
  * #L%
  */
 
+import de.ibapl.spsw.AbstractSerialPortSocket;
 import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import de.ibapl.spsw.SerialPortList;
+import de.ibapl.spsw.SerialPortSocket;
 import org.junit.After;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -54,6 +57,13 @@ public class IteratePortTest {
 
     @After
     public void tearDown() throws Exception {
+    }
+
+    @Test
+    public void testLoadNativeLib() throws Exception {
+        LOG.info("Load native Lib");
+        AbstractSerialPortSocket.loadNativeLib();
+        Assert.assertTrue(AbstractSerialPortSocket.isLibLoaded());
     }
 
     @Test
