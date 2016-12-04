@@ -3,35 +3,34 @@
   
     <parent>
         <groupId>de.ibapl.spsw</groupId>
-        <artifactId>spsw-native</artifactId>
-        <version>0.0.8-SNAPSHOT</version>
+        <artifactId>spsw</artifactId>
+        <version>1.0.0-SNAPSHOT</version>
     </parent>
     
     <groupId>de.ibapl.spsw</groupId>
-    <artifactId>libspsw-linux-amd64</artifactId>
-    <version>0.0.8-SNAPSHOT</version>
-    <name>SPSW Linux-amd64</name>
+    <artifactId>spsw-windows-x86</artifactId>
+    <version>1.0.0-SNAPSHOT</version>
+    <name>SPSW Windows X86</name>
+    <url>http://maven.apache.org</url>
 	
-    <packaging>so</packaging>
+    <packaging>dll</packaging>
 
     <dependencies>
         <dependency>
             <groupId>de.ibapl.spsw</groupId>
             <artifactId>spsw-java</artifactId>
-            <version>0.0.8-SNAPSHOT</version>
             <type>jar</type>
             <scope>compile</scope>
         </dependency>   
     </dependencies>
   
     <profiles>
+  
         <profile>
-            <!-- install gcc-multilib and g++-multilib to get this work -->
-            <id>linux</id>
+            <!-- install g++-mingw-w64, gcc-multilib and g++-multilib to get this work -->
+            <id>i686-w64-mingw32-g++</id>
             <activation>
-                <os>
-                    <name>linux</name>
-                </os>
+                <activeByDefault>true</activeByDefault>
             </activation>
             <build>
                 <plugins>
@@ -43,32 +42,41 @@
                         <configuration>
         
                             <!--  trigger javah -->          
-                            <javahOS>linux</javahOS>
+                            <javahOS>win32</javahOS>
+                    
                             <javahClassNames>
-                                <javahClassName>de.ibapl.spsw.GenericTermiosSerialPortSocket</javahClassName>
+                                <javahClassName>de.ibapl.spsw.GenericWinSerialPortSocket</javahClassName>
+                                <javahClassName>de.ibapl.spsw.SerialPortList</javahClassName>
                             </javahClassNames>
           
                             <compilerProvider>generic</compilerProvider>
+                            <compilerExecutable>i686-w64-mingw32-gcc</compilerExecutable>
                             <compilerStartOptions>
-                                <compilerStartOption>-fPIC -O -m64</compilerStartOption>
+                                <compilerStartOption>-std=c11 -Wall -m32</compilerStartOption>
                             </compilerStartOptions>
+
                             <sources>
                                 <source>
-                                    <directory>../src/main/native/posix_termios_wrapper</directory>
+                                    <directory>../spsw-java/src/main/native/windows_comport_wrapper</directory>
                                     <fileNames>
-                                        <fileName>GenericTermiosSerialPortSocket.c</fileName>
+                                        <fileName>GenericWinSerialPortSocket.c</fileName>
+                                        <fileName>SerialPortList.c</fileName>
                                     </fileNames>
                                 </source>
                             </sources>
             
+                            <linkerExecutable>i686-w64-mingw32-gcc</linkerExecutable>
                             <linkerStartOptions>
-                                <linkerStartOption>-shared -lc -ldl -m64</linkerStartOption>
+                                <linkerStartOption>-static-libgcc -m32 -shared -Wl,--dll -Wl,--kill-at</linkerStartOption>
                             </linkerStartOptions>
           
                         </configuration>
+				
                     </plugin>
                 </plugins>
             </build>
         </profile>
+
     </profiles>
+
 </project>

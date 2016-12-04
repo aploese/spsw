@@ -4,13 +4,12 @@
     
     <parent>
         <groupId>de.ibapl.spsw</groupId>
-        <artifactId>parent</artifactId>
-        <version>0.0.8-SNAPSHOT</version>
-        <relativePath>../parent/pom.xml</relativePath>
+        <artifactId>spsw</artifactId>
+        <version>1.0.0-SNAPSHOT</version>
     </parent>
   
     <artifactId>spsw-java</artifactId>
-    <version>0.0.8-SNAPSHOT</version>
+    <version>1.0.0-SNAPSHOT</version>
     <name>SPSW Java</name>
     
     <build>
@@ -40,4 +39,118 @@
             <artifactId>junit</artifactId>
         </dependency>
     </dependencies>
+    
+    <profiles>
+        <profile>
+            <id>bundle</id>
+            <dependencies>
+                <dependency>
+                    <groupId>de.ibapl.spsw</groupId>
+                    <artifactId>libspsw-linux-amd64</artifactId>
+                    <type>so</type>
+                    <optional>true</optional>
+                </dependency>
+                <dependency>
+                    <groupId>de.ibapl.spsw</groupId>
+                    <artifactId>libspsw-linux-i386</artifactId>
+                    <type>so</type>
+                    <optional>true</optional>
+                </dependency>
+                <dependency>
+                    <groupId>de.ibapl.spsw</groupId>
+                    <artifactId>libspsw-linux-armhf</artifactId>
+                    <type>so</type>
+                    <optional>true</optional>
+                </dependency>
+                <dependency>
+                    <groupId>de.ibapl.spsw</groupId>
+                    <artifactId>spsw-windows-x86_64</artifactId>
+                    <type>dll</type>
+                    <optional>true</optional>
+                </dependency>
+                <dependency>
+                    <groupId>de.ibapl.spsw</groupId>
+                    <artifactId>spsw-windows-x86</artifactId>
+                    <type>dll</type>
+                    <optional>true</optional>
+                </dependency>
+
+            </dependencies>
+    
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-jar-plugin</artifactId>
+                        <configuration>
+                            <classifier>bundle</classifier>
+                            <archive>
+                                <manifestEntries>
+                                    <Manifest-Version>1.0</Manifest-Version>
+                                    <Bundle-ManifestVersion>2</Bundle-ManifestVersion>
+                                    <Export-Package>de.ibapl.spsw;version="${pom.version}"</Export-Package>
+                                    <Bundle-SymbolicName>${pom.groupId}.${pom.artifactId}</Bundle-SymbolicName>
+                                    <Bundle-Name>${pom.name}</Bundle-Name>
+                                    <Bundle-Description>${pom.description}</Bundle-Description>
+                                    <Bundle-Version>${pom.version}</Bundle-Version>
+                                    <Bundle-NativeCode>
+                                        lib/libspsw-linux-amd64-${pom.version}.so;osname=Linux;processor=amd64,
+                                        lib/libspsw-linux-i386-${pom.version}.so;osname=Linux;processor=x86,
+                                        lib/libspsw-linux-armhf-${pom.version}.so;osname=Linux;processor=arm,
+                                        lib/spsw-windows-x86_64-${pom.version}.dll;osname=Windows;processor=x86_64,
+                                        lib/spsw-windows-x86-${pom.version}.dll;osname=Windows;processor=x86,
+                                    </Bundle-NativeCode>
+                                </manifestEntries>
+                            </archive>
+                        </configuration>
+                    </plugin>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-dependency-plugin</artifactId>
+                        <version>2.10</version>
+                        <executions>
+                            <execution>
+                                <id>copy</id>
+                                <phase>prepare-package</phase>
+                                <goals>
+                                    <goal>copy</goal>
+                                </goals>
+                                <configuration>
+                                    <outputDirectory>${project.build.directory}/classes/lib</outputDirectory>
+                                    <artifactItems>
+                                        <artifactItem>
+                                            <groupId>de.ibapl.spsw</groupId>
+                                            <artifactId>libspsw-linux-amd64</artifactId>
+                                            <type>so</type>
+                                        </artifactItem>
+                                        <artifactItem>
+                                            <groupId>de.ibapl.spsw</groupId>
+                                            <artifactId>libspsw-linux-i386</artifactId>
+                                            <type>so</type>
+                                        </artifactItem>
+                                        <artifactItem>
+                                            <groupId>de.ibapl.spsw</groupId>
+                                            <artifactId>libspsw-linux-armhf</artifactId>
+                                            <type>so</type>
+                                        </artifactItem>
+                                        <artifactItem>
+                                            <groupId>de.ibapl.spsw</groupId>
+                                            <artifactId>spsw-windows-x86_64</artifactId>
+                                            <type>dll</type>
+                                        </artifactItem>
+                                        <artifactItem>
+                                            <groupId>de.ibapl.spsw</groupId>
+                                            <artifactId>spsw-windows-x86</artifactId>
+                                            <type>dll</type>
+                                        </artifactItem>
+                                    </artifactItems>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+
+        </profile>
+    </profiles>
 </project>

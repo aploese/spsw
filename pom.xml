@@ -4,15 +4,368 @@
     <groupId>de.ibapl.spsw</groupId>
     <artifactId>spsw</artifactId>
     <packaging>pom</packaging>
-    <version>1.0.0-SNAPSHOt</version>
+    <version>1.0.0-SNAPSHOT</version>
     <name>SPSW</name>
+
     <modules>
-        <module>parent</module>
         <module>spsw-java</module>
-        <module>spsw-native</module>
         <module>spsw-tests</module>
-        <!--manual resource no autobuild  module>spsw-bundle</module-->
-        <!--Not function anymore ... move to it???  module>atmodem4j-terminal-swing</module-->
     </modules>
+    
+    <profiles>
+        <profile>
+            <id>windows-x86</id>
+            <activation>
+                <os>
+                    <family>Windows</family>
+                    <arch>x86</arch>
+                </os>      
+            </activation>
+            <modules>
+                <module>spsw-Windows-x86</module>
+            </modules>
+        </profile>
+
+        <profile>
+            <id>windows-x86_64</id>
+            <activation>
+                <os>
+                    <family>Windows</family>
+                    <arch>x86_64</arch>
+                </os>      
+            </activation>
+            <modules>
+                <module>spsw-windows-x86_64</module>
+            </modules>
+        </profile>
+
+        <profile>
+            <id>linux-amd64</id>
+            <activation>
+                <os>
+                    <name>linux</name>
+                    <arch>amd64</arch>
+                </os>
+            </activation>
+            <modules>
+                <module>libspsw-linux-amd64</module>
+            </modules>
+        </profile>
+
+        <profile>
+            <id>all-cross-compile</id>
+            <modules>
+                <module>libspsw-linux-amd64</module>
+                <module>libspsw-linux-i386</module>
+                <module>libspsw-linux-armhf</module>
+                <module>spsw-windows-x86</module>
+                <module>spsw-windows-x86_64</module>
+            </modules>
+        </profile>
+
+        <profile>
+            <id>linux-i386</id>
+            <activation>
+                <os>
+                    <name>linux</name>
+                    <arch>i386</arch>
+                </os>
+            </activation>
+            <modules>
+                <module>libspsw-linux-i386</module>
+            </modules>
+        </profile>
+
+        <profile>
+            <id>linux-armhf</id>
+            <activation>
+                <os>
+                    <name>linux</name>
+                    <arch>arm</arch>
+                </os>
+            </activation>
+            <modules>
+                <module>libspsw-linux-armhf</module>
+            </modules>
+        </profile>
+
+    </profiles>
+
+
+    <description>
+        Access the serial port with spsw subpackage.
+    </description>
+    
+    <properties>
+        <compile.source>1.7</compile.source>
+        <compile.target>1.7</compile.target>
+        <sourceEncoding>UTF-8</sourceEncoding>
+
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <sonatypeOssDistMgmtSnapshotsUrl>https://oss.sonatype.org/content/repositories/snapshots/</sonatypeOssDistMgmtSnapshotsUrl>
+        <arguments />
+
+    </properties>
+    
+    <developers>
+        <developer>
+            <id>apl</id>
+            <name>Arne Plöse</name>
+            <email>aploese@gmx.de</email>
+            <url>http://github.com/aploese</url>
+            <roles>
+                <role>architect</role>
+                <role>developer</role>
+            </roles>
+            <timezone>+1</timezone>
+        </developer>
+    </developers>
+
+    <!-- Licenses -->
+    <licenses>
+        <license>
+            <name>GNU LESSER GENERAL PUBLIC LICENSE, Version 3</name>
+            <url>http://www.gnu.org/licenses/lgpl.txt</url>
+            <distribution>repo</distribution>
+        </license>
+    </licenses>
+    
+    <repositories>
+        <repository>
+            <id>sonatype-nexus-snapshots</id>
+            <name>Sonatype Nexus Snapshots</name>
+            <url>https://oss.sonatype.org/content/repositories/snapshots</url>
+            <releases>
+                <enabled>false</enabled>
+            </releases>
+            <snapshots>
+                <enabled>true</enabled>
+            </snapshots>
+        </repository>
+    </repositories>
+
+    <distributionManagement>
+        <snapshotRepository>
+            <id>sonatype-nexus-snapshots</id>
+            <name>Sonatype Nexus Snapshots</name>
+            <url>${sonatypeOssDistMgmtSnapshotsUrl}</url>
+        </snapshotRepository>
+        <repository>
+            <id>sonatype-nexus-staging</id>
+            <name>Nexus Release Repository</name>
+            <url>https://oss.sonatype.org/service/local/staging/deploy/maven2/</url>
+        </repository>
+    </distributionManagement>
+
+    <scm>
+        <developerConnection>http://github.com/aploese/spsw</developerConnection>
+        <connection>http://github.com/aploese/spsw</connection>
+        <url>http://github.com/aploese/spsw</url>
+    </scm>
+
+    <!-- Dependency Management and Dependencies to Inherit -->
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>junit</groupId>
+                <artifactId>junit</artifactId>
+                <version>4.12</version>
+                <scope>test</scope>
+            </dependency>
+            <dependency>
+                <groupId>org.easymock</groupId>
+                <artifactId>easymock</artifactId>
+                <version>3.4</version>
+                <scope>test</scope>
+            </dependency>
+            <dependency>
+                <groupId>de.ibapl.spsw</groupId>
+                <artifactId>spsw-java</artifactId>
+                <version>1.0.0-SNAPSHOT</version>
+            </dependency>
+            <dependency>
+                <groupId>de.ibapl.spsw</groupId>
+                <artifactId>libspsw-linux-amd64</artifactId>
+                <version>1.0.0-SNAPSHOT</version>
+                <type>so</type>
+            </dependency>
+            <dependency>
+                <groupId>de.ibapl.spsw</groupId>
+                <artifactId>libspsw-linux-i386</artifactId>
+                <version>1.0.0-SNAPSHOT</version>
+                <type>so</type>
+            </dependency>
+            <dependency>
+                <groupId>de.ibapl.spsw</groupId>
+                <artifactId>libspsw-linux-armhf</artifactId>
+                <version>1.0.0-SNAPSHOT</version>
+                <type>so</type>
+            </dependency>
+            <dependency>
+                <groupId>de.ibapl.spsw</groupId>
+                <artifactId>spsw-windows-x86_64</artifactId>
+                <version>1.0.0-SNAPSHOT</version>
+                <type>dll</type>
+            </dependency>
+            <dependency>
+                <groupId>de.ibapl.spsw</groupId>
+                <artifactId>spsw-windows-x86</artifactId>
+                <version>1.0.0-SNAPSHOT</version>
+                <type>dll</type>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
+
+
+    <build>
+        <pluginManagement>
+            <plugins>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-compiler-plugin</artifactId>
+                    <version>3.6.0</version>
+                    <configuration>
+                        <maxmem>512m</maxmem>
+                        <source>${compile.source}</source>
+                        <target>${compile.target}</target>
+                        <encoding>${sourceEncoding}</encoding>
+                    </configuration>
+                </plugin>
+                <plugin>
+                    <groupId>org.codehaus.mojo</groupId>
+                    <artifactId>native-maven-plugin</artifactId>
+                    <version>1.0-alpha-8</version>
+                </plugin>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-dependency-plugin</artifactId>
+                    <version>2.10</version>
+                </plugin>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-release-plugin</artifactId>
+                    <version>2.5.3</version>
+                    <configuration>
+                        <mavenExecutorId>forked-path</mavenExecutorId>
+                        <useReleaseProfile>false</useReleaseProfile>
+                        <arguments>${arguments} -Psonatype-oss-release</arguments>
+                    </configuration>
+                </plugin>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-resources-plugin</artifactId>
+                    <version>3.0.1</version>
+                    <configuration>
+                        <encoding>${sourceEncoding}</encoding>
+                    </configuration>
+                </plugin>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-jar-plugin</artifactId>
+                    <version>3.0.2</version>
+                </plugin>
+                <plugin>
+                    <!-- mvn package appassembler:assemble -->
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-assembly-plugin</artifactId>
+                    <version>2.6</version>
+                    <configuration>
+                        <descriptorRefs>
+                            <descriptorRef>jar-with-dependencies</descriptorRef>
+                        </descriptorRefs>
+                    </configuration>
+                    <executions>
+                        <execution>
+                            <id>make-assembly</id> <!-- this is used for inheritance merges -->
+                            <phase>package</phase> <!-- append to the packaging phase. -->
+                            <goals>
+                                <goal>single</goal> <!-- goals == mojos -->
+                            </goals>
+                        </execution>
+                    </executions>
+                </plugin>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-gpg-plugin</artifactId>
+                    <version>1.6</version>
+                    <executions>
+                        <execution>
+                            <id>sign-artifacts</id>
+                            <phase>verify</phase>
+                            <goals>
+                                <goal>sign</goal>
+                            </goals>
+                        </execution>
+                    </executions>
+                </plugin>
+                <plugin>
+                    <groupId>org.codehaus.mojo</groupId>
+                    <artifactId>appassembler-maven-plugin</artifactId>
+                    <version>2.0.0</version>
+                    <executions>
+                        <execution>
+                            <phase>package</phase> <!-- append to the packaging phase. -->
+                            <goals>
+                                <goal>assemble</goal>
+                            </goals>
+                        </execution>
+                    </executions>
+                </plugin>
+                <plugin>
+                    <groupId>org.codehaus.mojo</groupId>
+                    <artifactId>license-maven-plugin</artifactId>
+                    <version>1.10</version>
+                    <configuration>
+                        <licenseName>atmodem4j-lgpl</licenseName>
+                        <licenseResolver>${project.baseUri}/src/license</licenseResolver>
+                        <excludes>
+                            <exclude>**/*.txt</exclude>
+                            <exclude>**/*.js</exclude>
+                            <exclude>**/*.json</exclude>
+                        </excludes>
+                    </configuration>
+                </plugin>
+                
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-javadoc-plugin</artifactId>
+                    <version>2.10.4</version>
+                    <configuration>
+                        <source>${compile.source}</source>
+                        <target>${compile.target}</target>
+                        <encoding>${sourceEncoding}</encoding>
+                        <links>
+                            <link>http://java.sun.com/j2se/1.7.0/docs/api/</link>
+                        </links>
+                        <maxmemory>256m</maxmemory>
+                        <!--
+                        <aggregate>true</aggregate>
+                        -->
+                    </configuration>
+                </plugin>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId> 
+                    <artifactId>maven-source-plugin</artifactId>
+                    <version>3.0.1</version>
+                </plugin>
+            </plugins>
+                
+        </pluginManagement>
+
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-resources-plugin</artifactId>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-release-plugin</artifactId>
+            </plugin>
+        </plugins>
+    </build>
 
 </project>

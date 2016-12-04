@@ -3,15 +3,14 @@
     <modelVersion>4.0.0</modelVersion>
     <parent>
         <groupId>de.ibapl.spsw</groupId>
-        <artifactId>parent</artifactId>
-        <version>0.0.8-SNAPSHOT</version>
-        <relativePath>../parent/pom.xml</relativePath>
+        <artifactId>spsw</artifactId>
+        <version>1.0.0-SNAPSHOT</version>
     </parent>
   
     
     <groupId>de.ibapl.spsw</groupId>
     <artifactId>spsw-tests</artifactId>
-    <version>0.0.8-SNAPSHOT</version>
+    <version>1.0.0-SNAPSHOT</version>
     <name>SPSW Tests</name>
     <packaging>jar</packaging>
     
@@ -23,7 +22,6 @@
         <dependency>
             <groupId>de.ibapl.spsw</groupId>
             <artifactId>spsw-java</artifactId>
-            <version>0.0.8-SNAPSHOT</version>
             <scope>test</scope>
         </dependency>
     </dependencies>
@@ -43,7 +41,6 @@
                     <dependency>
                         <groupId>de.ibapl.spsw</groupId>
                         <artifactId>spsw-windows-x86</artifactId>
-                        <version>0.0.8-SNAPSHOT</version>
                         <type>dll</type>
                         <scope>test</scope>
                     </dependency>
@@ -91,7 +88,6 @@
                     <dependency>
                         <groupId>de.ibapl.spsw</groupId>
                         <artifactId>spsw-windows-x86_64</artifactId>
-                        <version>0.0.8-SNAPSHOT</version>
                         <type>dll</type>
                         <scope>test</scope>
                     </dependency>
@@ -139,7 +135,6 @@
                     <dependency>
                         <groupId>de.ibapl.spsw</groupId>
                         <artifactId>libspsw-linux-amd64</artifactId>
-                        <version>0.0.8-SNAPSHOT</version>
                         <type>so</type>
                         <scope>test</scope>
                     </dependency>
@@ -187,7 +182,6 @@
                     <dependency>
                         <groupId>de.ibapl.spsw</groupId>
                         <artifactId>libspsw-linux-i386</artifactId>
-                        <version>0.0.8-SNAPSHOT</version>
                         <type>so</type>
                         <scope>test</scope>
                     </dependency>
@@ -236,7 +230,6 @@
                     <dependency>
                         <groupId>de.ibapl.spsw</groupId>
                         <artifactId>libspsw-linux-armhf</artifactId>
-                        <version>0.0.8-SNAPSHOT</version>
                         <type>so</type>
                         <scope>test</scope>
                     </dependency>

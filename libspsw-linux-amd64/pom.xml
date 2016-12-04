@@ -1,36 +1,34 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
     <modelVersion>4.0.0</modelVersion>
-  
+    <groupId>de.ibapl.spsw</groupId>
+    <artifactId>libspsw-linux-amd64</artifactId>
+    <version>1.0.0-SNAPSHOT</version>
+    <name>SPSW Linux-amd64</name>
     <parent>
         <groupId>de.ibapl.spsw</groupId>
-        <artifactId>spsw-native</artifactId>
-        <version>0.0.8-SNAPSHOT</version>
+        <artifactId>spsw</artifactId>
+        <version>1.0.0-SNAPSHOT</version>
     </parent>
-    
-    <groupId>de.ibapl.spsw</groupId>
-    <artifactId>spsw-windows-x86_64</artifactId>
-    <version>0.0.8-SNAPSHOT</version>
-    <name>SPSW Windows X86_64</name>
-	
-    <packaging>dll</packaging>
+    <packaging>so</packaging>
 
     <dependencies>
         <dependency>
             <groupId>de.ibapl.spsw</groupId>
             <artifactId>spsw-java</artifactId>
-            <version>0.0.8-SNAPSHOT</version>
+            <version>1.0.0-SNAPSHOT</version>
             <type>jar</type>
             <scope>compile</scope>
         </dependency>   
     </dependencies>
   
     <profiles>
-  
         <profile>
             <!-- install gcc-multilib and g++-multilib to get this work -->
-            <id>x86_64-w64-mingw32-g++</id>
+            <id>linux</id>
             <activation>
-                <activeByDefault>true</activeByDefault>
+                <os>
+                    <name>linux</name>
+                </os>
             </activation>
             <build>
                 <plugins>
@@ -42,41 +40,32 @@
                         <configuration>
         
                             <!--  trigger javah -->          
-                            <javahOS>win32</javahOS>
-                    
+                            <javahOS>linux</javahOS>
                             <javahClassNames>
-                                <javahClassName>de.ibapl.spsw.GenericWinSerialPortSocket</javahClassName>
-                                <javahClassName>de.ibapl.spsw.SerialPortList</javahClassName>
+                                <javahClassName>de.ibapl.spsw.GenericTermiosSerialPortSocket</javahClassName>
                             </javahClassNames>
           
                             <compilerProvider>generic</compilerProvider>
-                            <compilerExecutable>x86_64-w64-mingw32-gcc</compilerExecutable>
                             <compilerStartOptions>
-                                <compilerStartOption>-std=c11 -m64 -Wall</compilerStartOption>
+                                <compilerStartOption>-fPIC -O -m64</compilerStartOption>
                             </compilerStartOptions>
-
                             <sources>
                                 <source>
-                                    <directory>../src/main/native/windows_comport_wrapper</directory>
+                                    <directory>../spsw-java/src/main/native/posix_termios_wrapper</directory>
                                     <fileNames>
-                                        <fileName>GenericWinSerialPortSocket.c</fileName>
-                                        <fileName>SerialPortList.c</fileName>
+                                        <fileName>GenericTermiosSerialPortSocket.c</fileName>
                                     </fileNames>
                                 </source>
                             </sources>
             
-                            <linkerExecutable>x86_64-w64-mingw32-gcc</linkerExecutable>
                             <linkerStartOptions>
-                                <linkerStartOption>-m64 -static-libgcc -shared -Wl,--dll -Wl,--kill-at</linkerStartOption>
+                                <linkerStartOption>-shared -lc -ldl -m64</linkerStartOption>
                             </linkerStartOptions>
           
                         </configuration>
-				
                     </plugin>
                 </plugins>
             </build>
         </profile>
-
     </profiles>
-
 </project>
