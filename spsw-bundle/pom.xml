@@ -74,6 +74,13 @@
                             <Bundle-Name>${pom.name}</Bundle-Name>
                             <Bundle-Description>${pom.description}</Bundle-Description>
                             <Bundle-Version>${pom.version}</Bundle-Version>
+                            <Bundle-NativeCode>
+lib/libspsw-linux-amd64-${pom.version}.so;osname=Linux;processor=amd64,
+lib/libspsw-linux-i386-${pom.version}.so;osname=Linux;processor=x86,
+lib/libspsw-linux-armhf-${pom.version}.so;osname=Linux;processor=arm,
+lib/spsw-windows-x86_64-${pom.version}.dll;osname=Windows;processor=x86_64,
+lib/spsw-windows-x86-${pom.version}.dll;osname=Windows;processor=x86,
+                            </Bundle-NativeCode>
                         </manifestEntries>
                     </archive>
                 </configuration>

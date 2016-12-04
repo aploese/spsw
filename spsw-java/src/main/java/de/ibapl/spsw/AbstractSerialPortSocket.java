@@ -204,33 +204,33 @@ public abstract class AbstractSerialPortSocket implements SerialPortSocket {
 
         try {
             System.loadLibrary(libName);
-            LOG.log(Level.INFO, "Lib Loaded via System.loadLibrary(\"{0}\")", libName);
+            LOG.log(Level.INFO, "Lib loaded via System.loadLibrary(\"{0}\")", libName);
             return true;
         } catch (Throwable t) {
-            LOG.log(Level.INFO, "Native Lib Loaded says(\"{0}\")", libLoaded);
+            LOG.log(Level.INFO, "Native lib not loaded. Error says(\"{0}\")", libLoaded);
             libLoaded = false;
         }
         try {
-            String file = AbstractSerialPortSocket.class.getClassLoader().getResource(libName).getFile();
+            String file = AbstractSerialPortSocket.class.getClassLoader().getResource("lib/" + libName).getFile();
             if (security != null) {
                 security.checkWrite(libName);
             }
             try {
                 System.load(file);
             } catch (Throwable t) {
-                LOG.log(Level.INFO, "Native Lib Loaded says(\"{0}\")", libLoaded);
+                LOG.log(Level.INFO, "Native lib not loaded. Error says(\"{0}\")", libLoaded);
                 libLoaded = false;
                 throw t;
             }
             libName = file;
-            LOG.log(Level.INFO, "Lib Loaded via System.load(\"{0}\")", file);
+            LOG.log(Level.INFO, "Lib loaded via System.load(\"{0}\")", file);
             return true;
         } catch (Throwable t) {
 
         }
 
         File tmpLib = null;
-        try (InputStream is = AbstractSerialPortSocket.class.getClassLoader().getResourceAsStream(libName)) {
+        try (InputStream is = AbstractSerialPortSocket.class.getClassLoader().getResourceAsStream("lib/" + libName)) {
 
             int splitPos = libName.indexOf(rawLibName);
             if (splitPos <= 0) {
@@ -251,12 +251,12 @@ public abstract class AbstractSerialPortSocket implements SerialPortSocket {
             try {
                 System.load(tmpLib.getAbsolutePath());
             } catch (Throwable t) {
-                LOG.log(Level.INFO, "Native Lib Loaded says(\"{0}\")", libLoaded);
+                LOG.log(Level.INFO, "Native lib not loaded. Error says(\"{0}\")", libLoaded);
                 libLoaded = false;
                 throw t;
             }
             libName = tmpLib.getAbsolutePath();
-            LOG.log(Level.INFO, "Lib Loaded via System.load(\"{0}\")", tmpLib.getAbsolutePath());
+            LOG.log(Level.INFO, "Lib loaded via System.load(\"{0}\")", tmpLib.getAbsolutePath());
             return true;
         } catch (Throwable t) {
             LOG.log(Level.SEVERE, "Giving up cant load the lib \"{0}\" List System Properties", tmpLib.getAbsolutePath());

@@ -67,7 +67,7 @@
                                                 <groupId>de.ibapl.spsw</groupId>
                                                 <artifactId>spsw-windows-x86</artifactId>
                                                 <type>dll</type>
-                                                <outputDirectory>${project.build.directory}/test-classes</outputDirectory>
+                                                <outputDirectory>${project.build.directory}/test-classes/lib</outputDirectory>
                                                 <destFileName>${dll.name}</destFileName>
                                             </artifactItem>
                                         </artifactItems>
@@ -115,7 +115,7 @@
                                                 <groupId>de.ibapl.spsw</groupId>
                                                 <artifactId>spsw-windows-x86_64</artifactId>
                                                 <type>dll</type>
-                                                <outputDirectory>${project.build.directory}/test-classes</outputDirectory>
+                                                <outputDirectory>${project.build.directory}/test-classes/lib</outputDirectory>
                                                 <destFileName>${dll.name}</destFileName>
                                             </artifactItem>
                                         </artifactItems>
@@ -163,7 +163,7 @@
                                                 <groupId>de.ibapl.spsw</groupId>
                                                 <artifactId>libspsw-linux-amd64</artifactId>
                                                 <type>so</type>
-                                                <outputDirectory>${project.build.directory}/test-classes</outputDirectory>
+                                                <outputDirectory>${project.build.directory}/test-classes/lib</outputDirectory>
                                                 <destFileName>${so.name}</destFileName>
                                             </artifactItem>
                                         </artifactItems>
@@ -211,7 +211,7 @@
                                                 <groupId>de.ibapl.spsw</groupId>
                                                 <artifactId>libspsw-linux-i386</artifactId>
                                                 <type>so</type>
-                                                <outputDirectory>${project.build.directory}/test-classes</outputDirectory>
+                                                <outputDirectory>${project.build.directory}/test-classes/lib</outputDirectory>
                                                 <destFileName>${so.name}</destFileName>
                                             </artifactItem>
                                         </artifactItems>
@@ -260,7 +260,7 @@
                                                 <groupId>de.ibapl.spsw</groupId>
                                                 <artifactId>libspsw-linux-armhf</artifactId>
                                                 <type>so</type>
-                                                <outputDirectory>${project.build.directory}/test-classes</outputDirectory>
+                                                <outputDirectory>${project.build.directory}/test-classes/lib</outputDirectory>
                                                 <destFileName>${so.name}</destFileName>
                                             </artifactItem>
                                         </artifactItems>
