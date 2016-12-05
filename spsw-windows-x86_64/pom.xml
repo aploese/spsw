@@ -3,22 +3,21 @@
   
     <parent>
         <groupId>de.ibapl.spsw</groupId>
-        <artifactId>spsw</artifactId>
+        <artifactId>spsw-project</artifactId>
         <version>1.0.0-SNAPSHOT</version>
     </parent>
     
     <groupId>de.ibapl.spsw</groupId>
-    <artifactId>spsw-windows-x86</artifactId>
+    <artifactId>spsw-windows-x86_64</artifactId>
     <version>1.0.0-SNAPSHOT</version>
-    <name>SPSW Windows X86</name>
-    <url>http://maven.apache.org</url>
+    <name>SPSW Windows X86_64</name>
 	
     <packaging>dll</packaging>
 
     <dependencies>
         <dependency>
             <groupId>de.ibapl.spsw</groupId>
-            <artifactId>spsw-java</artifactId>
+            <artifactId>spsw</artifactId>
             <type>jar</type>
             <scope>compile</scope>
         </dependency>   
@@ -27,8 +26,8 @@
     <profiles>
   
         <profile>
-            <!-- install g++-mingw-w64, gcc-multilib and g++-multilib to get this work -->
-            <id>i686-w64-mingw32-g++</id>
+            <!-- install gcc-multilib and g++-multilib to get this work -->
+            <id>x86_64-w64-mingw32-g++</id>
             <activation>
                 <activeByDefault>true</activeByDefault>
             </activation>
@@ -50,14 +49,14 @@
                             </javahClassNames>
           
                             <compilerProvider>generic</compilerProvider>
-                            <compilerExecutable>i686-w64-mingw32-gcc</compilerExecutable>
+                            <compilerExecutable>x86_64-w64-mingw32-gcc</compilerExecutable>
                             <compilerStartOptions>
-                                <compilerStartOption>-std=c11 -Wall -m32</compilerStartOption>
+                                <compilerStartOption>-std=c11 -m64 -Wall</compilerStartOption>
                             </compilerStartOptions>
 
                             <sources>
                                 <source>
-                                    <directory>../spsw-java/src/main/native/windows_comport_wrapper</directory>
+                                    <directory>../spsw/src/main/native/windows_comport_wrapper</directory>
                                     <fileNames>
                                         <fileName>GenericWinSerialPortSocket.c</fileName>
                                         <fileName>SerialPortList.c</fileName>
@@ -65,9 +64,9 @@
                                 </source>
                             </sources>
             
-                            <linkerExecutable>i686-w64-mingw32-gcc</linkerExecutable>
+                            <linkerExecutable>x86_64-w64-mingw32-gcc</linkerExecutable>
                             <linkerStartOptions>
-                                <linkerStartOption>-static-libgcc -m32 -shared -Wl,--dll -Wl,--kill-at</linkerStartOption>
+                                <linkerStartOption>-m64 -static-libgcc -shared -Wl,--dll -Wl,--kill-at</linkerStartOption>
                             </linkerStartOptions>
           
                         </configuration>

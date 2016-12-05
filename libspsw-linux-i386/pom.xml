@@ -3,7 +3,7 @@
   
     <parent>
         <groupId>de.ibapl.spsw</groupId>
-        <artifactId>spsw</artifactId>
+        <artifactId>spsw-project</artifactId>
         <version>1.0.0-SNAPSHOT</version>
     </parent>
     
@@ -18,7 +18,7 @@
     <dependencies>
         <dependency>
             <groupId>de.ibapl.spsw</groupId>
-            <artifactId>spsw-java</artifactId>
+            <artifactId>spsw</artifactId>
             <type>jar</type>
             <scope>compile</scope>
         </dependency>   
@@ -54,7 +54,7 @@
                             </compilerStartOptions>
                             <sources>
                                 <source>
-                                    <directory>../spsw-java/src/main/native/posix_termios_wrapper</directory>
+                                    <directory>../spsw/src/main/native/posix_termios_wrapper</directory>
                                     <fileNames>
                                         <fileName>GenericTermiosSerialPortSocket.c</fileName>
                                     </fileNames>

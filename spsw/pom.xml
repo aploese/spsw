@@ -4,13 +4,17 @@
     
     <parent>
         <groupId>de.ibapl.spsw</groupId>
-        <artifactId>spsw</artifactId>
+        <artifactId>spsw-project</artifactId>
         <version>1.0.0-SNAPSHOT</version>
     </parent>
   
-    <artifactId>spsw-java</artifactId>
+    <artifactId>spsw</artifactId>
     <version>1.0.0-SNAPSHOT</version>
-    <name>SPSW Java</name>
+    <name>SPSW</name>
+    
+    <properties>
+        <spsw.version.osgi>${parsedVersion.majorVersion}.${parsedVersion.minorVersion}.${parsedVersion.incrementalVersion}.${parsedVersion.qualifier}${parsedVersion.buildNumber}</spsw.version.osgi>
+    </properties>
     
     <build>
         <resources>
@@ -85,22 +89,7 @@
                         <configuration>
                             <classifier>bundle</classifier>
                             <archive>
-                                <manifestEntries>
-                                    <Manifest-Version>1.0</Manifest-Version>
-                                    <Bundle-ManifestVersion>2</Bundle-ManifestVersion>
-                                    <Export-Package>de.ibapl.spsw;version="${pom.version}"</Export-Package>
-                                    <Bundle-SymbolicName>${pom.groupId}.${pom.artifactId}</Bundle-SymbolicName>
-                                    <Bundle-Name>${pom.name}</Bundle-Name>
-                                    <Bundle-Description>${pom.description}</Bundle-Description>
-                                    <Bundle-Version>${pom.version}</Bundle-Version>
-                                    <Bundle-NativeCode>
-                                        lib/libspsw-linux-amd64-${pom.version}.so;osname=Linux;processor=amd64,
-                                        lib/libspsw-linux-i386-${pom.version}.so;osname=Linux;processor=x86,
-                                        lib/libspsw-linux-armhf-${pom.version}.so;osname=Linux;processor=arm,
-                                        lib/spsw-windows-x86_64-${pom.version}.dll;osname=Windows;processor=x86_64,
-                                        lib/spsw-windows-x86-${pom.version}.dll;osname=Windows;processor=x86,
-                                    </Bundle-NativeCode>
-                                </manifestEntries>
+                                <manifestFile>${project.build.outputDirectory}/META-INF/MANIFEST.MF</manifestFile>
                             </archive>
                         </configuration>
                     </plugin>

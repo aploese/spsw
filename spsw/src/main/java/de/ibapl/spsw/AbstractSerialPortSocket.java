@@ -184,7 +184,7 @@ public abstract class AbstractSerialPortSocket implements SerialPortSocket {
             LOG.log(Level.INFO, "Lib was Loaded");
             return false;
         }
-        final SecurityManager security = System.getSecurityManager();
+        LOG.log(Level.INFO, "java.library.path: \"{0}\"", System.getProperty("java.library.path"));
         Properties p = new Properties();
         try {
             p.load(AbstractSerialPortSocket.class.getClassLoader().getResourceAsStream(SPSW_PROPERTIES));
@@ -192,52 +192,57 @@ public abstract class AbstractSerialPortSocket implements SerialPortSocket {
             LOG.log(Level.SEVERE, "Can't find spsw.properties");
             throw new RuntimeException("Can't load version information", ex);
         }
-
-        final String rawLibName = String.format("spsw-%s-%s-%s", getOsName(), getArch(), p.getProperty("version"));
-        LOG.log(Level.INFO, "Raw Libname: {0}", rawLibName);
-        libName = System.mapLibraryName(rawLibName);
-        if (security != null) {
-            security.checkRead(libName);
-        }
-
-        LOG.log(Level.INFO, "Libname: {0}", libName);
-
+        libName = String.format("spsw-%s-%s-%s", getOsName(), getArch(), p.getProperty("version"));
+        
+        LOG.log(Level.INFO, "Try plain with libName: {0}", libName);
         try {
             System.loadLibrary(libName);
             LOG.log(Level.INFO, "Lib loaded via System.loadLibrary(\"{0}\")", libName);
             return true;
         } catch (Throwable t) {
-            LOG.log(Level.INFO, "Native lib not loaded. Error says(\"{0}\")", libLoaded);
+            LOG.log(Level.INFO, "Native lib not loaded.", t);
             libLoaded = false;
         }
+
+        libName = System.mapLibraryName(libName);
+        LOG.log(Level.INFO, "Try mapped with libName: {0}", libName);
         try {
-            String file = AbstractSerialPortSocket.class.getClassLoader().getResource("lib/" + libName).getFile();
-            if (security != null) {
-                security.checkWrite(libName);
-            }
-            try {
-                System.load(file);
-            } catch (Throwable t) {
-                LOG.log(Level.INFO, "Native lib not loaded. Error says(\"{0}\")", libLoaded);
-                libLoaded = false;
-                throw t;
-            }
-            libName = file;
-            LOG.log(Level.INFO, "Lib loaded via System.load(\"{0}\")", file);
+            System.loadLibrary(libName);
+            LOG.log(Level.INFO, "Lib loaded via System.loadLibrary(\"{0}\")", libName);
             return true;
         } catch (Throwable t) {
+            LOG.log(Level.INFO, "Native lib not loaded.", t);
+            libLoaded = false;
+        }
 
+        libName = "lib/" + libName;
+        LOG.log(Level.INFO, "Try with libName: {0}", libName);
+        try {
+            System.load(libName);
+            LOG.log(Level.INFO, "Lib loaded via System.load(\"{0}\")", libName);
+            return true;
+        } catch (Throwable t) {
+            LOG.log(Level.INFO, "Native lib not loaded.", t);
+            libLoaded = false;
+        }
+
+        libName = AbstractSerialPortSocket.class.getClassLoader().getResource(libName).getFile();
+        LOG.log(Level.INFO, "Try from resource with libName: {0}", libName);
+        try {
+            System.load(libName);
+            LOG.log(Level.INFO, "Lib loaded via System.load(\"{0}\")", libName);
+            return true;
+        } catch (Throwable t) {
+            LOG.log(Level.INFO, "Native lib not loaded.", t);
+            libLoaded = false;
         }
 
         File tmpLib = null;
-        try (InputStream is = AbstractSerialPortSocket.class.getClassLoader().getResourceAsStream("lib/" + libName)) {
-
-            int splitPos = libName.indexOf(rawLibName);
+        try (InputStream is = AbstractSerialPortSocket.class.getClassLoader().getResourceAsStream(libName)) {
+            int splitPos = libName.lastIndexOf('.');
             if (splitPos <= 0) {
                 //ERROR
             }
-            splitPos += rawLibName.length();
-
             tmpLib = File.createTempFile(libName.substring(0, splitPos), libName.substring(splitPos));
             tmpLib.deleteOnExit();
             try (FileOutputStream fos = new FileOutputStream(tmpLib)) {
@@ -248,10 +253,12 @@ public abstract class AbstractSerialPortSocket implements SerialPortSocket {
                 }
                 fos.flush();
             }
+            LOG.log(Level.INFO, "Try temp copy with libName: {0}", libName);
+            libName = tmpLib.getAbsolutePath();
             try {
-                System.load(tmpLib.getAbsolutePath());
+                System.load(libName);
             } catch (Throwable t) {
-                LOG.log(Level.INFO, "Native lib not loaded. Error says(\"{0}\")", libLoaded);
+                LOG.log(Level.INFO, "Native lib not loaded.", t);
                 libLoaded = false;
                 throw t;
             }
@@ -259,13 +266,12 @@ public abstract class AbstractSerialPortSocket implements SerialPortSocket {
             LOG.log(Level.INFO, "Lib loaded via System.load(\"{0}\")", tmpLib.getAbsolutePath());
             return true;
         } catch (Throwable t) {
-            LOG.log(Level.SEVERE, "Giving up cant load the lib \"{0}\" List System Properties", tmpLib.getAbsolutePath());
+            LOG.log(Level.SEVERE, "Giving up cant load the lib \"" + tmpLib.getAbsolutePath() + "\" List System Properties", t);
             StringBuilder sb = new StringBuilder();
             for (String name : System.getProperties().stringPropertyNames()) {
                 sb.append("\t").append(name).append(" = ").append(System.getProperty(name)).append("\n");
             }
             LOG.log(Level.SEVERE, "System.properties\n{0}", new Object[]{sb.toString()});
-            LOG.log(Level.SEVERE, "Giving up cant load the lib \"" + tmpLib.getAbsolutePath() + "\" ", t);
             throw new RuntimeException("Can't load spsw native lib, giving up!", t);
         }
     }
