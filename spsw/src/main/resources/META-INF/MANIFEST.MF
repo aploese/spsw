@@ -5,10 +5,10 @@ Export-Package: de.ibapl.spsw;version="${spsw.version.osgi}"
 Bundle-Name: ${pom.name}
 Bundle-Version: ${spsw.version.osgi}
 Bundle-NativeCode: 
- lib/libspsw-linux-amd64-${project.version}.so; osname=Linux; processor=x86_64,
- lib/libspsw-linux-i386-${project.version}.so; osname=Linux; processor=x86,
- lib/libspsw-linux-armhf-${project.version}.so; osname=Linux; processor=arm_be,
- lib/spsw-windows-x86_64-${project.version}.dll; osname=Win32; processor=x86_64,
- lib/spsw-windows-x86-${project.version}.dll; osname=Win32; processor=x86
+ /lib/libspsw-linux-amd64-${project.version}.so; osname=Linux; processor=x86_64,
+ /lib/libspsw-linux-i386-${project.version}.so; osname=Linux; processor=x86,
+ /lib/libspsw-linux-armhf-${project.version}.so; osname=Linux; processor=arm_be,
+ /lib/spsw-windows-x86_64-${project.version}.dll; osname=Win32; processor=x86_64,
+ /lib/spsw-windows-x86-${project.version}.dll; osname=Win32; processor=x86
 Bundle-ManifestVersion: 2
 
