@@ -1,4 +1,4 @@
-package de.ibapl.spsw;
+package de.ibapl.spsw.spi;
 
 /*
  * #%L
@@ -27,7 +27,6 @@ package de.ibapl.spsw;
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  * #L%
  */
-
 import java.io.IOException;
 
 /**
@@ -103,8 +102,8 @@ public class GenericTermiosSerialPortSocket extends AbstractSerialPortSocket {
      * @param len the number of bytes to write.
      *
      */
-     @Override
-   protected native void writeBytes(byte[] b, int off, int len) throws IOException;
+    @Override
+    protected native void writeBytes(byte[] b, int off, int len) throws IOException;
 
     @Override
     public native int getInBufferBytesCount() throws IOException;

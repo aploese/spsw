@@ -72,20 +72,20 @@
 
 #include <jni.h>
 
-#include "de_ibapl_spsw_GenericTermiosSerialPortSocket.h"
+#include "de_ibapl_spsw_spi_GenericTermiosSerialPortSocket.h"
 
 
 
 #undef FLOW_CONTROL_NONE
-#define FLOW_CONTROL_NONE de_ibapl_spsw_GenericTermiosSerialPortSocket_FLOW_CONTROL_NONE
+#define FLOW_CONTROL_NONE de_ibapl_spsw_spi_GenericTermiosSerialPortSocket_FLOW_CONTROL_NONE
 #undef FLOW_CONTROL_RTS_CTS_IN
-#define FLOW_CONTROL_RTS_CTS_IN de_ibapl_spsw_GenericTermiosSerialPortSocket_FLOW_CONTROL_RTS_CTS_IN
+#define FLOW_CONTROL_RTS_CTS_IN de_ibapl_spsw_spi_GenericTermiosSerialPortSocket_FLOW_CONTROL_RTS_CTS_IN
 #undef FLOW_CONTROL_RTS_CTS_OUT
-#define FLOW_CONTROL_RTS_CTS_OUT de_ibapl_spsw_GenericTermiosSerialPortSocket_FLOW_CONTROL_RTS_CTS_OUT
+#define FLOW_CONTROL_RTS_CTS_OUT de_ibapl_spsw_spi_GenericTermiosSerialPortSocket_FLOW_CONTROL_RTS_CTS_OUT
 #undef FLOW_CONTROL_XON_XOFF_IN
-#define FLOW_CONTROL_XON_XOFF_IN de_ibapl_spsw_GenericTermiosSerialPortSocket_FLOW_CONTROL_XON_XOFF_IN
+#define FLOW_CONTROL_XON_XOFF_IN de_ibapl_spsw_spi_GenericTermiosSerialPortSocket_FLOW_CONTROL_XON_XOFF_IN
 #undef FLOW_CONTROL_XON_XOFF_OUT
-#define FLOW_CONTROL_XON_XOFF_OUT de_ibapl_spsw_GenericTermiosSerialPortSocket_FLOW_CONTROL_XON_XOFF_OUT
+#define FLOW_CONTROL_XON_XOFF_OUT de_ibapl_spsw_spi_GenericTermiosSerialPortSocket_FLOW_CONTROL_XON_XOFF_OUT
 
 
 jfieldID spsw_portName; /* id for field 'portName'  */
@@ -98,15 +98,15 @@ JNIEXPORT jint JNICALL JNI_OnLoad(JavaVM *jvm, void *reserved) {
     if (getEnvResult != JNI_OK){
         return getEnvResult;
     }
-    jclass spswClass = (*env)->FindClass(env, "Lde/ibapl/spsw/GenericTermiosSerialPortSocket;");
-    spsw_fd = (*env)->GetFieldID(env, spswClass, "fd", "I");
-    spsw_open = (*env)->GetFieldID(env, spswClass, "open", "Z");
-    spsw_portName = (*env)->GetFieldID(env, spswClass, "portName", "Ljava/lang/String;");
+    jclass genericTermiosSerialPortSocket = (*env)->FindClass(env, "Lde/ibapl/spsw/spi/GenericTermiosSerialPortSocket;");
+    spsw_fd = (*env)->GetFieldID(env, genericTermiosSerialPortSocket, "fd", "I");
+    spsw_open = (*env)->GetFieldID(env, genericTermiosSerialPortSocket, "open", "Z");
+    spsw_portName = (*env)->GetFieldID(env, genericTermiosSerialPortSocket, "portName", "Ljava/lang/String;");
     
     // mark that the lib was loaded
-    jclass spswAbstractSerialPortSocket = (*env)->FindClass(env, "Lde/ibapl/spsw/AbstractSerialPortSocket;");
-    jfieldID spsw_libLoaded = (*env)->GetStaticFieldID(env, spswAbstractSerialPortSocket, "libLoaded", "Z");
-    (*env)->SetStaticBooleanField(env, spswAbstractSerialPortSocket, spsw_libLoaded, JNI_TRUE);
+    jclass serialPortSocketFactoryImpl = (*env)->FindClass(env, "Lde/ibapl/spsw/spi/SerialPortSocketFactoryImpl;");
+    jfieldID spsw_libLoaded = (*env)->GetStaticFieldID(env, serialPortSocketFactoryImpl, "libLoaded", "Z");
+    (*env)->SetStaticBooleanField(env, serialPortSocketFactoryImpl, spsw_libLoaded, JNI_TRUE);
     return JNI_VERSION_1_2;
 }
 
@@ -117,9 +117,9 @@ JNIEXPORT void JNICALL JNI_OnUnLoad(JavaVM *jvm, void *reserved) {
     spsw_portName = 0;
     
     // mark that the lib was unloaded
-    jclass spswAbstractSerialPortSocket = (*env)->FindClass(env, "Lde/ibapl/spsw/AbstractSerialPortSocket;");
-    jfieldID spsw_libLoaded = (*env)->GetStaticFieldID(env, spswAbstractSerialPortSocket, "libLoaded", "Z");
-    (*env)->SetStaticBooleanField(env, spswAbstractSerialPortSocket, spsw_libLoaded, JNI_FALSE);
+    jclass serialPortSocketFactoryImpl = (*env)->FindClass(env, "Lde/ibapl/spsw/spi/SerialPortSocketFactoryImpl;");
+    jfieldID spsw_libLoaded = (*env)->GetStaticFieldID(env, serialPortSocketFactoryImpl, "libLoaded", "Z");
+    (*env)->SetStaticBooleanField(env, serialPortSocketFactoryImpl, spsw_libLoaded, JNI_FALSE);
 }
 
 
@@ -131,34 +131,34 @@ static void throw_SerialPortException_With_PortName(JNIEnv *env, const char *msg
     const char* port = (*env)->GetStringUTFChars(env, portName, JNI_FALSE);
     snprintf(buf, 2048, "%s (%s) : Unknown port error %d: (%s)", msg, port, errno, strerror(errno));
     (*env)->ReleaseStringUTFChars(env, portName, port);
-    (*env)->ThrowNew(env, (*env)->FindClass(env, "de/ibapl/spsw/SerialPortException"), buf);
+    (*env)->ThrowNew(env, (*env)->FindClass(env, "de/ibapl/spsw/api/SerialPortException"), buf);
 }
 
 static void throw_SerialPortException(JNIEnv *env, const char *msg) {
-    (*env)->ThrowNew(env, (*env)->FindClass(env, "de/ibapl/spsw/SerialPortException"), msg);
+    (*env)->ThrowNew(env, (*env)->FindClass(env, "de/ibapl/spsw/api/SerialPortException"), msg);
 }
 
 static void throw_PortBusyException(JNIEnv *env, jstring portName) {
     const char* port = (*env)->GetStringUTFChars(env, portName, JNI_FALSE);
-    (*env)->ThrowNew(env, (*env)->FindClass(env, "de/ibapl/spsw/PortBusyException"), port);
+    (*env)->ThrowNew(env, (*env)->FindClass(env, "de/ibapl/spsw/api/PortBusyException"), port);
     (*env)->ReleaseStringUTFChars(env, portName, port);
 }
 
 static void throw_PortNotFoundException(JNIEnv *env, jstring portName) {
     const char* port = (*env)->GetStringUTFChars(env, portName, JNI_FALSE);
-    (*env)->ThrowNew(env, (*env)->FindClass(env, "de/ibapl/spsw/PortNotFoundException"), port);
+    (*env)->ThrowNew(env, (*env)->FindClass(env, "de/ibapl/spsw/api/PortNotFoundException"), port);
     (*env)->ReleaseStringUTFChars(env, portName, port);
 }
 
 static void throw_PermissionDeniedException(JNIEnv *env, jstring portName) {
     const char* port = (*env)->GetStringUTFChars(env, portName, JNI_FALSE);
-    (*env)->ThrowNew(env, (*env)->FindClass(env, "de/ibapl/spsw/PermissionDeniedException"), port);
+    (*env)->ThrowNew(env, (*env)->FindClass(env, "de/ibapl/spsw/api/PermissionDeniedException"), port);
     (*env)->ReleaseStringUTFChars(env, portName, port);
 }
 
 static void throw_NotASerialPortException(JNIEnv *env, jstring portName) {
     const char* port = (*env)->GetStringUTFChars(env, portName, JNI_FALSE);
-    (*env)->ThrowNew(env, (*env)->FindClass(env, "de/ibapl/spsw/NotASerialPortException"), port);
+    (*env)->ThrowNew(env, (*env)->FindClass(env, "de/ibapl/spsw/api/NotASerialPortException"), port);
     (*env)->ReleaseStringUTFChars(env, portName, port);
 }
 
@@ -407,7 +407,7 @@ static speed_t baudrate2speed_t(JNIEnv *env, jint baudRate) {
  * 
  * In 2.2.0 added useTIOCEXCL
  */
-JNIEXPORT void JNICALL Java_de_ibapl_spsw_GenericTermiosSerialPortSocket_open(JNIEnv *env, jobject object, jstring portName, jint portMode) {
+JNIEXPORT void JNICALL Java_de_ibapl_spsw_spi_GenericTermiosSerialPortSocket_open(JNIEnv *env, jobject object, jstring portName, jint portMode) {
     const char* port = (*env)->GetStringUTFChars(env, portName, JNI_FALSE);
 
     int fd = open(port, O_RDWR | O_NOCTTY | O_NDELAY);
@@ -468,9 +468,9 @@ JNIEXPORT void JNICALL Java_de_ibapl_spsw_GenericTermiosSerialPortSocket_open(JN
     };
 
     switch (portMode) {
-        case de_ibapl_spsw_GenericTermiosSerialPortSocket_PORT_MODE_UNCHANGED:
+        case de_ibapl_spsw_spi_GenericTermiosSerialPortSocket_PORT_MODE_UNCHANGED:
             break;
-        case de_ibapl_spsw_GenericTermiosSerialPortSocket_PORT_MODE_RAW:
+        case de_ibapl_spsw_spi_GenericTermiosSerialPortSocket_PORT_MODE_RAW:
             settings.c_cflag |= (CREAD | CLOCAL);
 
             settings.c_lflag = 0;
@@ -507,7 +507,7 @@ JNIEXPORT void JNICALL Java_de_ibapl_spsw_GenericTermiosSerialPortSocket_open(JN
 }
 
 /* Closing the port */
-JNIEXPORT void JNICALL Java_de_ibapl_spsw_GenericTermiosSerialPortSocket_close0
+JNIEXPORT void JNICALL Java_de_ibapl_spsw_spi_GenericTermiosSerialPortSocket_close0
 (JNIEnv *env, jobject object) {
 
     int fd = (*env)->GetIntField(env, object, spsw_fd);
@@ -542,18 +542,18 @@ JNIEXPORT void JNICALL Java_de_ibapl_spsw_GenericTermiosSerialPortSocket_close0
 /* 
  * RTS line status changing (ON || OFF)
  */
-JNIEXPORT void JNICALL Java_de_ibapl_spsw_GenericTermiosSerialPortSocket_setRTS
+JNIEXPORT void JNICALL Java_de_ibapl_spsw_spi_GenericTermiosSerialPortSocket_setRTS
 (JNIEnv *env, jobject object, jboolean enabled) {
     setLineStatus(env, object, enabled, TIOCM_RTS);
 }
 
-JNIEXPORT void JNICALL Java_de_ibapl_spsw_GenericTermiosSerialPortSocket_sendXON
+JNIEXPORT void JNICALL Java_de_ibapl_spsw_spi_GenericTermiosSerialPortSocket_sendXON
 (JNIEnv *env, jobject object) {
     //TODO How ??? tcflow ?
     throw_SerialPortException(env, "setXON not implementred yet");
 }
 
-JNIEXPORT void JNICALL Java_de_ibapl_spsw_GenericTermiosSerialPortSocket_sendXOFF
+JNIEXPORT void JNICALL Java_de_ibapl_spsw_spi_GenericTermiosSerialPortSocket_sendXOFF
 (JNIEnv *env, jobject object) {
     throw_SerialPortException(env, "setXOFF not implementred yet");
 }
@@ -561,7 +561,7 @@ JNIEXPORT void JNICALL Java_de_ibapl_spsw_GenericTermiosSerialPortSocket_sendXOF
 /* 
  * DTR line status changing (ON || OFF)
  */
-JNIEXPORT void JNICALL Java_de_ibapl_spsw_GenericTermiosSerialPortSocket_setDTR
+JNIEXPORT void JNICALL Java_de_ibapl_spsw_spi_GenericTermiosSerialPortSocket_setDTR
 (JNIEnv *env, jobject object, jboolean enabled) {
     setLineStatus(env, object, enabled, TIOCM_DTR);
 }
@@ -569,7 +569,7 @@ JNIEXPORT void JNICALL Java_de_ibapl_spsw_GenericTermiosSerialPortSocket_setDTR
 /* 
  * BRK line status changing (ON || OFF)
  */
-JNIEXPORT void JNICALL Java_de_ibapl_spsw_GenericTermiosSerialPortSocket_setBreak
+JNIEXPORT void JNICALL Java_de_ibapl_spsw_spi_GenericTermiosSerialPortSocket_setBreak
 (JNIEnv *env, jobject object, jboolean enabled) {
     int fd = (*env)->GetIntField(env, object, spsw_fd);
     int arg;
@@ -584,7 +584,7 @@ JNIEXPORT void JNICALL Java_de_ibapl_spsw_GenericTermiosSerialPortSocket_setBrea
     }
 }
 
-JNIEXPORT void JNICALL Java_de_ibapl_spsw_GenericTermiosSerialPortSocket_setXONChar
+JNIEXPORT void JNICALL Java_de_ibapl_spsw_spi_GenericTermiosSerialPortSocket_setXONChar
 (JNIEnv *env, jobject object, jchar c) {
     int fd = (*env)->GetIntField(env, object, spsw_fd);
 
@@ -602,7 +602,7 @@ JNIEXPORT void JNICALL Java_de_ibapl_spsw_GenericTermiosSerialPortSocket_setXONC
 
 }
 
-JNIEXPORT void JNICALL Java_de_ibapl_spsw_GenericTermiosSerialPortSocket_setXOFFChar
+JNIEXPORT void JNICALL Java_de_ibapl_spsw_spi_GenericTermiosSerialPortSocket_setXOFFChar
 (JNIEnv *env, jobject object, jchar c) {
     int fd = (*env)->GetIntField(env, object, spsw_fd);
 
@@ -620,7 +620,7 @@ JNIEXPORT void JNICALL Java_de_ibapl_spsw_GenericTermiosSerialPortSocket_setXOFF
 
 }
 
-JNIEXPORT jchar JNICALL Java_de_ibapl_spsw_GenericTermiosSerialPortSocket_getXONChar
+JNIEXPORT jchar JNICALL Java_de_ibapl_spsw_spi_GenericTermiosSerialPortSocket_getXONChar
 (JNIEnv *env, jobject object) {
     int fd = (*env)->GetIntField(env, object, spsw_fd);
 
@@ -633,7 +633,7 @@ JNIEXPORT jchar JNICALL Java_de_ibapl_spsw_GenericTermiosSerialPortSocket_getXON
 
 }
 
-JNIEXPORT jchar JNICALL Java_de_ibapl_spsw_GenericTermiosSerialPortSocket_getXOFFChar
+JNIEXPORT jchar JNICALL Java_de_ibapl_spsw_spi_GenericTermiosSerialPortSocket_getXOFFChar
 (JNIEnv *env, jobject object) {
     int fd = (*env)->GetIntField(env, object, spsw_fd);
 
@@ -646,32 +646,32 @@ JNIEXPORT jchar JNICALL Java_de_ibapl_spsw_GenericTermiosSerialPortSocket_getXOF
 
 }
 
-JNIEXPORT jboolean JNICALL Java_de_ibapl_spsw_GenericTermiosSerialPortSocket_isRTS
+JNIEXPORT jboolean JNICALL Java_de_ibapl_spsw_spi_GenericTermiosSerialPortSocket_isRTS
 (JNIEnv *env, jobject object) {
     return getLineStatus(env, object, TIOCM_RTS);
 }
 
-JNIEXPORT jboolean JNICALL Java_de_ibapl_spsw_GenericTermiosSerialPortSocket_isCTS
+JNIEXPORT jboolean JNICALL Java_de_ibapl_spsw_spi_GenericTermiosSerialPortSocket_isCTS
 (JNIEnv *env, jobject object) {
     return getLineStatus(env, object, TIOCM_CTS);
 }
 
-JNIEXPORT jboolean JNICALL Java_de_ibapl_spsw_GenericTermiosSerialPortSocket_isDSR
+JNIEXPORT jboolean JNICALL Java_de_ibapl_spsw_spi_GenericTermiosSerialPortSocket_isDSR
 (JNIEnv *env, jobject object) {
     return getLineStatus(env, object, TIOCM_DSR);
 }
 
-JNIEXPORT jboolean JNICALL Java_de_ibapl_spsw_GenericTermiosSerialPortSocket_isDTR
+JNIEXPORT jboolean JNICALL Java_de_ibapl_spsw_spi_GenericTermiosSerialPortSocket_isDTR
 (JNIEnv *env, jobject object) {
     return getLineStatus(env, object, TIOCM_DTR);
 }
 
-JNIEXPORT jboolean JNICALL Java_de_ibapl_spsw_GenericTermiosSerialPortSocket_isIncommingRI
+JNIEXPORT jboolean JNICALL Java_de_ibapl_spsw_spi_GenericTermiosSerialPortSocket_isIncommingRI
 (JNIEnv *env, jobject object) {
     return getLineStatus(env, object, TIOCM_RNG);
 }
 
-JNIEXPORT void JNICALL Java_de_ibapl_spsw_GenericTermiosSerialPortSocket_writeSingle
+JNIEXPORT void JNICALL Java_de_ibapl_spsw_spi_GenericTermiosSerialPortSocket_writeSingle
 (JNIEnv *env, jobject object, jint b) {
     int fd = (*env)->GetIntField(env, object, spsw_fd);
     if (write(fd, &b, 1) < 0) {
@@ -683,7 +683,7 @@ JNIEXPORT void JNICALL Java_de_ibapl_spsw_GenericTermiosSerialPortSocket_writeSi
     }
 }
 
-JNIEXPORT void JNICALL Java_de_ibapl_spsw_GenericTermiosSerialPortSocket_writeBytes
+JNIEXPORT void JNICALL Java_de_ibapl_spsw_spi_GenericTermiosSerialPortSocket_writeBytes
 (JNIEnv *env, jobject object, jbyteArray bytes, jint off, jint len) {
 
     jbyte *buf = (jbyte*) malloc(len);
@@ -706,7 +706,7 @@ JNIEXPORT void JNICALL Java_de_ibapl_spsw_GenericTermiosSerialPortSocket_writeBy
     free(buf);
 }
 
-JNIEXPORT jint JNICALL Java_de_ibapl_spsw_GenericTermiosSerialPortSocket_readSingle
+JNIEXPORT jint JNICALL Java_de_ibapl_spsw_spi_GenericTermiosSerialPortSocket_readSingle
 (JNIEnv *env, jobject object) {
     jbyte lpBuffer;
 
@@ -732,7 +732,7 @@ JNIEXPORT jint JNICALL Java_de_ibapl_spsw_GenericTermiosSerialPortSocket_readSin
     return -1;
 }
 
-JNIEXPORT jint JNICALL Java_de_ibapl_spsw_GenericTermiosSerialPortSocket_readBytes
+JNIEXPORT jint JNICALL Java_de_ibapl_spsw_spi_GenericTermiosSerialPortSocket_readBytes
 (JNIEnv *env, jobject object, jbyteArray bytes, jint off, jint len) {
     jbyte *lpBuffer = (jbyte*) malloc(len);
 
@@ -759,7 +759,7 @@ JNIEXPORT jint JNICALL Java_de_ibapl_spsw_GenericTermiosSerialPortSocket_readByt
 /*
  * Get bytes count in serial port buffers (Input)
  */
-JNIEXPORT jint JNICALL Java_de_ibapl_spsw_GenericTermiosSerialPortSocket_getInBufferBytesCount
+JNIEXPORT jint JNICALL Java_de_ibapl_spsw_spi_GenericTermiosSerialPortSocket_getInBufferBytesCount
 (JNIEnv *env, jobject object) {
     int fd = (*env)->GetIntField(env, object, spsw_fd);
     jint returnValue = -1;
@@ -773,7 +773,7 @@ JNIEXPORT jint JNICALL Java_de_ibapl_spsw_GenericTermiosSerialPortSocket_getInBu
 /*
  * Get bytes count in serial port buffers (Output)
  */
-JNIEXPORT jint JNICALL Java_de_ibapl_spsw_GenericTermiosSerialPortSocket_getOutBufferBytesCount
+JNIEXPORT jint JNICALL Java_de_ibapl_spsw_spi_GenericTermiosSerialPortSocket_getOutBufferBytesCount
 (JNIEnv *env, jobject object) {
     int fd = (*env)->GetIntField(env, object, spsw_fd);
     jint returnValue = -1;
@@ -787,7 +787,7 @@ JNIEXPORT jint JNICALL Java_de_ibapl_spsw_GenericTermiosSerialPortSocket_getOutB
 /*
  * Setting flow control mode
  */
-JNIEXPORT void JNICALL Java_de_ibapl_spsw_GenericTermiosSerialPortSocket_setFlowControl
+JNIEXPORT void JNICALL Java_de_ibapl_spsw_spi_GenericTermiosSerialPortSocket_setFlowControl
 (JNIEnv *env, jobject object, jint mask) {
 
     int fd = (*env)->GetIntField(env, object, spsw_fd);
@@ -818,11 +818,11 @@ JNIEXPORT void JNICALL Java_de_ibapl_spsw_GenericTermiosSerialPortSocket_setFlow
 }
 
 /*
- * Class:     de_ibapl_spsw_GenericTermiosSerialPortSocket
+ * Class:     de_ibapl_spsw_spi_GenericTermiosSerialPortSocket
  * Method:    setBaudrate
  * Signature: (JI)V
  */
-JNIEXPORT void JNICALL Java_de_ibapl_spsw_GenericTermiosSerialPortSocket_setBaudrate
+JNIEXPORT void JNICALL Java_de_ibapl_spsw_spi_GenericTermiosSerialPortSocket_setBaudrate
 (JNIEnv *env, jobject object, jint baudRate) {
     speed_t baudRateValue = baudrate2speed_t(env, baudRate);
     if (baudRateValue == -1) {
@@ -849,11 +849,11 @@ JNIEXPORT void JNICALL Java_de_ibapl_spsw_GenericTermiosSerialPortSocket_setBaud
 }
 
 /*
- * Class:     de_ibapl_spsw_GenericTermiosSerialPortSocket
+ * Class:     de_ibapl_spsw_spi_GenericTermiosSerialPortSocket
  * Method:    setDataBits
  * Signature: (JI)V
  */
-JNIEXPORT void JNICALL Java_de_ibapl_spsw_GenericTermiosSerialPortSocket_setDataBits
+JNIEXPORT void JNICALL Java_de_ibapl_spsw_spi_GenericTermiosSerialPortSocket_setDataBits
 (JNIEnv *env, jobject object, jint dataBits) {
     int fd = (*env)->GetIntField(env, object, spsw_fd);
     struct termios settings;
@@ -887,11 +887,11 @@ JNIEXPORT void JNICALL Java_de_ibapl_spsw_GenericTermiosSerialPortSocket_setData
 }
 
 /*
- * Class:     de_ibapl_spsw_GenericTermiosSerialPortSocket
+ * Class:     de_ibapl_spsw_spi_GenericTermiosSerialPortSocket
  * Method:    setStopBits
  * Signature: (JI)V
  */
-JNIEXPORT void JNICALL Java_de_ibapl_spsw_GenericTermiosSerialPortSocket_setStopBits
+JNIEXPORT void JNICALL Java_de_ibapl_spsw_spi_GenericTermiosSerialPortSocket_setStopBits
 (JNIEnv *env, jobject object, jint stopBits) {
     int fd = (*env)->GetIntField(env, object, spsw_fd);
     struct termios settings;
@@ -901,15 +901,15 @@ JNIEXPORT void JNICALL Java_de_ibapl_spsw_GenericTermiosSerialPortSocket_setStop
     }
 
     switch (stopBits) {
-        case de_ibapl_spsw_GenericTermiosSerialPortSocket_STOP_BITS_1:
+        case de_ibapl_spsw_spi_GenericTermiosSerialPortSocket_STOP_BITS_1:
             //1 stop bit (for info see ->> MSDN)
             settings.c_cflag &= ~CSTOPB;
             break;
-        case de_ibapl_spsw_GenericTermiosSerialPortSocket_STOP_BITS_1_5:
+        case de_ibapl_spsw_spi_GenericTermiosSerialPortSocket_STOP_BITS_1_5:
             throw_SerialPortException(env, "setStopBits 1.5 stop bits are not supported by termios");
             return;
             break;
-        case de_ibapl_spsw_GenericTermiosSerialPortSocket_STOP_BITS_2:
+        case de_ibapl_spsw_spi_GenericTermiosSerialPortSocket_STOP_BITS_2:
             settings.c_cflag |= CSTOPB;
             break;
         default:
@@ -923,11 +923,11 @@ JNIEXPORT void JNICALL Java_de_ibapl_spsw_GenericTermiosSerialPortSocket_setStop
 }
 
 /*
- * Class:     de_ibapl_spsw_GenericTermiosSerialPortSocket
+ * Class:     de_ibapl_spsw_spi_GenericTermiosSerialPortSocket
  * Method:    setParity
  * Signature: (JI)V
  */
-JNIEXPORT void JNICALL Java_de_ibapl_spsw_GenericTermiosSerialPortSocket_setParity
+JNIEXPORT void JNICALL Java_de_ibapl_spsw_spi_GenericTermiosSerialPortSocket_setParity
 (JNIEnv *env, jobject object, jint parity) {
     int fd = (*env)->GetIntField(env, object, spsw_fd);
     struct termios settings;
@@ -944,21 +944,21 @@ JNIEXPORT void JNICALL Java_de_ibapl_spsw_GenericTermiosSerialPortSocket_setPari
     settings.c_cflag &= ~(PARENB | PARODD); //Clear parity settings
 #endif
     switch (parity) {
-        case de_ibapl_spsw_GenericTermiosSerialPortSocket_PARITY_NONE:
+        case de_ibapl_spsw_spi_GenericTermiosSerialPortSocket_PARITY_NONE:
             //Parity NONE
             settings.c_iflag &= ~INPCK; // switch parity input checking off
             break;
-        case de_ibapl_spsw_GenericTermiosSerialPortSocket_PARITY_ODD:
+        case de_ibapl_spsw_spi_GenericTermiosSerialPortSocket_PARITY_ODD:
             //Parity ODD
             settings.c_cflag |= (PARENB | PARODD);
             settings.c_iflag |= INPCK; // switch parity input checking On 
             break;
-        case de_ibapl_spsw_GenericTermiosSerialPortSocket_PARITY_EVEN:
+        case de_ibapl_spsw_spi_GenericTermiosSerialPortSocket_PARITY_EVEN:
             //Parity EVEN
             settings.c_cflag |= PARENB;
             settings.c_iflag |= INPCK;
             break;
-        case de_ibapl_spsw_GenericTermiosSerialPortSocket_PARITY_MARK:
+        case de_ibapl_spsw_spi_GenericTermiosSerialPortSocket_PARITY_MARK:
             //Parity MARK
 #ifdef PAREXT
             settings.c_cflag |= (PARENB | PARODD | PAREXT);
@@ -968,7 +968,7 @@ JNIEXPORT void JNICALL Java_de_ibapl_spsw_GenericTermiosSerialPortSocket_setPari
             settings.c_iflag |= INPCK;
 #endif
             break;
-        case de_ibapl_spsw_GenericTermiosSerialPortSocket_PARITY_SPACE:
+        case de_ibapl_spsw_spi_GenericTermiosSerialPortSocket_PARITY_SPACE:
             //Parity SPACE
 #ifdef PAREXT
             settings.c_cflag |= (PARENB | PAREXT);
@@ -989,11 +989,11 @@ JNIEXPORT void JNICALL Java_de_ibapl_spsw_GenericTermiosSerialPortSocket_setPari
 }
 
 /*
- * Class:     de_ibapl_spsw_GenericTermiosSerialPortSocket
+ * Class:     de_ibapl_spsw_spi_GenericTermiosSerialPortSocket
  * Method:    getBaudrate
  * Signature: (J)I
  */
-JNIEXPORT jint JNICALL Java_de_ibapl_spsw_GenericTermiosSerialPortSocket_getBaudrate0
+JNIEXPORT jint JNICALL Java_de_ibapl_spsw_spi_GenericTermiosSerialPortSocket_getBaudrate0
 (JNIEnv *env, jobject object) {
     int fd = (*env)->GetIntField(env, object, spsw_fd);
     struct termios settings;
@@ -1012,11 +1012,11 @@ JNIEXPORT jint JNICALL Java_de_ibapl_spsw_GenericTermiosSerialPortSocket_getBaud
 }
 
 /*
- * Class:     de_ibapl_spsw_GenericTermiosSerialPortSocket
+ * Class:     de_ibapl_spsw_spi_GenericTermiosSerialPortSocket
  * Method:    getDataBits
  * Signature: (J)I
  */
-JNIEXPORT jint JNICALL Java_de_ibapl_spsw_GenericTermiosSerialPortSocket_getDataBits0
+JNIEXPORT jint JNICALL Java_de_ibapl_spsw_spi_GenericTermiosSerialPortSocket_getDataBits0
 (JNIEnv *env, jobject object) {
     int fd = (*env)->GetIntField(env, object, spsw_fd);
     struct termios settings;
@@ -1042,11 +1042,11 @@ JNIEXPORT jint JNICALL Java_de_ibapl_spsw_GenericTermiosSerialPortSocket_getData
 }
 
 /*
- * Class:     de_ibapl_spsw_GenericTermiosSerialPortSocket
+ * Class:     de_ibapl_spsw_spi_GenericTermiosSerialPortSocket
  * Method:    getStopBits
  * Signature: (J)I
  */
-JNIEXPORT jint JNICALL Java_de_ibapl_spsw_GenericTermiosSerialPortSocket_getStopBits0
+JNIEXPORT jint JNICALL Java_de_ibapl_spsw_spi_GenericTermiosSerialPortSocket_getStopBits0
 (JNIEnv *env, jobject object) {
     int fd = (*env)->GetIntField(env, object, spsw_fd);
     struct termios settings;
@@ -1056,19 +1056,19 @@ JNIEXPORT jint JNICALL Java_de_ibapl_spsw_GenericTermiosSerialPortSocket_getStop
     }
 
     if ((settings.c_cflag & CSTOPB) == 0) {
-        return de_ibapl_spsw_GenericTermiosSerialPortSocket_STOP_BITS_1;
+        return de_ibapl_spsw_spi_GenericTermiosSerialPortSocket_STOP_BITS_1;
     }
     if ((settings.c_cflag & CSTOPB) == CSTOPB) {
-        return de_ibapl_spsw_GenericTermiosSerialPortSocket_STOP_BITS_2;
+        return de_ibapl_spsw_spi_GenericTermiosSerialPortSocket_STOP_BITS_2;
     }
 }
 
 /*
- * Class:     de_ibapl_spsw_GenericTermiosSerialPortSocket
+ * Class:     de_ibapl_spsw_spi_GenericTermiosSerialPortSocket
  * Method:    getParity
  * Signature: (J)I
  */
-JNIEXPORT jint JNICALL Java_de_ibapl_spsw_GenericTermiosSerialPortSocket_getParity0
+JNIEXPORT jint JNICALL Java_de_ibapl_spsw_spi_GenericTermiosSerialPortSocket_getParity0
 (JNIEnv *env, jobject object) {
     int fd = (*env)->GetIntField(env, object, spsw_fd);
     struct termios settings;
@@ -1078,35 +1078,35 @@ JNIEXPORT jint JNICALL Java_de_ibapl_spsw_GenericTermiosSerialPortSocket_getPari
     }
 
     if ((settings.c_cflag & PARENB) == 0) {
-        return de_ibapl_spsw_GenericTermiosSerialPortSocket_PARITY_NONE;
+        return de_ibapl_spsw_spi_GenericTermiosSerialPortSocket_PARITY_NONE;
     } else if ((settings.c_cflag & PARODD) == 0) {
         // EVEN or SPACE
 #ifdef PAREXT
         if ((settings.c_cflag & PAREXT) == 0) {
-            return de_ibapl_spsw_GenericTermiosSerialPortSocket_PARITY_EVEN;
+            return de_ibapl_spsw_spi_GenericTermiosSerialPortSocket_PARITY_EVEN;
         } else {
-            return de_ibapl_spsw_GenericTermiosSerialPortSocket_PARITY_SPACE;
+            return de_ibapl_spsw_spi_GenericTermiosSerialPortSocket_PARITY_SPACE;
         }
 #elif defined CMSPAR
         if ((settings.c_cflag & CMSPAR) == 0) {
-            return de_ibapl_spsw_GenericTermiosSerialPortSocket_PARITY_EVEN;
+            return de_ibapl_spsw_spi_GenericTermiosSerialPortSocket_PARITY_EVEN;
         } else {
-            return de_ibapl_spsw_GenericTermiosSerialPortSocket_PARITY_SPACE;
+            return de_ibapl_spsw_spi_GenericTermiosSerialPortSocket_PARITY_SPACE;
         }
 #endif
     } else {
         // ODD or MARK
 #ifdef PAREXT
         if ((settings.c_cflag & PAREXT) == 0) {
-            return de_ibapl_spsw_GenericTermiosSerialPortSocket_PARITY_ODD;
+            return de_ibapl_spsw_spi_GenericTermiosSerialPortSocket_PARITY_ODD;
         } else {
-            return de_ibapl_spsw_GenericTermiosSerialPortSocket_PARITY_MARK;
+            return de_ibapl_spsw_spi_GenericTermiosSerialPortSocket_PARITY_MARK;
         }
 #elif defined CMSPAR
         if ((settings.c_cflag & CMSPAR) == 0) {
-            return de_ibapl_spsw_GenericTermiosSerialPortSocket_PARITY_ODD;
+            return de_ibapl_spsw_spi_GenericTermiosSerialPortSocket_PARITY_ODD;
         } else {
-            return de_ibapl_spsw_GenericTermiosSerialPortSocket_PARITY_MARK;
+            return de_ibapl_spsw_spi_GenericTermiosSerialPortSocket_PARITY_MARK;
         }
 #endif
     }
@@ -1116,7 +1116,7 @@ JNIEXPORT jint JNICALL Java_de_ibapl_spsw_GenericTermiosSerialPortSocket_getPari
 /*
  * Getting flow control mode
  */
-JNIEXPORT jint JNICALL Java_de_ibapl_spsw_GenericTermiosSerialPortSocket_getFlowControl0
+JNIEXPORT jint JNICALL Java_de_ibapl_spsw_spi_GenericTermiosSerialPortSocket_getFlowControl0
 (JNIEnv *env, jobject object) {
     int fd = (*env)->GetIntField(env, object, spsw_fd);
     jint returnValue = 0;
@@ -1138,7 +1138,7 @@ JNIEXPORT jint JNICALL Java_de_ibapl_spsw_GenericTermiosSerialPortSocket_getFlow
     return returnValue;
 }
 
-JNIEXPORT void JNICALL Java_de_ibapl_spsw_GenericTermiosSerialPortSocket_printTermios
+JNIEXPORT void JNICALL Java_de_ibapl_spsw_spi_GenericTermiosSerialPortSocket_printTermios
 (JNIEnv *env, jobject object) {
 
     int fd = (*env)->GetIntField(env, object, spsw_fd);

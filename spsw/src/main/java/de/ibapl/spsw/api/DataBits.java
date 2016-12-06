@@ -1,4 +1,4 @@
-package de.ibapl.spsw;
+package de.ibapl.spsw.api;
 
 /*
  * #%L
@@ -27,7 +27,6 @@ package de.ibapl.spsw;
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  * #L%
  */
-
 /**
  *
  * @author aploese
@@ -39,7 +38,7 @@ public enum DataBits {
     DB_7(7),
     DB_8(8);
 
-    static DataBits fromNative(int nativeValue) {
+    public static DataBits fromNative(int nativeValue) {
         switch (nativeValue) {
             case 5:
                 return DB_5;

@@ -24,8 +24,7 @@ public abstract class LogReader {
     private final SimpleDateFormat dateFormat;
     private String currentLine;
     private int posInLine;
-    
-    
+
     public LogReader(InputStream is) {
         this.is = is;
         isr = new InputStreamReader(is);
@@ -35,7 +34,7 @@ public abstract class LogReader {
 
     protected void read() throws IOException {
         while (true) {
-            
+
             posInLine = 0;
             currentLine = br.readLine();
             if (currentLine == null) {
@@ -94,7 +93,7 @@ public abstract class LogReader {
         posInLine += result.length();
         return result;
     }
-    
+
     private long readTimeStamp() {
         try {
             final int start = currentLine.indexOf("@", posInLine);
@@ -107,13 +106,13 @@ public abstract class LogReader {
     }
 
     private long readDuration() {
-            final int start = currentLine.indexOf("(", posInLine);
-            final int end = currentLine.indexOf(")", start);
-            final long result = Long.parseLong(currentLine.substring(start + 1, end).trim());
-            posInLine = end;
-            return result;
+        final int start = currentLine.indexOf("(", posInLine);
+        final int end = currentLine.indexOf(")", start);
+        final long result = Long.parseLong(currentLine.substring(start + 1, end).trim());
+        posInLine = end;
+        return result;
     }
-    
+
     private int readSingle() {
         final String str = currentLine.substring(posInLine + 1);
         posInLine = currentLine.length();
@@ -121,16 +120,16 @@ public abstract class LogReader {
     }
 
     private byte[] readArray() {
-        final int start = currentLine.indexOf("[", posInLine) +1;
+        final int start = currentLine.indexOf("[", posInLine) + 1;
         final int end = currentLine.indexOf("]", start);
         final byte[] result = new byte[(end - start) / 3];
         for (int i = 0; i < result.length; i++) {
-            result[i] = (byte)Integer.parseInt(currentLine.substring(start + i * 3 +1, start + i * 3 + 3), 16);
+            result[i] = (byte) Integer.parseInt(currentLine.substring(start + i * 3 + 1, start + i * 3 + 3), 16);
         }
         posInLine = end;
         return result;
     }
-    
+
     private boolean peekDataArray() {
         return currentLine.indexOf("[", posInLine) > 0;
     }

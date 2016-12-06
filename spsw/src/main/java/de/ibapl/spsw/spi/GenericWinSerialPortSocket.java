@@ -1,4 +1,4 @@
-package de.ibapl.spsw;
+package de.ibapl.spsw.spi;
 
 /*
  * #%L
@@ -27,7 +27,6 @@ package de.ibapl.spsw;
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  * #L%
  */
-
 import java.io.IOException;
 
 /**
@@ -35,7 +34,6 @@ import java.io.IOException;
  * @author scream3r
  */
 public class GenericWinSerialPortSocket extends AbstractSerialPortSocket {
-
 
     /**
      * The file descriptor or handle for this Port
@@ -45,6 +43,8 @@ public class GenericWinSerialPortSocket extends AbstractSerialPortSocket {
     public GenericWinSerialPortSocket(String portName) {
         super(portName);
     }
+
+    static native String[] getWindowsBasedPortNames(boolean hideBusyPorts) throws IOException;
 
     @Override
     protected native void open(String portName, int type) throws IOException;
@@ -62,7 +62,7 @@ public class GenericWinSerialPortSocket extends AbstractSerialPortSocket {
 
     @Override
     public native boolean isIncommingRI();
-    
+
     @Override
     public native void setRTS(boolean value) throws IOException;
 

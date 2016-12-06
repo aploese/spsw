@@ -22,7 +22,7 @@
  * e-mail: scream3r.org@gmail.com
  * web-site: http://scream3r.org | http://code.google.com/p/java-simple-serial-connector/
  */
-package de.ibapl.spsw;
+package de.ibapl.spsw.api;
 
 /*
  * #%L
@@ -51,9 +51,10 @@ package de.ibapl.spsw;
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  * #L%
  */
-
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Set;
@@ -66,47 +67,159 @@ import java.util.regex.Pattern;
  *
  * @author scream3r
  */
-public class SerialPortList {
-    
+public abstract class AbstractSerialPortSocketFactory implements SerialPortSocketFactory {
+
     private final static Logger LOG = Logger.getLogger("de.ibapl.spsw");
 
-    private static final Pattern PORTNAMES_REGEXP;
-    private static final String PORTNAMES_PATH;
-
-    static {
-        switch (AbstractSerialPortSocket.getOsName()) {
+    protected String getPortnamesPath() {
+        switch (getOsName()) {
             case "linux": {
-                PORTNAMES_REGEXP = Pattern.compile("(ttyS|ttyUSB|ttyACM|ttyAMA|rfcomm|ttyO)[0-9]{1,3}");
-                PORTNAMES_PATH = "/dev/";
-                break;
+                return "/dev/";
             }
             case "SunOS": {
-                PORTNAMES_REGEXP = Pattern.compile("[0-9]*|[a-z]*");
-                PORTNAMES_PATH = "/dev/term/";
-                break;
+                return "/dev/term/";
             }
             case "Mac OS X":
             case "Darwin": {
-                PORTNAMES_REGEXP = Pattern.compile("tty.(serial|usbserial|usbmodem).*");
-                PORTNAMES_PATH = "/dev/";
-                break;
+                return "/dev/";
             }
             case "windows": {
-                PORTNAMES_REGEXP = Pattern.compile("");
-                PORTNAMES_PATH = "";
-                break;
+                return "";
             }
             default: {
-                LOG.log(Level.SEVERE, "Unknown OS, os.name: {0} mapped to: {1}", new Object[]{System.getProperty("os.name"), AbstractSerialPortSocket.getOsName()});
-                PORTNAMES_REGEXP = null;
-                PORTNAMES_PATH = null;
-                break;
+                LOG.log(Level.SEVERE, "Unknown OS, os.name: {0} mapped to: {1}", new Object[]{System.getProperty("os.name"), getOsName()});
+                return null;
             }
         }
     }
 
+    protected Pattern getPortnamesRegExp() {
+        switch (getOsName()) {
+            case "linux": {
+                return Pattern.compile("(ttyS|ttyUSB|ttyACM|ttyAMA|rfcomm|ttyO)[0-9]{1,3}");
+            }
+            case "SunOS": {
+                return Pattern.compile("[0-9]*|[a-z]*");
+            }
+            case "Mac OS X":
+            case "Darwin": {
+                return Pattern.compile("tty.(serial|usbserial|usbmodem).*");
+            }
+            case "windows": {
+                return Pattern.compile("");
+            }
+            default: {
+                LOG.log(Level.SEVERE, "Unknown OS, os.name: {0} mapped to: {1}", new Object[]{System.getProperty("os.name"), getOsName()});
+                return null;
+            }
+        }
+    }
+
+    public String getArch() {
+        String osArch = System.getProperty("os.arch");
+        switch (getOsName()) {
+            case "linux":
+                if ("arm".equals(osArch)) {
+                    String floatStr = "sf";
+                    if (System.getProperty("java.library.path").contains("gnueabihf") || System.getProperty("java.library.path").contains("armhf")) {
+                        floatStr = "hf";
+                    } else {
+                        LOG.log(Level.WARNING, "Can't find hardware|software floating point in libpath try readelf");
+                        try {
+                            Process readelfProcess = Runtime.getRuntime().exec("readelf -A /proc/self/exe");
+                            try (BufferedReader reader = new BufferedReader(new InputStreamReader(readelfProcess.getInputStream()))) {
+                                String buffer;
+                                while ((buffer = reader.readLine()) != null && !buffer.isEmpty()) {
+                                    if (buffer.toLowerCase().contains("Tag_ABI_VFP_args".toLowerCase())) {
+                                        floatStr = "hf";
+                                        break;
+                                    }
+                                }
+                            }
+                        } catch (Exception ex) {
+                            LOG.severe("Please install binutils to detect architecture ... use hf as default");
+                            floatStr = "hf";
+                            //Do nothing
+                        }
+                    }
+                    return osArch + floatStr;
+                } else {
+                    return osArch;
+                }
+            default:
+                return osArch;
+        }
+
+    }
+
+    public String getOsName() {
+        switch (System.getProperty("os.name")) {
+            case "Linux":
+                return "linux";
+            case "Mac OS":
+                throw new UnsupportedOperationException("Mac OS is currently not supported yet");
+            case "Mac OS X":
+                throw new UnsupportedOperationException("Mac OS X is currently not supported yet");
+            case "Windows 95":
+                return "windows";
+            case "Windows 98":
+                return "windows";
+            case "Windows Me":
+                return "windows";
+            case "Windows NT":
+                return "windows";
+            case "Windows 2000":
+                return "windows";
+            case "Windows XP":
+                return "windows";
+            case "Windows 2003":
+                return "windows";
+            case "Windows Vista":
+                return "windows";
+            case "Windows 2008":
+                return "windows";
+            case "Windows 7":
+                return "windows";
+            case "Windows 8":
+                return "windows";
+            case "Windows 2012":
+                return "windows";
+            case "Windows CE":
+                throw new UnsupportedOperationException("Windows CE is currently not supported yet");
+            case "OS/2":
+                throw new UnsupportedOperationException("OS/2 is currently not supported yet");
+            case "MPE/iX":
+                throw new UnsupportedOperationException("MPE/iX is currently not supported yet");
+            case "HP-UX":
+                throw new UnsupportedOperationException("HP-UX is currently not supported yet");
+            case "AIX":
+                throw new UnsupportedOperationException("AIX is currently not supported yet");
+            case "OS/390":
+                throw new UnsupportedOperationException("OS/390 is currently not supported yet");
+            case "FreeBSD":
+                throw new UnsupportedOperationException("FreeBSD is currently not supported yet");
+            case "Irix":
+                throw new UnsupportedOperationException("Irix is currently not supported yet");
+            case "Digital Unix":
+                throw new UnsupportedOperationException("Digital Unix is currently not supported yet");
+            case "NetWare 4.11":
+                throw new UnsupportedOperationException("NetWare 4.11 is currently not supported yet");
+            case "OSF1":
+                throw new UnsupportedOperationException("OSF1 is currently not supported yet");
+            case "OpenVMS":
+                throw new UnsupportedOperationException("OpenVMS is currently not supported yet");
+            default:
+                throw new RuntimeException("Can't figure out OS: " + System.getProperty("os.name"));
+        }
+
+    }
+
+    public abstract boolean isLibLoaded();
+
+    public abstract boolean loadNativeLib();
+
     //since 2.1.0 -> Fully rewrited port name comparator
-    private static final Comparator<String> PORTNAMES_COMPARATOR = new Comparator<String>() {
+    protected class PortnamesComparator implements Comparator<String> {
 
         @Override
         public int compare(String valueA, String valueB) {
@@ -209,8 +322,8 @@ public class SerialPortList {
      * <b>zero</b> length will be returned (since jSSC-0.8 in previous versions
      * null will be returned)
      */
-    public static Set<String> getPortNames(boolean hideBusyPorts) {
-        return getPortNames(PORTNAMES_PATH, PORTNAMES_REGEXP, PORTNAMES_COMPARATOR, hideBusyPorts);
+    public Set<String> getPortNames(boolean hideBusyPorts) {
+        return getPortNames(getPortnamesPath(), getPortnamesRegExp(), new PortnamesComparator(), hideBusyPorts);
     }
 
     /**
@@ -226,8 +339,8 @@ public class SerialPortList {
      *
      * @since 2.3.0
      */
-    public static Set<String> getPortNames(String searchPath, boolean hideBusyPorts) {
-        return getPortNames(searchPath, PORTNAMES_REGEXP, PORTNAMES_COMPARATOR, hideBusyPorts);
+    public Set<String> getPortNames(String searchPath, boolean hideBusyPorts) {
+        return getPortNames(searchPath, getPortnamesRegExp(), new PortnamesComparator(), hideBusyPorts);
     }
 
     /**
@@ -239,8 +352,8 @@ public class SerialPortList {
      *
      * @since 2.3.0
      */
-    public static Set<String> getPortNames(Pattern pattern, boolean hideBusyPorts) {
-        return getPortNames(PORTNAMES_PATH, pattern, PORTNAMES_COMPARATOR, hideBusyPorts);
+    public Set<String> getPortNames(Pattern pattern, boolean hideBusyPorts) {
+        return getPortNames(getPortnamesPath(), pattern, new PortnamesComparator(), hideBusyPorts);
     }
 
     /**
@@ -252,8 +365,8 @@ public class SerialPortList {
      *
      * @since 2.3.0
      */
-    public static Set<String> getPortNames(Comparator<String> comparator, boolean hideBusyPorts) {
-        return getPortNames(PORTNAMES_PATH, PORTNAMES_REGEXP, comparator, hideBusyPorts);
+    public Set<String> getPortNames(Comparator<String> comparator, boolean hideBusyPorts) {
+        return getPortNames(getPortnamesPath(), getPortnamesRegExp(), comparator, hideBusyPorts);
     }
 
     /**
@@ -271,8 +384,8 @@ public class SerialPortList {
      *
      * @since 2.3.0
      */
-    public static Set<String> getPortNames(String searchPath, Pattern pattern, boolean hideBusyPorts) {
-        return getPortNames(searchPath, pattern, PORTNAMES_COMPARATOR, hideBusyPorts);
+    public Set<String> getPortNames(String searchPath, Pattern pattern, boolean hideBusyPorts) {
+        return getPortNames(searchPath, pattern, new PortnamesComparator(), hideBusyPorts);
     }
 
     /**
@@ -290,8 +403,8 @@ public class SerialPortList {
      *
      * @since 2.3.0
      */
-    public static Set<String> getPortNames(String searchPath, Comparator<String> comparator, boolean hideBusyPorts) {
-        return getPortNames(searchPath, PORTNAMES_REGEXP, comparator, hideBusyPorts);
+    public Set<String> getPortNames(String searchPath, Comparator<String> comparator, boolean hideBusyPorts) {
+        return getPortNames(searchPath, getPortnamesRegExp(), comparator, hideBusyPorts);
     }
 
     /**
@@ -305,8 +418,8 @@ public class SerialPortList {
      *
      * @since 2.3.0
      */
-    public static Set<String> getPortNames(Pattern pattern, Comparator<String> comparator, boolean hideBusyPorts) {
-        return getPortNames(PORTNAMES_PATH, pattern, comparator, hideBusyPorts);
+    public Set<String> getPortNames(Pattern pattern, Comparator<String> comparator, boolean hideBusyPorts) {
+        return getPortNames(getPortnamesPath(), pattern, comparator, hideBusyPorts);
     }
 
     /**
@@ -326,15 +439,15 @@ public class SerialPortList {
      *
      * @since 2.3.0
      */
-    public static Set<String> getPortNames(String searchPath, Pattern pattern, Comparator<String> comparator, boolean hideBusyPorts) {
+    public Set<String> getPortNames(String searchPath, Pattern pattern, Comparator<String> comparator, boolean hideBusyPorts) {
         if (searchPath == null || pattern == null || comparator == null) {
             return Collections.emptySet();
         }
-        switch (AbstractSerialPortSocket.getOsName()) {
-            case "windows": 
-                if (!AbstractSerialPortSocket.isLibLoaded()) {
+        switch (getOsName()) {
+            case "windows":
+                if (!isLibLoaded()) {
                     //Make sure lib is loaded to avoid Link error
-                    AbstractSerialPortSocket.loadNativeLib();
+                    loadNativeLib();
                 }
                 return getWindowsPortNames(pattern, comparator, hideBusyPorts);
             default:
@@ -347,7 +460,7 @@ public class SerialPortList {
      *
      * @since 2.3.0
      */
-    private static Set<String> getWindowsPortNames(Pattern pattern, Comparator<String> comparator, boolean hideBusyPorts) {
+    protected Set<String> getWindowsPortNames(Pattern pattern, Comparator<String> comparator, boolean hideBusyPorts) {
         try {
             String[] portNames = getWindowsBasedPortNames(hideBusyPorts);
             if (portNames == null) {
@@ -370,12 +483,12 @@ public class SerialPortList {
      *
      * @return unsorted array of String with port names
      */
-    private static native String[] getWindowsBasedPortNames(boolean hideBusyPorts) throws IOException;
+    protected abstract String[] getWindowsBasedPortNames(boolean hideBusyPorts) throws IOException;
 
     /**
      * Universal method for getting port names of _nix based systems
      */
-    private static Set<String> getUnixBasedPortNames(String searchPath, Pattern pattern, Comparator<String> comparator, boolean hideBusyPorts) {
+    protected Set<String> getUnixBasedPortNames(String searchPath, Pattern pattern, Comparator<String> comparator, boolean hideBusyPorts) {
         searchPath = (searchPath.equals("") ? searchPath : (searchPath.endsWith("/") ? searchPath : searchPath + "/"));
         File dir = new File(searchPath);
         if (dir.exists() && dir.isDirectory()) {
@@ -387,11 +500,11 @@ public class SerialPortList {
                     if (!file.isDirectory() && !file.isFile() && pattern.matcher(fileName).find()) {
                         String portName = searchPath + fileName;
                         if (hideBusyPorts) {
-                            try (SerialPortSocket sp = SerialPortSocket.FACTORY.createSerialPortSocket(portName)) {
+                            try (SerialPortSocket sp = createSerialPortSocket(portName)) {
                                 sp.openAsIs();
                                 portsTree.add(portName);
                             } catch (IOException ex) {
-                                LOG.log(Level.FINEST, "find busy ports: "+ portName, ex);
+                                LOG.log(Level.FINEST, "find busy ports: " + portName, ex);
                             }
                         } else {
                             portsTree.add(portName);

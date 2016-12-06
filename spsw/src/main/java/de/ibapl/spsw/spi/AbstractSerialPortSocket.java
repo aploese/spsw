@@ -1,4 +1,4 @@
-package de.ibapl.spsw;
+package de.ibapl.spsw.spi;
 
 /*
  * #%L
@@ -27,17 +27,18 @@ package de.ibapl.spsw;
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  * #L%
  */
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileOutputStream;
+import de.ibapl.spsw.api.SerialPortException;
+import de.ibapl.spsw.api.StopBits;
+import de.ibapl.spsw.api.Parity;
+import de.ibapl.spsw.api.SerialPortSocket;
+import de.ibapl.spsw.api.DataBits;
+import de.ibapl.spsw.api.Baudrate;
+import de.ibapl.spsw.api.FlowControl;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.util.EnumSet;
-import java.util.Properties;
 import java.util.Set;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
@@ -45,8 +46,6 @@ import java.util.logging.Logger;
  * @author scream3r
  */
 public abstract class AbstractSerialPortSocket implements SerialPortSocket {
-
-    protected final static Logger LOG = Logger.getLogger("de.ibapl.spsw");
 
     static final int PORT_MODE_UNCHANGED = 0;
     static final int PORT_MODE_RAW = 0x01;
@@ -67,222 +66,13 @@ public abstract class AbstractSerialPortSocket implements SerialPortSocket {
     static final int PARITY_MARK = 0x03;
     static final int PARITY_SPACE = 0x04;
 
-    private static boolean libLoaded;
-    private static String libName;
-    public final static String SPSW_PROPERTIES = "de/ibapl/spsw/spsw.properties";
-
-    public static boolean isLibLoaded() {
-        return libLoaded;
-    }
-
-    public static String getLibName() {
-        return libName;
-    }
-
-    public static String getArch() {
-        String osArch = System.getProperty("os.arch");
-        switch (getOsName()) {
-            case "linux":
-                if ("arm".equals(osArch)) {
-                    String floatStr = "sf";
-                    if (System.getProperty("java.library.path").contains("gnueabihf") || System.getProperty("java.library.path").contains("armhf")) {
-                        floatStr = "hf";
-                    } else {
-                        LOG.log(Level.WARNING, "Can't find hardware|software floating point in libpath try readelf");
-                        try {
-                            Process readelfProcess = Runtime.getRuntime().exec("readelf -A /proc/self/exe");
-                            try (BufferedReader reader = new BufferedReader(new InputStreamReader(readelfProcess.getInputStream()))) {
-                                String buffer;
-                                while ((buffer = reader.readLine()) != null && !buffer.isEmpty()) {
-                                    if (buffer.toLowerCase().contains("Tag_ABI_VFP_args".toLowerCase())) {
-                                        floatStr = "hf";
-                                        break;
-                                    }
-                                }
-                            }
-                        } catch (Exception ex) {
-                            LOG.severe("Please install binutils to detect architecture ... use hf as default");
-                            floatStr = "hf";
-                            //Do nothing
-                        }
-                    }
-                    return osArch + floatStr;
-                } else {
-                    return osArch;
-                }
-            default:
-                return osArch;
-        }
-
-    }
-
-    public static String getOsName() {
-        switch (System.getProperty("os.name")) {
-            case "Linux":
-                return "linux";
-            case "Mac OS":
-                throw new UnsupportedOperationException("Mac OS is currently not supported yet");
-            case "Mac OS X":
-                throw new UnsupportedOperationException("Mac OS X is currently not supported yet");
-            case "Windows 95":
-                return "windows";
-            case "Windows 98":
-                return "windows";
-            case "Windows Me":
-                return "windows";
-            case "Windows NT":
-                return "windows";
-            case "Windows 2000":
-                return "windows";
-            case "Windows XP":
-                return "windows";
-            case "Windows 2003":
-                return "windows";
-            case "Windows Vista":
-                return "windows";
-            case "Windows 2008":
-                return "windows";
-            case "Windows 7":
-                return "windows";
-            case "Windows 8":
-                return "windows";
-            case "Windows 2012":
-                return "windows";
-            case "Windows CE":
-                throw new UnsupportedOperationException("Windows CE is currently not supported yet");
-            case "OS/2":
-                throw new UnsupportedOperationException("OS/2 is currently not supported yet");
-            case "MPE/iX":
-                throw new UnsupportedOperationException("MPE/iX is currently not supported yet");
-            case "HP-UX":
-                throw new UnsupportedOperationException("HP-UX is currently not supported yet");
-            case "AIX":
-                throw new UnsupportedOperationException("AIX is currently not supported yet");
-            case "OS/390":
-                throw new UnsupportedOperationException("OS/390 is currently not supported yet");
-            case "FreeBSD":
-                throw new UnsupportedOperationException("FreeBSD is currently not supported yet");
-            case "Irix":
-                throw new UnsupportedOperationException("Irix is currently not supported yet");
-            case "Digital Unix":
-                throw new UnsupportedOperationException("Digital Unix is currently not supported yet");
-            case "NetWare 4.11":
-                throw new UnsupportedOperationException("NetWare 4.11 is currently not supported yet");
-            case "OSF1":
-                throw new UnsupportedOperationException("OSF1 is currently not supported yet");
-            case "OpenVMS":
-                throw new UnsupportedOperationException("OpenVMS is currently not supported yet");
-            default:
-                throw new RuntimeException("Can't figure out OS: " + System.getProperty("os.name"));
-        }
-
-    }
-
-    //TODO usable LOG INFOS ...
-    public static synchronized boolean loadNativeLib() {
-        if (libLoaded) {
-            LOG.log(Level.INFO, "Lib was Loaded");
-            return false;
-        }
-        LOG.log(Level.INFO, "java.library.path: \"{0}\"", System.getProperty("java.library.path"));
-        Properties p = new Properties();
-        try {
-            p.load(AbstractSerialPortSocket.class.getClassLoader().getResourceAsStream(SPSW_PROPERTIES));
-        } catch (IOException ex) {
-            LOG.log(Level.SEVERE, "Can't find spsw.properties");
-            throw new RuntimeException("Can't load version information", ex);
-        }
-        libName = String.format("spsw-%s-%s-%s", getOsName(), getArch(), p.getProperty("version"));
-        
-        LOG.log(Level.INFO, "Try plain with libName: {0}", libName);
-        try {
-            System.loadLibrary(libName);
-            LOG.log(Level.INFO, "Lib loaded via System.loadLibrary(\"{0}\")", libName);
-            return true;
-        } catch (Throwable t) {
-            LOG.log(Level.INFO, "Native lib not loaded.", t);
-            libLoaded = false;
-        }
-
-        libName = System.mapLibraryName(libName);
-        LOG.log(Level.INFO, "Try mapped with libName: {0}", libName);
-        try {
-            System.loadLibrary(libName);
-            LOG.log(Level.INFO, "Lib loaded via System.loadLibrary(\"{0}\")", libName);
-            return true;
-        } catch (Throwable t) {
-            LOG.log(Level.INFO, "Native lib not loaded.", t);
-            libLoaded = false;
-        }
-
-        libName = "lib/" + libName;
-        LOG.log(Level.INFO, "Try with libName: {0}", libName);
-        try {
-            System.load(libName);
-            LOG.log(Level.INFO, "Lib loaded via System.load(\"{0}\")", libName);
-            return true;
-        } catch (Throwable t) {
-            LOG.log(Level.INFO, "Native lib not loaded.", t);
-            libLoaded = false;
-        }
-
-        libName = AbstractSerialPortSocket.class.getClassLoader().getResource(libName).getFile();
-        LOG.log(Level.INFO, "Try from resource with libName: {0}", libName);
-        try {
-            System.load(libName);
-            LOG.log(Level.INFO, "Lib loaded via System.load(\"{0}\")", libName);
-            return true;
-        } catch (Throwable t) {
-            LOG.log(Level.INFO, "Native lib not loaded.", t);
-            libLoaded = false;
-        }
-
-        File tmpLib = null;
-        try (InputStream is = AbstractSerialPortSocket.class.getClassLoader().getResourceAsStream(libName)) {
-            int splitPos = libName.lastIndexOf('.');
-            if (splitPos <= 0) {
-                //ERROR
-            }
-            tmpLib = File.createTempFile(libName.substring(0, splitPos), libName.substring(splitPos));
-            tmpLib.deleteOnExit();
-            try (FileOutputStream fos = new FileOutputStream(tmpLib)) {
-                byte[] buff = new byte[1024];
-                int i;
-                while ((i = is.read(buff)) > 0) {
-                    fos.write(buff, 0, i);
-                }
-                fos.flush();
-            }
-            LOG.log(Level.INFO, "Try temp copy with libName: {0}", libName);
-            libName = tmpLib.getAbsolutePath();
-            try {
-                System.load(libName);
-            } catch (Throwable t) {
-                LOG.log(Level.INFO, "Native lib not loaded.", t);
-                libLoaded = false;
-                throw t;
-            }
-            libName = tmpLib.getAbsolutePath();
-            LOG.log(Level.INFO, "Lib loaded via System.load(\"{0}\")", tmpLib.getAbsolutePath());
-            return true;
-        } catch (Throwable t) {
-            LOG.log(Level.SEVERE, "Giving up cant load the lib \"" + tmpLib.getAbsolutePath() + "\" List System Properties", t);
-            StringBuilder sb = new StringBuilder();
-            for (String name : System.getProperties().stringPropertyNames()) {
-                sb.append("\t").append(name).append(" = ").append(System.getProperty(name)).append("\n");
-            }
-            LOG.log(Level.SEVERE, "System.properties\n{0}", new Object[]{sb.toString()});
-            throw new RuntimeException("Can't load spsw native lib, giving up!", t);
-        }
-    }
-
     protected SerialInputStream is;
     protected SerialOutputStream os;
 
     private final String portName;
     private boolean open = false;
 
-    public AbstractSerialPortSocket(String portName) {
+    AbstractSerialPortSocket(String portName) {
         SecurityManager security = System.getSecurityManager();
         if (security != null) {
             security.checkRead(portName);
@@ -292,9 +82,6 @@ public abstract class AbstractSerialPortSocket implements SerialPortSocket {
             throw new IllegalArgumentException("portname must not null!");
         }
 
-        if (!libLoaded) {
-            loadNativeLib();
-        }
         this.portName = portName;
     }
 

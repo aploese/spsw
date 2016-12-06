@@ -6,19 +6,16 @@
 package de.ibapl.spsw.logging;
 
 import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.io.PrintStream;
-import java.util.Date;
 import java.util.Set;
-import de.ibapl.spsw.Baudrate;
-import de.ibapl.spsw.DataBits;
-import de.ibapl.spsw.FlowControl;
-import de.ibapl.spsw.Parity;
-import de.ibapl.spsw.SerialPortSocket;
-import de.ibapl.spsw.StopBits;
+import de.ibapl.spsw.api.Baudrate;
+import de.ibapl.spsw.api.DataBits;
+import de.ibapl.spsw.api.FlowControl;
+import de.ibapl.spsw.api.Parity;
+import de.ibapl.spsw.api.SerialPortSocket;
+import de.ibapl.spsw.api.StopBits;
 
 /**
  *
@@ -111,11 +108,11 @@ public class LoggingSerialPortSocket implements SerialPortSocket {
     final private SerialPortSocket serialPortSocket;
     private LOS los;
     private LIS lis;
-    private final LogWriter logWriter; 
+    private final LogWriter logWriter;
 
     public LoggingSerialPortSocket(SerialPortSocket serialPortSocket, OutputStream logOS) throws FileNotFoundException {
         this.serialPortSocket = serialPortSocket;
-        this.logWriter =  new LogWriter(logOS);
+        this.logWriter = new LogWriter(logOS);
     }
 
     @Override

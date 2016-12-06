@@ -45,7 +45,7 @@
                             <!--  trigger javah -->          
                             <javahOS>linux</javahOS>
                             <javahClassNames>
-                                <javahClassName>de.ibapl.spsw.GenericTermiosSerialPortSocket</javahClassName>
+                                <javahClassName>de.ibapl.spsw.spi.GenericTermiosSerialPortSocket</javahClassName>
                             </javahClassNames>
           
                             <compilerProvider>generic</compilerProvider>

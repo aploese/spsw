@@ -34,13 +34,14 @@ import java.util.Arrays;
 import java.util.Properties;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import de.ibapl.spsw.Baudrate;
-import de.ibapl.spsw.DataBits;
-import de.ibapl.spsw.FlowControl;
-import de.ibapl.spsw.GenericTermiosSerialPortSocket;
-import de.ibapl.spsw.Parity;
-import de.ibapl.spsw.SerialPortSocket;
-import de.ibapl.spsw.StopBits;
+import de.ibapl.spsw.api.Baudrate;
+import de.ibapl.spsw.api.DataBits;
+import de.ibapl.spsw.api.FlowControl;
+import de.ibapl.spsw.spi.GenericTermiosSerialPortSocket;
+import de.ibapl.spsw.api.Parity;
+import de.ibapl.spsw.api.SerialPortSocket;
+import de.ibapl.spsw.api.StopBits;
+import de.ibapl.spsw.spi.SerialPortSocketFactoryImpl;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Assume;
@@ -158,7 +159,7 @@ public class TwoPortSingleByteTest {
     public void setUp() throws Exception {
         for (int i = 0; i < serialPortName.length; i++) {
             if (serialPortName[i] != null) {
-                spc[i] = SerialPortSocket.FACTORY.createSerialPortSocket(serialPortName[i]);
+                spc[i] = SerialPortSocketFactoryImpl.singleton().createSerialPortSocket(serialPortName[i]);
                 receiverThread = new ReceiverThread();
             } else {
                 spc[i] = null;

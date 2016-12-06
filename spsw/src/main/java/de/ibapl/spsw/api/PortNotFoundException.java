@@ -1,4 +1,4 @@
-package de.ibapl.spsw;
+package de.ibapl.spsw.api;
 
 /*
  * #%L
@@ -27,21 +27,14 @@ package de.ibapl.spsw;
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  * #L%
  */
-
 /**
  *
  * @author aploese
  */
-public enum StopBits {
+public class PortNotFoundException extends SerialPortException {
 
-    SB_1(1),
-    SB_1_5(1.5f),
-    SB_2(2);
-    
-    public final float value;
-
-    private StopBits(float value) {
-        this.value = value;
+    public PortNotFoundException(String portName) {
+        super(portName, "Port not found: " + portName);
     }
-    
+
 }

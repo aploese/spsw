@@ -1,4 +1,4 @@
-package de.ibapl.spsw;
+package de.ibapl.spsw.api;
 
 /*
  * #%L
@@ -27,7 +27,6 @@ package de.ibapl.spsw;
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  * #L%
  */
-
 import java.io.Closeable;
 import java.io.IOException;
 import java.io.InputStream;
@@ -40,72 +39,6 @@ import java.util.Set;
  */
 public interface SerialPortSocket extends Closeable {
 
-    public class SerialPortSocketFactory {
-
-        public SerialPortSocket createSerialPortSocket(String portName) {
-            switch (System.getProperty("os.name")) {
-                case "Linux":
-                    return new GenericTermiosSerialPortSocket(portName);
-                case "Mac OS":
-                    throw new UnsupportedOperationException("Mac OS is currently not supported yet");
-                case "Mac OS X":
-                    throw new UnsupportedOperationException("Mac OS X is currently not supported yet");
-                case "Windows 95":
-                    return new GenericWinSerialPortSocket(portName);
-                case "Windows 98":
-                    return new GenericWinSerialPortSocket(portName);
-                case "Windows Me":
-                    return new GenericWinSerialPortSocket(portName);
-                case "Windows NT":
-                    return new GenericWinSerialPortSocket(portName);
-                case "Windows 2000":
-                    return new GenericWinSerialPortSocket(portName);
-                case "Windows XP":
-                    return new GenericWinSerialPortSocket(portName);
-                case "Windows 2003":
-                    return new GenericWinSerialPortSocket(portName);
-                case "Windows Vista":
-                    return new GenericWinSerialPortSocket(portName);
-                case "Windows 2008":
-                    return new GenericWinSerialPortSocket(portName);
-                case "Windows 7":
-                    return new GenericWinSerialPortSocket(portName);
-                case "Windows 8":
-                    return new GenericWinSerialPortSocket(portName);
-                case "Windows 2012":
-                    return new GenericWinSerialPortSocket(portName);
-                case "Windows CE":
-                    throw new UnsupportedOperationException("Windows CE is currently not supported yet");
-                case "OS/2":
-                    throw new UnsupportedOperationException("OS/2 is currently not supported yet");
-                case "MPE/iX":
-                    throw new UnsupportedOperationException("MPE/iX is currently not supported yet");
-                case "HP-UX":
-                    throw new UnsupportedOperationException("HP-UX is currently not supported yet");
-                case "AIX":
-                    throw new UnsupportedOperationException("AIX is currently not supported yet");
-                case "OS/390":
-                    throw new UnsupportedOperationException("OS/390 is currently not supported yet");
-                case "FreeBSD":
-                    throw new UnsupportedOperationException("FreeBSD is currently not supported yet");
-                case "Irix":
-                    throw new UnsupportedOperationException("Irix is currently not supported yet");
-                case "Digital Unix":
-                    throw new UnsupportedOperationException("Digital Unix is currently not supported yet");
-                case "NetWare 4.11":
-                    throw new UnsupportedOperationException("NetWare 4.11 is currently not supported yet");
-                case "OSF1":
-                    throw new UnsupportedOperationException("OSF1 is currently not supported yet");
-                case "OpenVMS":
-                    throw new UnsupportedOperationException("OpenVMS is currently not supported yet");
-                default:
-                    throw new RuntimeException("Can't figure out OS: " + System.getProperty("os.name"));
-            }
-        }
-    }
-
-    static SerialPortSocketFactory FACTORY = new SerialPortSocketFactory();
-
     boolean isClosed();
 
     boolean isCTS();
@@ -113,7 +46,7 @@ public interface SerialPortSocket extends Closeable {
     boolean isDSR();
 
     boolean isIncommingRI();
-    
+
     InputStream getInputStream() throws IOException;
 
     OutputStream getOutputStream() throws IOException;
@@ -190,19 +123,19 @@ public interface SerialPortSocket extends Closeable {
      */
     void setDTR(boolean value) throws IOException;
 
-    
     void setXONChar(char c) throws IOException;
 
     void setXOFFChar(char c) throws IOException;
-    
+
     char getXONChar() throws IOException;
 
     char getXOFFChar() throws IOException;
-    
+
     void sendXON() throws IOException;
 
     void sendXOFF() throws IOException;
-  /**
+
+    /**
      * Get bytes count in in buffer of port
      *
      * @return Method returns the array that contains info about bytes count in

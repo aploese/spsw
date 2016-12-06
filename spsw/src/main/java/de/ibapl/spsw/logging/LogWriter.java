@@ -40,18 +40,17 @@ public class LogWriter {
     void logWriteEnd(int b) {
         logWriteEnd(System.currentTimeMillis(), b);
     }
-    
+
     void logWriteEnd(final long writeEndTS, int b) {
         log.format("TX @%1$tF %1$tT.%1$tL (%2$6d) %3$02x\n", new Date(writeEndTS), writeEndTS - writeStartTS, (byte) b);
         log.flush();
         writeStartTS = -1;
     }
 
-    
     void logWriteEnd(byte[] b, int off, int len) {
         logWriteEnd(System.currentTimeMillis(), b, off, len);
     }
-    
+
     void logWriteEnd(final long writeEndTS, byte[] b, int off, int len) {
         log.format("TX @%1$tF %1$tT.%1$tL (%2$6d) [", new Date(writeEndTS), writeEndTS - writeStartTS);
         for (int i = off; i < len; i++) {
@@ -75,7 +74,7 @@ public class LogWriter {
     void logReadEnd(int b) {
         logReadEnd(System.currentTimeMillis(), b);
     }
-    
+
     void logReadEnd(final long readEndTS, int b) {
         if (b < 0) {
             log.format("RX @%1$tF %1$tT.%1$tL (%2$6d) %3$d\n", new Date(readEndTS), readEndTS - readStartTS, b);
@@ -89,7 +88,7 @@ public class LogWriter {
     void logReadEnd(int readLength, byte[] b, int off) {
         logReadEnd(System.currentTimeMillis(), readLength, b, off);
     }
-    
+
     void logReadEnd(final long readEndTS, int readLength, byte[] b, int off) {
         final int len = off + readLength;
         log.format("RX @%1$tF %1$tT.%1$tL (%2$6d) [", new Date(readEndTS), readEndTS - readStartTS);
@@ -104,7 +103,7 @@ public class LogWriter {
     void logFlushed() {
         logFlushed(System.currentTimeMillis());
     }
-    
+
     void logFlushed(final long flushTS) {
         log.format("FL @%1$tF %1$tT.%1$tL\n", new Date(flushTS));
         log.flush();
@@ -113,7 +112,7 @@ public class LogWriter {
     void logOpend(String type) {
         logOpend(System.currentTimeMillis(), type);
     }
-    
+
     void logOpend(final long ts, String type) {
         readStartTS = -1;
         writeStartTS = -1;
@@ -124,7 +123,7 @@ public class LogWriter {
     void logClosed() {
         logClosed(System.currentTimeMillis());
     }
-    
+
     void logClosed(final long ts) {
         log.format("CL @%1$tF %1$tT.%1$tL\n", new Date(ts));
         log.flush();

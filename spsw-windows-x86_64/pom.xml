@@ -44,8 +44,7 @@
                             <javahOS>win32</javahOS>
                     
                             <javahClassNames>
-                                <javahClassName>de.ibapl.spsw.GenericWinSerialPortSocket</javahClassName>
-                                <javahClassName>de.ibapl.spsw.SerialPortList</javahClassName>
+                                <javahClassName>de.ibapl.spsw.spi.GenericWinSerialPortSocket</javahClassName>
                             </javahClassNames>
           
                             <compilerProvider>generic</compilerProvider>
@@ -59,7 +58,6 @@
                                     <directory>../spsw/src/main/native/windows_comport_wrapper</directory>
                                     <fileNames>
                                         <fileName>GenericWinSerialPortSocket.c</fileName>
-                                        <fileName>SerialPortList.c</fileName>
                                     </fileNames>
                                 </source>
                             </sources>

@@ -25,20 +25,20 @@
 #include <jni.h>
 #include <stdlib.h>
 #include <windows.h>
-#include "de_ibapl_spsw_GenericWinSerialPortSocket.h"
+#include "de_ibapl_spsw_spi_GenericWinSerialPortSocket.h"
 
 //#include <iostream>
 
 #undef FLOW_CONTROL_NONE
-#define FLOW_CONTROL_NONE de_ibapl_spsw_GenericWinSerialPortSocket_FLOW_CONTROL_NONE
+#define FLOW_CONTROL_NONE de_ibapl_spsw_spi_GenericWinSerialPortSocket_FLOW_CONTROL_NONE
 #undef FLOW_CONTROL_RTS_CTS_IN
-#define FLOW_CONTROL_RTS_CTS_IN de_ibapl_spsw_GenericWinSerialPortSocket_FLOW_CONTROL_RTS_CTS_IN
+#define FLOW_CONTROL_RTS_CTS_IN de_ibapl_spsw_spi_GenericWinSerialPortSocket_FLOW_CONTROL_RTS_CTS_IN
 #undef FLOW_CONTROL_RTS_CTS_OUT
-#define FLOW_CONTROL_RTS_CTS_OUT de_ibapl_spsw_GenericWinSerialPortSocket_FLOW_CONTROL_RTS_CTS_OUT
+#define FLOW_CONTROL_RTS_CTS_OUT de_ibapl_spsw_spi_GenericWinSerialPortSocket_FLOW_CONTROL_RTS_CTS_OUT
 #undef FLOW_CONTROL_XON_XOFF_IN
-#define FLOW_CONTROL_XON_XOFF_IN de_ibapl_spsw_GenericWinSerialPortSocket_FLOW_CONTROL_XON_XOFF_IN
+#define FLOW_CONTROL_XON_XOFF_IN de_ibapl_spsw_spi_GenericWinSerialPortSocket_FLOW_CONTROL_XON_XOFF_IN
 #undef FLOW_CONTROL_XON_XOFF_OUT
-#define FLOW_CONTROL_XON_XOFF_OUT de_ibapl_spsw_GenericWinSerialPortSocket_FLOW_CONTROL_XON_XOFF_OUT
+#define FLOW_CONTROL_XON_XOFF_OUT de_ibapl_spsw_spi_GenericWinSerialPortSocket_FLOW_CONTROL_XON_XOFF_OUT
 
 jfieldID spsw_portName; /* id for field 'portName'  */
 jfieldID spsw_fd; /* id for field 'fd'  */
@@ -56,9 +56,9 @@ JNIEXPORT jint JNICALL JNI_OnLoad(JavaVM *jvm, void *reserved) {
     spsw_portName = (*env)->GetFieldID(env, spswClass, "portName", "Ljava/lang/String;");
 
     // mark that the lib was loaded
-    jclass spswAbstractSerialPortSocket = (*env)->FindClass(env, "Lde/ibapl/spsw/AbstractSerialPortSocket;");
-    jfieldID spsw_libLoaded = (*env)->GetStaticFieldID(env, spswAbstractSerialPortSocket, "libLoaded", "Z");
-    (*env)->SetStaticBooleanField(env, spswAbstractSerialPortSocket, spsw_libLoaded, JNI_TRUE);
+    jclass serialPortSocketFactoryImpl = (*env)->FindClass(env, "Lde/ibapl/spsw/spi/SerialPortSocketFactoryImpl;");
+    jfieldID spsw_libLoaded = (*env)->GetStaticFieldID(env, serialPortSocketFactoryImpl, "libLoaded", "Z");
+    (*env)->SetStaticBooleanField(env, serialPortSocketFactoryImpl, spsw_libLoaded, JNI_TRUE);
     return JNI_VERSION_1_2;
 }
 
@@ -69,9 +69,60 @@ JNIEXPORT void JNICALL JNI_OnUnLoad(JavaVM *jvm, void *reserved) {
     spsw_portName = 0;
     
     // mark that the lib was unloaded
-    jclass spswAbstractSerialPortSocket = (*env)->FindClass(env, "Lde/ibapl/spsw/AbstractSerialPortSocket;");
-    jfieldID spsw_libLoaded = (*env)->GetStaticFieldID(env, spswAbstractSerialPortSocket, "libLoaded", "Z");
-    (*env)->SetStaticBooleanField(env, spswAbstractSerialPortSocket, spsw_libLoaded, JNI_FALSE);
+    jclass serialPortSocketFactoryImpl = (*env)->FindClass(env, "Lde/ibapl/spsw/spi/SerialPortSocketFactoryImpl;");
+    jfieldID spsw_libLoaded = (*env)->GetStaticFieldID(env, serialPortSocketFactoryImpl, "libLoaded", "Z");
+    (*env)->SetStaticBooleanField(env, serialPortSocketFactoryImpl, spsw_libLoaded, JNI_FALSE);
+}
+
+/*
+ * Class:     de_ibapl_spsw_spi_GenericWinSerialPortSocket
+ * Method:    getWindowsBasedPortNames
+ * Signature: (Z)[Ljava/lang/String;
+ */
+JNIEXPORT jobjectArray JNICALL Java_de_ibapl_spsw_spi_GenericWinSerialPortSocket_getWindowsBasedPortNames
+  (JNIEnv *env, jclass clazz, jboolean value) {
+    HKEY phkResult;
+    LPCSTR lpSubKey = "HARDWARE\\DEVICEMAP\\SERIALCOMM\\";
+    jobjectArray returnArray = NULL;
+    if(RegOpenKeyExA(HKEY_LOCAL_MACHINE, lpSubKey, 0, KEY_READ, &phkResult) == ERROR_SUCCESS){
+        boolean hasMoreElements = TRUE;
+        DWORD keysCount = 0;
+        char valueName[256];
+        DWORD valueNameSize;
+        DWORD enumResult;
+        while(hasMoreElements){
+            valueNameSize = 256;
+            enumResult = RegEnumValueA(phkResult, keysCount, valueName, &valueNameSize, NULL, NULL, NULL, NULL);
+            if(enumResult == ERROR_SUCCESS){
+                keysCount++;
+            }
+            else if(enumResult == ERROR_NO_MORE_ITEMS){
+                hasMoreElements = FALSE;
+            }
+            else {
+                hasMoreElements = FALSE;
+            }
+        }
+        if(keysCount > 0){
+            jclass stringClass = (*env)->FindClass(env, "java/lang/String");
+            returnArray = (*env)->NewObjectArray(env, (jsize)keysCount, stringClass, NULL);
+            char lpValueName[256];
+            DWORD lpcchValueName;
+            byte lpData[256];
+            DWORD lpcbData;
+            DWORD result;
+            for(DWORD i = 0; i < keysCount; i++){
+                lpcchValueName = 256;
+                lpcbData = 256;
+                result = RegEnumValueA(phkResult, i, lpValueName, &lpcchValueName, NULL, NULL, lpData, &lpcbData);
+                if(result == ERROR_SUCCESS){
+                    (*env)->SetObjectArrayElement(env, returnArray, i, (*env)->NewStringUTF(env, (char*)lpData));
+                }
+            }
+        }
+        CloseHandle(phkResult);
+    }
+    return returnArray;
 }
 
 
@@ -82,34 +133,34 @@ static void throw_SerialPortException_With_PortName(JNIEnv *env, const char *msg
     const char* port = (*env)->GetStringUTFChars(env, portName, JNI_FALSE);
     snprintf(buf, 2048, "%s (%s) : Unknown port error %d", msg, port, (int) GetLastError());
     (*env)->ReleaseStringUTFChars(env, portName, port);
-    (*env)->ThrowNew(env, (*env)->FindClass(env, "de/ibapl/spsw/SerialPortException"), buf);
+    (*env)->ThrowNew(env, (*env)->FindClass(env, "de/ibapl/spsw/api/SerialPortException"), buf);
 }
 
 static void throw_SerialPortException(JNIEnv *env, const char *msg) {
-    (*env)->ThrowNew(env, (*env)->FindClass(env, "de/ibapl/spsw/SerialPortException"), msg);
+    (*env)->ThrowNew(env, (*env)->FindClass(env, "de/ibapl/spsw/api/SerialPortException"), msg);
 }
 
 static void throw_PortBusyException(JNIEnv *env, jstring portName) {
     const char* port = (*env)->GetStringUTFChars(env, portName, JNI_FALSE);
-    (*env)->ThrowNew(env, (*env)->FindClass(env, "de/ibapl/spsw/PortBusyException"), port);
+    (*env)->ThrowNew(env, (*env)->FindClass(env, "de/ibapl/spsw/api/PortBusyException"), port);
     (*env)->ReleaseStringUTFChars(env, portName, port);
 }
 
 static void throw_PortNotFoundException(JNIEnv *env, jstring portName) {
     const char* port = (*env)->GetStringUTFChars(env, portName, JNI_FALSE);
-    (*env)->ThrowNew(env, (*env)->FindClass(env, "de/ibapl/spsw/PortNotFoundException"), port);
+    (*env)->ThrowNew(env, (*env)->FindClass(env, "de/ibapl/spsw/api/PortNotFoundException"), port);
     (*env)->ReleaseStringUTFChars(env, portName, port);
 }
 
 static void throw_PermissionDeniedException(JNIEnv *env, jstring portName) {
     const char* port = (*env)->GetStringUTFChars(env, portName, JNI_FALSE);
-    (*env)->ThrowNew(env, (*env)->FindClass(env, "de/ibapl/spsw/PermissionDeniedException"), port);
+    (*env)->ThrowNew(env, (*env)->FindClass(env, "de/ibapl/spsw/api/PermissionDeniedException"), port);
     (*env)->ReleaseStringUTFChars(env, portName, port);
 }
 
 static void throw_NotASerialPortException(JNIEnv *env, jstring portName) {
     const char* port = (*env)->GetStringUTFChars(env, portName, JNI_FALSE);
-    (*env)->ThrowNew(env, (*env)->FindClass(env, "de/ibapl/spsw/NotASerialPortException"), port);
+    (*env)->ThrowNew(env, (*env)->FindClass(env, "de/ibapl/spsw/api/NotASerialPortException"), port);
     (*env)->ReleaseStringUTFChars(env, portName, port);
 }
 
@@ -136,7 +187,7 @@ static jboolean getCommModemStatus(JNIEnv *env, jobject object, DWORD bitMask) {
  * Use overlapped otherwise any blocked ReadFile will block a WriteFile.
  * 
  */
-JNIEXPORT void JNICALL Java_de_ibapl_spsw_GenericWinSerialPortSocket_open(JNIEnv *env, jobject object, jstring portName, jint portMode) {
+JNIEXPORT void JNICALL Java_de_ibapl_spsw_spi_GenericWinSerialPortSocket_open(JNIEnv *env, jobject object, jstring portName, jint portMode) {
     char prefix[] = "\\\\.\\";
     const char* port = (*env)->GetStringUTFChars(env, portName, JNI_FALSE);
 
@@ -186,9 +237,9 @@ JNIEXPORT void JNICALL Java_de_ibapl_spsw_GenericWinSerialPortSocket_open(JNIEnv
     }
 
     switch (portMode) {
-        case de_ibapl_spsw_GenericWinSerialPortSocket_PORT_MODE_UNCHANGED:
+        case de_ibapl_spsw_spi_GenericWinSerialPortSocket_PORT_MODE_UNCHANGED:
             break;
-        case de_ibapl_spsw_GenericWinSerialPortSocket_PORT_MODE_RAW:
+        case de_ibapl_spsw_spi_GenericWinSerialPortSocket_PORT_MODE_RAW:
             lpCommTimeouts.ReadIntervalTimeout = 0;
             lpCommTimeouts.ReadTotalTimeoutConstant = 0;
             lpCommTimeouts.ReadTotalTimeoutMultiplier = 0;
@@ -215,7 +266,7 @@ JNIEXPORT void JNICALL Java_de_ibapl_spsw_GenericWinSerialPortSocket_open(JNIEnv
 /*
  * Port closing
  */
-JNIEXPORT void JNICALL Java_de_ibapl_spsw_GenericWinSerialPortSocket_close0
+JNIEXPORT void JNICALL Java_de_ibapl_spsw_spi_GenericWinSerialPortSocket_close0
 (JNIEnv *env, jobject object) {
     HANDLE hComm = (HANDLE) (*env)->GetLongField(env, object, spsw_fd);
     (*env)->SetLongField(env, object, spsw_fd, (jlong) INVALID_HANDLE_VALUE);
@@ -227,7 +278,7 @@ JNIEXPORT void JNICALL Java_de_ibapl_spsw_GenericWinSerialPortSocket_close0
 /*
  * Change RTS line state (ON || OFF)
  */
-JNIEXPORT void JNICALL Java_de_ibapl_spsw_GenericWinSerialPortSocket_setRTS
+JNIEXPORT void JNICALL Java_de_ibapl_spsw_spi_GenericWinSerialPortSocket_setRTS
 (JNIEnv *env, jobject object, jboolean enabled) {
     DWORD dwFunc = (enabled == JNI_TRUE) ? SETRTS : CLRRTS;
     if (!EscapeCommFunction((HANDLE) (*env)->GetLongField(env, object, spsw_fd), dwFunc)) {
@@ -235,12 +286,12 @@ JNIEXPORT void JNICALL Java_de_ibapl_spsw_GenericWinSerialPortSocket_setRTS
     }
 }
 
-JNIEXPORT void JNICALL Java_de_ibapl_spsw_GenericWinSerialPortSocket_sendXON
+JNIEXPORT void JNICALL Java_de_ibapl_spsw_spi_GenericWinSerialPortSocket_sendXON
 (JNIEnv *env, jobject object) {
     throw_SerialPortException(env, "setXON not implementred yet");
 }
 
-JNIEXPORT void JNICALL Java_de_ibapl_spsw_GenericWinSerialPortSocket_sendXOFF
+JNIEXPORT void JNICALL Java_de_ibapl_spsw_spi_GenericWinSerialPortSocket_sendXOFF
 (JNIEnv *env, jobject object) {
     throw_SerialPortException(env, "setXOFF not implementred yet");
 }
@@ -248,7 +299,7 @@ JNIEXPORT void JNICALL Java_de_ibapl_spsw_GenericWinSerialPortSocket_sendXOFF
 /*
  * Change DTR line state (ON || OFF)
  */
-JNIEXPORT void JNICALL Java_de_ibapl_spsw_GenericWinSerialPortSocket_setDTR
+JNIEXPORT void JNICALL Java_de_ibapl_spsw_spi_GenericWinSerialPortSocket_setDTR
 (JNIEnv *env, jobject object, jboolean enabled) {
     DWORD dwFunc = (enabled == JNI_TRUE) ? SETDTR : CLRDTR;
     if (!EscapeCommFunction((HANDLE) (*env)->GetLongField(env, object, spsw_fd), dwFunc)) {
@@ -259,7 +310,7 @@ JNIEXPORT void JNICALL Java_de_ibapl_spsw_GenericWinSerialPortSocket_setDTR
 /* 
  * BRK line status changing (ON || OFF)
  */
-JNIEXPORT void JNICALL Java_de_ibapl_spsw_GenericWinSerialPortSocket_setBreak
+JNIEXPORT void JNICALL Java_de_ibapl_spsw_spi_GenericWinSerialPortSocket_setBreak
 (JNIEnv *env, jobject object, jboolean enabled) {
     DWORD dwFunc = (enabled == JNI_TRUE) ? SETBREAK : CLRBREAK;
     if (!EscapeCommFunction((HANDLE) (*env)->GetLongField(env, object, spsw_fd), dwFunc)) {
@@ -267,7 +318,7 @@ JNIEXPORT void JNICALL Java_de_ibapl_spsw_GenericWinSerialPortSocket_setBreak
     }
 }
 
-JNIEXPORT void JNICALL Java_de_ibapl_spsw_GenericWinSerialPortSocket_setXONChar
+JNIEXPORT void JNICALL Java_de_ibapl_spsw_spi_GenericWinSerialPortSocket_setXONChar
 (JNIEnv *env, jobject object, jchar c) {
     DCB dcb;
     if (!GetCommState((HANDLE) (*env)->GetLongField(env, object, spsw_fd), &dcb)) {
@@ -280,7 +331,7 @@ JNIEXPORT void JNICALL Java_de_ibapl_spsw_GenericWinSerialPortSocket_setXONChar
     }
 }
 
-JNIEXPORT void JNICALL Java_de_ibapl_spsw_GenericWinSerialPortSocket_setXOFFChar
+JNIEXPORT void JNICALL Java_de_ibapl_spsw_spi_GenericWinSerialPortSocket_setXOFFChar
 (JNIEnv *env, jobject object, jchar c) {
     DCB dcb;
     if (!GetCommState((HANDLE) (*env)->GetLongField(env, object, spsw_fd), &dcb)) {
@@ -293,7 +344,7 @@ JNIEXPORT void JNICALL Java_de_ibapl_spsw_GenericWinSerialPortSocket_setXOFFChar
     }
 }
 
-JNIEXPORT jchar JNICALL Java_de_ibapl_spsw_GenericWinSerialPortSocket_getXONChar
+JNIEXPORT jchar JNICALL Java_de_ibapl_spsw_spi_GenericWinSerialPortSocket_getXONChar
 (JNIEnv *env, jobject object) {
     DCB dcb;
     if (!GetCommState((HANDLE) (*env)->GetLongField(env, object, spsw_fd), &dcb)) {
@@ -303,7 +354,7 @@ JNIEXPORT jchar JNICALL Java_de_ibapl_spsw_GenericWinSerialPortSocket_getXONChar
     return dcb.XonChar;
 }
 
-JNIEXPORT jchar JNICALL Java_de_ibapl_spsw_GenericWinSerialPortSocket_getXOFFChar
+JNIEXPORT jchar JNICALL Java_de_ibapl_spsw_spi_GenericWinSerialPortSocket_getXOFFChar
 (JNIEnv *env, jobject object) {
     DCB dcb;
     if (!GetCommState((HANDLE) (*env)->GetLongField(env, object, spsw_fd), &dcb)) {
@@ -313,22 +364,22 @@ JNIEXPORT jchar JNICALL Java_de_ibapl_spsw_GenericWinSerialPortSocket_getXOFFCha
     return dcb.XoffChar;
 }
 
-JNIEXPORT jboolean JNICALL Java_de_ibapl_spsw_GenericWinSerialPortSocket_isCTS
+JNIEXPORT jboolean JNICALL Java_de_ibapl_spsw_spi_GenericWinSerialPortSocket_isCTS
 (JNIEnv *env, jobject object) {
     return getCommModemStatus(env, object, MS_CTS_ON);
 }
 
-JNIEXPORT jboolean JNICALL Java_de_ibapl_spsw_GenericWinSerialPortSocket_isDSR
+JNIEXPORT jboolean JNICALL Java_de_ibapl_spsw_spi_GenericWinSerialPortSocket_isDSR
 (JNIEnv *env, jobject object) {
     return getCommModemStatus(env, object, MS_DSR_ON);
 }
 
-JNIEXPORT jboolean JNICALL Java_de_ibapl_spsw_GenericWinSerialPortSocket_isIncommingRI
+JNIEXPORT jboolean JNICALL Java_de_ibapl_spsw_spi_GenericWinSerialPortSocket_isIncommingRI
 (JNIEnv *env, jobject object) {
     return getCommModemStatus(env, object, MS_RING_ON);
 }
 
-JNIEXPORT void JNICALL Java_de_ibapl_spsw_GenericWinSerialPortSocket_writeSingle
+JNIEXPORT void JNICALL Java_de_ibapl_spsw_spi_GenericWinSerialPortSocket_writeSingle
 (JNIEnv *env, jobject object, jint b) {
     HANDLE hComm = (HANDLE) (*env)->GetLongField(env, object, spsw_fd);
     OVERLAPPED overlapped;
@@ -371,7 +422,7 @@ JNIEXPORT void JNICALL Java_de_ibapl_spsw_GenericWinSerialPortSocket_writeSingle
  * portHandle - port handle
  * buffer - byte array for sending
  */
-JNIEXPORT void JNICALL Java_de_ibapl_spsw_GenericWinSerialPortSocket_writeBytes
+JNIEXPORT void JNICALL Java_de_ibapl_spsw_spi_GenericWinSerialPortSocket_writeBytes
 (JNIEnv *env, jobject object, jbyteArray bytes, jint off, jint len) {
 
     jbyte *buf = (jbyte*) malloc(len);
@@ -416,7 +467,7 @@ JNIEXPORT void JNICALL Java_de_ibapl_spsw_GenericWinSerialPortSocket_writeBytes
     return;
 }
 
-JNIEXPORT jint JNICALL Java_de_ibapl_spsw_GenericWinSerialPortSocket_readSingle
+JNIEXPORT jint JNICALL Java_de_ibapl_spsw_spi_GenericWinSerialPortSocket_readSingle
 (JNIEnv *env, jobject object) {
 
     jbyte lpBuffer;
@@ -469,7 +520,7 @@ JNIEXPORT jint JNICALL Java_de_ibapl_spsw_GenericWinSerialPortSocket_readSingle
  * portHandle - port handle
  * byteCount - count of bytes for reading
  */
-JNIEXPORT jint JNICALL Java_de_ibapl_spsw_GenericWinSerialPortSocket_readBytes
+JNIEXPORT jint JNICALL Java_de_ibapl_spsw_spi_GenericWinSerialPortSocket_readBytes
 (JNIEnv *env, jobject object, jbyteArray bytes, jint off, jint len) {
 
     jbyte *lpBuffer = (jbyte*) malloc(len);
@@ -513,7 +564,7 @@ JNIEXPORT jint JNICALL Java_de_ibapl_spsw_GenericWinSerialPortSocket_readBytes
     return dwBytesRead;
 }
 
-JNIEXPORT jint JNICALL Java_de_ibapl_spsw_GenericWinSerialPortSocket_getInBufferBytesCount
+JNIEXPORT jint JNICALL Java_de_ibapl_spsw_spi_GenericWinSerialPortSocket_getInBufferBytesCount
 (JNIEnv *env, jobject object) {
     DWORD lpErrors;
     COMSTAT comstat;
@@ -525,7 +576,7 @@ JNIEXPORT jint JNICALL Java_de_ibapl_spsw_GenericWinSerialPortSocket_getInBuffer
     }
 }
 
-JNIEXPORT jint JNICALL Java_de_ibapl_spsw_GenericWinSerialPortSocket_getOutBufferBytesCount
+JNIEXPORT jint JNICALL Java_de_ibapl_spsw_spi_GenericWinSerialPortSocket_getOutBufferBytesCount
 (JNIEnv *env, jobject object) {
     DWORD lpErrors;
     COMSTAT comstat;
@@ -542,7 +593,7 @@ JNIEXPORT jint JNICALL Java_de_ibapl_spsw_GenericWinSerialPortSocket_getOutBuffe
  *
  * since 0.8
  */
-JNIEXPORT void JNICALL Java_de_ibapl_spsw_GenericWinSerialPortSocket_setFlowControl
+JNIEXPORT void JNICALL Java_de_ibapl_spsw_spi_GenericWinSerialPortSocket_setFlowControl
 (JNIEnv *env, jobject object, jint mask) {
     HANDLE hComm = (HANDLE) (*env)->GetLongField(env, object, spsw_fd);
     DCB dcb;
@@ -575,11 +626,11 @@ JNIEXPORT void JNICALL Java_de_ibapl_spsw_GenericWinSerialPortSocket_setFlowCont
 }
 
 /*
- * Class:     de_ibapl_spsw_GenericWinSerialPortSocket
+ * Class:     de_ibapl_spsw_spi_GenericWinSerialPortSocket
  * Method:    setBaudrate
  * Signature: (JI)V
  */
-JNIEXPORT void JNICALL Java_de_ibapl_spsw_GenericWinSerialPortSocket_setBaudrate
+JNIEXPORT void JNICALL Java_de_ibapl_spsw_spi_GenericWinSerialPortSocket_setBaudrate
 (JNIEnv *env, jobject object, jint baudRate) {
     DCB dcb;
     HANDLE hComm = (HANDLE) (*env)->GetLongField(env, object, spsw_fd);
@@ -596,11 +647,11 @@ JNIEXPORT void JNICALL Java_de_ibapl_spsw_GenericWinSerialPortSocket_setBaudrate
 }
 
 /*
- * Class:     de_ibapl_spsw_GenericWinSerialPortSocket
+ * Class:     de_ibapl_spsw_spi_GenericWinSerialPortSocket
  * Method:    setDataBits
  * Signature: (JI)V
  */
-JNIEXPORT void JNICALL Java_de_ibapl_spsw_GenericWinSerialPortSocket_setDataBits
+JNIEXPORT void JNICALL Java_de_ibapl_spsw_spi_GenericWinSerialPortSocket_setDataBits
 (JNIEnv *env, jobject object, jint dataBits) {
     DCB dcb;
     HANDLE hComm = (HANDLE) (*env)->GetLongField(env, object, spsw_fd);
@@ -617,11 +668,11 @@ JNIEXPORT void JNICALL Java_de_ibapl_spsw_GenericWinSerialPortSocket_setDataBits
 }
 
 /*
- * Class:     de_ibapl_spsw_GenericWinSerialPortSocket
+ * Class:     de_ibapl_spsw_spi_GenericWinSerialPortSocket
  * Method:    setStopBits
  * Signature: (JI)V
  */
-JNIEXPORT void JNICALL Java_de_ibapl_spsw_GenericWinSerialPortSocket_setStopBits
+JNIEXPORT void JNICALL Java_de_ibapl_spsw_spi_GenericWinSerialPortSocket_setStopBits
 (JNIEnv *env, jobject object, jint stopBits) {
     DCB dcb;
     HANDLE hComm = (HANDLE) (*env)->GetLongField(env, object, spsw_fd);
@@ -631,13 +682,13 @@ JNIEXPORT void JNICALL Java_de_ibapl_spsw_GenericWinSerialPortSocket_setStopBits
     }
 
     switch (stopBits) {
-        case de_ibapl_spsw_GenericWinSerialPortSocket_STOP_BITS_1:
+        case de_ibapl_spsw_spi_GenericWinSerialPortSocket_STOP_BITS_1:
             dcb.StopBits = ONESTOPBIT;
             break;
-        case de_ibapl_spsw_GenericWinSerialPortSocket_STOP_BITS_1_5:
+        case de_ibapl_spsw_spi_GenericWinSerialPortSocket_STOP_BITS_1_5:
             dcb.StopBits = ONE5STOPBITS;
             break;
-        case de_ibapl_spsw_GenericWinSerialPortSocket_STOP_BITS_2:
+        case de_ibapl_spsw_spi_GenericWinSerialPortSocket_STOP_BITS_2:
             dcb.StopBits = TWOSTOPBITS;
             break;
         default:
@@ -651,11 +702,11 @@ JNIEXPORT void JNICALL Java_de_ibapl_spsw_GenericWinSerialPortSocket_setStopBits
 }
 
 /*
- * Class:     de_ibapl_spsw_GenericWinSerialPortSocket
+ * Class:     de_ibapl_spsw_spi_GenericWinSerialPortSocket
  * Method:    setParity
  * Signature: (JI)V
  */
-JNIEXPORT void JNICALL Java_de_ibapl_spsw_GenericWinSerialPortSocket_setParity
+JNIEXPORT void JNICALL Java_de_ibapl_spsw_spi_GenericWinSerialPortSocket_setParity
 (JNIEnv *env, jobject object, jint parity) {
     DCB dcb;
     HANDLE hComm = (HANDLE) (*env)->GetLongField(env, object, spsw_fd);
@@ -665,19 +716,19 @@ JNIEXPORT void JNICALL Java_de_ibapl_spsw_GenericWinSerialPortSocket_setParity
     }
 
     switch (parity) {
-        case de_ibapl_spsw_GenericWinSerialPortSocket_PARITY_NONE:
+        case de_ibapl_spsw_spi_GenericWinSerialPortSocket_PARITY_NONE:
             dcb.Parity = NOPARITY; // switch parity input checking off
             break;
-        case de_ibapl_spsw_GenericWinSerialPortSocket_PARITY_ODD:
+        case de_ibapl_spsw_spi_GenericWinSerialPortSocket_PARITY_ODD:
             dcb.Parity = ODDPARITY;
             break;
-        case de_ibapl_spsw_GenericWinSerialPortSocket_PARITY_EVEN:
+        case de_ibapl_spsw_spi_GenericWinSerialPortSocket_PARITY_EVEN:
             dcb.Parity = EVENPARITY;
             break;
-        case de_ibapl_spsw_GenericWinSerialPortSocket_PARITY_MARK:
+        case de_ibapl_spsw_spi_GenericWinSerialPortSocket_PARITY_MARK:
             dcb.Parity = MARKPARITY;
             break;
-        case de_ibapl_spsw_GenericWinSerialPortSocket_PARITY_SPACE:
+        case de_ibapl_spsw_spi_GenericWinSerialPortSocket_PARITY_SPACE:
             dcb.Parity = SPACEPARITY;
             break;
         default:
@@ -691,11 +742,11 @@ JNIEXPORT void JNICALL Java_de_ibapl_spsw_GenericWinSerialPortSocket_setParity
 }
 
 /*
- * Class:     de_ibapl_spsw_GenericWinSerialPortSocket
+ * Class:     de_ibapl_spsw_spi_GenericWinSerialPortSocket
  * Method:    getBaudrate
  * Signature: (J)I
  */
-JNIEXPORT jint JNICALL Java_de_ibapl_spsw_GenericWinSerialPortSocket_getBaudrate0
+JNIEXPORT jint JNICALL Java_de_ibapl_spsw_spi_GenericWinSerialPortSocket_getBaudrate0
 (JNIEnv *env, jobject object) {
     DCB dcb;
     if (!GetCommState((HANDLE) (*env)->GetLongField(env, object, spsw_fd), &dcb)) {
@@ -706,11 +757,11 @@ JNIEXPORT jint JNICALL Java_de_ibapl_spsw_GenericWinSerialPortSocket_getBaudrate
 }
 
 /*
- * Class:     de_ibapl_spsw_GenericWinSerialPortSocket
+ * Class:     de_ibapl_spsw_spi_GenericWinSerialPortSocket
  * Method:    getDataBits
  * Signature: (J)I
  */
-JNIEXPORT jint JNICALL Java_de_ibapl_spsw_GenericWinSerialPortSocket_getDataBits0
+JNIEXPORT jint JNICALL Java_de_ibapl_spsw_spi_GenericWinSerialPortSocket_getDataBits0
 (JNIEnv *env, jobject object) {
     DCB dcb;
     if (!GetCommState((HANDLE) (*env)->GetLongField(env, object, spsw_fd), &dcb)) {
@@ -721,11 +772,11 @@ JNIEXPORT jint JNICALL Java_de_ibapl_spsw_GenericWinSerialPortSocket_getDataBits
 }
 
 /*
- * Class:     de_ibapl_spsw_GenericWinSerialPortSocket
+ * Class:     de_ibapl_spsw_spi_GenericWinSerialPortSocket
  * Method:    getStopBits
  * Signature: (J)I
  */
-JNIEXPORT jint JNICALL Java_de_ibapl_spsw_GenericWinSerialPortSocket_getStopBits0
+JNIEXPORT jint JNICALL Java_de_ibapl_spsw_spi_GenericWinSerialPortSocket_getStopBits0
 (JNIEnv *env, jobject object) {
     DCB dcb;
     if (!GetCommState((HANDLE) (*env)->GetLongField(env, object, spsw_fd), &dcb)) {
@@ -735,11 +786,11 @@ JNIEXPORT jint JNICALL Java_de_ibapl_spsw_GenericWinSerialPortSocket_getStopBits
 
     switch (dcb.StopBits) {
         case ONESTOPBIT:
-            return de_ibapl_spsw_GenericWinSerialPortSocket_STOP_BITS_1;
+            return de_ibapl_spsw_spi_GenericWinSerialPortSocket_STOP_BITS_1;
         case ONE5STOPBITS:
-            return de_ibapl_spsw_GenericWinSerialPortSocket_STOP_BITS_1_5;
+            return de_ibapl_spsw_spi_GenericWinSerialPortSocket_STOP_BITS_1_5;
         case TWOSTOPBITS:
-            return de_ibapl_spsw_GenericWinSerialPortSocket_STOP_BITS_2;
+            return de_ibapl_spsw_spi_GenericWinSerialPortSocket_STOP_BITS_2;
         default:
             throw_SerialPortException_With_PortName(env, "getStopBits0 Unknown stopbits", (jstring) (*env)->GetObjectField(env, object, spsw_portName));
             return -1;
@@ -747,11 +798,11 @@ JNIEXPORT jint JNICALL Java_de_ibapl_spsw_GenericWinSerialPortSocket_getStopBits
 }
 
 /*
- * Class:     de_ibapl_spsw_GenericWinSerialPortSocket
+ * Class:     de_ibapl_spsw_spi_GenericWinSerialPortSocket
  * Method:    getParity
  * Signature: (J)I
  */
-JNIEXPORT jint JNICALL Java_de_ibapl_spsw_GenericWinSerialPortSocket_getParity0
+JNIEXPORT jint JNICALL Java_de_ibapl_spsw_spi_GenericWinSerialPortSocket_getParity0
 (JNIEnv *env, jobject object) {
     DCB dcb;
     if (!GetCommState((HANDLE) (*env)->GetLongField(env, object, spsw_fd), &dcb)) {
@@ -761,15 +812,15 @@ JNIEXPORT jint JNICALL Java_de_ibapl_spsw_GenericWinSerialPortSocket_getParity0
 
     switch (dcb.Parity) {
         case NOPARITY:
-            return de_ibapl_spsw_GenericWinSerialPortSocket_PARITY_NONE;
+            return de_ibapl_spsw_spi_GenericWinSerialPortSocket_PARITY_NONE;
         case ODDPARITY:
-            return de_ibapl_spsw_GenericWinSerialPortSocket_PARITY_ODD;
+            return de_ibapl_spsw_spi_GenericWinSerialPortSocket_PARITY_ODD;
         case EVENPARITY:
-            return de_ibapl_spsw_GenericWinSerialPortSocket_PARITY_EVEN;
+            return de_ibapl_spsw_spi_GenericWinSerialPortSocket_PARITY_EVEN;
         case MARKPARITY:
-            return de_ibapl_spsw_GenericWinSerialPortSocket_PARITY_MARK;
+            return de_ibapl_spsw_spi_GenericWinSerialPortSocket_PARITY_MARK;
         case SPACEPARITY:
-            return de_ibapl_spsw_GenericWinSerialPortSocket_PARITY_SPACE;
+            return de_ibapl_spsw_spi_GenericWinSerialPortSocket_PARITY_SPACE;
         default:
             throw_SerialPortException_With_PortName(env, "getParity0 Wrong Parity", (jstring) (*env)->GetObjectField(env, object, spsw_portName));
             return -1;
@@ -781,7 +832,7 @@ JNIEXPORT jint JNICALL Java_de_ibapl_spsw_GenericWinSerialPortSocket_getParity0
  *
  * since 0.8
  */
-JNIEXPORT jint JNICALL Java_de_ibapl_spsw_GenericWinSerialPortSocket_getFlowControl0
+JNIEXPORT jint JNICALL Java_de_ibapl_spsw_spi_GenericWinSerialPortSocket_getFlowControl0
 (JNIEnv *env, jobject object) {
     jint returnValue = 0;
     DCB dcb;
@@ -805,7 +856,7 @@ JNIEXPORT jint JNICALL Java_de_ibapl_spsw_GenericWinSerialPortSocket_getFlowCont
     return returnValue;
 }
 
-JNIEXPORT void JNICALL Java_de_ibapl_spsw_GenericWinSerialPortSocket_printTermios
+JNIEXPORT void JNICALL Java_de_ibapl_spsw_spi_GenericWinSerialPortSocket_printTermios
 (JNIEnv *env, jobject object) {
     //TODO Print
 }

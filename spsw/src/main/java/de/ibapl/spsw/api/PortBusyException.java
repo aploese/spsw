@@ -1,4 +1,4 @@
-package de.ibapl.spsw;
+package de.ibapl.spsw.api;
 
 /*
  * #%L
@@ -27,7 +27,6 @@ package de.ibapl.spsw;
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  * #L%
  */
-
 /**
  *
  * @author aploese
@@ -37,5 +36,5 @@ public class PortBusyException extends SerialPortException {
     public PortBusyException(String portName) {
         super(portName, "Port is busy: " + portName);
     }
-    
+
 }

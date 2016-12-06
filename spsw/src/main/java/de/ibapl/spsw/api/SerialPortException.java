@@ -22,7 +22,7 @@
  * e-mail: scream3r.org@gmail.com
  * web-site: http://scream3r.org | http://code.google.com/p/java-simple-serial-connector/
  */
-package de.ibapl.spsw;
+package de.ibapl.spsw.api;
 
 /*
  * #%L
@@ -51,7 +51,6 @@ package de.ibapl.spsw;
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  * #L%
  */
-
 import java.io.IOException;
 import java.util.logging.Logger;
 
@@ -62,7 +61,7 @@ import java.util.logging.Logger;
 public class SerialPortException extends IOException {
 
     private final String portName;
-    
+
     /**
      * @return the portName
      */
@@ -74,6 +73,5 @@ public class SerialPortException extends IOException {
         super(message);
         this.portName = portName;
     }
-    
-    
+
 }

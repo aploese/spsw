@@ -28,12 +28,10 @@ package de.ibapl.spsw.tests;
  * #L%
  */
 
-import de.ibapl.spsw.AbstractSerialPortSocket;
+import de.ibapl.spsw.spi.SerialPortSocketFactoryImpl;
 import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import de.ibapl.spsw.SerialPortList;
-import de.ibapl.spsw.SerialPortSocket;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
@@ -62,14 +60,15 @@ public class IteratePortTest {
     @Test
     public void testLoadNativeLib() throws Exception {
         LOG.info("Load native Lib");
-        AbstractSerialPortSocket.loadNativeLib();
-        Assert.assertTrue(AbstractSerialPortSocket.isLibLoaded());
+        SerialPortSocketFactoryImpl serialPortSocketFactoryImpl = new SerialPortSocketFactoryImpl();
+        serialPortSocketFactoryImpl.loadNativeLib();
+        Assert.assertTrue(SerialPortSocketFactoryImpl.singleton().isLibLoaded());
     }
 
     @Test
     public void testList() throws Exception {
         LOG.info("Iterating serial ports");
-        Set<String> ports = SerialPortList.getPortNames(true);
+        Set<String> ports = SerialPortSocketFactoryImpl.singleton().getPortNames(true);
         LOG.info(ports == null ? "null" :  ports.size() + " serial ports found");
         for (String port : ports) {
             LOG.log(Level.INFO, "Found port: {0}", port);

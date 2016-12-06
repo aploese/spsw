@@ -35,15 +35,18 @@ import java.util.Properties;
 import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import de.ibapl.spsw.Baudrate;
-import de.ibapl.spsw.DataBits;
-import de.ibapl.spsw.FlowControl;
-import de.ibapl.spsw.GenericTermiosSerialPortSocket;
-import de.ibapl.spsw.Parity;
-import de.ibapl.spsw.SerialPortException;
-import de.ibapl.spsw.SerialPortSocket;
-import de.ibapl.spsw.StopBits;
+import de.ibapl.spsw.api.Baudrate;
+import de.ibapl.spsw.api.DataBits;
+import de.ibapl.spsw.api.FlowControl;
+import de.ibapl.spsw.spi.GenericTermiosSerialPortSocket;
+import de.ibapl.spsw.api.Parity;
+import de.ibapl.spsw.api.SerialPortException;
+import de.ibapl.spsw.api.SerialPortSocket;
+import de.ibapl.spsw.api.SerialPortSocketFactory;
+import de.ibapl.spsw.api.StopBits;
+import de.ibapl.spsw.spi.SerialPortSocketFactoryImpl;
 import org.junit.After;
+import org.junit.AfterClass;
 import org.junit.Assert;
 import org.junit.Assume;
 import org.junit.Before;
@@ -77,7 +80,7 @@ public class OnePortTest {
     @Before
     public void setUp() throws Exception {
         if (serialPortName != null) {
-            spc = SerialPortSocket.FACTORY.createSerialPortSocket(serialPortName);
+            spc = SerialPortSocketFactoryImpl.singleton().createSerialPortSocket(serialPortName);
         } else {
             spc = null;
         }
@@ -111,7 +114,7 @@ public class OnePortTest {
 
         File tmpFile = File.createTempFile("serial", "native");
         tmpFile.deleteOnExit();
-        SerialPortSocket sp = SerialPortSocket.FACTORY.createSerialPortSocket(tmpFile.getAbsolutePath());
+        SerialPortSocket sp = SerialPortSocketFactoryImpl.singleton().createSerialPortSocket(tmpFile.getAbsolutePath());
         sp.openAsIs();
         Assert.fail("No serial port opend");
     }
@@ -336,7 +339,7 @@ public class OnePortTest {
         LOG.log(Level.INFO, "run testOpen2");
 
         spc.openAsIs();
-        try (SerialPortSocket spc1 = SerialPortSocket.FACTORY.createSerialPortSocket(serialPortName)) {
+        try (SerialPortSocket spc1 = SerialPortSocketFactoryImpl.singleton().createSerialPortSocket(serialPortName)) {
             spc1.openAsIs();
         }
         Assert.fail();

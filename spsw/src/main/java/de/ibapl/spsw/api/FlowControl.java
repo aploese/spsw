@@ -1,4 +1,4 @@
-package de.ibapl.spsw;
+package de.ibapl.spsw.api;
 
 /*
  * #%L
@@ -27,15 +27,42 @@ package de.ibapl.spsw;
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  * #L%
  */
+import java.util.EnumSet;
+import java.util.Set;
 
 /**
  *
  * @author aploese
  */
-public class PortNotFoundException extends SerialPortException {
+public enum FlowControl {
 
-    public PortNotFoundException(String portName) {
-        super(portName, "Port not found: " + portName);
+    RTS_CTS_IN,
+    RTS_CTS_OUT,
+    XON_XOFF_IN,
+    XON_XOFF_OUT;
+
+    public static Set<FlowControl> getFC_NONE() {
+        return EnumSet.noneOf(FlowControl.class);
+    }
+
+    public static Set<FlowControl> getFC_RTS_CTS() {
+        return EnumSet.of(RTS_CTS_IN, RTS_CTS_OUT);
+    }
+
+    public static Set<FlowControl> getFC_XON_XOFF_IN() {
+        return EnumSet.of(XON_XOFF_IN);
+    }
+
+    public static Set<FlowControl> getFC__XON_XOFF_OUT() {
+        return EnumSet.of(XON_XOFF_OUT);
+    }
+
+    public static Set<FlowControl> getFC_XON_XOFF() {
+        return EnumSet.of(XON_XOFF_IN, XON_XOFF_OUT);
+    }
+
+    public static Set<FlowControl> getFC_RTS_CTS_XON_XOFF() {
+        return EnumSet.of(RTS_CTS_IN, RTS_CTS_OUT, XON_XOFF_IN, XON_XOFF_OUT);
     }
 
 }

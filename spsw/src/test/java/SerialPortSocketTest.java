@@ -25,13 +25,14 @@
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  * #L%
  */
-/*
+ /*
  * To change this license header, choose License Headers in Project Properties.
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
 
-import de.ibapl.spsw.AbstractSerialPortSocket;
+import de.ibapl.spsw.spi.AbstractSerialPortSocket;
+import de.ibapl.spsw.spi.SerialPortSocketFactoryImpl;
 import java.net.URL;
 import org.junit.After;
 import org.junit.AfterClass;
@@ -45,22 +46,22 @@ import static org.junit.Assert.*;
  * @author aploese
  */
 public class SerialPortSocketTest {
-    
+
     public SerialPortSocketTest() {
     }
-    
+
     @BeforeClass
     public static void setUpClass() {
     }
-    
+
     @AfterClass
     public static void tearDownClass() {
     }
-    
+
     @Before
     public void setUp() {
     }
-    
+
     @After
     public void tearDown() {
     }
@@ -70,10 +71,9 @@ public class SerialPortSocketTest {
     //
     // @Test
     // public void hello() {}
-    
     @Test
     public void testSPSWProps() {
-        URL u = AbstractSerialPortSocket.class.getClassLoader().getResource(AbstractSerialPortSocket.SPSW_PROPERTIES);
+        URL u = AbstractSerialPortSocket.class.getClassLoader().getResource(SerialPortSocketFactoryImpl.SPSW_PROPERTIES);
         assertNotNull(u);
     }
 }
