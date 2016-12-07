@@ -12,14 +12,12 @@
     </description>
 
     <properties>
-        <timestamp>${maven.build.timestamp}</timestamp>
-        <maven.build.timestamp.format>yyyyMMddHHmm</maven.build.timestamp.format>
         <compile.source>1.7</compile.source>
         <compile.target>1.7</compile.target>
         <sourceEncoding>UTF-8</sourceEncoding>
 
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <sonatypeOssDistMgmtSnapshotsUrl>https://oss.sonatype.org/content/repositories/snapshots/</sonatypeOssDistMgmtSnapshotsUrl>
+        <!--sonatypeOssDistMgmtSnapshotsUrl>https://oss.sonatype.org/content/repositories/snapshots/</sonatypeOssDistMgmtSnapshotsUrl-->
         <arguments />
 
     </properties>
@@ -82,89 +80,9 @@
 
 
     <modules>
-        <module>spsw</module>
-        <module>spsw-tests</module>
+        <module>de.ibapl.spsw.api</module>
+        <module>de.ibapl.spsw.provider</module>
     </modules>
-    
-    <profiles>
-        <profile>
-            <id>windows-x86</id>
-            <activation>
-                <os>
-                    <family>Windows</family>
-                    <arch>x86</arch>
-                </os>      
-            </activation>
-            <modules>
-                <module>spsw-Windows-x86</module>
-            </modules>
-        </profile>
-
-        <profile>
-            <id>windows-x86_64</id>
-            <activation>
-                <os>
-                    <family>Windows</family>
-                    <arch>x86_64</arch>
-                </os>      
-            </activation>
-            <modules>
-                <module>spsw-windows-x86_64</module>
-            </modules>
-        </profile>
-
-        <profile>
-            <id>linux-amd64</id>
-            <activation>
-                <os>
-                    <name>linux</name>
-                    <arch>amd64</arch>
-                </os>
-            </activation>
-            <modules>
-                <module>libspsw-linux-amd64</module>
-            </modules>
-        </profile>
-
-        <profile>
-            <id>all-cross-compile</id>
-            <modules>
-                <module>libspsw-linux-amd64</module>
-                <module>libspsw-linux-i386</module>
-                <module>libspsw-linux-armhf</module>
-                <module>spsw-windows-x86</module>
-                <module>spsw-windows-x86_64</module>
-            </modules>
-        </profile>
-
-        <profile>
-            <id>linux-i386</id>
-            <activation>
-                <os>
-                    <name>linux</name>
-                    <arch>i386</arch>
-                </os>
-            </activation>
-            <modules>
-                <module>libspsw-linux-i386</module>
-            </modules>
-        </profile>
-
-        <profile>
-            <id>linux-armhf</id>
-            <activation>
-                <os>
-                    <name>linux</name>
-                    <arch>arm</arch>
-                </os>
-            </activation>
-            <modules>
-                <module>libspsw-linux-armhf</module>
-            </modules>
-        </profile>
-
-    </profiles>
-
 
     <!-- Dependency Management and Dependencies to Inherit -->
     <dependencyManagement>
@@ -179,57 +97,17 @@
                 <artifactId>org.osgi.annotation</artifactId>
                 <version>6.0.0</version>
             </dependency>
+            <!-- https://mvnrepository.com/artifact/org.apache.servicemix.bundles/org.apache.servicemix.bundles.javax-inject -->
             <dependency>
-                <groupId>javax.inject</groupId>
-                <artifactId>javax.inject</artifactId>
-                <version>1</version>
+                <groupId>org.apache.servicemix.bundles</groupId>
+                <artifactId>org.apache.servicemix.bundles.javax-inject</artifactId>
+                <version>1_2</version>
             </dependency>
             <dependency>
                 <groupId>junit</groupId>
                 <artifactId>junit</artifactId>
                 <version>4.12</version>
                 <scope>test</scope>
-            </dependency>
-            <dependency>
-                <groupId>org.easymock</groupId>
-                <artifactId>easymock</artifactId>
-                <version>3.4</version>
-                <scope>test</scope>
-            </dependency>
-            <dependency>
-                <groupId>de.ibapl.spsw</groupId>
-                <artifactId>spsw</artifactId>
-                <version>1.0.0-SNAPSHOT</version>
-            </dependency>
-            <dependency>
-                <groupId>de.ibapl.spsw</groupId>
-                <artifactId>libspsw-linux-amd64</artifactId>
-                <version>1.0.0-SNAPSHOT</version>
-                <type>so</type>
-            </dependency>
-            <dependency>
-                <groupId>de.ibapl.spsw</groupId>
-                <artifactId>libspsw-linux-i386</artifactId>
-                <version>1.0.0-SNAPSHOT</version>
-                <type>so</type>
-            </dependency>
-            <dependency>
-                <groupId>de.ibapl.spsw</groupId>
-                <artifactId>libspsw-linux-armhf</artifactId>
-                <version>1.0.0-SNAPSHOT</version>
-                <type>so</type>
-            </dependency>
-            <dependency>
-                <groupId>de.ibapl.spsw</groupId>
-                <artifactId>spsw-windows-x86_64</artifactId>
-                <version>1.0.0-SNAPSHOT</version>
-                <type>dll</type>
-            </dependency>
-            <dependency>
-                <groupId>de.ibapl.spsw</groupId>
-                <artifactId>spsw-windows-x86</artifactId>
-                <version>1.0.0-SNAPSHOT</version>
-                <type>dll</type>
             </dependency>
         </dependencies>
     </dependencyManagement>
@@ -281,26 +159,11 @@
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-jar-plugin</artifactId>
                     <version>3.0.2</version>
-                </plugin>
-                <plugin>
-                    <!-- mvn package appassembler:assemble -->
-                    <groupId>org.apache.maven.plugins</groupId>
-                    <artifactId>maven-assembly-plugin</artifactId>
-                    <version>2.6</version>
                     <configuration>
-                        <descriptorRefs>
-                            <descriptorRef>jar-with-dependencies</descriptorRef>
-                        </descriptorRefs>
+                        <archive>
+                            <manifestFile>${project.build.outputDirectory}/META-INF/MANIFEST.MF</manifestFile>
+                        </archive>
                     </configuration>
-                    <executions>
-                        <execution>
-                            <id>make-assembly</id> <!-- this is used for inheritance merges -->
-                            <phase>package</phase> <!-- append to the packaging phase. -->
-                            <goals>
-                                <goal>single</goal> <!-- goals == mojos -->
-                            </goals>
-                        </execution>
-                    </executions>
                 </plugin>
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
@@ -312,19 +175,6 @@
                             <phase>verify</phase>
                             <goals>
                                 <goal>sign</goal>
-                            </goals>
-                        </execution>
-                    </executions>
-                </plugin>
-                <plugin>
-                    <groupId>org.codehaus.mojo</groupId>
-                    <artifactId>appassembler-maven-plugin</artifactId>
-                    <version>2.0.0</version>
-                    <executions>
-                        <execution>
-                            <phase>package</phase> <!-- append to the packaging phase. -->
-                            <goals>
-                                <goal>assemble</goal>
                             </goals>
                         </execution>
                     </executions>
@@ -367,19 +217,6 @@
                     <version>3.0.1</version>
                 </plugin>
                 <plugin>
-                    <groupId>org.codehaus.mojo</groupId>
-                    <artifactId>build-helper-maven-plugin</artifactId>
-                    <version>1.12</version>
-                    <executions>
-                        <execution>
-                            <id>parse-version</id>
-                            <goals>
-                                <goal>parse-version</goal>
-                            </goals>
-                        </execution>
-                    </executions>
-                </plugin>
-                <plugin>
                     <groupId>biz.aQute.bnd</groupId>
                     <artifactId>bnd-maven-plugin</artifactId>
                     <version>3.3.0</version>
@@ -392,18 +229,18 @@
                     </executions>
                 </plugin>
 			
-        </plugins>
+            </plugins>
                 
         </pluginManagement>
 
         <plugins>
             <plugin>
-                <groupId>org.codehaus.mojo</groupId>
-                <artifactId>build-helper-maven-plugin</artifactId>
-            </plugin>
-            <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
+            </plugin>
+            <plugin>
+                <groupId>biz.aQute.bnd</groupId>
+                <artifactId>bnd-maven-plugin</artifactId>
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
@@ -411,7 +248,7 @@
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-release-plugin</artifactId>
+                <artifactId>maven-jar-plugin</artifactId>
             </plugin>
         </plugins>
     </build>

@@ -1,0 +1,7 @@
+Bundle-Description: 				\
+	SPSW API
+
+Require-Capability: \
+	compile-only
+
+Export-Package: de.ibapl.spsw.api
