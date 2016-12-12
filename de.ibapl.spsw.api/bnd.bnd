@@ -4,4 +4,7 @@ Bundle-Description: 				\
 Require-Capability: \
 	compile-only
 
-Export-Package: de.ibapl.spsw.api
+Export-Package: \
+ de.ibapl.spsw.api,\
+ de.ibapl.spsw.spi,\
+ de.ibapl.spsw.logging
