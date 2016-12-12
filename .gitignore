@@ -1,2 +1,4 @@
 **/target/
-.metadata
+.gradle/
+**/generated/
+
