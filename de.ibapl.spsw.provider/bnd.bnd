@@ -18,6 +18,6 @@ Bundle-NativeCode: \
 
 #TODO remove export for spi
 Export-Package: \
- de.ibapl.spsw.api,\
- de.ibapl.spsw.spi,\
- de.ibapl.spsw.logging
+	de.ibapl.spsw.api,\
+	de.ibapl.spsw.logging
+Bundle-Version: 1.0.0
