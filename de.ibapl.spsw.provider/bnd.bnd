@@ -1,5 +1,5 @@
-Bundle-Description: 				\
-	SPSW SPI
+Bundle-Description: \
+ SPSW SPI
 
 Bundle-NativeCode: \
  lib/libspsw-linux-amd64-1.0.0-SNAPSHOT.so; osname=Linux; processor=x86_64,\
@@ -8,7 +8,5 @@ Bundle-NativeCode: \
  lib/spsw-windows-x86_64-1.0.0-SNAPSHOT.dll; osname=Win32; processor=x86_64,\
  lib/spsw-windows-x86-1.0.0-SNAPSHOT.dll; osname=Win32; processor=x86
 
-Require-Capability: 
-
--buildpath: \
-	de.ibapl.spsw.api;version=1.0
+Export-Package: \
+ de.ibapl.spsw.api

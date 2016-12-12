@@ -6,6 +6,7 @@
 package de.ibapl.spsw.provider;
 
 import de.ibapl.spsw.api.AbstractSerialPortSocketFactory;
+import de.ibapl.spsw.api.SerialPortSocketFactory;
 import de.ibapl.spsw.api.SerialPortSocket;
 import java.io.File;
 import java.io.FileOutputStream;
@@ -27,8 +28,8 @@ import org.osgi.service.component.annotations.ServiceScope;
  * @author aploese
  */
 @Singleton
-@Component(name = "SerialPortSocketFactory", scope = ServiceScope.SINGLETON)
-public class SerialPortSocketFactoryImpl extends AbstractSerialPortSocketFactory {
+@Component(name = "ide.ibapl.spsw.provider", scope = ServiceScope.SINGLETON)
+public class SerialPortSocketFactoryImpl extends AbstractSerialPortSocketFactory implements SerialPortSocketFactory {
 
     protected final static Logger LOG = Logger.getLogger("de.ibapl.spsw.provider");
 

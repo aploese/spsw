@@ -172,7 +172,7 @@
                     <executions>
                         <execution>
                             <id>sign-artifacts</id>
-                            <phase>verify</phase>
+                            <phase>deploy</phase>
                             <goals>
                                 <goal>sign</goal>
                             </goals>
@@ -249,6 +249,10 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-jar-plugin</artifactId>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-gpg-plugin</artifactId>
             </plugin>
         </plugins>
     </build>

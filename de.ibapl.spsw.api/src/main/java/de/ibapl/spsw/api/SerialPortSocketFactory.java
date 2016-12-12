@@ -13,7 +13,7 @@ import org.osgi.annotation.versioning.ProviderType;
  * @author aploese
  */
 @Named
-@ProviderType
+@ProviderType()
 public interface SerialPortSocketFactory {
 
     SerialPortSocket createSerialPortSocket(String portName);
