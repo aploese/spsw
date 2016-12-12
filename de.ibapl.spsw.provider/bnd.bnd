@@ -8,11 +8,8 @@ Bundle-NativeCode: \
  lib/spsw-windows-x86_64-1.0.0-SNAPSHOT.dll; osname=Win32; processor=x86_64,\
  lib/spsw-windows-x86-1.0.0-SNAPSHOT.dll; osname=Win32; processor=x86
 
-Import-Package: \
- de.ibapl.spsw.api,\
- de.ibapl.spsw.spi,\
- de.ibapl.spsw.logging
-
+#TODO remove export for spi
 Export-Package: \
  de.ibapl.spsw.api,\
+ de.ibapl.spsw.spi,\
  de.ibapl.spsw.logging

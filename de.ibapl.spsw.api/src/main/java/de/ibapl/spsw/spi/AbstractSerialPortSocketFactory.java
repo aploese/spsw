@@ -22,7 +22,7 @@
  * e-mail: scream3r.org@gmail.com
  * web-site: http://scream3r.org | http://code.google.com/p/java-simple-serial-connector/
  */
-package de.ibapl.spsw.api;
+package de.ibapl.spsw.spi;
 
 /*
  * #%L
@@ -51,6 +51,8 @@ package de.ibapl.spsw.api;
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  * #L%
  */
+import de.ibapl.spsw.api.SerialPortSocket;
+import de.ibapl.spsw.api.SerialPortSocketFactory;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;

@@ -5,7 +5,7 @@
  */
 package de.ibapl.spsw.provider;
 
-import de.ibapl.spsw.api.AbstractSerialPortSocketFactory;
+import de.ibapl.spsw.spi.AbstractSerialPortSocketFactory;
 import de.ibapl.spsw.api.SerialPortSocketFactory;
 import de.ibapl.spsw.api.SerialPortSocket;
 import java.io.File;
