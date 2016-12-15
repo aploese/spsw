@@ -87,6 +87,9 @@ public class SerialPortSocketFactoryImpl extends AbstractSerialPortSocketFactory
             System.loadLibrary(libName);
             LOG.log(Level.INFO, "Lib loaded via System.loadLibrary(\"{0}\")", libName);
             return true;
+        } catch (UnsatisfiedLinkError ule) {
+            LOG.log(Level.INFO, "Native lib {0} not loaded: {1}", new String[]{libName, ule.getMessage()});
+            libLoaded = false;
         } catch (Throwable t) {
             LOG.log(Level.INFO, "Native lib not loaded.", t);
             libLoaded = false;
