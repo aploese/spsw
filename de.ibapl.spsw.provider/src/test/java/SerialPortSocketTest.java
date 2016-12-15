@@ -31,7 +31,7 @@
  * and open the template in the editor.
  */
 
-import de.ibapl.spsw.provider.AbstractSerialPortSocket;
+import de.ibapl.spsw.spi.AbstractSerialPortSocket;
 import de.ibapl.spsw.provider.SerialPortSocketFactoryImpl;
 import java.net.URL;
 import org.junit.After;

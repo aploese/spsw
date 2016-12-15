@@ -5,6 +5,7 @@
  */
 package de.ibapl.spsw.provider;
 
+import de.ibapl.spsw.spi.AbstractSerialPortSocket;
 import de.ibapl.spsw.spi.AbstractSerialPortSocketFactory;
 import de.ibapl.spsw.api.SerialPortSocketFactory;
 import de.ibapl.spsw.api.SerialPortSocket;
@@ -28,7 +29,7 @@ import org.osgi.service.component.annotations.ServiceScope;
  * @author aploese
  */
 @Singleton
-@Component(name = "ide.ibapl.spsw.provider", scope = ServiceScope.SINGLETON)
+@Component(name = "de.ibapl.spsw.provider", scope = ServiceScope.SINGLETON)
 public class SerialPortSocketFactoryImpl extends AbstractSerialPortSocketFactory implements SerialPortSocketFactory {
 
     protected final static Logger LOG = Logger.getLogger("de.ibapl.spsw.provider");

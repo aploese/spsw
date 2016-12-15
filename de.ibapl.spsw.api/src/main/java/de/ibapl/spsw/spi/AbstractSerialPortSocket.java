@@ -1,4 +1,4 @@
-package de.ibapl.spsw.provider;
+package de.ibapl.spsw.spi;
 
 /*
  * #%L
@@ -71,7 +71,7 @@ public abstract class AbstractSerialPortSocket implements SerialPortSocket {
     private final String portName;
     private boolean open = false;
 
-    AbstractSerialPortSocket(String portName) {
+    protected AbstractSerialPortSocket(String portName) {
         SecurityManager security = System.getSecurityManager();
         if (security != null) {
             security.checkRead(portName);
