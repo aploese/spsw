@@ -50,7 +50,7 @@ JNIEXPORT jint JNICALL JNI_OnLoad(JavaVM *jvm, void *reserved) {
     if (getEnvResult != JNI_OK){
         return getEnvResult;
     }
-    jclass spswClass = (*env)->FindClass(env, "Lde/ibapl/spsw/GenericWinSerialPortSocket;");
+    jclass spswClass = (*env)->FindClass(env, "Lde/ibapl/spsw/provider/GenericWinSerialPortSocket;");
     spsw_fd = (*env)->GetFieldID(env, spswClass, "fd", "J");
     spsw_open = (*env)->GetFieldID(env, spswClass, "open", "Z");
     spsw_portName = (*env)->GetFieldID(env, spswClass, "portName", "Ljava/lang/String;");
