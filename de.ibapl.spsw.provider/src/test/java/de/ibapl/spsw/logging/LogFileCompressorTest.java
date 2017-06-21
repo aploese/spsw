@@ -46,7 +46,7 @@ public class LogFileCompressorTest {
     public void testCompress() throws Exception {
         System.out.println("Compress");
         ByteArrayOutputStream os = new ByteArrayOutputStream();
-        LogFileCompressor instance = new LogFileCompressor(LogFileCompressorTest.class.getResourceAsStream("testRead_ttyUSB1.txt"), os);
+        LogFileCompressor.compress(LogFileCompressorTest.class.getResourceAsStream("testRead_ttyUSB1.txt"), os);
         assertArrayEquals(new String[]{"OP @2015-06-16 17:52:36.778 778 Raw()",
             "RS @2015-06-16 17:52:36.799",
             "TS @2015-06-16 17:52:36.849",

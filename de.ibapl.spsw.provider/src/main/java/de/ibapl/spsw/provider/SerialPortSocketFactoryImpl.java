@@ -128,7 +128,7 @@ public class SerialPortSocketFactoryImpl extends AbstractSerialPortSocketFactory
                 }
                 fos.flush();
             }
-            LOG.log(Level.INFO, "Try temp copy with libName: {0}", libName);
+            LOG.log(Level.INFO, "Try temp copy\nfrom:\t{0}\nto:\t{1}", new String[] {libName, tmpLib.getAbsolutePath()});
             libName = tmpLib.getAbsolutePath();
             try {
                 System.load(libName);

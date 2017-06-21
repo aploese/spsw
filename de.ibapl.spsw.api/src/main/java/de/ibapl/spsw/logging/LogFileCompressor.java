@@ -21,7 +21,11 @@ public class LogFileCompressor extends LogReader {
     private long readTs;
     private long readStartTs;
 
-    public LogFileCompressor(InputStream is, OutputStream os) throws IOException {
+    public static void compress(InputStream is, OutputStream os) throws IOException {
+        new LogFileCompressor(is, os);
+    }
+    
+    private LogFileCompressor(InputStream is, OutputStream os) throws IOException {
         super(is);
         logWriter = new LogWriter(os);
         read();

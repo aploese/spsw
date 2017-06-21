@@ -184,6 +184,8 @@ public abstract class AbstractSerialPortSocketFactory implements SerialPortSocke
                 return "windows";
             case "Windows 8":
                 return "windows";
+            case "Windows 10":
+                return "windows";
             case "Windows 2012":
                 return "windows";
             case "Windows CE":
