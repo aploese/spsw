@@ -217,7 +217,7 @@
         </profile>
         <profile>
             <!-- install g++-mingw-w64, gcc-multilib and g++-multilib to get this work -->
-            <id>i686-w64-mingw32-g++</id>
+            <id>i686-w64-mingw32-gcc</id>
             <build>
                 <plugins>
 		
@@ -275,7 +275,7 @@
         </profile>
         <profile>
             <!-- install gcc-multilib and g++-multilib to get this work -->
-            <id>x86_64-w64-mingw32-g++</id>
+            <id>x86_64-w64-mingw32-gcc</id>
             <build>
                 <plugins>
                     <plugin>
