@@ -16,11 +16,13 @@ import de.ibapl.spsw.api.FlowControl;
 import de.ibapl.spsw.api.Parity;
 import de.ibapl.spsw.api.SerialPortSocket;
 import de.ibapl.spsw.api.StopBits;
+import org.osgi.annotation.versioning.ProviderType;
 
 /**
  *
  * @author aploese
  */
+@ProviderType
 public class LoggingSerialPortSocket implements SerialPortSocket {
 
     private class LOS extends OutputStream {

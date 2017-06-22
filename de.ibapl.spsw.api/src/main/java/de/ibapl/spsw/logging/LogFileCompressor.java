@@ -9,11 +9,13 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.Arrays;
+import org.osgi.annotation.versioning.ProviderType;
 
 /**
  *
  * @author aploese
  */
+@ProviderType
 public class LogFileCompressor extends LogReader {
 
     private final LogWriter logWriter;

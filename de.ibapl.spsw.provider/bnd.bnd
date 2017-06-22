@@ -1,6 +1,0 @@
-Bundle-NativeCode: \
- lib/libspsw-linux-amd64-1.0.0-SNAPSHOT.so; osname=Linux; processor=x86_64,\
- lib/libspsw-linux-i386-1.0.0-SNAPSHOT.so; osname=Linux; processor=x86,\
- lib/libspsw-linux-armhf-1.0.0-SNAPSHOT.so; osname=Linux; processor=arm_be,\
- lib/spsw-windows-arm64-1.0.0-SNAPSHOT.dll; osname=Win32; processor=x86_64,\
- lib/spsw-windows-x86-1.0.0-SNAPSHOT.dll; osname=Win32; processor=x86

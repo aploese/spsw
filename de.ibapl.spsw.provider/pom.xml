@@ -12,6 +12,15 @@
     <version>1.0.0-SNAPSHOT</version>
     <name>SPSW Provider</name>
     
+    <properties>
+        <version.windows.amd64>1.0.0</version.windows.amd64>
+        <version.windows.x86>1.0.0</version.windows.x86>
+        <version.linux.i386>1.0.0</version.linux.i386>
+        <version.linux.amd64>1.0.0</version.linux.amd64>
+        <version.linux.armhf>1.0.0</version.linux.armhf>
+    </properties>
+    
+    
     <dependencies>
         <dependency>
             <groupId>org.osgi</groupId>
@@ -57,6 +66,21 @@
                 <filtering>true</filtering>
             </resource>
         </resources>
+    <plugins>
+        <plugin>
+                    <groupId>biz.aQute.bnd</groupId>
+                    <artifactId>bnd-maven-plugin</artifactId>
+                    <configuration><bnd><![CDATA[
+Bundle-NativeCode: \
+ lib/libspsw-linux-amd64-${version.linux.amd64}.so; osname=Linux; processor=x86_64,\
+ lib/libspsw-linux-i386-${version.linux.i386}.so; osname=Linux; processor=x86,\
+ lib/libspsw-linux-armhf-${version.linux.armhf}.so; osname=Linux; processor=arm_be,\
+ lib/spsw-windows-amd64-${version.windows.amd64}.dll; osname=Win32; processor=x86_64,\
+ lib/spsw-windows-x86-${version.windows.x86}.dll; osname=Win32; processor=x86
+]]></bnd>
+                    </configuration>
+                </plugin>
+    </plugins>
     </build>
     
     <profiles>
@@ -105,7 +129,7 @@
  
                                     <!-- wait for 1.0-alpha9 to define linkerOutputExtension-->
                                     <linkerEndOptions>
-                                        <linkerEndOption>-o ${basedir}/src/main/resources/lib/libspsw-linux-amd64-${project.version}.so</linkerEndOption>
+                                        <linkerEndOption>-o ${basedir}/src/main/resources/lib/libspsw-linux-amd64-${version.linux.amd64}.so</linkerEndOption>
                                     </linkerEndOptions>
                                 </configuration>
                             </execution>
@@ -155,7 +179,7 @@
                                     </linkerStartOptions>
                                     <linkerFinalName></linkerFinalName>
                                     <linkerEndOptions>
-                                        <linkerEndOption>-o ${basedir}/src/main/resources/lib/libspsw-linux-i386-${project.version}.so</linkerEndOption>
+                                        <linkerEndOption>-o ${basedir}/src/main/resources/lib/libspsw-linux-i386-${version.linux.i386}.so</linkerEndOption>
                                     </linkerEndOptions>
                                 </configuration>
                             </execution>
@@ -206,7 +230,7 @@
                                     </linkerStartOptions>
                                     <linkerFinalName></linkerFinalName>
                                     <linkerEndOptions>
-                                        <linkerEndOption>-o ${basedir}/src/main/resources/lib/libspsw-linux-armhf-${project.version}.so</linkerEndOption>
+                                        <linkerEndOption>-o ${basedir}/src/main/resources/lib/libspsw-linux-armhf-${version.linux.armhf}.so</linkerEndOption>
                                     </linkerEndOptions>
                                 </configuration>
                             </execution>
@@ -264,7 +288,7 @@
                                     </linkerStartOptions>
                                     <linkerFinalName></linkerFinalName>
                                     <linkerEndOptions>
-                                        <linkerEndOption>-o ${basedir}/src/main/resources/lib/spsw-windows-x86-${project.version}.dll</linkerEndOption>
+                                        <linkerEndOption>-o ${basedir}/src/main/resources/lib/spsw-windows-x86-${version.windows.x86}.dll</linkerEndOption>
                                     </linkerEndOptions>
                                 </configuration>
                             </execution>
@@ -322,7 +346,7 @@
                                     </linkerStartOptions>
                                     <linkerFinalName></linkerFinalName>
                                     <linkerEndOptions>
-                                        <linkerEndOption>-o ${basedir}/src/main/resources/lib/spsw-windows-amd64-${project.version}.dll</linkerEndOption>
+                                        <linkerEndOption>-o ${basedir}/src/main/resources/lib/spsw-windows-amd64-${version.windows.amd64}.dll</linkerEndOption>
                                     </linkerEndOptions>
                                 </configuration>
                             </execution>

@@ -79,7 +79,7 @@ public class SerialPortSocketFactoryImpl extends AbstractSerialPortSocketFactory
             throw new RuntimeException("Can't load version information", ex);
         }
 
-        libName = String.format("spsw-%s-%s-%s", getOsName(), getArch(), p.getProperty("version"));
+        libName = String.format("spsw-%s-%s-%s", getOsName(), getArch(), p.getProperty("version." + getOsName() + "." + getArch()));
 
         //Try it plain - OSGi will load with the bundle classloader - or if there are in the "java.library.path"
         LOG.log(Level.INFO, "Try plain with libName: {0}", libName);

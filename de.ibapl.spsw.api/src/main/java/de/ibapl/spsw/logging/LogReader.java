@@ -11,11 +11,13 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import org.osgi.annotation.versioning.ProviderType;
 
 /**
  *
  * @author aploese
  */
+@ProviderType
 public abstract class LogReader {
 
     private final InputStream is;

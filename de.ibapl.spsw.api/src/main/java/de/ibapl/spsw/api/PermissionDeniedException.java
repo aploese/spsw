@@ -1,5 +1,7 @@
 package de.ibapl.spsw.api;
 
+import org.osgi.annotation.versioning.ProviderType;
+
 /*
  * #%L
  * SPSW Java
@@ -31,6 +33,7 @@ package de.ibapl.spsw.api;
  *
  * @author aploese
  */
+@ProviderType
 public class PermissionDeniedException extends SerialPortException {
 
     public PermissionDeniedException(String portName) {

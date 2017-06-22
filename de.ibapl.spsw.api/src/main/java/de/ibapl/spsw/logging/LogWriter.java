@@ -8,11 +8,13 @@ package de.ibapl.spsw.logging;
 import java.io.OutputStream;
 import java.io.PrintStream;
 import java.util.Date;
+import org.osgi.annotation.versioning.ProviderType;
 
 /**
  *
  * @author aploese
  */
+@ProviderType
 public class LogWriter {
 
     private final PrintStream log;

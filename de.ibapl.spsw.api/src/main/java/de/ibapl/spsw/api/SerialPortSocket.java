@@ -32,11 +32,13 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.Set;
+import org.osgi.annotation.versioning.ProviderType;
 
 /**
  *
  * @author scream3r
  */
+@ProviderType
 public interface SerialPortSocket extends Closeable {
 
     boolean isClosed();

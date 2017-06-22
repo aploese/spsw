@@ -81,6 +81,8 @@
     <modules>
         <module>de.ibapl.spsw.api</module>
         <module>de.ibapl.spsw.provider</module>
+        <module>de.ibapl.spsw.provider.osgi-tests</module>
+        <module>de.ibapl.spsw.provider.osgi-integration-tests</module>
     </modules>
 
     <!-- Dependency Management and Dependencies to Inherit -->

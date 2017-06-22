@@ -52,12 +52,13 @@ package de.ibapl.spsw.api;
  * #L%
  */
 import java.io.IOException;
-import java.util.logging.Logger;
+import org.osgi.annotation.versioning.ProviderType;
 
 /**
  *
  * @author scream3r
  */
+@ProviderType
 public class SerialPortException extends IOException {
 
     private final String portName;

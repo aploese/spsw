@@ -29,11 +29,13 @@ package de.ibapl.spsw.api;
  */
 import java.util.EnumSet;
 import java.util.Set;
+import org.osgi.annotation.versioning.ProviderType;
 
 /**
  *
  * @author aploese
  */
+@ProviderType
 public enum FlowControl {
 
     RTS_CTS_IN,
