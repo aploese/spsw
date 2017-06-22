@@ -187,6 +187,8 @@ public class SerialPortSocketFactoryImpl extends AbstractSerialPortSocketFactory
                 return new GenericWinSerialPortSocket(portName);
             case "Windows 8":
                 return new GenericWinSerialPortSocket(portName);
+            case "Windows 10":
+                return new GenericWinSerialPortSocket(portName);
             case "Windows 2012":
                 return new GenericWinSerialPortSocket(portName);
             case "Windows CE":
@@ -214,7 +216,7 @@ public class SerialPortSocketFactoryImpl extends AbstractSerialPortSocketFactory
             case "OpenVMS":
                 throw new UnsupportedOperationException("OpenVMS is currently not supported yet");
             default:
-                throw new RuntimeException("Can't figure out OS: " + System.getProperty("os.name"));
+                throw new RuntimeException("Can't create serial socket! Reason con't figure out OS: " + System.getProperty("os.name"));
         }
     }
 
