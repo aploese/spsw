@@ -322,7 +322,7 @@
                                     </linkerStartOptions>
                                     <linkerFinalName></linkerFinalName>
                                     <linkerEndOptions>
-                                        <linkerEndOption>-o ${basedir}/src/main/resources/lib/spsw-windows-x86_64-${project.version}.dll</linkerEndOption>
+                                        <linkerEndOption>-o ${basedir}/src/main/resources/lib/spsw-windows-amd64-${project.version}.dll</linkerEndOption>
                                     </linkerEndOptions>
                                 </configuration>
                             </execution>
