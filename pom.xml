@@ -83,10 +83,11 @@
         </repository>
     </distributionManagement>
 
-    <scm>
-        <developerConnection>http://github.com/aploese/spsw</developerConnection>
-        <connection>http://github.com/aploese/spsw</connection>
+
+   <scm>
         <url>http://github.com/aploese/spsw</url>
+        <connection>scm:git:git://github.com/aploese/spsw.git</connection>
+        <developerConnection>scm:git:git@github.com:aploese/spsw.git</developerConnection>
     </scm>
 
 
