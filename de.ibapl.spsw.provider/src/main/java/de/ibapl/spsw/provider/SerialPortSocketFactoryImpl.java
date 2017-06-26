@@ -79,7 +79,7 @@ public class SerialPortSocketFactoryImpl extends AbstractSerialPortSocketFactory
             throw new RuntimeException("Can't load version information", ex);
         }
 
-        libName = String.format("spsw-%s-%s-%s", getOsName(), getArch(), p.getProperty("version." + getOsName() + "." + getArch()));
+        libName = String.format("spsw-%s", p.getProperty("version." + getOsName() + "." + getArch()));
 
         //Try it plain - OSGi will load with the bundle classloader - or if there are in the "java.library.path"
         LOG.log(Level.INFO, "Try plain with libName: {0}", libName);
@@ -95,20 +95,27 @@ public class SerialPortSocketFactoryImpl extends AbstractSerialPortSocketFactory
             libLoaded = false;
         }
 
-        final String libResourceName = "lib/" + System.mapLibraryName(libName);
-        //Try from resource like the tests do
+        //Figure out os and arch
+        final String libResourceName = String.format("lib/%s/%s/%s", getOsName(), getArch(), System.mapLibraryName(libName));
+        //Try from filesystem like the tests do
         libName = getClass().getClassLoader().getResource(libResourceName).getFile();
-        LOG.log(Level.INFO, "Try from resource with libName: {0}", libName);
+        if (new File(libName).exists()) {
+            //Unbundled aka not within a jar
+            LOG.log(Level.INFO, "Try from filesystem with libName: {0}", libName);
         try {
             System.load(libName);
             LOG.log(Level.INFO, "Lib loaded via System.load(\"{0}\")", libName);
             return true;
+        } catch (UnsatisfiedLinkError ule) {
+            LOG.log(Level.INFO, "Native lib {0} not loaded: {1}", new String[]{libName, ule.getMessage()});
+            libLoaded = false;
         } catch (Throwable t) {
             LOG.log(Level.INFO, "Native lib not loaded.", t);
             libLoaded = false;
         }
+        }
 
-        //If nothing helps do it the hard way: unpack to temp and load that.
+        //If nothing helps, do it the hard way: unpack to temp and load that.
         File tmpLib = null;
         try (InputStream is = AbstractSerialPortSocket.class.getClassLoader().getResourceAsStream(libResourceName)) {
             if (is == null) {

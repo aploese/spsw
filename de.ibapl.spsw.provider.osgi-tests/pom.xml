@@ -17,16 +17,12 @@
             <version>1.0.0-SNAPSHOT</version>
         </dependency>
         
-        <!--dependency>
-            <groupId>de.ibapl.spsw</groupId>
-            <artifactId>de.ibapl.spsw.provider</artifactId>
-            <version>1.0.0-SNAPSHOT</version>
-        </dependency-->
         <dependency>
             <groupId>org.osgi</groupId>
             <artifactId>org.osgi.framework</artifactId>
             <version>1.8.0</version>
         </dependency>
+
         <dependency>
             <groupId>org.osgi</groupId>
             <artifactId>osgi.enroute.junit.wrapper</artifactId>

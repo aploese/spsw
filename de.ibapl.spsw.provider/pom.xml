@@ -52,35 +52,46 @@
             <resource>
                 <directory>src/main/resources</directory>
                 <includes>
-                    <include>lib/*.so</include>
-                    <include>lib/*.dll</include>
+                    <include>lib/**/*.so</include>
+                    <include>lib/**/*.dll</include>
                 </includes>
                 <filtering>false</filtering>
             </resource>
             <resource>
                 <directory>src/main/resources</directory>
                 <excludes>
-                    <exclude>lib/*.so</exclude>
-                    <exclude>lib/*.dll</exclude>
+                    <exclude>lib/**/*.so</exclude>
+                    <exclude>lib/**/*.dll</exclude>
                 </excludes>    
                 <filtering>true</filtering>
             </resource>
         </resources>
-    <plugins>
-        <plugin>
-                    <groupId>biz.aQute.bnd</groupId>
-                    <artifactId>bnd-maven-plugin</artifactId>
-                    <configuration><bnd><![CDATA[
+        <plugins>
+            <plugin>
+                <groupId>biz.aQute.bnd</groupId>
+                <artifactId>bnd-maven-plugin</artifactId>
+                <configuration>
+                    <bnd><![CDATA[
 Bundle-NativeCode: \
- lib/libspsw-linux-amd64-${version.linux.amd64}.so; osname=Linux; processor=x86_64,\
- lib/libspsw-linux-i386-${version.linux.i386}.so; osname=Linux; processor=x86,\
- lib/libspsw-linux-armhf-${version.linux.armhf}.so; osname=Linux; processor=arm_be,\
- lib/spsw-windows-amd64-${version.windows.amd64}.dll; osname=Win32; processor=x86_64,\
- lib/spsw-windows-x86-${version.windows.x86}.dll; osname=Win32; processor=x86
+ lib/linux/armhf/libspsw-${version.linux.armhf}.so; \
+  osname=Linux; \
+  processor=arm_be; processor=arm,\
+ lib/linux/i386/libspsw-${version.linux.i386}.so; \
+  osname=Linux; \
+  processor=x86,\
+ lib/linux/amd64/libspsw-${version.linux.amd64}.so; \
+  osname=Linux; \
+  processor=x86-64,\
+ lib/windows/amd64/spsw-${version.windows.amd64}.dll; \
+  osname=Windows7; osname=Windows8; osname=Windows10; \
+  processor=x86-64,\
+ lib/windows/x86/spsw-${version.windows.x86}.dll; \
+  osname=Windows7; osname=Windows8; osname=Windows10; \
+  processor=x86
 ]]></bnd>
-                    </configuration>
-                </plugin>
-    </plugins>
+                </configuration>
+            </plugin>
+        </plugins>
     </build>
     
     <profiles>
@@ -129,7 +140,7 @@ Bundle-NativeCode: \
  
                                     <!-- wait for 1.0-alpha9 to define linkerOutputExtension-->
                                     <linkerEndOptions>
-                                        <linkerEndOption>-o ${basedir}/src/main/resources/lib/libspsw-linux-amd64-${version.linux.amd64}.so</linkerEndOption>
+                                        <linkerEndOption>-o ${basedir}/src/main/resources/lib/linux/amd64/libspsw-${version.linux.amd64}.so</linkerEndOption>
                                     </linkerEndOptions>
                                 </configuration>
                             </execution>
@@ -179,7 +190,7 @@ Bundle-NativeCode: \
                                     </linkerStartOptions>
                                     <linkerFinalName></linkerFinalName>
                                     <linkerEndOptions>
-                                        <linkerEndOption>-o ${basedir}/src/main/resources/lib/libspsw-linux-i386-${version.linux.i386}.so</linkerEndOption>
+                                        <linkerEndOption>-o ${basedir}/src/main/resources/lib/linux/i386/libspsw-${version.linux.i386}.so</linkerEndOption>
                                     </linkerEndOptions>
                                 </configuration>
                             </execution>
@@ -230,7 +241,7 @@ Bundle-NativeCode: \
                                     </linkerStartOptions>
                                     <linkerFinalName></linkerFinalName>
                                     <linkerEndOptions>
-                                        <linkerEndOption>-o ${basedir}/src/main/resources/lib/libspsw-linux-armhf-${version.linux.armhf}.so</linkerEndOption>
+                                        <linkerEndOption>-o ${basedir}/src/main/resources/lib/linux/armhf/libspsw-${version.linux.armhf}.so</linkerEndOption>
                                     </linkerEndOptions>
                                 </configuration>
                             </execution>
@@ -288,7 +299,7 @@ Bundle-NativeCode: \
                                     </linkerStartOptions>
                                     <linkerFinalName></linkerFinalName>
                                     <linkerEndOptions>
-                                        <linkerEndOption>-o ${basedir}/src/main/resources/lib/spsw-windows-x86-${version.windows.x86}.dll</linkerEndOption>
+                                        <linkerEndOption>-o ${basedir}/src/main/resources/lib/windows/x86/spsw-${version.windows.x86}.dll</linkerEndOption>
                                     </linkerEndOptions>
                                 </configuration>
                             </execution>
@@ -346,7 +357,7 @@ Bundle-NativeCode: \
                                     </linkerStartOptions>
                                     <linkerFinalName></linkerFinalName>
                                     <linkerEndOptions>
-                                        <linkerEndOption>-o ${basedir}/src/main/resources/lib/spsw-windows-amd64-${version.windows.amd64}.dll</linkerEndOption>
+                                        <linkerEndOption>-o ${basedir}/src/main/resources/lib/windows/amd64/spsw-${version.windows.amd64}.dll</linkerEndOption>
                                     </linkerEndOptions>
                                 </configuration>
                             </execution>

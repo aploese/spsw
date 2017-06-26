@@ -326,123 +326,42 @@ public abstract class AbstractSerialPortSocketFactory implements SerialPortSocke
      * <b>zero</b> length will be returned (since jSSC-0.8 in previous versions
      * null will be returned)
      */
+    @Override
     public Set<String> getPortNames(boolean hideBusyPorts) {
         return getPortNames(getPortnamesPath(), getPortnamesRegExp(), new PortnamesComparator(), hideBusyPorts);
     }
 
-    /**
-     * Get sorted array of serial ports in the system located on searchPath
-     *
-     * @param searchPath Path for searching serial ports <b>(not null)</b><br>
-     * The default search paths:<br>
-     * Linux, MacOSX: <b>/dev/</b><br>
-     * Solaris: <b>/dev/term/</b><br>
-     * Windows: <b>this parameter ingored</b>
-     *
-     * @return String array. If there is no ports in the system String[]
-     *
-     * @since 2.3.0
-     */
+    @Override
     public Set<String> getPortNames(String searchPath, boolean hideBusyPorts) {
         return getPortNames(searchPath, getPortnamesRegExp(), new PortnamesComparator(), hideBusyPorts);
     }
 
-    /**
-     * Get sorted array of serial ports in the system matched pattern
-     *
-     * @param pattern RegExp pattern for matching port names <b>(not null)</b>
-     *
-     * @return String array. If there is no ports in the system String[]
-     *
-     * @since 2.3.0
-     */
+    @Override
     public Set<String> getPortNames(Pattern pattern, boolean hideBusyPorts) {
         return getPortNames(getPortnamesPath(), pattern, new PortnamesComparator(), hideBusyPorts);
     }
 
-    /**
-     * Get sorted array of serial ports in the system matched pattern
-     *
-     * @param comparator Comparator for sotring port names <b>(not null)</b>
-     *
-     * @return String array. If there is no ports in the system String[]
-     *
-     * @since 2.3.0
-     */
+    @Override
     public Set<String> getPortNames(Comparator<String> comparator, boolean hideBusyPorts) {
         return getPortNames(getPortnamesPath(), getPortnamesRegExp(), comparator, hideBusyPorts);
     }
 
-    /**
-     * Get sorted array of serial ports in the system located on searchPath,
-     * matched pattern
-     *
-     * @param searchPath Path for searching serial ports <b>(not null)</b><br>
-     * The default search paths:<br>
-     * Linux, MacOSX: <b>/dev/</b><br>
-     * Solaris: <b>/dev/term/</b><br>
-     * Windows: <b>this parameter ingored</b>
-     * @param pattern RegExp pattern for matching port names <b>(not null)</b>
-     *
-     * @return String array. If there is no ports in the system String[]
-     *
-     * @since 2.3.0
-     */
+    @Override
     public Set<String> getPortNames(String searchPath, Pattern pattern, boolean hideBusyPorts) {
         return getPortNames(searchPath, pattern, new PortnamesComparator(), hideBusyPorts);
     }
 
-    /**
-     * Get sorted array of serial ports in the system located on searchPath and
-     * sorted by comparator
-     *
-     * @param searchPath Path for searching serial ports <b>(not null)</b><br>
-     * The default search paths:<br>
-     * Linux, MacOSX: <b>/dev/</b><br>
-     * Solaris: <b>/dev/term/</b><br>
-     * Windows: <b>this parameter ingored</b>
-     * @param comparator Comparator for sotring port names <b>(not null)</b>
-     *
-     * @return String array. If there is no ports in the system String[]
-     *
-     * @since 2.3.0
-     */
+    @Override
     public Set<String> getPortNames(String searchPath, Comparator<String> comparator, boolean hideBusyPorts) {
         return getPortNames(searchPath, getPortnamesRegExp(), comparator, hideBusyPorts);
     }
 
-    /**
-     * Get sorted array of serial ports in the system matched pattern and sorted
-     * by comparator
-     *
-     * @param pattern RegExp pattern for matching port names <b>(not null)</b>
-     * @param comparator Comparator for sotring port names <b>(not null)</b>
-     *
-     * @return String array. If there is no ports in the system String[]
-     *
-     * @since 2.3.0
-     */
+    @Override
     public Set<String> getPortNames(Pattern pattern, Comparator<String> comparator, boolean hideBusyPorts) {
         return getPortNames(getPortnamesPath(), pattern, comparator, hideBusyPorts);
     }
 
-    /**
-     * Get sorted array of serial ports in the system located on searchPath,
-     * matched pattern and sorted by comparator
-     *
-     * @param searchPath Path for searching serial ports <b>(not null)</b><br>
-     * The default search paths:<br>
-     * Linux, MacOSX: <b>/dev/</b><br>
-     * Solaris: <b>/dev/term/</b><br>
-     * Windows: <b>this parameter ingored</b>
-     * @param pattern RegExp pattern for matching port names <b>(not null)</b>
-     * @param comparator Comparator for sotring port names <b>(not null)</b>
-     * @param hideBusyPorts
-     *
-     * @return String array. If there is no ports in the system String[]
-     *
-     * @since 2.3.0
-     */
+    @Override
     public Set<String> getPortNames(String searchPath, Pattern pattern, Comparator<String> comparator, boolean hideBusyPorts) {
         if (searchPath == null || pattern == null || comparator == null) {
             return Collections.emptySet();
