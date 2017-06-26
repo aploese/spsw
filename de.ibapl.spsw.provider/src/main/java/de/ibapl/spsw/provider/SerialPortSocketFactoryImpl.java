@@ -29,7 +29,7 @@ import org.osgi.service.component.annotations.ServiceScope;
  * @author aploese
  */
 @Singleton
-@Component(name = "de.ibapl.spsw.provider", scope = ServiceScope.SINGLETON)
+@Component(name = "de.ibapl.spsw.provider", scope = ServiceScope.SINGLETON, immediate = true)
 public class SerialPortSocketFactoryImpl extends AbstractSerialPortSocketFactory implements SerialPortSocketFactory {
 
     protected final static Logger LOG = Logger.getLogger("de.ibapl.spsw.provider");
@@ -227,7 +227,6 @@ public class SerialPortSocketFactoryImpl extends AbstractSerialPortSocketFactory
         }
     }
 
-    @Override
     @PostConstruct
     @Activate
     public void activate() {
@@ -236,7 +235,6 @@ public class SerialPortSocketFactoryImpl extends AbstractSerialPortSocketFactory
         }
     }
 
-    @Override
     @PreDestroy
     @Deactivate
     public void deActivate() {

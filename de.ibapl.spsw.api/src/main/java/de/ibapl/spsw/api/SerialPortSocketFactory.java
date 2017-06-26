@@ -21,18 +21,7 @@ public interface SerialPortSocketFactory {
 
     SerialPortSocket createSerialPortSocket(String portName);
 
-    /**
-     * Lifecycle start service
-     */
-    void activate();
-
-    /**
-     * Lifecycle stop service
-     */
-    void deActivate();
-    
-    
-        /**
+     /**
      * Get sorted array of serial ports in the system using default
      * settings:<br>
      *
