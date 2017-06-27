@@ -4,17 +4,18 @@
     <parent>
         <groupId>de.ibapl.spsw</groupId>
         <artifactId>spsw-project</artifactId>
-        <version>1.0.0</version>
+        <version>1.0.1-SNAPSHOT</version>
         <relativePath>..</relativePath>
     </parent>
     <packaging>jar</packaging>
     <name>SPSW OSGi Tests</name>
     <artifactId>de.ibapl.spsw.provider.osgi-tests</artifactId>
+    <version>1.0.1-SNAPSHOT</version>
     <dependencies>
         <dependency>
             <groupId>de.ibapl.spsw</groupId>
             <artifactId>de.ibapl.spsw.api</artifactId>
-            <version>1.0.0</version>
+            <version>1.0.1-SNAPSHOT</version>
         </dependency>
         
         <dependency>
