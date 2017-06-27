@@ -1,15 +1,22 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
+    
     <parent>
         <groupId>de.ibapl.spsw</groupId>
         <artifactId>spsw-project</artifactId>
         <version>1.0.1-SNAPSHOT</version>
         <relativePath>..</relativePath>
     </parent>
+    
     <artifactId>de.ibapl.spsw.provider.osgi-integrationtests</artifactId>
     <name>SPSW OSGi Integration Tests</name>
     <packaging>pom</packaging>
+    
+    <properties>
+        <license.licenseResolver>${project.baseUri}/../src/license</license.licenseResolver>
+    </properties>
+
     <build>
         <plugins>
             <plugin>

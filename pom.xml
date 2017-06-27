@@ -7,20 +7,24 @@
     <version>1.0.1-SNAPSHOT</version>
     <name>SPSW Project</name>
     <url>https://github.com/aploese/spsw</url>
+    <inceptionYear>2009</inceptionYear>
 
     <description>
         Access the serial port with spsw subpackage.
     </description>
 
+    <organization>
+        <name>Arne Plöse</name>
+    </organization>
+
     <properties>
         <project.scm.id>github</project.scm.id>
-         <compile.source>1.7</compile.source>
-        <compile.target>1.7</compile.target>
+        <compile.source>1.8</compile.source>
+        <compile.target>1.8</compile.target>
         <sourceEncoding>UTF-8</sourceEncoding>
-
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <arguments />
-
+        <license.licenseName>fhz4j-lgpl</license.licenseName>
+        <license.licenseResolver>${project.baseUri}/src/license</license.licenseResolver>
     </properties>
     
     <developers>
@@ -46,6 +50,11 @@
         </license>
     </licenses>
     
+    <issueManagement>
+        <url>https://github.com/aploese/spsw/issues</url>
+        <system>GitHub Issues</system>
+    </issueManagement>
+
     <repositories>
         <repository>
             <id>sonatype-nexus-snapshots</id>
@@ -90,7 +99,7 @@
         <url>http://github.com/aploese/spsw</url>
         <connection>scm:git:git://github.com/aploese/spsw.git</connection>
         <developerConnection>scm:git:git@github.com:aploese/spsw.git</developerConnection>
-  </scm>
+    </scm>
 
 
     <modules>
@@ -166,17 +175,25 @@
                 </plugin>
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
-                    <artifactId>maven-dependency-plugin</artifactId>
-                    <version>3.0.1</version>
-                </plugin>
-                <plugin>
-                    <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-resources-plugin</artifactId>
                     <version>3.0.2</version>
                     <configuration>
                         <encoding>${sourceEncoding}</encoding>
                     </configuration>
                 </plugin>
+                <plugin>
+                    <groupId>org.codehaus.mojo</groupId>
+                    <artifactId>license-maven-plugin</artifactId>
+                    <version>1.13</version>
+                    <configuration>
+                        <excludes>
+                            <exclude>**/*.txt</exclude>
+                            <exclude>**/*.js</exclude>
+                            <exclude>**/*.json</exclude>
+                        </excludes>
+                    </configuration>
+                </plugin>
+
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-jar-plugin</artifactId>
@@ -263,9 +280,31 @@
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-gpg-plugin</artifactId>
+                <artifactId>maven-source-plugin</artifactId>
             </plugin>
-        </plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-javadoc-plugin</artifactId>
+            </plugin>
+              <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-release-plugin</artifactId>
+            </plugin>
+      </plugins>
     </build>
     
+    <profiles>
+        <profile>
+            <id>release</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-gpg-plugin</artifactId>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+    </profiles>
+
 </project>

@@ -6,12 +6,17 @@
         <groupId>de.ibapl.spsw</groupId>
         <artifactId>spsw-project</artifactId>
         <version>1.0.1-SNAPSHOT</version>
+        <relativePath>..</relativePath>
     </parent>
   
     <artifactId>de.ibapl.spsw.api</artifactId>
     <version>1.0.1-SNAPSHOT</version>
     <name>SPSW API</name>
     
+    <properties>
+        <license.licenseResolver>${project.baseUri}/../src/license</license.licenseResolver>
+    </properties>
+
     <dependencies>
         <dependency>
             <groupId>org.osgi</groupId>

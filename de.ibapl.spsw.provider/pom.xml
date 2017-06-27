@@ -18,6 +18,7 @@
         <version.linux.i386>1.0.0</version.linux.i386>
         <version.linux.amd64>1.0.0</version.linux.amd64>
         <version.linux.armhf>1.0.0</version.linux.armhf>
+        <license.licenseResolver>${project.baseUri}/../src/license</license.licenseResolver>
     </properties>
     
     
