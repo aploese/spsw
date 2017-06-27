@@ -5,11 +5,11 @@
     <parent>
         <groupId>de.ibapl.spsw</groupId>
         <artifactId>spsw-project</artifactId>
-        <version>1.0.0-SNAPSHOT</version>
+        <version>1.0.0</version>
     </parent>
   
     <artifactId>de.ibapl.spsw.provider</artifactId>
-    <version>1.0.0-SNAPSHOT</version>
+    <version>1.0.0</version>
     <name>SPSW Provider</name>
     
     <properties>
@@ -29,7 +29,7 @@
         <dependency>
             <groupId>de.ibapl.spsw</groupId>
             <artifactId>de.ibapl.spsw.api</artifactId>
-            <version>1.0.0-SNAPSHOT</version>
+            <version>1.0.0</version>
         </dependency>
         <dependency>
             <groupId>org.osgi</groupId>
@@ -136,7 +136,7 @@ Bundle-NativeCode: \
                                     <linkerStartOptions>
                                         <linkerStartOption>-shared -lc -ldl -m64</linkerStartOption>
                                     </linkerStartOptions>
-                                    <linkerFinalName></linkerFinalName>
+                                    <linkerFinalName />
  
                                     <!-- wait for 1.0-alpha9 to define linkerOutputExtension-->
                                     <linkerEndOptions>
@@ -188,7 +188,7 @@ Bundle-NativeCode: \
                                     <linkerStartOptions>
                                         <linkerStartOption>-shared -lc -ldl -m32</linkerStartOption>
                                     </linkerStartOptions>
-                                    <linkerFinalName></linkerFinalName>
+                                    <linkerFinalName />
                                     <linkerEndOptions>
                                         <linkerEndOption>-o ${basedir}/src/main/resources/lib/linux/i386/libspsw-${version.linux.i386}.so</linkerEndOption>
                                     </linkerEndOptions>
@@ -239,7 +239,7 @@ Bundle-NativeCode: \
                                     <linkerStartOptions>
                                         <linkerStartOption>-shared -lc -ldl</linkerStartOption>
                                     </linkerStartOptions>
-                                    <linkerFinalName></linkerFinalName>
+                                    <linkerFinalName />
                                     <linkerEndOptions>
                                         <linkerEndOption>-o ${basedir}/src/main/resources/lib/linux/armhf/libspsw-${version.linux.armhf}.so</linkerEndOption>
                                     </linkerEndOptions>
@@ -297,7 +297,7 @@ Bundle-NativeCode: \
                                     <linkerStartOptions>
                                         <linkerStartOption>-static-libgcc -m32 -shared -Wl,--dll -Wl,--kill-at</linkerStartOption>
                                     </linkerStartOptions>
-                                    <linkerFinalName></linkerFinalName>
+                                    <linkerFinalName />
                                     <linkerEndOptions>
                                         <linkerEndOption>-o ${basedir}/src/main/resources/lib/windows/x86/spsw-${version.windows.x86}.dll</linkerEndOption>
                                     </linkerEndOptions>
@@ -355,7 +355,7 @@ Bundle-NativeCode: \
                                     <linkerStartOptions>
                                         <linkerStartOption>-m64 -static-libgcc -shared -Wl,--dll -Wl,--kill-at</linkerStartOption>
                                     </linkerStartOptions>
-                                    <linkerFinalName></linkerFinalName>
+                                    <linkerFinalName />
                                     <linkerEndOptions>
                                         <linkerEndOption>-o ${basedir}/src/main/resources/lib/windows/amd64/spsw-${version.windows.amd64}.dll</linkerEndOption>
                                     </linkerEndOptions>
