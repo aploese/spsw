@@ -53,7 +53,7 @@ public class LogFileCompressor extends LogReader {
     
     private LogFileCompressor(InputStream is, OutputStream os) throws IOException {
         super(is);
-        logWriter = new LogWriter(os);
+        logWriter = new LogWriter(os, false);
         read();
         logWriter.close();
     }

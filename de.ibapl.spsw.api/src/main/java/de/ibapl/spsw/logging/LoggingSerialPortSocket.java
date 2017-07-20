@@ -135,10 +135,12 @@ public class LoggingSerialPortSocket implements SerialPortSocket {
     private LOS los;
     private LIS lis;
     private final LogWriter logWriter;
+    private final boolean ascii;
 
-    public LoggingSerialPortSocket(SerialPortSocket serialPortSocket, OutputStream logOS) throws FileNotFoundException {
+    public LoggingSerialPortSocket(SerialPortSocket serialPortSocket, OutputStream logOS, boolean ascii) throws FileNotFoundException {
         this.serialPortSocket = serialPortSocket;
-        this.logWriter = new LogWriter(logOS);
+        this.ascii = ascii;
+        this.logWriter = new LogWriter(logOS, ascii);
     }
 
     @Override

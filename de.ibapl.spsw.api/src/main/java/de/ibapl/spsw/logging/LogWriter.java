@@ -44,9 +44,11 @@ public class LogWriter {
     private final PrintStream log;
     private long readStartTS;
     private long writeStartTS;
+    private final boolean ascii;
 
-    public LogWriter(OutputStream logOS) {
+    public LogWriter(OutputStream logOS, boolean ascii) {
         this.log = new PrintStream(logOS);
+        this.ascii = ascii;
     }
 
     void close() {
@@ -68,7 +70,11 @@ public class LogWriter {
     }
 
     void logWriteEnd(final long writeEndTS, int b) {
-        log.format("TX @%1$tF %1$tT.%1$tL (%2$6d) %3$02x\n", new Date(writeEndTS), writeEndTS - writeStartTS, (byte) b);
+        if (ascii) {
+            log.format("TX @%1$tF %1$tT.%1$tL (%2$6d) %3$02x\n", new Date(writeEndTS), writeEndTS - writeStartTS, (byte) b);
+        } else {
+            log.format("TX @%1$tF %1$tT.%1$tL (%2$6d) %3$s\n", new Date(writeEndTS), writeEndTS - writeStartTS, (char) b);
+        }
         log.flush();
         writeStartTS = -1;
     }
@@ -80,7 +86,11 @@ public class LogWriter {
     void logWriteEnd(final long writeEndTS, byte[] b, int off, int len) {
         log.format("TX @%1$tF %1$tT.%1$tL (%2$6d) [", new Date(writeEndTS), writeEndTS - writeStartTS);
         for (int i = off; i < len; i++) {
-            log.format(" %02x", b[i]);
+            if (ascii) {
+                log.append((char)b[i]);
+            } else {
+                log.format(" %02x", b[i]);
+            }
         }
         log.append("]\n");
         log.flush();
@@ -105,7 +115,11 @@ public class LogWriter {
         if (b < 0) {
             log.format("RX @%1$tF %1$tT.%1$tL (%2$6d) %3$d\n", new Date(readEndTS), readEndTS - readStartTS, b);
         } else {
-            log.format("RX @%1$tF %1$tT.%1$tL (%2$6d) %3$02x\n", new Date(readEndTS), readEndTS - readStartTS, (byte) b);
+            if (ascii) {
+                log.format("RX @%1$tF %1$tT.%1$tL (%2$6d) %3$s\n", new Date(readEndTS), readEndTS - readStartTS, (char) b);
+            } else {
+                log.format("RX @%1$tF %1$tT.%1$tL (%2$6d) %3$02x\n", new Date(readEndTS), readEndTS - readStartTS, (byte) b);
+            }
         }
         log.flush();
         readStartTS = -1;
@@ -119,7 +133,11 @@ public class LogWriter {
         final int len = off + readLength;
         log.format("RX @%1$tF %1$tT.%1$tL (%2$6d) [", new Date(readEndTS), readEndTS - readStartTS);
         for (int i = off; i < len; i++) {
+            if (ascii) {
+                log.append((char)b[i]);
+            } else {
             log.format(" %02x", b[i]);
+            }
         }
         log.append("]\n");
         log.flush();
