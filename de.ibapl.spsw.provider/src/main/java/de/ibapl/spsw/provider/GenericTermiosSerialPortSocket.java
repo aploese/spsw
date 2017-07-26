@@ -112,7 +112,10 @@ public class GenericTermiosSerialPortSocket extends AbstractSerialPortSocket {
 
     @Override
     public native int getOutBufferBytesCount() throws IOException;
-
+    
+    @Override
+    public native void drainOutputBuffer() throws IOException;
+    
     @Override
     protected native void setFlowControl(int mask) throws IOException;
 

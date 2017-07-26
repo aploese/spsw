@@ -1,4 +1,3 @@
-
 package de.ibapl.spsw.logging;
 
 /*-
@@ -28,7 +27,6 @@ package de.ibapl.spsw.logging;
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  * #L%
  */
-
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
@@ -40,6 +38,7 @@ import de.ibapl.spsw.api.FlowControl;
 import de.ibapl.spsw.api.Parity;
 import de.ibapl.spsw.api.SerialPortSocket;
 import de.ibapl.spsw.api.StopBits;
+import java.time.Instant;
 import org.osgi.annotation.versioning.ProviderType;
 
 /**
@@ -59,35 +58,62 @@ public class LoggingSerialPortSocket implements SerialPortSocket {
 
         @Override
         public void write(byte b[]) throws IOException {
-            logWriter.logWriteStart();
-            os.write(b);
-            logWriter.logWriteEnd(b, 0, b.length);
+            logWriter.beforeWrite(Instant.now(), b);
+            try {
+                os.write(b);
+                logWriter.afterWrite(Instant.now());
+            } catch (IOException e) {
+                logWriter.afterWrite(Instant.now(), e);
+                throw e;
+            }
         }
 
         @Override
         public void write(byte b[], int off, int len) throws IOException {
-            logWriter.logWriteStart();
-            os.write(b, off, len);
-            logWriter.logWriteEnd(b, off, len);
+            logWriter.beforeWrite(Instant.now(), b, off, len);
+            try {
+                os.write(b, off, len);
+                logWriter.afterWrite(Instant.now());
+            } catch (IOException e) {
+                logWriter.afterWrite(Instant.now(), e);
+                throw e;
+            }
         }
 
         @Override
         public void write(int b) throws IOException {
-            logWriter.logWriteStart();
-            os.write(b);
-            logWriter.logWriteEnd(b);
+            logWriter.beforeWrite(Instant.now(), (byte) b);
+            try {
+                os.write(b);
+                logWriter.afterWrite(Instant.now());
+            } catch (IOException e) {
+                logWriter.afterWrite(Instant.now(), e);
+                throw e;
+            }
         }
 
         @Override
         public void flush() throws IOException {
-            os.flush();
-            logWriter.logFlushed();
+            logWriter.beforeFlush(Instant.now());
+            try {
+                os.flush();
+                logWriter.afterFlush(Instant.now());
+            } catch (IOException e) {
+                logWriter.afterFlush(Instant.now(), e);
+                throw e;
+            }
         }
 
         @Override
         public void close() throws IOException {
-            os.close();
-            logWriter.logClosed();
+            logWriter.beforeOsClose(Instant.now());
+            try {
+                os.close();
+                logWriter.afterOsClose(Instant.now());
+            } catch (IOException e) {
+                logWriter.afterOsClose(Instant.now(), e);
+                throw e;
+            }
         }
 
     }
@@ -102,31 +128,67 @@ public class LoggingSerialPortSocket implements SerialPortSocket {
 
         @Override
         public int read() throws IOException {
-            logWriter.logReadStart();
-            final int result = is.read();
-            logWriter.logReadEnd(result);
-            return result;
+            logWriter.beforeRead(Instant.now());
+            try {
+                final int result = is.read();
+                logWriter.afterRead(Instant.now(), result);
+                return result;
+            } catch (IOException e) {
+                logWriter.afterRead(Instant.now(), e);
+                throw e;
+            }
         }
 
         @Override
         public int read(byte b[]) throws IOException {
-            logWriter.logReadStart();
-            final int result = is.read(b);
-            logWriter.logReadEnd(result, b, 0);
-            return result;
+            logWriter.beforeRead(Instant.now());
+            try {
+                final int result = is.read(b);
+                logWriter.afterRead(Instant.now(), result, b, 0);
+                return result;
+            } catch (IOException e) {
+                logWriter.afterRead(Instant.now(), e);
+                throw e;
+            }
         }
 
         @Override
         public int read(byte b[], int off, int len) throws IOException {
-            logWriter.logReadStart();
-            final int result = is.read(b, off, len);
-            logWriter.logReadEnd(result, b, off);
-            return result;
+            logWriter.beforeRead(Instant.now());
+            try {
+                final int result = is.read(b, off, len);
+                logWriter.afterRead(Instant.now(), result, b, off);
+                return result;
+            } catch (IOException e) {
+                logWriter.afterRead(Instant.now(), e);
+                throw e;
+            }
+
         }
 
         @Override
         public int available() throws IOException {
-            return is.available();
+            logWriter.beforeAvailable(Instant.now());
+            try {
+                final int result = is.available();
+                logWriter.afterAvailable(Instant.now(), result);
+                return result;
+            } catch (IOException e) {
+                logWriter.afterAvailable(Instant.now(), e);
+                throw e;
+            }
+        }
+
+        @Override
+        public void close() throws IOException {
+            logWriter.beforeIsClose(Instant.now());
+            try {
+                is.close();
+                logWriter.afterIsClose(Instant.now());
+            } catch (IOException e) {
+                logWriter.afterIsClose(Instant.now(), e);
+                throw e;
+            }
         }
 
     }
@@ -135,11 +197,9 @@ public class LoggingSerialPortSocket implements SerialPortSocket {
     private LOS los;
     private LIS lis;
     private final LogWriter logWriter;
-    private final boolean ascii;
 
-    public LoggingSerialPortSocket(SerialPortSocket serialPortSocket, OutputStream logOS, boolean ascii) throws FileNotFoundException {
+    public LoggingSerialPortSocket(SerialPortSocket serialPortSocket, OutputStream logOS, boolean ascii, boolean verbose) throws FileNotFoundException {
         this.serialPortSocket = serialPortSocket;
-        this.ascii = ascii;
         this.logWriter = new LogWriter(logOS, ascii);
     }
 
@@ -212,40 +272,76 @@ public class LoggingSerialPortSocket implements SerialPortSocket {
 
     @Override
     public void openAsIs() throws IOException {
-        serialPortSocket.openAsIs();
-        logWriter.logOpend("AsIs");
+        logWriter.beforeSpOpen(Instant.now(), "AsIs");
+        try {
+            serialPortSocket.openAsIs();
+            logWriter.afterSpOpen(Instant.now(), "AsIs");
+        } catch (IOException e) {
+            logWriter.afterSpOpen(Instant.now(), "AsIs", e);
+            throw e;
+        }
     }
 
     @Override
     public void openRaw() throws IOException {
-        serialPortSocket.openRaw();
-        logWriter.logOpend("Raw");
+        logWriter.beforeSpOpen(Instant.now(), "Raw");
+        try {
+            serialPortSocket.openRaw();
+            logWriter.afterSpOpen(Instant.now(), "Raw");
+        } catch (IOException e) {
+            logWriter.afterSpOpen(Instant.now(), "Raw", e);
+            throw e;
+        }
     }
 
     @Override
     public void openTerminal() throws IOException {
-        serialPortSocket.openTerminal();
-        logWriter.logOpend("Terminal");
+        logWriter.beforeSpOpen(Instant.now(), "Terminal");
+        try {
+            serialPortSocket.openTerminal();
+            logWriter.afterSpOpen(Instant.now(), "Terminal");
+        } catch (IOException e) {
+            logWriter.afterSpOpen(Instant.now(), "Terminal", e);
+            throw e;
+        }
     }
 
     @Override
     public void openModem() throws IOException {
-        serialPortSocket.openModem();
-        logWriter.logOpend("Modem");
+        logWriter.beforeSpOpen(Instant.now(), "Modem");
+        try {
+            serialPortSocket.openModem();
+            logWriter.afterSpOpen(Instant.now(), "Modem");
+        } catch (IOException e) {
+            logWriter.afterSpOpen(Instant.now(), "Modem", e);
+            throw e;
+        }
     }
 
     @Override
     public void openRaw(Baudrate baudRate, DataBits dataBits, StopBits stopBits, Parity parity, Set<FlowControl> flowControls) throws IOException {
-        serialPortSocket.openRaw(baudRate, dataBits, stopBits, parity, flowControls);
-        logWriter.logOpend("Raw()");
+        logWriter.beforeSpOpen(Instant.now(), "Raw()");
+        try {
+            serialPortSocket.openRaw(baudRate, dataBits, stopBits, parity, flowControls);
+            logWriter.afterSpOpen(Instant.now(), "Raw()");
+        } catch (IOException e) {
+            logWriter.afterSpOpen(Instant.now(), "Raw()", e);
+            throw e;
+        }
     }
 
     @Override
     public void close() throws IOException {
         los = null;
         lis = null;
-        serialPortSocket.close();
-        logWriter.logClosed();
+        logWriter.beforeSpClose(Instant.now());
+        try {
+            serialPortSocket.close();
+            logWriter.afterSpClose(Instant.now());
+        } catch (IOException e) {
+            logWriter.afterSpClose(Instant.now(), e);
+            throw e;
+        }
     }
 
     @Override

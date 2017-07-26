@@ -27,7 +27,6 @@ package de.ibapl.spsw.spi;
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  * #L%
  */
-
 import de.ibapl.spsw.api.SerialPortException;
 import de.ibapl.spsw.api.StopBits;
 import de.ibapl.spsw.api.Parity;
@@ -384,6 +383,12 @@ public abstract class AbstractSerialPortSocket implements SerialPortSocket {
 
     protected abstract int getParity0() throws IOException;
 
+    /**
+     * writes all data in the output buffer
+     * @throws IOException 
+     */
+    protected abstract void drainOutputBuffer() throws IOException;
+
     protected class SerialInputStream extends InputStream {
 
         private boolean open = false;
@@ -436,10 +441,10 @@ public abstract class AbstractSerialPortSocket implements SerialPortSocket {
 
         @Override
         public int available() throws IOException {
-            if (!open) {
-                throw new SerialPortException(portName, "Port is closed");
-            } else {
+            if (open) {
                 return AbstractSerialPortSocket.this.getInBufferBytesCount();
+            } else {
+                throw new SerialPortException(portName, "Port is closed");
             }
         }
 
@@ -495,6 +500,16 @@ public abstract class AbstractSerialPortSocket implements SerialPortSocket {
                 throw new SerialPortException(portName, "port is closed");
             }
         }
+
+        @Override
+        public void flush() throws IOException {
+            if (open) {
+                AbstractSerialPortSocket.this.drainOutputBuffer();
+            } else {
+                throw new SerialPortException(portName, "port is closed");
+            }
+        }
+
     }
 
     @Override

@@ -105,6 +105,7 @@ public class GenericWinSerialPortSocket extends AbstractSerialPortSocket {
      *
      * @param off the start offset in the data.
      * @param len the number of bytes to write.
+     * @throws java.io.IOException
      *
      */
     @Override
@@ -116,6 +117,11 @@ public class GenericWinSerialPortSocket extends AbstractSerialPortSocket {
     @Override
     public native int getOutBufferBytesCount() throws IOException;
 
+    @Override
+    public void drainOutputBuffer() throws IOException {
+        //no-op on overlapped...
+    }
+    
     @Override
     protected native void setFlowControl(int mask) throws IOException;
 

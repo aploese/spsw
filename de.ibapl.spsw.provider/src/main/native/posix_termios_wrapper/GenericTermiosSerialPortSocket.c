@@ -772,18 +772,18 @@ JNIEXPORT jint JNICALL Java_de_ibapl_spsw_provider_GenericTermiosSerialPortSocke
 }
 
 /*
- * Get bytes count in serial port buffers (Output)
+ * write the bytes in the output buffer
  */
-JNIEXPORT jint JNICALL Java_de_ibapl_spsw_provider_GenericTermiosSerialPortSocket_getOutBufferBytesCount
+JNIEXPORT void JNICALL Java_de_ibapl_spsw_provider_GenericTermiosSerialPortSocket_drainOutputBuffer
 (JNIEnv *env, jobject object) {
     int fd = (*env)->GetIntField(env, object, spsw_fd);
-    jint returnValue = -1;
-    int result = ioctl(fd, TIOCOUTQ, &returnValue);
+    int result = tcdrain(fd);
     if (result != 0) {
-        throw_SerialPortException_With_PortName(env, "Can't read out buffer size", (jstring) (*env)->GetObjectField(env, object, spsw_portName));
+        throw_SerialPortException_With_PortName(env, "Can't drain the output buffer", (jstring) (*env)->GetObjectField(env, object, spsw_portName));
+        return;
     }
-    return returnValue;
-}
+}    
+
 
 /*
  * Setting flow control mode

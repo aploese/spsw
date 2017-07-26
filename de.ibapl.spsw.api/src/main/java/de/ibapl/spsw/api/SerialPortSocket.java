@@ -137,7 +137,7 @@ public interface SerialPortSocket extends Closeable {
     void sendXON() throws IOException;
 
     void sendXOFF() throws IOException;
-
+    
     /**
      * Get bytes count in in buffer of port
      *
@@ -147,7 +147,7 @@ public interface SerialPortSocket extends Closeable {
      *
      */
     int getInBufferBytesCount() throws IOException;
-
+    
     /**
      * Get bytes count out inbuffer of port
      *
