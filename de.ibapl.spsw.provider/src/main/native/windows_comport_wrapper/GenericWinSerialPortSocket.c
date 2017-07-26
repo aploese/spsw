@@ -268,7 +268,7 @@ JNIEXPORT void JNICALL Java_de_ibapl_spsw_provider_GenericWinSerialPortSocket_op
         case de_ibapl_spsw_provider_GenericWinSerialPortSocket_PORT_MODE_UNCHANGED:
             break;
         case de_ibapl_spsw_provider_GenericWinSerialPortSocket_PORT_MODE_RAW:
-            lpCommTimeouts.ReadIntervalTimeout = 0;
+            lpCommTimeouts.ReadIntervalTimeout = 100; // wait max a 1/10 sec for new chars after receiving the last char
             lpCommTimeouts.ReadTotalTimeoutConstant = 0;
             lpCommTimeouts.ReadTotalTimeoutMultiplier = 0;
             lpCommTimeouts.WriteTotalTimeoutConstant = 0;

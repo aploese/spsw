@@ -480,7 +480,7 @@ JNIEXPORT void JNICALL Java_de_ibapl_spsw_provider_GenericTermiosSerialPortSocke
             /* Raw output */
             settings.c_oflag = 0;
             settings.c_cc[VMIN] = 1; // min 1 char to receive
-            settings.c_cc[VTIME] = 0;
+            settings.c_cc[VTIME] = 1; // wait max a 1/10 sec for new chars after receiving the last char
             //settings.c_cc[VTIME] = 0;
             if (tcsetattr(fd, TCSANOW, &settings) != 0) {
                 close(fd);
