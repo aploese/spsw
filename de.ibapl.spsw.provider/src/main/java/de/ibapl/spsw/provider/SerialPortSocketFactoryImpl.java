@@ -187,6 +187,8 @@ public class SerialPortSocketFactoryImpl extends AbstractSerialPortSocketFactory
                 return new GenericWinSerialPortSocket(portName);
             case "Windows 8":
                 return new GenericWinSerialPortSocket(portName);
+            case "Windows 10":
+                return new GenericWinSerialPortSocket(portName);
             case "Windows 2012":
                 return new GenericWinSerialPortSocket(portName);
             case "Windows CE":
