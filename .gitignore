@@ -2,3 +2,4 @@
 .gradle/
 **/generated/
 
+/de.ibapl.spsw.api/nbproject/

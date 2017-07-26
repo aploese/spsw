@@ -1,13 +1,13 @@
 package de.ibapl.spsw.provider;
 
-/*
+/*-
  * #%L
- * SPSW Java
+ * SPSW Provider
  * %%
- * Copyright (C) 2009 - 2014 atmodem4j
+ * Copyright (C) 2009 - 2017 Arne Plöse
  * %%
- * atmodem4j - A serial port socket wrapper- http://atmodem4j.sourceforge.net/
- * Copyright (C) 2009-2014, atmodem4j.sf.net, and individual contributors as indicated
+ * SPSW - Drivers for the serial port, https://github.com/aploese/spsw/
+ * Copyright (C) 2009, 2017, Arne Plöse and individual contributors as indicated
  * by the @authors tag. See the copyright.txt in the distribution for a
  * full listing of individual contributors.
  * 
@@ -27,6 +27,7 @@ package de.ibapl.spsw.provider;
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  * #L%
  */
+
 import de.ibapl.spsw.spi.AbstractSerialPortSocket;
 import java.io.IOException;
 
@@ -104,6 +105,7 @@ public class GenericWinSerialPortSocket extends AbstractSerialPortSocket {
      *
      * @param off the start offset in the data.
      * @param len the number of bytes to write.
+     * @throws java.io.IOException
      *
      */
     @Override
@@ -115,6 +117,11 @@ public class GenericWinSerialPortSocket extends AbstractSerialPortSocket {
     @Override
     public native int getOutBufferBytesCount() throws IOException;
 
+    @Override
+    public void drainOutputBuffer() throws IOException {
+        //no-op on overlapped...
+    }
+    
     @Override
     protected native void setFlowControl(int mask) throws IOException;
 

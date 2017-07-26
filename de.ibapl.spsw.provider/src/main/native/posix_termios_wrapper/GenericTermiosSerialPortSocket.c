@@ -1,11 +1,11 @@
-/*
+/*-
  * #%L
- * SPSW Native Parent
+ * SPSW Provider
  * %%
- * Copyright (C) 2009 - 2014 atmodem4j
+ * Copyright (C) 2009 - 2017 Arne Plöse
  * %%
- * atmodem4j - A serial port socket wrapper- http://atmodem4j.sourceforge.net/
- * Copyright (C) 2009-2014, atmodem4j.sf.net, and individual contributors as indicated
+ * SPSW - Drivers for the serial port, https://github.com/aploese/spsw/
+ * Copyright (C) 2009, 2017, Arne Plöse and individual contributors as indicated
  * by the @authors tag. See the copyright.txt in the distribution for a
  * full listing of individual contributors.
  * 
@@ -25,6 +25,7 @@
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  * #L%
  */
+
 /* jSSC (Java Simple Serial Connector) - serial port communication library.
  * © Alexey Sokolov (scream3r), 2010-2014.
  *
@@ -479,7 +480,7 @@ JNIEXPORT void JNICALL Java_de_ibapl_spsw_provider_GenericTermiosSerialPortSocke
             /* Raw output */
             settings.c_oflag = 0;
             settings.c_cc[VMIN] = 1; // min 1 char to receive
-            settings.c_cc[VTIME] = 0;
+            settings.c_cc[VTIME] = 1; // wait max a 1/10 sec for new chars after receiving the last char
             //settings.c_cc[VTIME] = 0;
             if (tcsetattr(fd, TCSANOW, &settings) != 0) {
                 close(fd);
@@ -771,18 +772,18 @@ JNIEXPORT jint JNICALL Java_de_ibapl_spsw_provider_GenericTermiosSerialPortSocke
 }
 
 /*
- * Get bytes count in serial port buffers (Output)
+ * write the bytes in the output buffer
  */
-JNIEXPORT jint JNICALL Java_de_ibapl_spsw_provider_GenericTermiosSerialPortSocket_getOutBufferBytesCount
+JNIEXPORT void JNICALL Java_de_ibapl_spsw_provider_GenericTermiosSerialPortSocket_drainOutputBuffer
 (JNIEnv *env, jobject object) {
     int fd = (*env)->GetIntField(env, object, spsw_fd);
-    jint returnValue = -1;
-    int result = ioctl(fd, TIOCOUTQ, &returnValue);
+    int result = tcdrain(fd);
     if (result != 0) {
-        throw_SerialPortException_With_PortName(env, "Can't read out buffer size", (jstring) (*env)->GetObjectField(env, object, spsw_portName));
+        throw_SerialPortException_With_PortName(env, "Can't drain the output buffer", (jstring) (*env)->GetObjectField(env, object, spsw_portName));
+        return;
     }
-    return returnValue;
-}
+}    
+
 
 /*
  * Setting flow control mode

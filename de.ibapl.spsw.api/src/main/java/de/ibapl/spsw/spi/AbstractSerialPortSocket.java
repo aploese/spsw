@@ -1,13 +1,13 @@
 package de.ibapl.spsw.spi;
 
-/*
+/*-
  * #%L
- * SPSW Java
+ * SPSW API
  * %%
- * Copyright (C) 2009 - 2014 atmodem4j
+ * Copyright (C) 2009 - 2017 Arne Plöse
  * %%
- * atmodem4j - A serial port socket wrapper- http://atmodem4j.sourceforge.net/
- * Copyright (C) 2009-2014, atmodem4j.sf.net, and individual contributors as indicated
+ * SPSW - Drivers for the serial port, https://github.com/aploese/spsw/
+ * Copyright (C) 2009, 2017, Arne Plöse and individual contributors as indicated
  * by the @authors tag. See the copyright.txt in the distribution for a
  * full listing of individual contributors.
  * 
@@ -383,6 +383,12 @@ public abstract class AbstractSerialPortSocket implements SerialPortSocket {
 
     protected abstract int getParity0() throws IOException;
 
+    /**
+     * writes all data in the output buffer
+     * @throws IOException 
+     */
+    protected abstract void drainOutputBuffer() throws IOException;
+
     protected class SerialInputStream extends InputStream {
 
         private boolean open = false;
@@ -435,10 +441,10 @@ public abstract class AbstractSerialPortSocket implements SerialPortSocket {
 
         @Override
         public int available() throws IOException {
-            if (!open) {
-                throw new SerialPortException(portName, "Port is closed");
-            } else {
+            if (open) {
                 return AbstractSerialPortSocket.this.getInBufferBytesCount();
+            } else {
+                throw new SerialPortException(portName, "Port is closed");
             }
         }
 
@@ -494,6 +500,16 @@ public abstract class AbstractSerialPortSocket implements SerialPortSocket {
                 throw new SerialPortException(portName, "port is closed");
             }
         }
+
+        @Override
+        public void flush() throws IOException {
+            if (open) {
+                AbstractSerialPortSocket.this.drainOutputBuffer();
+            } else {
+                throw new SerialPortException(portName, "port is closed");
+            }
+        }
+
     }
 
     @Override

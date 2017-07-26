@@ -4,21 +4,27 @@
     <groupId>de.ibapl.spsw</groupId>
     <artifactId>spsw-project</artifactId>
     <packaging>pom</packaging>
-    <version>1.0.0-SNAPSHOT</version>
+    <version>1.1.0-SNAPSHOT</version>
     <name>SPSW Project</name>
+    <url>https://github.com/aploese/spsw</url>
+    <inceptionYear>2009</inceptionYear>
 
     <description>
         Access the serial port with spsw subpackage.
     </description>
 
+    <organization>
+        <name>Arne Plöse</name>
+    </organization>
+
     <properties>
-        <compile.source>1.7</compile.source>
-        <compile.target>1.7</compile.target>
+        <project.scm.id>github</project.scm.id>
+        <compile.source>1.8</compile.source>
+        <compile.target>1.8</compile.target>
         <sourceEncoding>UTF-8</sourceEncoding>
-
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <arguments />
-
+        <license.licenseName>fhz4j-lgpl</license.licenseName>
+        <license.licenseResolver>${project.baseUri}/src/license</license.licenseResolver>
     </properties>
     
     <developers>
@@ -44,6 +50,11 @@
         </license>
     </licenses>
     
+    <issueManagement>
+        <url>https://github.com/aploese/spsw/issues</url>
+        <system>GitHub Issues</system>
+    </issueManagement>
+
     <repositories>
         <repository>
             <id>sonatype-nexus-snapshots</id>
@@ -58,6 +69,18 @@
         </repository>
     </repositories>
 
+    <pluginRepositories>
+        <pluginRepository>
+            <id>bnd-snapshots</id>
+            <url>https://bndtools.ci.cloudbees.com/job/bnd.master/lastSuccessfulBuild/artifact/dist/bundles/</url>
+            <layout>default</layout>
+            <snapshots>
+                <enabled>true</enabled>
+            </snapshots>
+        </pluginRepository>
+    </pluginRepositories>
+
+
     <distributionManagement>
         <snapshotRepository>
             <id>sonatype-nexus-snapshots</id>
@@ -71,16 +94,20 @@
         </repository>
     </distributionManagement>
 
+
     <scm>
-        <developerConnection>http://github.com/aploese/spsw</developerConnection>
-        <connection>http://github.com/aploese/spsw</connection>
         <url>http://github.com/aploese/spsw</url>
+        <connection>scm:git:git://github.com/aploese/spsw.git</connection>
+        <developerConnection>scm:git:git@github.com:aploese/spsw.git</developerConnection>
     </scm>
 
 
     <modules>
         <module>de.ibapl.spsw.api</module>
         <module>de.ibapl.spsw.provider</module>
+        <module>de.ibapl.spsw.provider.osgi-tests</module>
+        <!-- wait for plugin bnd-maven-plugin:3.4.0 and bnd-testing-maven-plugin:3.4.0  --> 
+        <module>de.ibapl.spsw.provider.osgi-integration-tests</module>
     </modules>
 
     <!-- Dependency Management and Dependencies to Inherit -->
@@ -102,11 +129,28 @@
                 <version>1_2</version>
             </dependency>
             <dependency>
+                <groupId>org.osgi</groupId>
+                <artifactId>org.osgi.framework</artifactId>
+                <version>1.8.0</version>
+            </dependency>
+            <dependency>
+                <groupId>org.osgi</groupId>
+                <artifactId>osgi.enroute.pom.distro</artifactId>
+                <version>2.0.0</version>
+            </dependency>
+
+            <dependency>
                 <groupId>junit</groupId>
                 <artifactId>junit</artifactId>
                 <version>4.12</version>
                 <scope>test</scope>
             </dependency>
+            <dependency>
+                <groupId>org.osgi</groupId>
+                <artifactId>osgi.enroute.junit.wrapper</artifactId>
+                <version>4.12.0</version>
+            </dependency>
+
         </dependencies>
     </dependencyManagement>
 
@@ -117,7 +161,7 @@
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-compiler-plugin</artifactId>
-                    <version>3.6.0</version>
+                    <version>3.6.1</version>
                     <configuration>
                         <source>${compile.source}</source>
                         <target>${compile.target}</target>
@@ -131,17 +175,25 @@
                 </plugin>
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
-                    <artifactId>maven-dependency-plugin</artifactId>
-                    <version>2.10</version>
-                </plugin>
-                <plugin>
-                    <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-resources-plugin</artifactId>
-                    <version>3.0.1</version>
+                    <version>3.0.2</version>
                     <configuration>
                         <encoding>${sourceEncoding}</encoding>
                     </configuration>
                 </plugin>
+                <plugin>
+                    <groupId>org.codehaus.mojo</groupId>
+                    <artifactId>license-maven-plugin</artifactId>
+                    <version>1.13</version>
+                    <configuration>
+                        <excludes>
+                            <exclude>**/*.txt</exclude>
+                            <exclude>**/*.js</exclude>
+                            <exclude>**/*.json</exclude>
+                        </excludes>
+                    </configuration>
+                </plugin>
+
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-jar-plugin</artifactId>
@@ -159,7 +211,7 @@
                     <executions>
                         <execution>
                             <id>sign-artifacts</id>
-                            <phase>deploy</phase>
+                            <phase>verify</phase>
                             <goals>
                                 <goal>sign</goal>
                             </goals>
@@ -180,7 +232,7 @@
                 <plugin>
                     <groupId>biz.aQute.bnd</groupId>
                     <artifactId>bnd-maven-plugin</artifactId>
-                    <version>3.3.0</version>
+                    <version>3.5.0-SNAPSHOT</version>
                     <executions>
                         <execution>
                             <goals>
@@ -192,7 +244,19 @@
                         
                     </configuration>
                 </plugin>
-			
+                <plugin>
+                    <groupId>biz.aQute.bnd</groupId>
+                    <artifactId>bnd-testing-maven-plugin</artifactId>
+                    <version>3.5.0-SNAPSHOT</version>
+                    <executions>
+                        <execution>
+                            <goals>
+                                <goal>testing</goal>
+                            </goals>
+                        </execution>
+                    </executions>
+                </plugin>
+
             </plugins>
                 
         </pluginManagement>
@@ -216,9 +280,31 @@
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-gpg-plugin</artifactId>
+                <artifactId>maven-source-plugin</artifactId>
             </plugin>
-        </plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-javadoc-plugin</artifactId>
+            </plugin>
+              <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-release-plugin</artifactId>
+            </plugin>
+      </plugins>
     </build>
+    
+    <profiles>
+        <profile>
+            <id>release</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-gpg-plugin</artifactId>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+    </profiles>
 
 </project>

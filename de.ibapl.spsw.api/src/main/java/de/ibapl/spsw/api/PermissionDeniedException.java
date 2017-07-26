@@ -1,13 +1,13 @@
 package de.ibapl.spsw.api;
 
-/*
+/*-
  * #%L
- * SPSW Java
+ * SPSW API
  * %%
- * Copyright (C) 2009 - 2014 atmodem4j
+ * Copyright (C) 2009 - 2017 Arne Plöse
  * %%
- * atmodem4j - A serial port socket wrapper- http://atmodem4j.sourceforge.net/
- * Copyright (C) 2009-2014, atmodem4j.sf.net, and individual contributors as indicated
+ * SPSW - Drivers for the serial port, https://github.com/aploese/spsw/
+ * Copyright (C) 2009, 2017, Arne Plöse and individual contributors as indicated
  * by the @authors tag. See the copyright.txt in the distribution for a
  * full listing of individual contributors.
  * 
@@ -27,10 +27,14 @@ package de.ibapl.spsw.api;
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  * #L%
  */
+
+import org.osgi.annotation.versioning.ProviderType;
+
 /**
  *
  * @author aploese
  */
+@ProviderType
 public class PermissionDeniedException extends SerialPortException {
 
     public PermissionDeniedException(String portName) {

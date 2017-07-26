@@ -1,9 +1,33 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package de.ibapl.spsw.provider;
+
+/*-
+ * #%L
+ * SPSW Provider
+ * %%
+ * Copyright (C) 2009 - 2017 Arne Plöse
+ * %%
+ * SPSW - Drivers for the serial port, https://github.com/aploese/spsw/
+ * Copyright (C) 2009, 2017, Arne Plöse and individual contributors as indicated
+ * by the @authors tag. See the copyright.txt in the distribution for a
+ * full listing of individual contributors.
+ * 
+ * This is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU General Public License as
+ * published by the Free Software Foundation; either version 3 of
+ * the License, or (at your option) any later version.
+ * 
+ * This software is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+ * Lesser General Public License for more details.
+ * 
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with this software; if not, write to the Free
+ * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
+ * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
+ * #L%
+ */
+
 
 import de.ibapl.spsw.spi.AbstractSerialPortSocket;
 import de.ibapl.spsw.spi.AbstractSerialPortSocketFactory;
@@ -29,7 +53,7 @@ import org.osgi.service.component.annotations.ServiceScope;
  * @author aploese
  */
 @Singleton
-@Component(name = "de.ibapl.spsw.provider", scope = ServiceScope.SINGLETON)
+@Component(name = "de.ibapl.spsw.provider", scope = ServiceScope.SINGLETON, immediate = true)
 public class SerialPortSocketFactoryImpl extends AbstractSerialPortSocketFactory implements SerialPortSocketFactory {
 
     protected final static Logger LOG = Logger.getLogger("de.ibapl.spsw.provider");
@@ -79,7 +103,7 @@ public class SerialPortSocketFactoryImpl extends AbstractSerialPortSocketFactory
             throw new RuntimeException("Can't load version information", ex);
         }
 
-        libName = String.format("spsw-%s-%s-%s", getOsName(), getArch(), p.getProperty("version"));
+        libName = String.format("spsw-%s", p.getProperty("version." + getOsName() + "." + getArch()));
 
         //Try it plain - OSGi will load with the bundle classloader - or if there are in the "java.library.path"
         LOG.log(Level.INFO, "Try plain with libName: {0}", libName);
@@ -95,20 +119,27 @@ public class SerialPortSocketFactoryImpl extends AbstractSerialPortSocketFactory
             libLoaded = false;
         }
 
-        final String libResourceName = "lib/" + System.mapLibraryName(libName);
-        //Try from resource like the tests do
+        //Figure out os and arch
+        final String libResourceName = String.format("lib/%s/%s/%s", getOsName(), getArch(), System.mapLibraryName(libName));
+        //Try from filesystem like the tests do
         libName = getClass().getClassLoader().getResource(libResourceName).getFile();
-        LOG.log(Level.INFO, "Try from resource with libName: {0}", libName);
+        if (new File(libName).exists()) {
+            //Unbundled aka not within a jar
+            LOG.log(Level.INFO, "Try from filesystem with libName: {0}", libName);
         try {
             System.load(libName);
             LOG.log(Level.INFO, "Lib loaded via System.load(\"{0}\")", libName);
             return true;
+        } catch (UnsatisfiedLinkError ule) {
+            LOG.log(Level.INFO, "Native lib {0} not loaded: {1}", new String[]{libName, ule.getMessage()});
+            libLoaded = false;
         } catch (Throwable t) {
             LOG.log(Level.INFO, "Native lib not loaded.", t);
             libLoaded = false;
         }
+        }
 
-        //If nothing helps do it the hard way: unpack to temp and load that.
+        //If nothing helps, do it the hard way: unpack to temp and load that.
         File tmpLib = null;
         try (InputStream is = AbstractSerialPortSocket.class.getClassLoader().getResourceAsStream(libResourceName)) {
             if (is == null) {
@@ -216,11 +247,10 @@ public class SerialPortSocketFactoryImpl extends AbstractSerialPortSocketFactory
             case "OpenVMS":
                 throw new UnsupportedOperationException("OpenVMS is currently not supported yet");
             default:
-                throw new RuntimeException("Can't figure out OS: " + System.getProperty("os.name"));
+                throw new RuntimeException("Can't create serial socket! Reason con't figure out OS: " + System.getProperty("os.name"));
         }
     }
 
-    @Override
     @PostConstruct
     @Activate
     public void activate() {
@@ -229,7 +259,6 @@ public class SerialPortSocketFactoryImpl extends AbstractSerialPortSocketFactory
         }
     }
 
-    @Override
     @PreDestroy
     @Deactivate
     public void deActivate() {

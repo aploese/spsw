@@ -1,0 +1,5 @@
+Bundle-Description: 				\
+	Integration Test bundle for the SPSW Provider
+
+Test-Cases: ${classes;NAMED;*Test}
+
