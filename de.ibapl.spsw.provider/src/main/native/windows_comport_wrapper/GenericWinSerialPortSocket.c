@@ -75,7 +75,7 @@ jfieldID spsw_open; /* id for field 'open'  */
 JNIEXPORT jint JNICALL JNI_OnLoad(JavaVM *jvm, void *reserved) {
     JNIEnv *env;
     jint getEnvResult = ((*jvm)->GetEnv(jvm, (void **) &env, JNI_VERSION_1_2));
-    if (getEnvResult != JNI_OK){
+    if (getEnvResult != JNI_OK) {
         return getEnvResult;
     }
     jclass spswClass = (*env)->FindClass(env, "Lde/ibapl/spsw/provider/GenericWinSerialPortSocket;");
@@ -95,9 +95,9 @@ JNIEXPORT void JNICALL JNI_OnUnLoad(JavaVM *jvm, void *reserved) {
     spsw_fd = 0;
     spsw_open = 0;
     spsw_portName = 0;
-    
+
     jint getEnvResult = ((*jvm)->GetEnv(jvm, (void **) &env, JNI_VERSION_1_2));
-    if (getEnvResult != JNI_OK){
+    if (getEnvResult != JNI_OK) {
         return;
     }
 
@@ -113,43 +113,41 @@ JNIEXPORT void JNICALL JNI_OnUnLoad(JavaVM *jvm, void *reserved) {
  * Signature: (Z)[Ljava/lang/String;
  */
 JNIEXPORT jobjectArray JNICALL Java_de_ibapl_spsw_provider_GenericWinSerialPortSocket_getWindowsBasedPortNames
-  (JNIEnv *env, jclass clazz, jboolean value) {
+(JNIEnv *env, jclass clazz, jboolean value) {
     HKEY phkResult;
     LPCSTR lpSubKey = "HARDWARE\\DEVICEMAP\\SERIALCOMM\\";
     jobjectArray returnArray = NULL;
-    if(RegOpenKeyExA(HKEY_LOCAL_MACHINE, lpSubKey, 0, KEY_READ, &phkResult) == ERROR_SUCCESS){
+    if (RegOpenKeyExA(HKEY_LOCAL_MACHINE, lpSubKey, 0, KEY_READ, &phkResult) == ERROR_SUCCESS) {
         boolean hasMoreElements = TRUE;
         DWORD keysCount = 0;
         char valueName[256];
         DWORD valueNameSize;
         DWORD enumResult;
-        while(hasMoreElements){
+        while (hasMoreElements) {
             valueNameSize = 256;
             enumResult = RegEnumValueA(phkResult, keysCount, valueName, &valueNameSize, NULL, NULL, NULL, NULL);
-            if(enumResult == ERROR_SUCCESS){
+            if (enumResult == ERROR_SUCCESS) {
                 keysCount++;
-            }
-            else if(enumResult == ERROR_NO_MORE_ITEMS){
+            } else if (enumResult == ERROR_NO_MORE_ITEMS) {
                 hasMoreElements = FALSE;
-            }
-            else {
+            } else {
                 hasMoreElements = FALSE;
             }
         }
-        if(keysCount > 0){
+        if (keysCount > 0) {
             jclass stringClass = (*env)->FindClass(env, "java/lang/String");
-            returnArray = (*env)->NewObjectArray(env, (jsize)keysCount, stringClass, NULL);
+            returnArray = (*env)->NewObjectArray(env, (jsize) keysCount, stringClass, NULL);
             char lpValueName[256];
             DWORD lpcchValueName;
             byte lpData[256];
             DWORD lpcbData;
             DWORD result;
-            for(DWORD i = 0; i < keysCount; i++){
+            for (DWORD i = 0; i < keysCount; i++) {
                 lpcchValueName = 256;
                 lpcbData = 256;
                 result = RegEnumValueA(phkResult, i, lpValueName, &lpcchValueName, NULL, NULL, lpData, &lpcbData);
-                if(result == ERROR_SUCCESS){
-                    (*env)->SetObjectArrayElement(env, returnArray, i, (*env)->NewStringUTF(env, (char*)lpData));
+                if (result == ERROR_SUCCESS) {
+                    (*env)->SetObjectArrayElement(env, returnArray, i, (*env)->NewStringUTF(env, (char*) lpData));
                 }
             }
         }
@@ -191,7 +189,7 @@ static void throw_PermissionDeniedException(JNIEnv *env, jstring portName) {
     (*env)->ThrowNew(env, (*env)->FindClass(env, "de/ibapl/spsw/api/PermissionDeniedException"), port);
     (*env)->ReleaseStringUTFChars(env, portName, port);
 }
-*/
+ */
 
 static void throw_NotASerialPortException(JNIEnv *env, jstring portName) {
     const char* port = (*env)->GetStringUTFChars(env, portName, JNI_FALSE);
@@ -202,11 +200,11 @@ static void throw_NotASerialPortException(JNIEnv *env, jstring portName) {
 static jboolean getCommModemStatus(JNIEnv *env, jobject object, DWORD bitMask) {
     DWORD lpModemStat;
 
-    #if defined(__i386)
-      HANDLE hFile = (HANDLE)(DWORD) (*env)->GetLongField(env, object, spsw_fd);
-    #elif defined(__x86_64)
-      HANDLE hFile = (HANDLE) (*env)->GetLongField(env, object, spsw_fd);
-    #endif
+#if defined(__i386)
+    HANDLE hFile = (HANDLE) (DWORD) (*env)->GetLongField(env, object, spsw_fd);
+#elif defined(__x86_64)
+    HANDLE hFile = (HANDLE) (*env)->GetLongField(env, object, spsw_fd);
+#endif
 
     if (!GetCommModemStatus(hFile, &lpModemStat)) {
         GetLastError();
@@ -249,11 +247,11 @@ JNIEXPORT void JNICALL Java_de_ibapl_spsw_provider_GenericWinSerialPortSocket_op
 
     if (hComm == INVALID_HANDLE_VALUE) {
 
-    #if defined(__i386)
-      (*env)->SetLongField(env, object, spsw_fd, (jlong)(DWORD) INVALID_HANDLE_VALUE);
-    #elif defined(__x86_64)
-      (*env)->SetLongField(env, object, spsw_fd, (jlong) INVALID_HANDLE_VALUE);
-    #endif
+#if defined(__i386)
+        (*env)->SetLongField(env, object, spsw_fd, (jlong) (DWORD) INVALID_HANDLE_VALUE);
+#elif defined(__x86_64)
+        (*env)->SetLongField(env, object, spsw_fd, (jlong) INVALID_HANDLE_VALUE);
+#endif
 
         switch (GetLastError()) {
             case ERROR_ACCESS_DENIED:
@@ -272,11 +270,11 @@ JNIEXPORT void JNICALL Java_de_ibapl_spsw_provider_GenericWinSerialPortSocket_op
     if (!GetCommState(hComm, &dcb)) {
         CloseHandle(hComm); //since 2.7.0
 
-    #if defined(__i386)
-      (*env)->SetLongField(env, object, spsw_fd, (jlong)(DWORD) INVALID_HANDLE_VALUE);
-    #elif defined(__x86_64)
-      (*env)->SetLongField(env, object, spsw_fd, (jlong) INVALID_HANDLE_VALUE);
-    #endif
+#if defined(__i386)
+        (*env)->SetLongField(env, object, spsw_fd, (jlong) (DWORD) INVALID_HANDLE_VALUE);
+#elif defined(__x86_64)
+        (*env)->SetLongField(env, object, spsw_fd, (jlong) INVALID_HANDLE_VALUE);
+#endif
 
         throw_NotASerialPortException(env, portName);
         return;
@@ -286,11 +284,11 @@ JNIEXPORT void JNICALL Java_de_ibapl_spsw_provider_GenericWinSerialPortSocket_op
     if (!GetCommTimeouts(hComm, &lpCommTimeouts)) {
         CloseHandle(hComm);
 
-    #if defined(__i386)
-      (*env)->SetLongField(env, object, spsw_fd, (jlong)(DWORD) INVALID_HANDLE_VALUE);
-    #elif defined(__x86_64)
-      (*env)->SetLongField(env, object, spsw_fd, (jlong) INVALID_HANDLE_VALUE);
-    #endif
+#if defined(__i386)
+        (*env)->SetLongField(env, object, spsw_fd, (jlong) (DWORD) INVALID_HANDLE_VALUE);
+#elif defined(__x86_64)
+        (*env)->SetLongField(env, object, spsw_fd, (jlong) INVALID_HANDLE_VALUE);
+#endif
 
         throw_SerialPortException_With_PortName(env, "Open GetCommTimeouts", (jstring) (*env)->GetObjectField(env, object, spsw_portName));
         return;
@@ -309,11 +307,11 @@ JNIEXPORT void JNICALL Java_de_ibapl_spsw_provider_GenericWinSerialPortSocket_op
         default:
             CloseHandle(hComm);
 
-    #if defined(__i386)
-      (*env)->SetLongField(env, object, spsw_fd, (jlong)(DWORD) INVALID_HANDLE_VALUE);
-    #elif defined(__x86_64)
-      (*env)->SetLongField(env, object, spsw_fd, (jlong) INVALID_HANDLE_VALUE);
-    #endif
+#if defined(__i386)
+            (*env)->SetLongField(env, object, spsw_fd, (jlong) (DWORD) INVALID_HANDLE_VALUE);
+#elif defined(__x86_64)
+            (*env)->SetLongField(env, object, spsw_fd, (jlong) INVALID_HANDLE_VALUE);
+#endif
 
             throw_SerialPortException_With_PortName(env, "Unknown terminal mode giving up", (jstring) (*env)->GetObjectField(env, object, spsw_portName));
             return;
@@ -322,21 +320,21 @@ JNIEXPORT void JNICALL Java_de_ibapl_spsw_provider_GenericWinSerialPortSocket_op
     if (!SetCommTimeouts(hComm, &lpCommTimeouts)) {
         CloseHandle(hComm);
 
-    #if defined(__i386)
-      (*env)->SetLongField(env, object, spsw_fd, (jlong)(DWORD) INVALID_HANDLE_VALUE);
-    #elif defined(__x86_64)
-      (*env)->SetLongField(env, object, spsw_fd, (jlong) INVALID_HANDLE_VALUE);
-    #endif
+#if defined(__i386)
+        (*env)->SetLongField(env, object, spsw_fd, (jlong) (DWORD) INVALID_HANDLE_VALUE);
+#elif defined(__x86_64)
+        (*env)->SetLongField(env, object, spsw_fd, (jlong) INVALID_HANDLE_VALUE);
+#endif
 
         throw_SerialPortException_With_PortName(env, "Open SetCommTimeouts", (jstring) (*env)->GetObjectField(env, object, spsw_portName));
         return;
     }
 
-    #if defined(__i386)
-      (*env)->SetLongField(env, object, spsw_fd, (jlong)(DWORD) hComm);
-    #elif defined(__x86_64)
-      (*env)->SetLongField(env, object, spsw_fd, (jlong) hComm);
-    #endif
+#if defined(__i386)
+    (*env)->SetLongField(env, object, spsw_fd, (jlong) (DWORD) hComm);
+#elif defined(__x86_64)
+    (*env)->SetLongField(env, object, spsw_fd, (jlong) hComm);
+#endif
 }
 
 /*
@@ -345,13 +343,13 @@ JNIEXPORT void JNICALL Java_de_ibapl_spsw_provider_GenericWinSerialPortSocket_op
 JNIEXPORT void JNICALL Java_de_ibapl_spsw_provider_GenericWinSerialPortSocket_close0
 (JNIEnv *env, jobject object) {
 
-    #if defined(__i386)
-      HANDLE hFile = (HANDLE)(DWORD) (*env)->GetLongField(env, object, spsw_fd);
-      (*env)->SetLongField(env, object, spsw_fd, (jlong)(DWORD) INVALID_HANDLE_VALUE);
-    #elif defined(__x86_64)
-      HANDLE hFile = (HANDLE) (*env)->GetLongField(env, object, spsw_fd);
-      (*env)->SetLongField(env, object, spsw_fd, (jlong) INVALID_HANDLE_VALUE);
-    #endif
+#if defined(__i386)
+    HANDLE hFile = (HANDLE) (DWORD) (*env)->GetLongField(env, object, spsw_fd);
+    (*env)->SetLongField(env, object, spsw_fd, (jlong) (DWORD) INVALID_HANDLE_VALUE);
+#elif defined(__x86_64)
+    HANDLE hFile = (HANDLE) (*env)->GetLongField(env, object, spsw_fd);
+    (*env)->SetLongField(env, object, spsw_fd, (jlong) INVALID_HANDLE_VALUE);
+#endif
 
     if (!CloseHandle(hFile)) {
         throw_SerialPortException_With_PortName(env, "Can't close port", (jstring) (*env)->GetObjectField(env, object, spsw_portName));
@@ -365,11 +363,11 @@ JNIEXPORT void JNICALL Java_de_ibapl_spsw_provider_GenericWinSerialPortSocket_se
 (JNIEnv *env, jobject object, jboolean enabled) {
     DWORD dwFunc = (enabled == JNI_TRUE) ? SETRTS : CLRRTS;
 
-    #if defined(__i386)
-      HANDLE hFile = (HANDLE)(DWORD) (*env)->GetLongField(env, object, spsw_fd);
-    #elif defined(__x86_64)
-      HANDLE hFile = (HANDLE) (*env)->GetLongField(env, object, spsw_fd);
-    #endif
+#if defined(__i386)
+    HANDLE hFile = (HANDLE) (DWORD) (*env)->GetLongField(env, object, spsw_fd);
+#elif defined(__x86_64)
+    HANDLE hFile = (HANDLE) (*env)->GetLongField(env, object, spsw_fd);
+#endif
 
     if (!EscapeCommFunction(hFile, dwFunc)) {
         throw_SerialPortException_With_PortName(env, "Can't set/clear RTS", (jstring) (*env)->GetObjectField(env, object, spsw_portName));
@@ -393,11 +391,11 @@ JNIEXPORT void JNICALL Java_de_ibapl_spsw_provider_GenericWinSerialPortSocket_se
 (JNIEnv *env, jobject object, jboolean enabled) {
     DWORD dwFunc = (enabled == JNI_TRUE) ? SETDTR : CLRDTR;
 
-    #if defined(__i386)
-      HANDLE hFile = (HANDLE)(DWORD) (*env)->GetLongField(env, object, spsw_fd);
-    #elif defined(__x86_64)
-      HANDLE hFile = (HANDLE) (*env)->GetLongField(env, object, spsw_fd);
-    #endif
+#if defined(__i386)
+    HANDLE hFile = (HANDLE) (DWORD) (*env)->GetLongField(env, object, spsw_fd);
+#elif defined(__x86_64)
+    HANDLE hFile = (HANDLE) (*env)->GetLongField(env, object, spsw_fd);
+#endif
 
     if (!EscapeCommFunction(hFile, dwFunc)) {
         throw_SerialPortException_With_PortName(env, "Can't set/clear DTR", (jstring) (*env)->GetObjectField(env, object, spsw_portName));
@@ -410,12 +408,12 @@ JNIEXPORT void JNICALL Java_de_ibapl_spsw_provider_GenericWinSerialPortSocket_se
 JNIEXPORT void JNICALL Java_de_ibapl_spsw_provider_GenericWinSerialPortSocket_setBreak
 (JNIEnv *env, jobject object, jboolean enabled) {
     DWORD dwFunc = (enabled == JNI_TRUE) ? SETBREAK : CLRBREAK;
-    
-    #if defined(__i386)
-      HANDLE hFile = (HANDLE)(DWORD) (*env)->GetLongField(env, object, spsw_fd);
-    #elif defined(__x86_64)
-      HANDLE hFile = (HANDLE) (*env)->GetLongField(env, object, spsw_fd);
-    #endif
+
+#if defined(__i386)
+    HANDLE hFile = (HANDLE) (DWORD) (*env)->GetLongField(env, object, spsw_fd);
+#elif defined(__x86_64)
+    HANDLE hFile = (HANDLE) (*env)->GetLongField(env, object, spsw_fd);
+#endif
 
     if (!EscapeCommFunction(hFile, dwFunc)) {
         throw_SerialPortException_With_PortName(env, "Can't set/clear BREAK", (jstring) (*env)->GetObjectField(env, object, spsw_portName));
@@ -426,11 +424,11 @@ JNIEXPORT void JNICALL Java_de_ibapl_spsw_provider_GenericWinSerialPortSocket_se
 (JNIEnv *env, jobject object, jchar c) {
     DCB dcb;
 
-    #if defined(__i386)
-      HANDLE hFile = (HANDLE)(DWORD) (*env)->GetLongField(env, object, spsw_fd);
-    #elif defined(__x86_64)
-      HANDLE hFile = (HANDLE) (*env)->GetLongField(env, object, spsw_fd);
-    #endif
+#if defined(__i386)
+    HANDLE hFile = (HANDLE) (DWORD) (*env)->GetLongField(env, object, spsw_fd);
+#elif defined(__x86_64)
+    HANDLE hFile = (HANDLE) (*env)->GetLongField(env, object, spsw_fd);
+#endif
 
     if (!GetCommState(hFile, &dcb)) {
         throw_SerialPortException_With_PortName(env, "setXONChar GetCommState", (jstring) (*env)->GetObjectField(env, object, spsw_portName));
@@ -446,11 +444,11 @@ JNIEXPORT void JNICALL Java_de_ibapl_spsw_provider_GenericWinSerialPortSocket_se
 (JNIEnv *env, jobject object, jchar c) {
     DCB dcb;
 
-    #if defined(__i386)
-      HANDLE hFile = (HANDLE)(DWORD) (*env)->GetLongField(env, object, spsw_fd);
-    #elif defined(__x86_64)
-      HANDLE hFile = (HANDLE) (*env)->GetLongField(env, object, spsw_fd);
-    #endif
+#if defined(__i386)
+    HANDLE hFile = (HANDLE) (DWORD) (*env)->GetLongField(env, object, spsw_fd);
+#elif defined(__x86_64)
+    HANDLE hFile = (HANDLE) (*env)->GetLongField(env, object, spsw_fd);
+#endif
 
     if (!GetCommState(hFile, &dcb)) {
         throw_SerialPortException_With_PortName(env, "setXOFFChar GetCommState", (jstring) (*env)->GetObjectField(env, object, spsw_portName));
@@ -466,11 +464,11 @@ JNIEXPORT jchar JNICALL Java_de_ibapl_spsw_provider_GenericWinSerialPortSocket_g
 (JNIEnv *env, jobject object) {
     DCB dcb;
 
-    #if defined(__i386)
-      HANDLE hFile = (HANDLE)(DWORD) (*env)->GetLongField(env, object, spsw_fd);
-    #elif defined(__x86_64)
-      HANDLE hFile = (HANDLE) (*env)->GetLongField(env, object, spsw_fd);
-    #endif
+#if defined(__i386)
+    HANDLE hFile = (HANDLE) (DWORD) (*env)->GetLongField(env, object, spsw_fd);
+#elif defined(__x86_64)
+    HANDLE hFile = (HANDLE) (*env)->GetLongField(env, object, spsw_fd);
+#endif
 
     if (!GetCommState(hFile, &dcb)) {
         throw_SerialPortException_With_PortName(env, "getXONChar GetCommState", (jstring) (*env)->GetObjectField(env, object, spsw_portName));
@@ -483,11 +481,11 @@ JNIEXPORT jchar JNICALL Java_de_ibapl_spsw_provider_GenericWinSerialPortSocket_g
 (JNIEnv *env, jobject object) {
     DCB dcb;
 
-    #if defined(__i386)
-      HANDLE hFile = (HANDLE)(DWORD) (*env)->GetLongField(env, object, spsw_fd);
-    #elif defined(__x86_64)
-      HANDLE hFile = (HANDLE) (*env)->GetLongField(env, object, spsw_fd);
-    #endif
+#if defined(__i386)
+    HANDLE hFile = (HANDLE) (DWORD) (*env)->GetLongField(env, object, spsw_fd);
+#elif defined(__x86_64)
+    HANDLE hFile = (HANDLE) (*env)->GetLongField(env, object, spsw_fd);
+#endif
 
     if (!GetCommState(hFile, &dcb)) {
         throw_SerialPortException_With_PortName(env, "getXOFFChar GetCommState", (jstring) (*env)->GetObjectField(env, object, spsw_portName));
@@ -514,11 +512,11 @@ JNIEXPORT jboolean JNICALL Java_de_ibapl_spsw_provider_GenericWinSerialPortSocke
 JNIEXPORT void JNICALL Java_de_ibapl_spsw_provider_GenericWinSerialPortSocket_writeSingle
 (JNIEnv *env, jobject object, jint b) {
 
-    #if defined(__i386)
-      HANDLE hFile = (HANDLE)(DWORD) (*env)->GetLongField(env, object, spsw_fd);
-    #elif defined(__x86_64)
-      HANDLE hFile = (HANDLE) (*env)->GetLongField(env, object, spsw_fd);
-    #endif
+#if defined(__i386)
+    HANDLE hFile = (HANDLE) (DWORD) (*env)->GetLongField(env, object, spsw_fd);
+#elif defined(__x86_64)
+    HANDLE hFile = (HANDLE) (*env)->GetLongField(env, object, spsw_fd);
+#endif
 
     OVERLAPPED overlapped;
     DWORD dwBytesWritten;
@@ -567,11 +565,11 @@ JNIEXPORT void JNICALL Java_de_ibapl_spsw_provider_GenericWinSerialPortSocket_wr
     jbyte *buf = (jbyte*) malloc(len);
     (*env)->GetByteArrayRegion(env, bytes, off, len, buf);
 
-    #if defined(__i386)
-      HANDLE hFile = (HANDLE)(DWORD) (*env)->GetLongField(env, object, spsw_fd);
-    #elif defined(__x86_64)
-      HANDLE hFile = (HANDLE) (*env)->GetLongField(env, object, spsw_fd);
-    #endif
+#if defined(__i386)
+    HANDLE hFile = (HANDLE) (DWORD) (*env)->GetLongField(env, object, spsw_fd);
+#elif defined(__x86_64)
+    HANDLE hFile = (HANDLE) (*env)->GetLongField(env, object, spsw_fd);
+#endif
 
     DWORD dwBytesWritten;
     OVERLAPPED overlapped;
@@ -618,11 +616,11 @@ JNIEXPORT jint JNICALL Java_de_ibapl_spsw_provider_GenericWinSerialPortSocket_re
 
     jbyte lpBuffer;
 
-    #if defined(__i386)
-      HANDLE hFile = (HANDLE)(DWORD) (*env)->GetLongField(env, object, spsw_fd);
-    #elif defined(__x86_64)
-      HANDLE hFile = (HANDLE) (*env)->GetLongField(env, object, spsw_fd);
-    #endif
+#if defined(__i386)
+    HANDLE hFile = (HANDLE) (DWORD) (*env)->GetLongField(env, object, spsw_fd);
+#elif defined(__x86_64)
+    HANDLE hFile = (HANDLE) (*env)->GetLongField(env, object, spsw_fd);
+#endif
 
     OVERLAPPED overlapped;
     DWORD dwBytesRead;
@@ -678,11 +676,11 @@ JNIEXPORT jint JNICALL Java_de_ibapl_spsw_provider_GenericWinSerialPortSocket_re
 
     jbyte *lpBuffer = (jbyte*) malloc(len);
 
-    #if defined(__i386)
-      HANDLE hFile = (HANDLE)(DWORD) (*env)->GetLongField(env, object, spsw_fd);
-    #elif defined(__x86_64)
-      HANDLE hFile = (HANDLE) (*env)->GetLongField(env, object, spsw_fd);
-    #endif
+#if defined(__i386)
+    HANDLE hFile = (HANDLE) (DWORD) (*env)->GetLongField(env, object, spsw_fd);
+#elif defined(__x86_64)
+    HANDLE hFile = (HANDLE) (*env)->GetLongField(env, object, spsw_fd);
+#endif
 
     DWORD dwBytesRead;
     OVERLAPPED overlapped;
@@ -696,7 +694,7 @@ JNIEXPORT jint JNICALL Java_de_ibapl_spsw_provider_GenericWinSerialPortSocket_re
             throw_SerialPortException_With_PortName(env, "Error readBytes (GetLastError)", (jstring) (*env)->GetObjectField(env, object, spsw_portName));
             return -1;
         }
-        
+
         //overlapped path
         if (WaitForSingleObject(overlapped.hEvent, INFINITE) != WAIT_OBJECT_0) {
             CloseHandle(overlapped.hEvent);
@@ -732,11 +730,11 @@ JNIEXPORT jint JNICALL Java_de_ibapl_spsw_provider_GenericWinSerialPortSocket_ge
     DWORD lpErrors;
     COMSTAT comstat;
 
-    #if defined(__i386)
-      HANDLE hFile = (HANDLE)(DWORD) (*env)->GetLongField(env, object, spsw_fd);
-    #elif defined(__x86_64)
-      HANDLE hFile = (HANDLE) (*env)->GetLongField(env, object, spsw_fd);
-    #endif
+#if defined(__i386)
+    HANDLE hFile = (HANDLE) (DWORD) (*env)->GetLongField(env, object, spsw_fd);
+#elif defined(__x86_64)
+    HANDLE hFile = (HANDLE) (*env)->GetLongField(env, object, spsw_fd);
+#endif
 
     if (ClearCommError(hFile, &lpErrors, &comstat)) {
         return (jint) comstat.cbInQue;
@@ -751,11 +749,11 @@ JNIEXPORT jint JNICALL Java_de_ibapl_spsw_provider_GenericWinSerialPortSocket_ge
     DWORD lpErrors;
     COMSTAT comstat;
 
-    #if defined(__i386)
-      HANDLE hFile = (HANDLE)(DWORD) (*env)->GetLongField(env, object, spsw_fd);
-    #elif defined(__x86_64)
-      HANDLE hFile = (HANDLE) (*env)->GetLongField(env, object, spsw_fd);
-    #endif
+#if defined(__i386)
+    HANDLE hFile = (HANDLE) (DWORD) (*env)->GetLongField(env, object, spsw_fd);
+#elif defined(__x86_64)
+    HANDLE hFile = (HANDLE) (*env)->GetLongField(env, object, spsw_fd);
+#endif
 
     if (ClearCommError(hFile, &lpErrors, &comstat)) {
         return (jint) comstat.cbOutQue;
@@ -774,11 +772,11 @@ JNIEXPORT void JNICALL Java_de_ibapl_spsw_provider_GenericWinSerialPortSocket_se
 (JNIEnv *env, jobject object, jint mask) {
     DCB dcb;
 
-    #if defined(__i386)
-      HANDLE hFile = (HANDLE)(DWORD) (*env)->GetLongField(env, object, spsw_fd);
-    #elif defined(__x86_64)
-      HANDLE hFile = (HANDLE) (*env)->GetLongField(env, object, spsw_fd);
-    #endif
+#if defined(__i386)
+    HANDLE hFile = (HANDLE) (DWORD) (*env)->GetLongField(env, object, spsw_fd);
+#elif defined(__x86_64)
+    HANDLE hFile = (HANDLE) (*env)->GetLongField(env, object, spsw_fd);
+#endif
 
     if (!GetCommState(hFile, &dcb)) {
         throw_SerialPortException_With_PortName(env, "setFlowControl GetCommState", (jstring) (*env)->GetObjectField(env, object, spsw_portName));
@@ -817,11 +815,11 @@ JNIEXPORT void JNICALL Java_de_ibapl_spsw_provider_GenericWinSerialPortSocket_se
 (JNIEnv *env, jobject object, jint baudRate) {
     DCB dcb;
 
-    #if defined(__i386)
-      HANDLE hFile = (HANDLE)(DWORD) (*env)->GetLongField(env, object, spsw_fd);
-    #elif defined(__x86_64)
-      HANDLE hFile = (HANDLE) (*env)->GetLongField(env, object, spsw_fd);
-    #endif
+#if defined(__i386)
+    HANDLE hFile = (HANDLE) (DWORD) (*env)->GetLongField(env, object, spsw_fd);
+#elif defined(__x86_64)
+    HANDLE hFile = (HANDLE) (*env)->GetLongField(env, object, spsw_fd);
+#endif
 
     if (!GetCommState(hFile, &dcb)) {
         throw_SerialPortException_With_PortName(env, "setBaudrate GetCommState", (jstring) (*env)->GetObjectField(env, object, spsw_portName));
@@ -844,11 +842,11 @@ JNIEXPORT void JNICALL Java_de_ibapl_spsw_provider_GenericWinSerialPortSocket_se
 (JNIEnv *env, jobject object, jint dataBits) {
     DCB dcb;
 
-    #if defined(__i386)
-      HANDLE hFile = (HANDLE)(DWORD) (*env)->GetLongField(env, object, spsw_fd);
-    #elif defined(__x86_64)
-      HANDLE hFile = (HANDLE) (*env)->GetLongField(env, object, spsw_fd);
-    #endif
+#if defined(__i386)
+    HANDLE hFile = (HANDLE) (DWORD) (*env)->GetLongField(env, object, spsw_fd);
+#elif defined(__x86_64)
+    HANDLE hFile = (HANDLE) (*env)->GetLongField(env, object, spsw_fd);
+#endif
 
     if (!GetCommState(hFile, &dcb)) {
         throw_SerialPortException_With_PortName(env, "setDataBits GetCommState", (jstring) (*env)->GetObjectField(env, object, spsw_portName));
@@ -871,11 +869,11 @@ JNIEXPORT void JNICALL Java_de_ibapl_spsw_provider_GenericWinSerialPortSocket_se
 (JNIEnv *env, jobject object, jint stopBits) {
     DCB dcb;
 
-    #if defined(__i386)
-      HANDLE hFile = (HANDLE)(DWORD) (*env)->GetLongField(env, object, spsw_fd);
-    #elif defined(__x86_64)
-      HANDLE hFile = (HANDLE) (*env)->GetLongField(env, object, spsw_fd);
-    #endif
+#if defined(__i386)
+    HANDLE hFile = (HANDLE) (DWORD) (*env)->GetLongField(env, object, spsw_fd);
+#elif defined(__x86_64)
+    HANDLE hFile = (HANDLE) (*env)->GetLongField(env, object, spsw_fd);
+#endif
 
     if (!GetCommState(hFile, &dcb)) {
         throw_SerialPortException_With_PortName(env, "setStopBits GetCommState", (jstring) (*env)->GetObjectField(env, object, spsw_portName));
@@ -911,11 +909,11 @@ JNIEXPORT void JNICALL Java_de_ibapl_spsw_provider_GenericWinSerialPortSocket_se
 (JNIEnv *env, jobject object, jint parity) {
     DCB dcb;
 
-    #if defined(__i386)
-      HANDLE hFile = (HANDLE)(DWORD) (*env)->GetLongField(env, object, spsw_fd);
-    #elif defined(__x86_64)
-      HANDLE hFile = (HANDLE) (*env)->GetLongField(env, object, spsw_fd);
-    #endif
+#if defined(__i386)
+    HANDLE hFile = (HANDLE) (DWORD) (*env)->GetLongField(env, object, spsw_fd);
+#elif defined(__x86_64)
+    HANDLE hFile = (HANDLE) (*env)->GetLongField(env, object, spsw_fd);
+#endif
 
     if (!GetCommState(hFile, &dcb)) {
         throw_SerialPortException_With_PortName(env, "setParity GetCommState", (jstring) (*env)->GetObjectField(env, object, spsw_portName));
@@ -957,11 +955,11 @@ JNIEXPORT jint JNICALL Java_de_ibapl_spsw_provider_GenericWinSerialPortSocket_ge
 (JNIEnv *env, jobject object) {
     DCB dcb;
 
-    #if defined(__i386)
-      HANDLE hFile = (HANDLE)(DWORD) (*env)->GetLongField(env, object, spsw_fd);
-    #elif defined(__x86_64)
-      HANDLE hFile = (HANDLE) (*env)->GetLongField(env, object, spsw_fd);
-    #endif
+#if defined(__i386)
+    HANDLE hFile = (HANDLE) (DWORD) (*env)->GetLongField(env, object, spsw_fd);
+#elif defined(__x86_64)
+    HANDLE hFile = (HANDLE) (*env)->GetLongField(env, object, spsw_fd);
+#endif
 
     if (!GetCommState(hFile, &dcb)) {
         throw_SerialPortException_With_PortName(env, "getBaudrate0 GetCommState", (jstring) (*env)->GetObjectField(env, object, spsw_portName));
@@ -979,11 +977,11 @@ JNIEXPORT jint JNICALL Java_de_ibapl_spsw_provider_GenericWinSerialPortSocket_ge
 (JNIEnv *env, jobject object) {
     DCB dcb;
 
-    #if defined(__i386)
-      HANDLE hFile = (HANDLE)(DWORD) (*env)->GetLongField(env, object, spsw_fd);
-    #elif defined(__x86_64)
-      HANDLE hFile = (HANDLE) (*env)->GetLongField(env, object, spsw_fd);
-    #endif
+#if defined(__i386)
+    HANDLE hFile = (HANDLE) (DWORD) (*env)->GetLongField(env, object, spsw_fd);
+#elif defined(__x86_64)
+    HANDLE hFile = (HANDLE) (*env)->GetLongField(env, object, spsw_fd);
+#endif
 
     if (!GetCommState(hFile, &dcb)) {
         throw_SerialPortException_With_PortName(env, "getDataBits0 GetCommState", (jstring) (*env)->GetObjectField(env, object, spsw_portName));
@@ -1001,11 +999,11 @@ JNIEXPORT jint JNICALL Java_de_ibapl_spsw_provider_GenericWinSerialPortSocket_ge
 (JNIEnv *env, jobject object) {
     DCB dcb;
 
-    #if defined(__i386)
-      HANDLE hFile = (HANDLE)(DWORD) (*env)->GetLongField(env, object, spsw_fd);
-    #elif defined(__x86_64)
-      HANDLE hFile = (HANDLE) (*env)->GetLongField(env, object, spsw_fd);
-    #endif
+#if defined(__i386)
+    HANDLE hFile = (HANDLE) (DWORD) (*env)->GetLongField(env, object, spsw_fd);
+#elif defined(__x86_64)
+    HANDLE hFile = (HANDLE) (*env)->GetLongField(env, object, spsw_fd);
+#endif
 
     if (!GetCommState(hFile, &dcb)) {
         throw_SerialPortException_With_PortName(env, "getStopBits0 GetCommState", (jstring) (*env)->GetObjectField(env, object, spsw_portName));
@@ -1034,11 +1032,11 @@ JNIEXPORT jint JNICALL Java_de_ibapl_spsw_provider_GenericWinSerialPortSocket_ge
 (JNIEnv *env, jobject object) {
     DCB dcb;
 
-    #if defined(__i386)
-      HANDLE hFile = (HANDLE)(DWORD) (*env)->GetLongField(env, object, spsw_fd);
-    #elif defined(__x86_64)
-      HANDLE hFile = (HANDLE) (*env)->GetLongField(env, object, spsw_fd);
-    #endif
+#if defined(__i386)
+    HANDLE hFile = (HANDLE) (DWORD) (*env)->GetLongField(env, object, spsw_fd);
+#elif defined(__x86_64)
+    HANDLE hFile = (HANDLE) (*env)->GetLongField(env, object, spsw_fd);
+#endif
 
     if (!GetCommState(hFile, &dcb)) {
         throw_SerialPortException_With_PortName(env, "getParity0 GetCommState", (jstring) (*env)->GetObjectField(env, object, spsw_portName));
@@ -1071,12 +1069,12 @@ JNIEXPORT jint JNICALL Java_de_ibapl_spsw_provider_GenericWinSerialPortSocket_ge
 (JNIEnv *env, jobject object) {
     jint returnValue = 0;
     DCB dcb;
-    
-    #if defined(__i386)
-      HANDLE hFile = (HANDLE)(DWORD) (*env)->GetLongField(env, object, spsw_fd);
-    #elif defined(__x86_64)
-      HANDLE hFile = (HANDLE) (*env)->GetLongField(env, object, spsw_fd);
-    #endif
+
+#if defined(__i386)
+    HANDLE hFile = (HANDLE) (DWORD) (*env)->GetLongField(env, object, spsw_fd);
+#elif defined(__x86_64)
+    HANDLE hFile = (HANDLE) (*env)->GetLongField(env, object, spsw_fd);
+#endif
 
     if (!GetCommState(hFile, &dcb)) {
         throw_SerialPortException_With_PortName(env, "getFlowControl0 GetCommState", (jstring) (*env)->GetObjectField(env, object, spsw_portName));

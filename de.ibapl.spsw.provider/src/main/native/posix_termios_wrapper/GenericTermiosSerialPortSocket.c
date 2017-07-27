@@ -56,6 +56,8 @@
 #include <fcntl.h>
 #include <sys/ioctl.h>
 #include <termios.h>
+#include <unistd.h>
+#include <string.h>
 
 #include <errno.h>//-D_TS_ERRNO use for Solaris C++ compiler
 
@@ -96,14 +98,14 @@ jfieldID spsw_open; /* id for field 'open'  */
 JNIEXPORT jint JNICALL JNI_OnLoad(JavaVM *jvm, void *reserved) {
     JNIEnv *env;
     jint getEnvResult = ((*jvm)->GetEnv(jvm, (void **) &env, JNI_VERSION_1_2));
-    if (getEnvResult != JNI_OK){
+    if (getEnvResult != JNI_OK) {
         return getEnvResult;
     }
     jclass genericTermiosSerialPortSocket = (*env)->FindClass(env, "Lde/ibapl/spsw/provider/GenericTermiosSerialPortSocket;");
     spsw_fd = (*env)->GetFieldID(env, genericTermiosSerialPortSocket, "fd", "I");
     spsw_open = (*env)->GetFieldID(env, genericTermiosSerialPortSocket, "open", "Z");
     spsw_portName = (*env)->GetFieldID(env, genericTermiosSerialPortSocket, "portName", "Ljava/lang/String;");
-    
+
     // mark that the lib was loaded
     jclass serialPortSocketFactoryImpl = (*env)->FindClass(env, "Lde/ibapl/spsw/provider/SerialPortSocketFactoryImpl;");
     jfieldID spsw_libLoaded = (*env)->GetStaticFieldID(env, serialPortSocketFactoryImpl, "libLoaded", "Z");
@@ -116,7 +118,12 @@ JNIEXPORT void JNICALL JNI_OnUnLoad(JavaVM *jvm, void *reserved) {
     spsw_fd = 0;
     spsw_open = 0;
     spsw_portName = 0;
-    
+
+    jint getEnvResult = ((*jvm)->GetEnv(jvm, (void **) &env, JNI_VERSION_1_2));
+    if (getEnvResult != JNI_OK) {
+        return;
+    }
+
     // mark that the lib was unloaded
     jclass serialPortSocketFactoryImpl = (*env)->FindClass(env, "Lde/ibapl/spsw/provider/SerialPortSocketFactoryImpl;");
     jfieldID spsw_libLoaded = (*env)->GetStaticFieldID(env, serialPortSocketFactoryImpl, "libLoaded", "Z");
@@ -128,11 +135,15 @@ JNIEXPORT void JNICALL JNI_OnUnLoad(JavaVM *jvm, void *reserved) {
 // Helper method
 
 static void throw_SerialPortException_With_PortName(JNIEnv *env, const char *msg, jstring portName) {
-    char buf[2048];
     const char* port = (*env)->GetStringUTFChars(env, portName, JNI_FALSE);
+    char buf[2048];
     snprintf(buf, 2048, "%s (%s) : Unknown port error %d: (%s)", msg, port, errno, strerror(errno));
     (*env)->ReleaseStringUTFChars(env, portName, port);
-    (*env)->ThrowNew(env, (*env)->FindClass(env, "de/ibapl/spsw/api/SerialPortException"), buf);
+    jclass speClass = (*env)->FindClass(env, "de/ibapl/spsw/api/SerialPortException");
+    jmethodID speConstructor = (*env)->GetMethodID(env, speClass, "<init>", "(Ljava/lang/String;Ljava/lang/String;)V");
+    jobject speEx = (*env)->NewObject(env, speClass, speConstructor, portName, (*env)->NewStringUTF(env, buf));
+    (*env)->Throw(env, speEx);
+    (*env)->DeleteLocalRef(env, speClass);
 }
 
 static void throw_SerialPortException(JNIEnv *env, const char *msg) {
@@ -727,7 +738,7 @@ JNIEXPORT jint JNICALL Java_de_ibapl_spsw_provider_GenericTermiosSerialPortSocke
             return -1;
         }
     }
-    
+
     // we should never reach this ...
     throw_SerialPortException_With_PortName(env, "readSingle: Should never happen", (jstring) (*env)->GetObjectField(env, object, spsw_portName));
     return -1;
@@ -782,8 +793,7 @@ JNIEXPORT void JNICALL Java_de_ibapl_spsw_provider_GenericTermiosSerialPortSocke
         throw_SerialPortException_With_PortName(env, "Can't drain the output buffer", (jstring) (*env)->GetObjectField(env, object, spsw_portName));
         return;
     }
-}    
-
+}
 
 /*
  * Setting flow control mode
