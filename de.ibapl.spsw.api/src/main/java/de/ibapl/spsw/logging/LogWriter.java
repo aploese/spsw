@@ -103,7 +103,7 @@ public class LogWriter {
     public void beforeWrite(Instant ts, byte b) {
         appendWritePrefix(ts, ACION_CALL);
         appendByte(b);
-        log.append("\"\n");
+        log.println('\"');
         log.flush();
     }
 
@@ -112,7 +112,7 @@ public class LogWriter {
         for (byte b0 : b) {
             appendByte(b0);
         }
-        log.append("\"\n");
+        log.println('\"');
         log.flush();
     }
 
@@ -121,7 +121,7 @@ public class LogWriter {
         for (int i = 0; i < len; i++) {
             appendByte(b[offset + i]);
         }
-        log.append("\"\n");
+        log.println('\"');
         log.flush();
     }
 
@@ -132,17 +132,18 @@ public class LogWriter {
         } else {
             log.append(": duration: ").append(d.toString());
         }
-        log.append('\n');
+        log.println();
         log.flush();
     }
 
     public void beforeRead(Instant ts) {
         readStartTS = ts;
-        log.append("IS ").append(ACION_CALL).append(" read @").append(dateTimeFormatter.format(ts)).append('\n');
+        log.append("IS ").append(ACION_CALL).append(" read @").append(dateTimeFormatter.format(ts));
+        log.println();
         log.flush();
     }
 
-    void afterRead(final Instant ts, int b) {
+    public void afterRead(final Instant ts, int b) {
         log.append("IS ").append(ACION_RETURN).append(" read @").append(dateTimeFormatter.format(ts)).append(": \"");
         Duration d = Duration.between(readStartTS, ts);
         if (b >= 0) {
@@ -153,7 +154,8 @@ public class LogWriter {
         } else {
             log.append("\" duration: ").append(d.toString());
         }
-        log.append('\n');
+        log.println();
+        log.flush();
     }
 
     public void afterRead(final Instant ts, int readLength, byte[] b, int off) {
@@ -167,48 +169,56 @@ public class LogWriter {
         } else {
             log.append("\" duration: ").append(d.toString());
         }
-        log.append('\n');
+        log.println();
+        log.flush();
     }
 
     void afterRead(final Instant ts, IOException e) {
         log.append("IS ").append(ACION_RETURN).append(" read @").append(dateTimeFormatter.format(ts)).append(": ").append(e.toString());
         e.printStackTrace(log);
+        log.println();
         log.flush();
     }
 
     void afterWrite(Instant ts, IOException e) {
         log.append("OS ").append(ACION_RETURN).append(" write @").append(dateTimeFormatter.format(ts)).append(": ").append(e.toString());
         e.printStackTrace(log);
+        log.println();
         log.flush();
     }
 
     public void beforeFlush(final Instant ts) {
-        log.append("OS ").append(ACION_CALL).append(" flush @").append(dateTimeFormatter.format(ts)).append('\n');
+        log.append("OS ").append(ACION_CALL).append(" flush @").append(dateTimeFormatter.format(ts));
+        log.println();
         log.flush();
     }
 
     public void afterFlush(final Instant ts) {
-        log.append("OS ").append(ACION_RETURN).append(" flush @").append(dateTimeFormatter.format(ts)).append('\n');
+        log.append("OS ").append(ACION_RETURN).append(" flush @").append(dateTimeFormatter.format(ts));
+        log.println();
         log.flush();
     }
 
     public void afterFlush(final Instant ts, IOException e) {
         log.append("OS ").append(ACION_RETURN).append(" flush @").append(dateTimeFormatter.format(ts)).append(": ").append(e.toString());
         e.printStackTrace(log);
+        log.println();
         log.flush();
     }
 
     public void beforeSpOpen(final Instant ts, String type) {
         readStartTS = null;
         writeStartTS = null;
-        log.append("SP ").append(ACION_CALL).append(" open @").append(dateTimeFormatter.format(ts)).append(": ").append(type).append('\n');
+        log.append("SP ").append(ACION_CALL).append(" open @").append(dateTimeFormatter.format(ts)).append(": ").append(type);
+        log.println();
         log.flush();
     }
  
     public void afterSpOpen(final Instant ts, String type) {
         readStartTS = null;
         writeStartTS = null;
-        log.append("SP ").append(ACION_RETURN).append(" open @").append(dateTimeFormatter.format(ts)).append(": ").append(type).append('\n');
+        log.append("SP ").append(ACION_RETURN).append(" open @").append(dateTimeFormatter.format(ts)).append(": ").append(type);
+        log.println();
         log.flush();
     }
 
@@ -217,71 +227,83 @@ public class LogWriter {
         writeStartTS = null;
         log.append("SP ").append(ACION_RETURN).append(" open @").append(dateTimeFormatter.format(ts)).append(": ").append(type).append(' ').append(e.toString());
         e.printStackTrace(log);
+        log.println();
         log.flush();
     }
 
     public void beforeSpClose(final Instant ts) {
-        log.append("SP ").append(ACION_CALL).append(" close @").append(dateTimeFormatter.format(ts)).append('\n');
+        log.append("SP ").append(ACION_CALL).append(" close @").append(dateTimeFormatter.format(ts));
+        log.println();
         log.flush();
     }
 
     public void afterSpClose(final Instant ts) {
-        log.append("SP ").append(ACION_RETURN).append(" close @").append(dateTimeFormatter.format(ts)).append('\n');
+        log.append("SP ").append(ACION_RETURN).append(" close @").append(dateTimeFormatter.format(ts));
+        log.println();
         log.flush();
     }
 
     public void afterSpClose(final Instant ts, IOException e) {
         log.append("SP ").append(ACION_RETURN).append(" close @").append(dateTimeFormatter.format(ts)).append(": ").append(e.toString());
         e.printStackTrace(log);
+        log.println();
         log.flush();
     }
 
-    void beforeOsClose(Instant ts) {
-        log.append("OS ").append(ACION_CALL).append(" close @").append(dateTimeFormatter.format(ts)).append('\n');
+    public void beforeOsClose(Instant ts) {
+        log.append("OS ").append(ACION_CALL).append(" close @").append(dateTimeFormatter.format(ts));
+        log.println();
         log.flush();
     }
 
-    void afterOsClose(Instant ts) {
-        log.append("OS ").append(ACION_RETURN).append(" close @").append(dateTimeFormatter.format(ts)).append('\n');
+    public void afterOsClose(Instant ts) {
+        log.append("OS ").append(ACION_RETURN).append(" close @").append(dateTimeFormatter.format(ts));
+        log.println();
         log.flush();
     }
 
-    void afterOsClose(Instant ts, IOException e) {
+    public void afterOsClose(Instant ts, IOException e) {
         log.append("OS ").append(ACION_RETURN).append(" close @").append(dateTimeFormatter.format(ts)).append(": ").append(e.toString());
         e.printStackTrace(log);
+        log.println();
         log.flush();
     }
 
-    void beforeIsClose(Instant ts) {
-        log.append("IS ").append(ACION_CALL).append(" close @").append(dateTimeFormatter.format(ts)).append('\n');
+    public void beforeIsClose(Instant ts) {
+        log.append("IS ").append(ACION_CALL).append(" close @").append(dateTimeFormatter.format(ts));
+        log.println();
         log.flush();
     }
 
-    void afterIsClose(Instant ts) {
-        log.append("IS ").append(ACION_RETURN).append(" close @").append(dateTimeFormatter.format(ts)).append('\n');
+    public void afterIsClose(Instant ts) {
+        log.append("IS ").append(ACION_RETURN).append(" close @").append(dateTimeFormatter.format(ts));
+        log.println();
         log.flush();
     }
 
-    void afterIsClose(Instant ts, IOException e) {
+    public void afterIsClose(Instant ts, IOException e) {
         log.append("IS ").append(ACION_RETURN).append(" close @").append(dateTimeFormatter.format(ts)).append(": ").append(e.toString());
         e.printStackTrace(log);
+        log.println();
         log.flush();
     }
 
-    void beforeAvailable(Instant ts) {
-        log.append("IS ").append(ACION_CALL).append(" available @").append(dateTimeFormatter.format(ts)).append('\n');
+    public void beforeAvailable(Instant ts) {
+        log.append("IS ").append(ACION_CALL).append(" available @").append(dateTimeFormatter.format(ts));
+        log.println();
         log.flush();
     }
 
-    void afterAvailable(Instant ts, int available) {
+    public void afterAvailable(Instant ts, int available) {
         log.append("IS ").append(ACION_RETURN).append(" available @").append(dateTimeFormatter.format(ts)).append(": ").print(available);
-        log.append('\n');
+        log.println();
         log.flush();
     }
 
-    void afterAvailable(Instant ts, IOException e) {
+    public void afterAvailable(Instant ts, IOException e) {
         log.append("IS ").append(ACION_RETURN).append(" available @").append(dateTimeFormatter.format(ts)).append(": ").append(e.toString());
         e.printStackTrace(log);
+        log.println();
         log.flush();
     }
 

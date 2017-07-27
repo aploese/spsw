@@ -14,7 +14,7 @@
     
     <properties>
         <version.windows.amd64>1.0.0</version.windows.amd64>
-        <version.windows.x86>1.0.0</version.windows.x86>
+        <version.windows.x86>1.0.1</version.windows.x86>
         <version.linux.i386>1.1.0</version.linux.i386>
         <version.linux.amd64>1.1.0</version.linux.amd64>
         <version.linux.armhf>1.1.0</version.linux.armhf>

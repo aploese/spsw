@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<actions>
+        <action>
+            <actionName>CUSTOM-compile i686-w64-mingw32-gcc</actionName>
+            <displayName>compile i686-w64-mingw32-gcc</displayName>
+            <recursive>false</recursive>
+            <goals>
+                <goal>compiler:compile</goal>
+            </goals>
+            <activatedProfiles>
+                <activatedProfile>i686-w64-mingw32-gcc</activatedProfile>
+            </activatedProfiles>
+        </action>
+    </actions>
