@@ -94,6 +94,8 @@
 jfieldID spsw_portName; /* id for field 'portName'  */
 jfieldID spsw_fd; /* id for field 'fd'  */
 jfieldID spsw_open; /* id for field 'open'  */
+jclass genericTermiosSerialPortSocket;
+jclass serialPortSocketFactoryImpl;
 
 JNIEXPORT jint JNICALL JNI_OnLoad(JavaVM *jvm, void *reserved) {
     JNIEnv *env;
@@ -101,13 +103,13 @@ JNIEXPORT jint JNICALL JNI_OnLoad(JavaVM *jvm, void *reserved) {
     if (getEnvResult != JNI_OK) {
         return getEnvResult;
     }
-    jclass genericTermiosSerialPortSocket = (*env)->FindClass(env, "Lde/ibapl/spsw/provider/GenericTermiosSerialPortSocket;");
+    genericTermiosSerialPortSocket = (*env)->FindClass(env, "Lde/ibapl/spsw/provider/GenericTermiosSerialPortSocket;");
     spsw_fd = (*env)->GetFieldID(env, genericTermiosSerialPortSocket, "fd", "I");
     spsw_open = (*env)->GetFieldID(env, genericTermiosSerialPortSocket, "open", "Z");
     spsw_portName = (*env)->GetFieldID(env, genericTermiosSerialPortSocket, "portName", "Ljava/lang/String;");
 
     // mark that the lib was loaded
-    jclass serialPortSocketFactoryImpl = (*env)->FindClass(env, "Lde/ibapl/spsw/provider/SerialPortSocketFactoryImpl;");
+    serialPortSocketFactoryImpl = (*env)->FindClass(env, "Lde/ibapl/spsw/provider/SerialPortSocketFactoryImpl;");
     jfieldID spsw_libLoaded = (*env)->GetStaticFieldID(env, serialPortSocketFactoryImpl, "libLoaded", "Z");
     (*env)->SetStaticBooleanField(env, serialPortSocketFactoryImpl, spsw_libLoaded, JNI_TRUE);
     return JNI_VERSION_1_2;
@@ -125,9 +127,11 @@ JNIEXPORT void JNICALL JNI_OnUnLoad(JavaVM *jvm, void *reserved) {
     }
 
     // mark that the lib was unloaded
-    jclass serialPortSocketFactoryImpl = (*env)->FindClass(env, "Lde/ibapl/spsw/provider/SerialPortSocketFactoryImpl;");
     jfieldID spsw_libLoaded = (*env)->GetStaticFieldID(env, serialPortSocketFactoryImpl, "libLoaded", "Z");
     (*env)->SetStaticBooleanField(env, serialPortSocketFactoryImpl, spsw_libLoaded, JNI_FALSE);
+    
+    (*env)->DeleteLocalRef(env, genericTermiosSerialPortSocket);
+    (*env)->DeleteLocalRef(env, serialPortSocketFactoryImpl);
 }
 
 
