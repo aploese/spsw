@@ -155,8 +155,6 @@ public class GenericTermiosSerialPortSocket extends AbstractSerialPortSocket {
     @Override
     public native char getXOFFChar() throws IOException;
 
-    public native void printTermios() throws IOException;
-
     @Override
     public native void sendXON() throws IOException;
 

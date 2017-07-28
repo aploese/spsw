@@ -77,18 +77,39 @@
 
 #include "de_ibapl_spsw_provider_GenericTermiosSerialPortSocket.h"
 
+#undef SPSW_PORT_MODE_UNCHANGED
+#define SPSW_PORT_MODE_UNCHANGED de_ibapl_spsw_provider_GenericTermiosSerialPortSocket_PORT_MODE_UNCHANGED
+#undef SPSW_PORT_MODE_RAW
+#define SPSW_PORT_MODE_RAW de_ibapl_spsw_provider_GenericTermiosSerialPortSocket_PORT_MODE_RAW
 
+#undef SPSW_FLOW_CONTROL_NONE
+#define SPSW_FLOW_CONTROL_NONE de_ibapl_spsw_provider_GenericTermiosSerialPortSocket_FLOW_CONTROL_NONE
+#undef SPSW_FLOW_CONTROL_RTS_CTS_IN
+#define SPSW_FLOW_CONTROL_RTS_CTS_IN de_ibapl_spsw_provider_GenericTermiosSerialPortSocket_FLOW_CONTROL_RTS_CTS_IN
+#undef SPSW_FLOW_CONTROL_RTS_CTS_OUT
+#define SPSW_FLOW_CONTROL_RTS_CTS_OUT de_ibapl_spsw_provider_GenericTermiosSerialPortSocket_FLOW_CONTROL_RTS_CTS_OUT
+#undef SPSW_FLOW_CONTROL_XON_XOFF_IN
+#define SPSW_FLOW_CONTROL_XON_XOFF_IN de_ibapl_spsw_provider_GenericTermiosSerialPortSocket_FLOW_CONTROL_XON_XOFF_IN
+#undef SPSW_FLOW_CONTROL_XON_XOFF_OUT
+#define SPSW_FLOW_CONTROL_XON_XOFF_OUT de_ibapl_spsw_provider_GenericTermiosSerialPortSocket_FLOW_CONTROL_XON_XOFF_OUT
 
-#undef FLOW_CONTROL_NONE
-#define FLOW_CONTROL_NONE de_ibapl_spsw_provider_GenericTermiosSerialPortSocket_FLOW_CONTROL_NONE
-#undef FLOW_CONTROL_RTS_CTS_IN
-#define FLOW_CONTROL_RTS_CTS_IN de_ibapl_spsw_provider_GenericTermiosSerialPortSocket_FLOW_CONTROL_RTS_CTS_IN
-#undef FLOW_CONTROL_RTS_CTS_OUT
-#define FLOW_CONTROL_RTS_CTS_OUT de_ibapl_spsw_provider_GenericTermiosSerialPortSocket_FLOW_CONTROL_RTS_CTS_OUT
-#undef FLOW_CONTROL_XON_XOFF_IN
-#define FLOW_CONTROL_XON_XOFF_IN de_ibapl_spsw_provider_GenericTermiosSerialPortSocket_FLOW_CONTROL_XON_XOFF_IN
-#undef FLOW_CONTROL_XON_XOFF_OUT
-#define FLOW_CONTROL_XON_XOFF_OUT de_ibapl_spsw_provider_GenericTermiosSerialPortSocket_FLOW_CONTROL_XON_XOFF_OUT
+#undef SPSW_STOP_BITS_1
+#define SPSW_STOP_BITS_1 de_ibapl_spsw_provider_GenericTermiosSerialPortSocket_STOP_BITS_1
+#undef SPSW_STOP_BITS_1_5
+#define SPSW_STOP_BITS_1_5 de_ibapl_spsw_provider_GenericTermiosSerialPortSocket_STOP_BITS_1_5
+#undef SPSW_STOP_BITS_2
+#define SPSW_STOP_BITS_2 de_ibapl_spsw_provider_GenericTermiosSerialPortSocket_STOP_BITS_2
+
+#undef SPSW_PARITY_NONE
+#define SPSW_PARITY_NONE de_ibapl_spsw_provider_GenericTermiosSerialPortSocket_PARITY_NONE
+#undef SPSW_PARITY_ODD
+#define SPSW_PARITY_ODD de_ibapl_spsw_provider_GenericTermiosSerialPortSocket_PARITY_ODD
+#undef SPSW_PARITY_EVEN
+#define SPSW_PARITY_EVEN de_ibapl_spsw_provider_GenericTermiosSerialPortSocket_PARITY_EVEN
+#undef SPSW_PARITY_MARK
+#define SPSW_PARITY_MARK de_ibapl_spsw_provider_GenericTermiosSerialPortSocket_PARITY_MARK
+#undef SPSW_PARITY_SPACE
+#define SPSW_PARITY_SPACE de_ibapl_spsw_provider_GenericTermiosSerialPortSocket_PARITY_SPACE
 
 
 jfieldID spsw_portName; /* id for field 'portName'  */
@@ -138,7 +159,8 @@ JNIEXPORT void JNICALL JNI_OnUnLoad(JavaVM *jvm, void *reserved) {
 
 // Helper method
 
-static void throw_SerialPortException_With_PortName(JNIEnv *env, const char *msg, jstring portName) {
+static void throw_SerialPortException_With_PortName(JNIEnv *env, jobject object, const char *msg) {
+    const jstring portName = (jstring) (*env)->GetObjectField(env, object, spsw_portName);
     const char* port = (*env)->GetStringUTFChars(env, portName, JNI_FALSE);
     char buf[2048];
     snprintf(buf, 2048, "%s (%s) : Unknown port error %d: (%s)", msg, port, errno, strerror(errno));
@@ -150,8 +172,8 @@ static void throw_SerialPortException_With_PortName(JNIEnv *env, const char *msg
     (*env)->DeleteLocalRef(env, speClass);
 }
 
-static void throw_SerialPortException(JNIEnv *env, const char *msg) {
-    (*env)->ThrowNew(env, (*env)->FindClass(env, "de/ibapl/spsw/api/SerialPortException"), msg);
+static void throw_Illegal_Argument_Exception(JNIEnv *env, const char *msg) {
+    (*env)->ThrowNew(env, (*env)->FindClass(env, "java/lang/IllegalArgumentException"), msg);
 }
 
 static void throw_PortBusyException(JNIEnv *env, jstring portName) {
@@ -183,7 +205,7 @@ static jboolean getLineStatus(JNIEnv *env, jobject object, int bitMask) {
     int lineStatus;
     int result = ioctl(fd, TIOCMGET, &lineStatus);
     if (result != 0) {
-        throw_SerialPortException_With_PortName(env, "Can't get line status", (jstring) (*env)->GetObjectField(env, object, spsw_portName));
+        throw_SerialPortException_With_PortName(env, object, "Can't get line status");
         return JNI_FALSE;
     }
     if ((lineStatus & bitMask) == bitMask) {
@@ -198,7 +220,7 @@ static void setLineStatus(JNIEnv *env, jobject object, jboolean enabled, int bit
     int lineStatus;
     int result = ioctl(fd, TIOCMGET, &lineStatus);
     if (result != 0) {
-        throw_SerialPortException_With_PortName(env, "Can't get line status", (jstring) (*env)->GetObjectField(env, object, spsw_portName));
+        throw_SerialPortException_With_PortName(env, object, "Can't get line status");
         return;
     }
     if (enabled == JNI_TRUE) {
@@ -208,7 +230,7 @@ static void setLineStatus(JNIEnv *env, jobject object, jboolean enabled, int bit
     }
     result = ioctl(fd, TIOCMSET, &lineStatus);
     if (result != 0) {
-        throw_SerialPortException_With_PortName(env, "Can't set line status", (jstring) (*env)->GetObjectField(env, object, spsw_portName));
+        throw_SerialPortException_With_PortName(env, object, "Can't set line status");
     }
 }
 
@@ -310,7 +332,7 @@ static jint speed_t2Baudrate(JNIEnv *env, speed_t baudRate) {
             return 4000000;
 #endif
         default:
-            throw_SerialPortException(env, "Baudrate not supported");
+            throw_Illegal_Argument_Exception(env, "Baudrate not supported");
             return -1;
     }
 }
@@ -413,7 +435,7 @@ static speed_t baudrate2speed_t(JNIEnv *env, jint baudRate) {
             return B4000000;
 #endif
         default:
-            throw_SerialPortException(env, "Baudrate not supported");
+            throw_Illegal_Argument_Exception(env, "Baudrate not supported");
             return -1;
     }
 }
@@ -446,7 +468,7 @@ JNIEXPORT void JNICALL Java_de_ibapl_spsw_provider_GenericTermiosSerialPortSocke
                 throw_NotASerialPortException(env, portName);
                 break;
             default:
-                throw_SerialPortException_With_PortName(env, "open", (jstring) (*env)->GetObjectField(env, object, spsw_portName));
+                throw_SerialPortException_With_PortName(env, object, "open");
         }
         return;
     }
@@ -461,7 +483,7 @@ JNIEXPORT void JNICALL Java_de_ibapl_spsw_provider_GenericTermiosSerialPortSocke
                 throw_NotASerialPortException(env, portName);
                 break;
             default:
-                throw_SerialPortException_With_PortName(env, "open tcgetattr", (jstring) (*env)->GetObjectField(env, object, spsw_portName));
+                throw_SerialPortException_With_PortName(env, object, "open tcgetattr");
         }
         return;
     }
@@ -470,7 +492,7 @@ JNIEXPORT void JNICALL Java_de_ibapl_spsw_provider_GenericTermiosSerialPortSocke
     if (ioctl(fd, TIOCEXCL) != 0) {
         close(fd);
         (*env)->SetIntField(env, object, spsw_fd, -1);
-        throw_SerialPortException_With_PortName(env, "Can't set exclusive access", (jstring) (*env)->GetObjectField(env, object, spsw_portName));
+        throw_SerialPortException_With_PortName(env, object, "Can't set exclusive access");
         return;
     }
 
@@ -479,14 +501,14 @@ JNIEXPORT void JNICALL Java_de_ibapl_spsw_provider_GenericTermiosSerialPortSocke
     if (fcntl(fd, F_SETFL, flags) != 0) {
         close(fd);
         (*env)->SetIntField(env, object, spsw_fd, -1);
-        throw_SerialPortException_With_PortName(env, "Can't call fcntl F_SETFL", (jstring) (*env)->GetObjectField(env, object, spsw_portName));
+        throw_SerialPortException_With_PortName(env, object, "Can't call fcntl F_SETFL");
         return;
     };
 
     switch (portMode) {
-        case de_ibapl_spsw_provider_GenericTermiosSerialPortSocket_PORT_MODE_UNCHANGED:
+        case SPSW_PORT_MODE_UNCHANGED:
             break;
-        case de_ibapl_spsw_provider_GenericTermiosSerialPortSocket_PORT_MODE_RAW:
+        case SPSW_PORT_MODE_RAW:
             settings.c_cflag |= (CREAD | CLOCAL);
 
             settings.c_lflag = 0;
@@ -500,21 +522,21 @@ JNIEXPORT void JNICALL Java_de_ibapl_spsw_provider_GenericTermiosSerialPortSocke
             if (tcsetattr(fd, TCSANOW, &settings) != 0) {
                 close(fd);
                 (*env)->SetIntField(env, object, spsw_fd, -1);
-                throw_SerialPortException_With_PortName(env, "Can't call tcsetattr TCSANOW", (jstring) (*env)->GetObjectField(env, object, spsw_portName));
+                throw_SerialPortException_With_PortName(env, object, "Can't call tcsetattr TCSANOW");
                 return;
             }
             break;
         default:
             close(fd);
             (*env)->SetIntField(env, object, spsw_fd, -1);
-            throw_SerialPortException_With_PortName(env, "Unknown terminal mode giving up", (jstring) (*env)->GetObjectField(env, object, spsw_portName));
+            throw_SerialPortException_With_PortName(env, object, "Unknown terminal mode giving up");
             return;
     }
     // flush the device
     if (tcflush(fd, TCIOFLUSH) != 0) {
         close(fd);
         (*env)->SetIntField(env, object, spsw_fd, -1);
-        throw_SerialPortException_With_PortName(env, "Can't flush device", (jstring) (*env)->GetObjectField(env, object, spsw_portName));
+        throw_SerialPortException_With_PortName(env, object, "Can't flush device");
         return;
     }
 
@@ -551,7 +573,7 @@ JNIEXPORT void JNICALL Java_de_ibapl_spsw_provider_GenericTermiosSerialPortSocke
     }
 
     if (close(fd) != 0) {
-        throw_SerialPortException_With_PortName(env, "close0 closing port", (jstring) (*env)->GetObjectField(env, object, spsw_portName));
+        throw_SerialPortException_With_PortName(env, object, "close0 closing port");
     }
 }
 
@@ -566,12 +588,12 @@ JNIEXPORT void JNICALL Java_de_ibapl_spsw_provider_GenericTermiosSerialPortSocke
 JNIEXPORT void JNICALL Java_de_ibapl_spsw_provider_GenericTermiosSerialPortSocket_sendXON
 (JNIEnv *env, jobject object) {
     //TODO How ??? tcflow ?
-    throw_SerialPortException(env, "setXON not implementred yet");
+    throw_Illegal_Argument_Exception(env, "setXON not implementred yet");
 }
 
 JNIEXPORT void JNICALL Java_de_ibapl_spsw_provider_GenericTermiosSerialPortSocket_sendXOFF
 (JNIEnv *env, jobject object) {
-    throw_SerialPortException(env, "setXOFF not implementred yet");
+    throw_Illegal_Argument_Exception(env, "setXOFF not implementred yet");
 }
 
 /* 
@@ -596,7 +618,7 @@ JNIEXPORT void JNICALL Java_de_ibapl_spsw_provider_GenericTermiosSerialPortSocke
     }
     int result = ioctl(fd, arg);
     if (result != 0) {
-        throw_SerialPortException_With_PortName(env, "Can't set Break", (jstring) (*env)->GetObjectField(env, object, spsw_portName));
+        throw_SerialPortException_With_PortName(env, object, "Can't set Break");
     }
 }
 
@@ -606,13 +628,13 @@ JNIEXPORT void JNICALL Java_de_ibapl_spsw_provider_GenericTermiosSerialPortSocke
 
     struct termios settings;
     if (tcgetattr(fd, &settings) != 0) {
-        throw_SerialPortException_With_PortName(env, "setXONChar tcgetattr", (jstring) (*env)->GetObjectField(env, object, spsw_portName));
+        throw_SerialPortException_With_PortName(env, object, "setXONChar tcgetattr");
         return;
     }
     settings.c_cc[VSTART] = c;
 
     if (tcsetattr(fd, TCSANOW, &settings) != 0) {
-        throw_SerialPortException_With_PortName(env, "setXONChar tcsetattr", (jstring) (*env)->GetObjectField(env, object, spsw_portName));
+        throw_SerialPortException_With_PortName(env, object, "setXONChar tcsetattr");
         return;
     }
 
@@ -624,13 +646,13 @@ JNIEXPORT void JNICALL Java_de_ibapl_spsw_provider_GenericTermiosSerialPortSocke
 
     struct termios settings;
     if (tcgetattr(fd, &settings) != 0) {
-        throw_SerialPortException_With_PortName(env, "setXOFFChar tcgetattr", (jstring) (*env)->GetObjectField(env, object, spsw_portName));
+        throw_SerialPortException_With_PortName(env, object, "setXOFFChar tcgetattr");
         return;
     }
     settings.c_cc[VSTOP] = c;
 
     if (tcsetattr(fd, TCSANOW, &settings) != 0) {
-        throw_SerialPortException_With_PortName(env, "setXOFFChar tcsetattr", (jstring) (*env)->GetObjectField(env, object, spsw_portName));
+        throw_SerialPortException_With_PortName(env, object, "setXOFFChar tcsetattr");
         return;
     }
 
@@ -642,7 +664,7 @@ JNIEXPORT jchar JNICALL Java_de_ibapl_spsw_provider_GenericTermiosSerialPortSock
 
     struct termios settings;
     if (tcgetattr(fd, &settings) != 0) {
-        throw_SerialPortException_With_PortName(env, "getXONChar tcgetattr", (jstring) (*env)->GetObjectField(env, object, spsw_portName));
+        throw_SerialPortException_With_PortName(env, object, "getXONChar tcgetattr");
         return 0;
     }
     return settings.c_cc[VSTART];
@@ -655,7 +677,7 @@ JNIEXPORT jchar JNICALL Java_de_ibapl_spsw_provider_GenericTermiosSerialPortSock
 
     struct termios settings;
     if (tcgetattr(fd, &settings) != 0) {
-        throw_SerialPortException_With_PortName(env, "getXOFFChar tcgetattr", (jstring) (*env)->GetObjectField(env, object, spsw_portName));
+        throw_SerialPortException_With_PortName(env, object, "getXOFFChar tcgetattr");
         return 0;
     }
     return settings.c_cc[VSTOP];
@@ -692,9 +714,9 @@ JNIEXPORT void JNICALL Java_de_ibapl_spsw_provider_GenericTermiosSerialPortSocke
     int fd = (*env)->GetIntField(env, object, spsw_fd);
     if (write(fd, &b, 1) < 0) {
         if (fd == -1) {
-            throw_SerialPortException_With_PortName(env, "Invalid fileDescriptor", (jstring) (*env)->GetObjectField(env, object, spsw_portName));
+            throw_SerialPortException_With_PortName(env, object, "Invalid fileDescriptor");
         } else {
-            throw_SerialPortException_With_PortName(env, "writeSingle", (jstring) (*env)->GetObjectField(env, object, spsw_portName));
+            throw_SerialPortException_With_PortName(env, object, "writeSingle");
         }
     }
 }
@@ -711,12 +733,12 @@ JNIEXPORT void JNICALL Java_de_ibapl_spsw_provider_GenericTermiosSerialPortSocke
         int written = write(fd, buf, len);
         if (written < 0) {
             if (fd == -1) {
-                throw_SerialPortException_With_PortName(env, "writeBytes Invalid fileDescriptor", (jstring) (*env)->GetObjectField(env, object, spsw_portName));
+                throw_SerialPortException_With_PortName(env, object, "writeBytes Invalid fileDescriptor");
             } else {
-                throw_SerialPortException_With_PortName(env, "writeBytes", (jstring) (*env)->GetObjectField(env, object, spsw_portName));
+                throw_SerialPortException_With_PortName(env, object, "writeBytes");
             }
         } else if (written < len) {
-            throw_SerialPortException_With_PortName(env, "writeBytes too few bytes written", (jstring) (*env)->GetObjectField(env, object, spsw_portName));
+            throw_SerialPortException_With_PortName(env, object, "writeBytes too few bytes written");
         }
     }
     free(buf);
@@ -735,7 +757,7 @@ JNIEXPORT jint JNICALL Java_de_ibapl_spsw_provider_GenericTermiosSerialPortSocke
     } else if (nread < 0) {
         //TODO use isOpen ???
         if ((*env)->GetBooleanField(env, object, spsw_open)) {
-            throw_SerialPortException_With_PortName(env, "readSingle read error", (jstring) (*env)->GetObjectField(env, object, spsw_portName));
+            throw_SerialPortException_With_PortName(env, object, "readSingle read error");
             return -1;
         } else {
             //closed
@@ -744,7 +766,7 @@ JNIEXPORT jint JNICALL Java_de_ibapl_spsw_provider_GenericTermiosSerialPortSocke
     }
 
     // we should never reach this ...
-    throw_SerialPortException_With_PortName(env, "readSingle: Should never happen", (jstring) (*env)->GetObjectField(env, object, spsw_portName));
+    throw_SerialPortException_With_PortName(env, object, "readSingle: Should never happen");
     return -1;
 }
 
@@ -781,7 +803,7 @@ JNIEXPORT jint JNICALL Java_de_ibapl_spsw_provider_GenericTermiosSerialPortSocke
     jint returnValue = -1;
     int result = ioctl(fd, FIONREAD, &returnValue);
     if (result != 0) {
-        throw_SerialPortException_With_PortName(env, "Can't read in buffer size", (jstring) (*env)->GetObjectField(env, object, spsw_portName));
+        throw_SerialPortException_With_PortName(env, object, "Can't read in buffer size");
     }
     return returnValue;
 }
@@ -794,7 +816,7 @@ JNIEXPORT void JNICALL Java_de_ibapl_spsw_provider_GenericTermiosSerialPortSocke
     int fd = (*env)->GetIntField(env, object, spsw_fd);
     int result = tcdrain(fd);
     if (result != 0) {
-        throw_SerialPortException_With_PortName(env, "Can't drain the output buffer", (jstring) (*env)->GetObjectField(env, object, spsw_portName));
+        throw_SerialPortException_With_PortName(env, object, "Can't drain the output buffer");
         return;
     }
 }
@@ -808,27 +830,27 @@ JNIEXPORT void JNICALL Java_de_ibapl_spsw_provider_GenericTermiosSerialPortSocke
     int fd = (*env)->GetIntField(env, object, spsw_fd);
     struct termios settings;
     if (tcgetattr(fd, &settings) != 0) {
-        throw_SerialPortException_With_PortName(env, "setFlowControl tcgetattr", (jstring) (*env)->GetObjectField(env, object, spsw_portName));
+        throw_SerialPortException_With_PortName(env, object, "setFlowControl tcgetattr");
         return;
     }
 
     settings.c_cflag &= ~CRTSCTS;
     settings.c_iflag &= ~(IXON | IXOFF);
-    if (mask != FLOW_CONTROL_NONE) {
-        if (((mask & FLOW_CONTROL_RTS_CTS_IN) == FLOW_CONTROL_RTS_CTS_IN) ||
-                ((mask & FLOW_CONTROL_RTS_CTS_OUT) == FLOW_CONTROL_RTS_CTS_OUT)) {
+    if (mask != SPSW_FLOW_CONTROL_NONE) {
+        if (((mask & SPSW_FLOW_CONTROL_RTS_CTS_IN) == SPSW_FLOW_CONTROL_RTS_CTS_IN) ||
+                ((mask & SPSW_FLOW_CONTROL_RTS_CTS_OUT) == SPSW_FLOW_CONTROL_RTS_CTS_OUT)) {
             settings.c_cflag |= CRTSCTS;
         }
-        if ((mask & FLOW_CONTROL_XON_XOFF_IN) == FLOW_CONTROL_XON_XOFF_IN) {
+        if ((mask & SPSW_FLOW_CONTROL_XON_XOFF_IN) == SPSW_FLOW_CONTROL_XON_XOFF_IN) {
             settings.c_iflag |= IXOFF;
         }
-        if ((mask & FLOW_CONTROL_XON_XOFF_OUT) == FLOW_CONTROL_XON_XOFF_OUT) {
+        if ((mask & SPSW_FLOW_CONTROL_XON_XOFF_OUT) == SPSW_FLOW_CONTROL_XON_XOFF_OUT) {
             settings.c_iflag |= IXON;
         }
     }
 
     if (tcsetattr(fd, TCSANOW, &settings) != 0) {
-        throw_SerialPortException_With_PortName(env, "setFlowControl tcsetattr", (jstring) (*env)->GetObjectField(env, object, spsw_portName));
+        throw_SerialPortException_With_PortName(env, object, "setFlowControl tcsetattr");
     }
 }
 
@@ -847,18 +869,18 @@ JNIEXPORT void JNICALL Java_de_ibapl_spsw_provider_GenericTermiosSerialPortSocke
     struct termios settings;
     int fd = (*env)->GetIntField(env, object, spsw_fd);
     if (tcgetattr(fd, &settings) != 0) {
-        throw_SerialPortException_With_PortName(env, "setBaudrate tcgetattr", (jstring) (*env)->GetObjectField(env, object, spsw_portName));
+        throw_SerialPortException_With_PortName(env, object, "setBaudrate tcgetattr");
         return;
     }
 
     //Set standart baudrate from "termios.h"
     if (cfsetspeed(&settings, baudRateValue) < 0) {
-        throw_SerialPortException_With_PortName(env, "Baudrate of in and output mismatch", (jstring) (*env)->GetObjectField(env, object, spsw_portName));
+        throw_SerialPortException_With_PortName(env, object, "Baudrate of in and output mismatch");
         return;
     }
 
     if (tcsetattr(fd, TCSANOW, &settings) != 0) {
-        throw_SerialPortException_With_PortName(env, "set Baudrate tcsetattr", (jstring) (*env)->GetObjectField(env, object, spsw_portName));
+        throw_SerialPortException_With_PortName(env, object, "set Baudrate tcsetattr");
         return;
     }
 }
@@ -873,7 +895,7 @@ JNIEXPORT void JNICALL Java_de_ibapl_spsw_provider_GenericTermiosSerialPortSocke
     int fd = (*env)->GetIntField(env, object, spsw_fd);
     struct termios settings;
     if (tcgetattr(fd, &settings) != 0) {
-        throw_SerialPortException_With_PortName(env, "setDataBits tcgetattr", (jstring) (*env)->GetObjectField(env, object, spsw_portName));
+        throw_SerialPortException_With_PortName(env, object, "setDataBits tcgetattr");
         return;
     }
 
@@ -892,12 +914,12 @@ JNIEXPORT void JNICALL Java_de_ibapl_spsw_provider_GenericTermiosSerialPortSocke
             settings.c_cflag |= CS8;
             break;
         default:
-            throw_SerialPortException(env, "Wrong databits");
+            throw_Illegal_Argument_Exception(env, "Wrong databits");
             return;
     }
 
     if (tcsetattr(fd, TCSANOW, &settings) != 0) {
-        throw_SerialPortException_With_PortName(env, "setDataBits tcsetattr", (jstring) (*env)->GetObjectField(env, object, spsw_portName));
+        throw_SerialPortException_With_PortName(env, object, "setDataBits tcsetattr");
     }
 }
 
@@ -911,29 +933,29 @@ JNIEXPORT void JNICALL Java_de_ibapl_spsw_provider_GenericTermiosSerialPortSocke
     int fd = (*env)->GetIntField(env, object, spsw_fd);
     struct termios settings;
     if (tcgetattr(fd, &settings) != 0) {
-        throw_SerialPortException_With_PortName(env, "setStopBits tcgetattr", (jstring) (*env)->GetObjectField(env, object, spsw_portName));
+        throw_SerialPortException_With_PortName(env, object, "setStopBits tcgetattr");
         return;
     }
 
     switch (stopBits) {
-        case de_ibapl_spsw_provider_GenericTermiosSerialPortSocket_STOP_BITS_1:
+        case SPSW_STOP_BITS_1:
             //1 stop bit (for info see ->> MSDN)
             settings.c_cflag &= ~CSTOPB;
             break;
-        case de_ibapl_spsw_provider_GenericTermiosSerialPortSocket_STOP_BITS_1_5:
-            throw_SerialPortException(env, "setStopBits 1.5 stop bits are not supported by termios");
+        case SPSW_STOP_BITS_1_5:
+            throw_Illegal_Argument_Exception(env, "setStopBits 1.5 stop bits are not supported by termios");
             return;
             break;
-        case de_ibapl_spsw_provider_GenericTermiosSerialPortSocket_STOP_BITS_2:
+        case SPSW_STOP_BITS_2:
             settings.c_cflag |= CSTOPB;
             break;
         default:
-            throw_SerialPortException_With_PortName(env, "Unknown stopbits", (jstring) (*env)->GetObjectField(env, object, spsw_portName));
+            throw_SerialPortException_With_PortName(env, object, "Unknown stopbits");
             return;
     }
 
     if (tcsetattr(fd, TCSANOW, &settings) != 0) {
-        throw_SerialPortException_With_PortName(env, "setStopBits tcsetattr", (jstring) (*env)->GetObjectField(env, object, spsw_portName));
+        throw_SerialPortException_With_PortName(env, object, "setStopBits tcsetattr");
     }
 }
 
@@ -947,7 +969,7 @@ JNIEXPORT void JNICALL Java_de_ibapl_spsw_provider_GenericTermiosSerialPortSocke
     int fd = (*env)->GetIntField(env, object, spsw_fd);
     struct termios settings;
     if (tcgetattr(fd, &settings) != 0) {
-        throw_SerialPortException_With_PortName(env, "setStopBits tcgetattr", (jstring) (*env)->GetObjectField(env, object, spsw_portName));
+        throw_SerialPortException_With_PortName(env, object, "setStopBits tcgetattr");
         return;
     }
 
@@ -959,21 +981,21 @@ JNIEXPORT void JNICALL Java_de_ibapl_spsw_provider_GenericTermiosSerialPortSocke
     settings.c_cflag &= ~(PARENB | PARODD); //Clear parity settings
 #endif
     switch (parity) {
-        case de_ibapl_spsw_provider_GenericTermiosSerialPortSocket_PARITY_NONE:
+        case SPSW_PARITY_NONE:
             //Parity NONE
             settings.c_iflag &= ~INPCK; // switch parity input checking off
             break;
-        case de_ibapl_spsw_provider_GenericTermiosSerialPortSocket_PARITY_ODD:
+        case SPSW_PARITY_ODD:
             //Parity ODD
             settings.c_cflag |= (PARENB | PARODD);
             settings.c_iflag |= INPCK; // switch parity input checking On 
             break;
-        case de_ibapl_spsw_provider_GenericTermiosSerialPortSocket_PARITY_EVEN:
+        case SPSW_PARITY_EVEN:
             //Parity EVEN
             settings.c_cflag |= PARENB;
             settings.c_iflag |= INPCK;
             break;
-        case de_ibapl_spsw_provider_GenericTermiosSerialPortSocket_PARITY_MARK:
+        case SPSW_PARITY_MARK:
             //Parity MARK
 #ifdef PAREXT
             settings.c_cflag |= (PARENB | PARODD | PAREXT);
@@ -983,7 +1005,7 @@ JNIEXPORT void JNICALL Java_de_ibapl_spsw_provider_GenericTermiosSerialPortSocke
             settings.c_iflag |= INPCK;
 #endif
             break;
-        case de_ibapl_spsw_provider_GenericTermiosSerialPortSocket_PARITY_SPACE:
+        case SPSW_PARITY_SPACE:
             //Parity SPACE
 #ifdef PAREXT
             settings.c_cflag |= (PARENB | PAREXT);
@@ -994,12 +1016,12 @@ JNIEXPORT void JNICALL Java_de_ibapl_spsw_provider_GenericTermiosSerialPortSocke
 #endif
             break;
         default:
-            throw_SerialPortException(env, "Wrong Parity");
+            throw_Illegal_Argument_Exception(env, "Wrong Parity");
             return;
     }
 
     if (tcsetattr(fd, TCSANOW, &settings) != 0) {
-        throw_SerialPortException_With_PortName(env, "setParity tcsetattr", (jstring) (*env)->GetObjectField(env, object, spsw_portName));
+        throw_SerialPortException_With_PortName(env, object, "setParity tcsetattr");
     }
 }
 
@@ -1013,14 +1035,14 @@ JNIEXPORT jint JNICALL Java_de_ibapl_spsw_provider_GenericTermiosSerialPortSocke
     int fd = (*env)->GetIntField(env, object, spsw_fd);
     struct termios settings;
     if (tcgetattr(fd, &settings) != 0) {
-        throw_SerialPortException_With_PortName(env, "getBaudRate tcgetattr", (jstring) (*env)->GetObjectField(env, object, spsw_portName));
+        throw_SerialPortException_With_PortName(env, object, "getBaudRate tcgetattr");
         return (jint) - 1;
     }
     //Set standart baudrate from "termios.h"
     speed_t inSpeed = cfgetispeed(&settings);
     speed_t outSpeed = cfgetospeed(&settings);
     if (inSpeed != outSpeed) {
-        throw_SerialPortException_With_PortName(env, "In and out speed mismatch", (jstring) (*env)->GetObjectField(env, object, spsw_portName));
+        throw_SerialPortException_With_PortName(env, object, "In and out speed mismatch");
         return -1;
     }
     return speed_t2Baudrate(env, inSpeed);
@@ -1036,7 +1058,7 @@ JNIEXPORT jint JNICALL Java_de_ibapl_spsw_provider_GenericTermiosSerialPortSocke
     int fd = (*env)->GetIntField(env, object, spsw_fd);
     struct termios settings;
     if (tcgetattr(fd, &settings) != 0) {
-        throw_SerialPortException_With_PortName(env, "getDataBits tcgetattr", (jstring) (*env)->GetObjectField(env, object, spsw_portName));
+        throw_SerialPortException_With_PortName(env, object, "getDataBits tcgetattr");
         return (jint) - 1;
     }
 
@@ -1050,7 +1072,7 @@ JNIEXPORT jint JNICALL Java_de_ibapl_spsw_provider_GenericTermiosSerialPortSocke
         case CS8:
             return 8;
         default:
-            throw_SerialPortException(env, "Unknown databits");
+            throw_Illegal_Argument_Exception(env, "Unknown databits");
             return (jint) - 1;
     }
     return -1;
@@ -1066,15 +1088,15 @@ JNIEXPORT jint JNICALL Java_de_ibapl_spsw_provider_GenericTermiosSerialPortSocke
     int fd = (*env)->GetIntField(env, object, spsw_fd);
     struct termios settings;
     if (tcgetattr(fd, &settings) != 0) {
-        throw_SerialPortException_With_PortName(env, "getStopBits tcgetattr", (jstring) (*env)->GetObjectField(env, object, spsw_portName));
+        throw_SerialPortException_With_PortName(env, object, "getStopBits tcgetattr");
         return (jint) - 1;
     }
 
     if ((settings.c_cflag & CSTOPB) == 0) {
-        return de_ibapl_spsw_provider_GenericTermiosSerialPortSocket_STOP_BITS_1;
+        return SPSW_STOP_BITS_1;
     }
     if ((settings.c_cflag & CSTOPB) == CSTOPB) {
-        return de_ibapl_spsw_provider_GenericTermiosSerialPortSocket_STOP_BITS_2;
+        return SPSW_STOP_BITS_2;
     }
 }
 
@@ -1088,43 +1110,44 @@ JNIEXPORT jint JNICALL Java_de_ibapl_spsw_provider_GenericTermiosSerialPortSocke
     int fd = (*env)->GetIntField(env, object, spsw_fd);
     struct termios settings;
     if (tcgetattr(fd, &settings) != 0) {
-        throw_SerialPortException_With_PortName(env, "getParity tcgetattr", (jstring) (*env)->GetObjectField(env, object, spsw_portName));
+        throw_SerialPortException_With_PortName(env, object, "getParity tcgetattr");
         return (jint) - 1;
     }
 
     if ((settings.c_cflag & PARENB) == 0) {
-        return de_ibapl_spsw_provider_GenericTermiosSerialPortSocket_PARITY_NONE;
+        return SPSW_PARITY_NONE;
     } else if ((settings.c_cflag & PARODD) == 0) {
         // EVEN or SPACE
 #ifdef PAREXT
         if ((settings.c_cflag & PAREXT) == 0) {
-            return de_ibapl_spsw_provider_GenericTermiosSerialPortSocket_PARITY_EVEN;
+            return SPSW_PARITY_EVEN;
         } else {
-            return de_ibapl_spsw_provider_GenericTermiosSerialPortSocket_PARITY_SPACE;
+            return SPSW_PARITY_SPACE;
         }
 #elif defined CMSPAR
         if ((settings.c_cflag & CMSPAR) == 0) {
-            return de_ibapl_spsw_provider_GenericTermiosSerialPortSocket_PARITY_EVEN;
+            return SPSW_PARITY_EVEN;
         } else {
-            return de_ibapl_spsw_provider_GenericTermiosSerialPortSocket_PARITY_SPACE;
+            return SPSW_PARITY_SPACE;
         }
 #endif
     } else {
         // ODD or MARK
 #ifdef PAREXT
         if ((settings.c_cflag & PAREXT) == 0) {
-            return de_ibapl_spsw_provider_GenericTermiosSerialPortSocket_PARITY_ODD;
+            return SPSW_PARITY_ODD;
         } else {
-            return de_ibapl_spsw_provider_GenericTermiosSerialPortSocket_PARITY_MARK;
+            return SPSW_PARITY_MARK;
         }
 #elif defined CMSPAR
         if ((settings.c_cflag & CMSPAR) == 0) {
-            return de_ibapl_spsw_provider_GenericTermiosSerialPortSocket_PARITY_ODD;
+            return SPSW_PARITY_ODD;
         } else {
-            return de_ibapl_spsw_provider_GenericTermiosSerialPortSocket_PARITY_MARK;
+            return SPSW_PARITY_MARK;
         }
 #endif
     }
+    throw_SerialPortException_With_PortName(env, object, "getParity0 Wrong Parity");
     return -1;
 }
 
@@ -1137,89 +1160,18 @@ JNIEXPORT jint JNICALL Java_de_ibapl_spsw_provider_GenericTermiosSerialPortSocke
     jint returnValue = 0;
     struct termios settings;
     if (tcgetattr(fd, &settings) != 0) {
-        throw_SerialPortException_With_PortName(env, "getFlowControl tcgetattr", (jstring) (*env)->GetObjectField(env, object, spsw_portName));
+        throw_SerialPortException_With_PortName(env, object, "getFlowControl tcgetattr");
         return (jint) - 1;
     }
 
     if (settings.c_cflag & CRTSCTS) {
-        returnValue |= (FLOW_CONTROL_RTS_CTS_IN | FLOW_CONTROL_RTS_CTS_OUT);
+        returnValue |= (SPSW_FLOW_CONTROL_RTS_CTS_IN | SPSW_FLOW_CONTROL_RTS_CTS_OUT);
     }
     if (settings.c_iflag & IXOFF) {
-        returnValue |= FLOW_CONTROL_XON_XOFF_IN;
+        returnValue |= SPSW_FLOW_CONTROL_XON_XOFF_IN;
     }
     if (settings.c_iflag & IXON) {
-        returnValue |= FLOW_CONTROL_XON_XOFF_OUT;
+        returnValue |= SPSW_FLOW_CONTROL_XON_XOFF_OUT;
     }
     return returnValue;
 }
-
-JNIEXPORT void JNICALL Java_de_ibapl_spsw_provider_GenericTermiosSerialPortSocket_printTermios
-(JNIEnv *env, jobject object) {
-
-    int fd = (*env)->GetIntField(env, object, spsw_fd);
-    struct termios settings;
-    if (tcgetattr(fd, &settings) != 0) {
-        throw_SerialPortException_With_PortName(env, "Error closing port", (jstring) (*env)->GetObjectField(env, object, spsw_portName));
-        throw_SerialPortException(env, "setFlowControl tcgetattr");
-        return;
-    }
-    printf("Termios\n");
-    printf("c_cc[VINTR] : %x\n", settings.c_cc[VINTR]);
-    printf("c_cc[VQUIT] : %x\n", settings.c_cc[VQUIT]);
-    printf("c_cc[VERASE] : %x\n", settings.c_cc[VERASE]);
-    printf("c_cc[VKILL] : %x\n", settings.c_cc[VKILL]);
-    printf("c_cc[VEOF] : %x\n", settings.c_cc[VEOF]);
-    printf("c_cc[VTIME] : %x\n", settings.c_cc[VTIME]);
-    printf("c_cc[VMIN] : %x\n", settings.c_cc[VMIN]);
-    printf("c_cc[VSWTC] : %x\n", settings.c_cc[VSWTC]);
-    printf("c_cc[VSTART] : %x\n", settings.c_cc[VSTART]);
-    printf("c_cc[VSTOP] : %x\n", settings.c_cc[VSTOP]);
-    printf("c_cc[VSUSP] : %x\n", settings.c_cc[VSUSP]);
-    printf("c_cc[VEOL] : %x\n", settings.c_cc[VEOL]);
-    printf("c_cc[VREPRINT] : %x\n", settings.c_cc[VREPRINT]);
-    printf("c_cc[VDISCARD] : %x\n", settings.c_cc[VDISCARD]);
-    printf("c_cc[VWERASE] : %x\n", settings.c_cc[VWERASE]);
-    printf("c_cc[VLNEXT] : %x\n", settings.c_cc[VLNEXT]);
-    printf("c_cc[VEOL2] : %x\n", settings.c_cc[VEOL2]);
-    printf("c_cflag : %x\n", settings.c_cflag);
-    printf("c_iflag : %x\n", settings.c_iflag);
-    printf("c_ispeed : %x\n", settings.c_ispeed);
-    printf("c_lflag : %x\n", settings.c_lflag);
-    printf("c_line : %x\n", settings.c_line);
-    printf("c_oflag : %x\n", settings.c_oflag);
-    printf("c_ospeed : %x\n", settings.c_ospeed);
-}
-
-
-
-//#include <sys/time.h>
-//      #include <sys/types.h>
-//      #include <unistd.h>
-//        
-//      main
-//      {
-//        int    fd1, fd2;  /* input sources 1 and 2 */
-//        fd_set readfs;    /* file descriptor set */
-//        int    maxfd;     /* maximum file desciptor used */
-//        int    loop=1;    /* loop while TRUE */ 
-//        
-//        /* open_input_source opens a device, sets the port correctly, and
-//           returns a file descriptor */
-//        fd1 = open_input_source("/dev/ttyS1");   /* COM2 */
-//        if (fd1<0) exit(0);
-//        fd2 = open_input_source("/dev/ttyS2");   /* COM3 */
-//        if (fd2<0) exit(0);
-//        maxfd = MAX (fd1, fd2)+1;  /* maximum bit entry (fd) to test */
-//        
-//        /* loop for input */
-//        while (loop) {
-//          FD_SET(fd1, &readfs);  /* set testing for source 1 */
-//          FD_SET(fd2, &readfs);  /* set testing for source 2 */
-//          /* block until input becomes available */
-//          select(maxfd, &readfs, NULL, NULL, NULL);
-//          if (FD_ISSET(fd1))         /* input from source 1 available */
-//            handle_input_from_source1();
-//          if (FD_ISSET(fd2))         /* input from source 2 available */
-//            handle_input_from_source2();
-//        }
-//      }   

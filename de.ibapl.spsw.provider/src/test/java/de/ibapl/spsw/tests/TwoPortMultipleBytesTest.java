@@ -216,15 +216,7 @@ public class TwoPortMultipleBytesTest {
             }
             LOG.log(Level.INFO, "Thread finished received");
         }
-        try {
             Assert.assertArrayEquals(receiverThread.dataOut, receiverThread.dataIn);
-        } catch (Error err) {
-            if (spc[0] instanceof GenericTermiosSerialPortSocket) {
-                ((GenericTermiosSerialPortSocket) spc[0]).printTermios();
-                ((GenericTermiosSerialPortSocket) spc[1]).printTermios();
-            }
-            throw err;
-        }
     }
 
     private void printPort(SerialPortSocket sPort) throws IOException {

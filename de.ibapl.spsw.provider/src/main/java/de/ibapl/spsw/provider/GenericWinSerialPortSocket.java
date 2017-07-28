@@ -53,7 +53,9 @@ public class GenericWinSerialPortSocket extends AbstractSerialPortSocket {
 
     /**
      * Close port
+     * @throws java.io.IOException
      */
+    @Override
     protected native void close0() throws IOException;
 
     @Override
