@@ -18,6 +18,7 @@
         <version.linux.i386>1.1.0</version.linux.i386>
         <version.linux.amd64>1.1.0</version.linux.amd64>
         <version.linux.armhf>1.1.0</version.linux.armhf>
+        <version.linux.mipsel>1.1.0</version.linux.mipsel>
         <license.licenseResolver>${project.baseUri}/../src/license</license.licenseResolver>
     </properties>
     
@@ -83,6 +84,9 @@ Bundle-NativeCode: \
  lib/linux/amd64/libspsw-${version.linux.amd64}.so; \
   osname=Linux; \
   processor=x86-64,\
+ lib/linux/mipsel/libspsw-${version.linux.mipsel}.so; \
+  osname=Linux; \
+  processor=mips,\
  lib/windows/amd64/spsw-${version.windows.amd64}.dll; \
   osname=Windows7; osname=Windows8; osname=Windows10; \
   processor=x86-64,\
@@ -251,6 +255,59 @@ Bundle-NativeCode: \
                 </plugins>
             </build>
         </profile>
+
+        <profile>
+            <id>mipsel-linux-gnu-gcc</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.codehaus.mojo</groupId>
+                        <artifactId>native-maven-plugin</artifactId>
+                        <extensions>true</extensions>  
+                        <executions>
+                            <execution>
+                                <id>libspsw-linux-mipsel</id>
+                                <phase>compile</phase>
+                                <goals>
+                                    <goal>initialize</goal>
+                                    <goal>javah</goal>
+                                    <goal>compile</goal>
+                                    <goal>link</goal>
+                                </goals>
+                                <configuration>
+                                    <javahOS>linux</javahOS>
+                                    <javahClassNames>
+                                        <javahClassName>de.ibapl.spsw.provider.GenericTermiosSerialPortSocket</javahClassName>
+                                    </javahClassNames>
+                                    <compilerProvider>generic</compilerProvider>
+                                    <compilerExecutable>mipsel-linux-gnu-gcc</compilerExecutable>
+                                    <compilerStartOptions>
+                                        <compilerStartOption>-fPIC -O</compilerStartOption>
+                                    </compilerStartOptions>
+                                    <sources>
+                                        <source>
+                                            <directory>src/main/native/posix_termios_wrapper</directory>
+                                            <fileNames>
+                                                <fileName>GenericTermiosSerialPortSocket.c</fileName>
+                                            </fileNames>
+                                        </source>
+                                    </sources>
+                                    <linkerExecutable>mipsel-linux-gnu-gcc</linkerExecutable>
+                                    <linkerStartOptions>
+                                        <linkerStartOption>-shared -lc -ldl</linkerStartOption>
+                                    </linkerStartOptions>
+                                    <linkerFinalName />
+                                    <linkerEndOptions>
+                                        <linkerEndOption>-o ${basedir}/src/main/resources/lib/linux/mipsel/libspsw-${version.linux.mipsel}.so</linkerEndOption>
+                                    </linkerEndOptions>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+
         <profile>
             <!-- install g++-mingw-w64, gcc-multilib and g++-multilib to get this work -->
             <id>i686-w64-mingw32-gcc</id>
