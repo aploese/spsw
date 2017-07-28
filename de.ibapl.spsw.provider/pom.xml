@@ -139,7 +139,7 @@ Bundle-NativeCode: \
                                     </sources>
             
                                     <linkerStartOptions>
-                                        <linkerStartOption>-shared -lc -ldl -m64</linkerStartOption>
+                                        <linkerStartOption>-shared -lc -ldl -m64 -s</linkerStartOption>
                                     </linkerStartOptions>
                                     <linkerFinalName />
  
@@ -191,7 +191,7 @@ Bundle-NativeCode: \
                                         </source>
                                     </sources>
                                     <linkerStartOptions>
-                                        <linkerStartOption>-shared -lc -ldl -m32</linkerStartOption>
+                                        <linkerStartOption>-shared -lc -ldl -m32 -s</linkerStartOption>
                                     </linkerStartOptions>
                                     <linkerFinalName />
                                     <linkerEndOptions>
@@ -242,7 +242,7 @@ Bundle-NativeCode: \
                                     </sources>
                                     <linkerExecutable>arm-linux-gnueabihf-gcc</linkerExecutable>
                                     <linkerStartOptions>
-                                        <linkerStartOption>-shared -lc -ldl</linkerStartOption>
+                                        <linkerStartOption>-shared -lc -ldl -s</linkerStartOption>
                                     </linkerStartOptions>
                                     <linkerFinalName />
                                     <linkerEndOptions>
@@ -282,7 +282,7 @@ Bundle-NativeCode: \
                                     <compilerProvider>generic</compilerProvider>
                                     <compilerExecutable>mipsel-linux-gnu-gcc</compilerExecutable>
                                     <compilerStartOptions>
-                                        <compilerStartOption>-fPIC -O</compilerStartOption>
+                                        <compilerStartOption>-fPIC -O -s</compilerStartOption>
                                     </compilerStartOptions>
                                     <sources>
                                         <source>
@@ -353,7 +353,7 @@ Bundle-NativeCode: \
                                     </sources>
                                     <linkerExecutable>i686-w64-mingw32-gcc</linkerExecutable>
                                     <linkerStartOptions>
-                                        <linkerStartOption>-static-libgcc -m32 -shared -Wl,--dll -Wl,--kill-at</linkerStartOption>
+                                        <linkerStartOption>-m32 -shared -Wl,--dll -Wl,--kill-at -s</linkerStartOption>
                                     </linkerStartOptions>
                                     <linkerFinalName />
                                     <linkerEndOptions>
@@ -411,7 +411,7 @@ Bundle-NativeCode: \
             
                                     <linkerExecutable>x86_64-w64-mingw32-gcc</linkerExecutable>
                                     <linkerStartOptions>
-                                        <linkerStartOption>-m64 -static-libgcc -shared -Wl,--dll -Wl,--kill-at</linkerStartOption>
+                                        <linkerStartOption>-m64 -shared -Wl,--dll -Wl,--kill-at -s</linkerStartOption>
                                     </linkerStartOptions>
                                     <linkerFinalName />
                                     <linkerEndOptions>
