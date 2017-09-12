@@ -622,6 +622,16 @@ JNIEXPORT void JNICALL Java_de_ibapl_spsw_provider_GenericTermiosSerialPortSocke
     }
 }
 
+JNIEXPORT void Java_de_ibapl_spsw_provider_GenericTermiosSerialPortSocket_sendBreak
+(JNIEnv *env, jobject object, jint duration )
+{
+    int fd = (*env)->GetIntField(env, object, spsw_fd);
+    int result = tcsendbreak( fd, (int)( duration / 250 ) );
+    if (result != 0) {
+        throw_SerialPortException_With_PortName(env, object, "Can't sendBreak");
+    }
+}
+
 JNIEXPORT void JNICALL Java_de_ibapl_spsw_provider_GenericTermiosSerialPortSocket_setXONChar
 (JNIEnv *env, jobject object, jchar c) {
     int fd = (*env)->GetIntField(env, object, spsw_fd);

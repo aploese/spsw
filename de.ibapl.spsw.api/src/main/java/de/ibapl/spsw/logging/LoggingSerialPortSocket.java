@@ -220,18 +220,42 @@ public class LoggingSerialPortSocket implements SerialPortSocket {
     }
 
     @Override
-    public boolean isCTS() {
-        return serialPortSocket.isCTS();
+    public boolean isCTS() throws IOException {
+        logWriter.beforeIsCTS(Instant.now());
+        try {
+            final boolean result = serialPortSocket.isCTS();
+            logWriter.afterIsCTS(Instant.now(), result);
+            return result;
+        } catch (IOException e) {
+            logWriter.afterIsCTS(Instant.now(), e);
+            throw e;
+        }
     }
 
     @Override
-    public boolean isDSR() {
-        return serialPortSocket.isDSR();
+    public boolean isDSR() throws IOException {
+        logWriter.beforeIsDSR(Instant.now());
+        try {
+            final boolean result = serialPortSocket.isDSR();
+            logWriter.afterIsDSR(Instant.now(), result);
+            return result;
+        } catch (IOException e) {
+            logWriter.afterIsDSR(Instant.now(), e);
+            throw e;
+        }
     }
 
     @Override
-    public boolean isIncommingRI() {
-        return serialPortSocket.isIncommingRI();
+    public boolean isIncommingRI() throws IOException {
+        logWriter.beforeIsIncommingRI(Instant.now());
+        try {
+            final boolean result = serialPortSocket.isIncommingRI();
+            logWriter.afterIsIncommingRI(Instant.now(), result);
+            return result;
+        } catch (IOException e) {
+            logWriter.afterIsIncommingRI(Instant.now(), e);
+            throw e;
+        }
     }
 
     @Override
@@ -346,107 +370,276 @@ public class LoggingSerialPortSocket implements SerialPortSocket {
 
     @Override
     public void setRTS(boolean value) throws IOException {
-        serialPortSocket.setRTS(value);
+        logWriter.beforeSetRTS(Instant.now(), value);
+        try {
+            serialPortSocket.setRTS(value);
+            logWriter.afterSetRTS(Instant.now());
+        } catch (IOException e) {
+            logWriter.afterSetRTS(Instant.now(), e);
+            throw e;
+        }
     }
 
     @Override
     public void setDTR(boolean value) throws IOException {
-        serialPortSocket.setDTR(value);
+        logWriter.beforeSetDTR(Instant.now(), value);
+        try {
+            serialPortSocket.setDTR(value);
+            logWriter.afterSetDTR(Instant.now());
+        } catch (IOException e) {
+            logWriter.afterSetDTR(Instant.now(), e);
+            throw e;
+        }
     }
 
     @Override
     public void setXONChar(char c) throws IOException {
-        serialPortSocket.setXONChar(c);
+        logWriter.beforeSetXONChar(Instant.now(), c);
+        try {
+            serialPortSocket.setXONChar(c);
+            logWriter.afterSetXONChar(Instant.now());
+        } catch (IOException e) {
+            logWriter.afterSetXONChar(Instant.now(), e);
+            throw e;
+        }
     }
 
     @Override
     public void setXOFFChar(char c) throws IOException {
-        serialPortSocket.setXOFFChar(c);
+        logWriter.beforeSetXOFFChar(Instant.now(), c);
+        try {
+            serialPortSocket.setXOFFChar(c);
+            logWriter.afterSetXOFFChar(Instant.now());
+        } catch (IOException e) {
+            logWriter.afterSetXOFFChar(Instant.now(), e);
+            throw e;
+        }
     }
 
     @Override
     public char getXONChar() throws IOException {
-        return serialPortSocket.getXONChar();
+        logWriter.beforeGetXONChar(Instant.now());
+        try {
+            final char result = serialPortSocket.getXONChar();
+            logWriter.afterGetXONChar(Instant.now(), result);
+            return result;
+        } catch (IOException e) {
+            logWriter.afterGetXONChar(Instant.now(), e);
+            throw e;
+        }
     }
 
     @Override
     public char getXOFFChar() throws IOException {
-        return serialPortSocket.getXOFFChar();
+        logWriter.beforeGetXOFFChar(Instant.now());
+        try {
+            final char result = serialPortSocket.getXOFFChar();
+            logWriter.afterGetXOFFChar(Instant.now(), result);
+            return result;
+        } catch (IOException e) {
+            logWriter.afterGetXOFFChar(Instant.now(), e);
+            throw e;
+        }
     }
 
     @Override
     public void sendXON() throws IOException {
-        serialPortSocket.sendXON();
+        logWriter.beforeSendXON(Instant.now());
+        try {
+            serialPortSocket.sendXON();
+            logWriter.afterSendXON(Instant.now());
+        } catch (IOException e) {
+            logWriter.afterSendXON(Instant.now(), e);
+            throw e;
+        }
     }
 
     @Override
     public void sendXOFF() throws IOException {
+        logWriter.beforeSendXOFF(Instant.now());
+        try {
+            serialPortSocket.sendXOFF();
+            logWriter.afterSendXOFF(Instant.now());
+        } catch (IOException e) {
+            logWriter.afterSendXOFF(Instant.now(), e);
+            throw e;
+        }
         serialPortSocket.sendXOFF();
     }
 
     @Override
     public int getInBufferBytesCount() throws IOException {
-        return serialPortSocket.getInBufferBytesCount();
+        logWriter.beforeGetInBufferBytesCount(Instant.now());
+        try {
+            final int result = serialPortSocket.getInBufferBytesCount();
+            logWriter.afterGetInBufferBytesCount(Instant.now(), result);
+            return result;
+        } catch (IOException e) {
+            logWriter.afterGetInBufferBytesCount(Instant.now(), e);
+            throw e;
+        }
     }
 
     @Override
     public int getOutBufferBytesCount() throws IOException {
-        return serialPortSocket.getOutBufferBytesCount();
+        logWriter.beforeGetOutBufferBytesCount(Instant.now());
+        try {
+            final int result = serialPortSocket.getOutBufferBytesCount();
+            logWriter.afterGetOutBufferBytesCount(Instant.now(), result);
+            return result;
+        } catch (IOException e) {
+            logWriter.afterGetOutBufferBytesCount(Instant.now(), e);
+            throw e;
+        }
+    }
+
+    @Override
+    public void sendBreak(int duration) throws IOException {
+        logWriter.beforeSendBreak(Instant.now(), duration);
+        try {
+            serialPortSocket.sendBreak(duration);
+            logWriter.afterSendBreak(Instant.now());
+        } catch (IOException e) {
+            logWriter.afterSendBreak(Instant.now(), e);
+            throw e;
+        }
     }
 
     @Override
     public void setBreak(boolean value) throws IOException {
-        serialPortSocket.setBreak(value);
+        logWriter.beforeSetBreak(Instant.now(), value);
+        try {
+            serialPortSocket.setBreak(value);
+            logWriter.afterSetBreak(Instant.now());
+        } catch (IOException e) {
+            logWriter.afterSetBreak(Instant.now(), e);
+            throw e;
+        }
     }
 
     @Override
     public void setFlowControl(Set<FlowControl> flowControls) throws IOException {
-        serialPortSocket.setFlowControl(flowControls);
+        logWriter.beforeSetFlowControl(Instant.now(), flowControls);
+        try {
+            serialPortSocket.setFlowControl(flowControls);
+            logWriter.afterSetFlowControl(Instant.now());
+        } catch (IOException e) {
+            logWriter.afterSetFlowControl(Instant.now(), e);
+            throw e;
+        }
     }
 
     @Override
     public void setBaudrate(Baudrate baudrate) throws IOException {
-        serialPortSocket.setBaudrate(baudrate);
+        logWriter.beforeSetBaudrate(Instant.now(), baudrate);
+        try {
+            serialPortSocket.setBaudrate(baudrate);
+            logWriter.afterSetBaudrate(Instant.now());
+        } catch (IOException e) {
+            logWriter.afterSetBaudrate(Instant.now(), e);
+            throw e;
+        }
     }
 
     @Override
     public void setDataBits(DataBits dataBits) throws IOException {
-        serialPortSocket.setDataBits(dataBits);
+        logWriter.beforeSetDataBits(Instant.now(), dataBits);
+        try {
+            serialPortSocket.setDataBits(dataBits);
+            logWriter.afterSetDataBits(Instant.now());
+        } catch (IOException e) {
+            logWriter.afterSetDataBits(Instant.now(), e);
+            throw e;
+        }
     }
 
     @Override
     public void setStopBits(StopBits stopBits) throws IOException {
-        serialPortSocket.setStopBits(stopBits);
+        logWriter.beforeSetStopBits(Instant.now(), stopBits);
+        try {
+            serialPortSocket.setStopBits(stopBits);
+            logWriter.afterSetStopBits(Instant.now());
+        } catch (IOException e) {
+            logWriter.afterSetStopBits(Instant.now(), e);
+            throw e;
+        }
     }
 
     @Override
     public void setParity(Parity parity) throws IOException {
-        serialPortSocket.setParity(parity);
+        logWriter.beforeSetParity(Instant.now(), parity);
+        try {
+            serialPortSocket.setParity(parity);
+            logWriter.afterSetParity(Instant.now());
+        } catch (IOException e) {
+            logWriter.afterSetParity(Instant.now(), e);
+            throw e;
+        }
     }
 
     @Override
     public Baudrate getBaudrate() throws IOException {
-        return serialPortSocket.getBaudrate();
+        logWriter.beforeGetBaudrate(Instant.now());
+        try {
+            final Baudrate result = serialPortSocket.getBaudrate();
+            logWriter.afterGetBaudrate(Instant.now(), result);
+            return result;
+        } catch (IOException e) {
+            logWriter.afterGetBaudrate(Instant.now(), e);
+            throw e;
+        }
     }
 
     @Override
     public DataBits getDatatBits() throws IOException {
-        return serialPortSocket.getDatatBits();
+        logWriter.beforeGetDatatBits(Instant.now());
+        try {
+            final DataBits result = serialPortSocket.getDatatBits();
+            logWriter.afterGetDatatBits(Instant.now(), result);
+            return result;
+        } catch (IOException e) {
+            logWriter.afterGetDatatBits(Instant.now(), e);
+            throw e;
+        }
     }
 
     @Override
     public StopBits getStopBits() throws IOException {
-        return serialPortSocket.getStopBits();
+        logWriter.beforeGetStopBits(Instant.now());
+        try {
+            final StopBits result = serialPortSocket.getStopBits();
+            logWriter.afterGetStopBits(Instant.now(), result);
+            return result;
+        } catch (IOException e) {
+            logWriter.afterGetStopBits(Instant.now(), e);
+            throw e;
+        }
     }
 
     @Override
     public Parity getParity() throws IOException {
-        return serialPortSocket.getParity();
+        logWriter.beforeGetParity(Instant.now());
+        try {
+            final Parity result = serialPortSocket.getParity();
+            logWriter.afterGetParity(Instant.now(), result);
+            return result;
+        } catch (IOException e) {
+            logWriter.afterGetParity(Instant.now(), e);
+            throw e;
+        }
     }
 
     @Override
     public Set<FlowControl> getFlowControl() throws IOException {
-        return serialPortSocket.getFlowControl();
+        logWriter.beforeGetFlowControl(Instant.now());
+        try {
+            final Set<FlowControl> result = serialPortSocket.getFlowControl();
+            logWriter.afterGetFlowControl(Instant.now(), result);
+            return result;
+        } catch (IOException e) {
+            logWriter.afterGetFlowControl(Instant.now(), e);
+            throw e;
+        }
     }
 
 }

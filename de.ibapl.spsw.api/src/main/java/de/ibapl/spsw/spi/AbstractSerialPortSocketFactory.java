@@ -44,6 +44,7 @@ import java.util.regex.Pattern;
 
 /**
  *
+ * 
  * @author scream3r
  */
 public abstract class AbstractSerialPortSocketFactory implements SerialPortSocketFactory {
@@ -94,14 +95,28 @@ public abstract class AbstractSerialPortSocketFactory implements SerialPortSocke
         }
     }
 
+    /**
+     * figures out the arch
+     * 
+     * for possible valuese of os.arch try this in the unpacked openjdk sources...
+     * 
+     * find -name "*" -type f -exec grep -H ARCHPROPNAME {} \;
+     * 
+     * and the this:
+     * 
+     * find -name "*" -type f -exec grep -H OPENJDK_TARGET_CPU_OSARCH {} \;
+     * 
+     * good luck...
+     * 
+     * @return the os.arch except on arm distingush between hf und sf ...
+     */
     public String getArch() {
         String osArch = System.getProperty("os.arch");
         switch (getOsName()) {
             case "linux":
                 if ("arm".equals(osArch)) {
-                    String floatStr = "sf";
                     if (System.getProperty("java.library.path").contains("gnueabihf") || System.getProperty("java.library.path").contains("armhf")) {
-                        floatStr = "hf";
+                    return osArch + "hf";
                     } else {
                         LOG.log(Level.WARNING, "Can't find hardware|software floating point in libpath try readelf");
                         try {
@@ -110,18 +125,17 @@ public abstract class AbstractSerialPortSocketFactory implements SerialPortSocke
                                 String buffer;
                                 while ((buffer = reader.readLine()) != null && !buffer.isEmpty()) {
                                     if (buffer.toLowerCase().contains("Tag_ABI_VFP_args".toLowerCase())) {
-                                        floatStr = "hf";
-                                        break;
+                                        return osArch + "hf";
                                     }
                                 }
                             }
                         } catch (Exception ex) {
                             LOG.severe("Please install binutils to detect architecture ... use hf as default");
-                            floatStr = "hf";
-                            //Do nothing
+                            //try with hf
+                            return osArch + "hf";
                         }
                     }
-                    return osArch + floatStr;
+                    return osArch + "el";
                 } else {
                     return osArch;
                 }

@@ -126,6 +126,9 @@ public class GenericTermiosSerialPortSocket extends AbstractSerialPortSocket {
     public native void setBreak(boolean value) throws IOException;
 
     @Override
+    public native void sendBreak(int duration) throws IOException;
+    
+    @Override
     protected native void setBaudrate(int baudRate) throws IOException;
 
     @Override

@@ -44,11 +44,15 @@ public interface SerialPortSocket extends Closeable {
 
     boolean isClosed();
 
-    boolean isCTS();
+    boolean isCTS() throws IOException;
 
-    boolean isDSR();
+    boolean isDSR() throws IOException;
+    
+//Not supported under Win    boolean isRTS() throws IOException;
+    
+//Not supported under Win    boolean isDTR() throws IOException;
 
-    boolean isIncommingRI();
+    boolean isIncommingRI() throws IOException;
 
     InputStream getInputStream() throws IOException;
 
@@ -134,6 +138,13 @@ public interface SerialPortSocket extends Closeable {
 
     char getXOFFChar() throws IOException;
 
+    /**
+     * 
+     * @param duration the duratiuon in ms.
+     * @throws IOException 
+     */
+    void sendBreak(int duration) throws IOException;
+    
     void sendXON() throws IOException;
 
     void sendXOFF() throws IOException;

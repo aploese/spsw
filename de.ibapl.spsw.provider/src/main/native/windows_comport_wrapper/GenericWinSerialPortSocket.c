@@ -855,6 +855,38 @@ JNIEXPORT void JNICALL Java_de_ibapl_spsw_provider_GenericWinSerialPortSocket_se
     }
 }
 
+
+/*
+ * Send break for setted duration
+ *
+ * since 0.8
+ */
+JNIEXPORT void JNICALL Java_de_ibapl_spsw_provider_GenericWinSerialPortSocket_sendBreak
+(JNIEnv *env, jobject object, jint duration) {
+#if defined(__i386)
+    HANDLE hFile = (HANDLE) (DWORD) (*env)->GetLongField(env, object, spsw_fd);
+#elif defined(__x86_64)
+    HANDLE hFile = (HANDLE) (*env)->GetLongField(env, object, spsw_fd);
+#endif
+
+    if(duration < 0){
+        throw_SerialPortException_With_PortName(env, object, "sendBreak duration must be grater than 0");
+        return;
+    }
+        
+    if (!SetCommBreak(hFile)) {
+        throw_SerialPortException_With_PortName(env, object, "sendBreak SetCommBreak");
+        return;
+    }
+
+    Sleep(duration);
+    
+    if (!ClearCommBreak(hFile)){
+        throw_SerialPortException_With_PortName(env, object, "sendBreak ClearCommBreak");
+        return;
+    }
+}
+
 /*
  * Class:     de_ibapl_spsw_provider_GenericWinSerialPortSocket
  * Method:    setDataBits

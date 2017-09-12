@@ -77,7 +77,7 @@
 Bundle-NativeCode: \
  lib/linux/armhf/libspsw-${version.linux.armhf}.so; \
   osname=Linux; \
-  processor=arm_be; processor=arm,\
+  processor=arm_le; processor=arm,\
  lib/linux/i386/libspsw-${version.linux.i386}.so; \
   osname=Linux; \
   processor=x86,\
