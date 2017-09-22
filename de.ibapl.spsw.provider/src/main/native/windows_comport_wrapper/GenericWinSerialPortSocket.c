@@ -203,24 +203,40 @@ static void throw_SerialPortException_With_PortName(JNIEnv *env, jobject object,
 
 static void throw_PortBusyException(JNIEnv *env, jstring portName) {
     const char* port = (*env)->GetStringUTFChars(env, portName, JNI_FALSE);
-    (*env)->ThrowNew(env, (*env)->FindClass(env, "de/ibapl/spsw/api/PortBusyException"), port);
+    jclass cls = (*env)->FindClass(env, "de/ibapl/spsw/api/PortBusyException");
+    if (cls != NULL) {
+        (*env)->ThrowNew(env, cls, port);
+    }
+    (*env)->DeleteLocalRef(env, cls);
     (*env)->ReleaseStringUTFChars(env, portName, port);
 }
 
 static void throw_PortNotFoundException(JNIEnv *env, jstring portName) {
     const char* port = (*env)->GetStringUTFChars(env, portName, JNI_FALSE);
-    (*env)->ThrowNew(env, (*env)->FindClass(env, "de/ibapl/spsw/api/PortNotFoundException"), port);
+    jclass cls = (*env)->FindClass(env, "de/ibapl/spsw/api/PortNotFoundException");
+    if (cls != NULL) {
+        (*env)->ThrowNew(env, cls, port);
+    }
+    (*env)->DeleteLocalRef(env, cls);
     (*env)->ReleaseStringUTFChars(env, portName, port);
 }
 
 static void throw_NotASerialPortException(JNIEnv *env, jstring portName) {
     const char* port = (*env)->GetStringUTFChars(env, portName, JNI_FALSE);
-    (*env)->ThrowNew(env, (*env)->FindClass(env, "de/ibapl/spsw/api/NotASerialPortException"), port);
+    jclass cls = (*env)->FindClass(env, "de/ibapl/spsw/api/NotASerialPortException");
+    if (cls != NULL) {
+        (*env)->ThrowNew(env, cls, port);
+    }
+    (*env)->DeleteLocalRef(env, cls);
     (*env)->ReleaseStringUTFChars(env, portName, port);
 }
 
 static void throw_Read_Timeout_Exception(JNIEnv *env, const char *msg) {
-    (*env)->ThrowNew(env, (*env)->FindClass(env, "java/io/InterruptedIOException"), msg);
+    jclass cls = (*env)->FindClass(env, "java/io/InterruptedIOException");
+    if (cls != NULL) {
+        (*env)->ThrowNew(env, cls, msg);
+    }
+    (*env)->DeleteLocalRef(env, cls);
 }
 
 static jboolean getCommModemStatus(JNIEnv *env, jobject object, DWORD bitMask) {
