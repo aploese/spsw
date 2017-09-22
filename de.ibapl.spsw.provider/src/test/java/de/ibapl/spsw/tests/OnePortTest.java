@@ -44,6 +44,7 @@ import de.ibapl.spsw.api.SerialPortException;
 import de.ibapl.spsw.api.SerialPortSocket;
 import de.ibapl.spsw.api.StopBits;
 import de.ibapl.spsw.provider.SerialPortSocketFactoryImpl;
+import java.io.InterruptedIOException;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Assume;
@@ -101,6 +102,27 @@ public class OnePortTest {
 
         spc.openAsIs();
         Assert.assertTrue(spc.isOpen());
+        spc.close();
+        Assert.assertFalse(spc.isOpen());
+    }
+
+    @Test
+    public void testTimeoutNoDataReceived() throws Exception {
+        Assume.assumeNotNull(spc);
+        LOG.log(Level.INFO, "run testTimeoutNoDataReceived");
+
+        spc.openAsIs();
+        spc.setTimeout(2000);
+        Assert.assertTrue(spc.isOpen());
+        final long start = System.currentTimeMillis();
+        try {
+            int i = spc.getInputStream().read();
+            Assert.fail("No timeout Exception");
+        } catch (InterruptedIOException iioe) {
+            final long time = System.currentTimeMillis() - start;
+            LOG.log(Level.INFO, "Timeout: 2000ms and it took: " + time + "ms");
+            Assert.assertEquals(2000.0, time, 100.0);  // We tolerate 5% difference
+        }
         spc.close();
         Assert.assertFalse(spc.isOpen());
     }
@@ -261,7 +283,7 @@ public class OnePortTest {
         try {
             spc.setStopBits(StopBits.SB_1_5);
             Assert.assertEquals(StopBits.SB_1_5, spc.getStopBits());
-        } catch (IOException ex) {
+        } catch (IllegalArgumentException ex) {
         }
 
         spc.setStopBits(StopBits.SB_2);

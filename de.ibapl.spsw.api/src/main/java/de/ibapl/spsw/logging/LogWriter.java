@@ -612,6 +612,22 @@ public class LogWriter {
         log.flush();
     }
 
+    void beforeSetTimeout(Instant ts, int value) {
+        log.append("SP ").append(ACION_CALL).append(" setTimeout @").append(dateTimeFormatter.format(ts)).append(": ").println(value);
+        log.flush();
+    }
+
+    void afterSetTimeout(Instant ts) {
+        log.append("SP ").append(ACION_RETURN).append(" setTimeout @").println(dateTimeFormatter.format(ts));
+        log.flush();
+    }
+
+    void afterSetTimeout(Instant ts, IOException e) {
+        log.append("SP ").append(ACION_RETURN).append(" setTimeout @").append(dateTimeFormatter.format(ts)).append(": ").println(e.toString());
+        e.printStackTrace(log);
+        log.flush();
+    }
+
     void beforeGetBaudrate(Instant ts) {
         log.append("SP ").append(ACION_CALL).append(" getBaudrate @").println(dateTimeFormatter.format(ts));
         log.flush();
@@ -672,6 +688,22 @@ public class LogWriter {
 
     void afterGetParity(Instant ts, IOException e) {
         log.append("SP ").append(ACION_RETURN).append(" getParity @").append(dateTimeFormatter.format(ts)).append(": ").println(e.toString());
+        e.printStackTrace(log);
+        log.flush();
+    }
+
+    void beforeGetTimeout(Instant ts) {
+        log.append("SP ").append(ACION_CALL).append(" getTimeout @").println(dateTimeFormatter.format(ts));
+        log.flush();
+    }
+
+    void afterGetTimeout(Instant ts, int result) {
+        log.append("SP ").append(ACION_RETURN).append(" getTimeout @").append(dateTimeFormatter.format(ts)).append(": ").println(result);
+        log.flush();
+    }
+
+    void afterGetTimeout(Instant ts, IOException e) {
+        log.append("SP ").append(ACION_RETURN).append(" getTimeout @").append(dateTimeFormatter.format(ts)).append(": ").println(e.toString());
         e.printStackTrace(log);
         log.flush();
     }

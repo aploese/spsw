@@ -48,6 +48,31 @@ import org.osgi.annotation.versioning.ProviderType;
 @ProviderType
 public class LoggingSerialPortSocket implements SerialPortSocket {
 
+    @Override
+    public int getTimeout() throws IOException {
+        logWriter.beforeGetTimeout(Instant.now());
+        try {
+            final int result = serialPortSocket.getTimeout();
+            logWriter.afterGetTimeout(Instant.now(), result);
+            return result;
+        } catch (IOException e) {
+            logWriter.afterGetTimeout(Instant.now(), e);
+            throw e;
+        }
+    }
+
+    @Override
+    public void setTimeout(int timeout) throws IOException {
+        logWriter.beforeSetTimeout(Instant.now(), timeout);
+        try {
+            serialPortSocket.setTimeout(timeout);
+            logWriter.afterSetTimeout(Instant.now());
+        } catch (IOException e) {
+            logWriter.afterSetTimeout(Instant.now(), e);
+            throw e;
+        }
+    }
+
     private class LOS extends OutputStream {
 
         private final OutputStream os;

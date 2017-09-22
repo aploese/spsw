@@ -37,6 +37,7 @@ import de.ibapl.spsw.api.FlowControl;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.lang.annotation.Native;
 import java.util.EnumSet;
 import java.util.Set;
 
@@ -46,30 +47,30 @@ import java.util.Set;
  */
 public abstract class AbstractSerialPortSocket implements SerialPortSocket {
 
-    static final int PORT_MODE_UNCHANGED = 0;
-    static final int PORT_MODE_RAW = 0x01;
+    @Native static final int PORT_MODE_UNCHANGED = 0x0;
+    @Native static final int PORT_MODE_RAW = 0x01;
 
-    static final int FLOW_CONTROL_NONE = 0;
-    static final int FLOW_CONTROL_RTS_CTS_IN = 0x01;
-    static final int FLOW_CONTROL_RTS_CTS_OUT = 0x02;
-    static final int FLOW_CONTROL_XON_XOFF_IN = 0x04;
-    static final int FLOW_CONTROL_XON_XOFF_OUT = 0x08;
+    @Native static final int FLOW_CONTROL_NONE = 0x0;
+    @Native static final int FLOW_CONTROL_RTS_CTS_IN = 0x01;
+    @Native static final int FLOW_CONTROL_RTS_CTS_OUT = 0x02;
+    @Native static final int FLOW_CONTROL_XON_XOFF_IN = 0x04;
+    @Native static final int FLOW_CONTROL_XON_XOFF_OUT = 0x08;
 
-    static final int STOP_BITS_1 = 0;
-    static final int STOP_BITS_1_5 = 0x01;
-    static final int STOP_BITS_2 = 0x02;
+    @Native static final int STOP_BITS_1 = 0x0;
+    @Native static final int STOP_BITS_1_5 = 0x01;
+    @Native static final int STOP_BITS_2 = 0x02;
 
-    static final int PARITY_NONE = 0;
-    static final int PARITY_ODD = 0x01;
-    static final int PARITY_EVEN = 0x02;
-    static final int PARITY_MARK = 0x03;
-    static final int PARITY_SPACE = 0x04;
+    @Native static final int PARITY_NONE = 0x0;
+    @Native static final int PARITY_ODD = 0x01;
+    @Native static final int PARITY_EVEN = 0x02;
+    @Native static final int PARITY_MARK = 0x03;
+    @Native static final int PARITY_SPACE = 0x04;
 
     protected SerialInputStream is;
     protected SerialOutputStream os;
 
     private final String portName;
-    private boolean open = false;
+    private boolean open;
 
     protected AbstractSerialPortSocket(String portName) {
         SecurityManager security = System.getSecurityManager();
@@ -520,4 +521,5 @@ public abstract class AbstractSerialPortSocket implements SerialPortSocket {
             return "Internal Error " + e;
         }
     }
+    
 }

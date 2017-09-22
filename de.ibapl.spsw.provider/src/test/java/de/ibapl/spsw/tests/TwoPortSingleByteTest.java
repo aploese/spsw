@@ -42,6 +42,7 @@ import de.ibapl.spsw.api.Parity;
 import de.ibapl.spsw.api.SerialPortSocket;
 import de.ibapl.spsw.api.StopBits;
 import de.ibapl.spsw.provider.SerialPortSocketFactoryImpl;
+import java.util.Arrays;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Assume;
@@ -52,6 +53,8 @@ import org.junit.Test;
 
 /**
  * Unit test for simple App.
+ * Use @Ignore if your hardware can't handle higer speeds.
+ * 
  */
 public class TwoPortSingleByteTest {
 
@@ -252,71 +255,77 @@ public class TwoPortSingleByteTest {
         runTest(Baudrate.B19200, DEFAULT_TEST_BUFFER_SIZE);
     }
 
+    //@Ignore //if your hardware can't handle this speed.
     @Test(timeout = 1000 + (DEFAULT_TEST_BUFFER_SIZE * 10 * 1000) / 57600)
     public void test_0057600() throws Exception {
         Assume.assumeNotNull(spc);
         runTest(Baudrate.B57600, DEFAULT_TEST_BUFFER_SIZE);
     }
 
+    //@Ignore //if your hardware can't handle this speed.
     @Test(timeout = 1000 + (DEFAULT_TEST_BUFFER_SIZE * 10 * 1000) / 115200)
     public void test_0115200() throws Exception {
         Assume.assumeNotNull(spc);
         runTest(Baudrate.B115200, DEFAULT_TEST_BUFFER_SIZE);
     }
 
+    //@Ignore //if your hardware can't handle this speed.
     @Test(timeout = 1000 + (DEFAULT_TEST_BUFFER_SIZE * 10 * 1000) / 230400)
     public void test_0230400() throws Exception {
         Assume.assumeNotNull(spc);
         runTest(Baudrate.B230400, DEFAULT_TEST_BUFFER_SIZE);
     }
 
+    //@Ignore //if your hardware can't handle this speed.
     @Test(timeout = 1000 + (DEFAULT_TEST_BUFFER_SIZE * 10 * 1000) / 460800)
     public void test_0460800() throws Exception {
         Assume.assumeNotNull(spc);
         runTest(Baudrate.B460800, DEFAULT_TEST_BUFFER_SIZE);
     }
 
+    //@Ignore //if your hardware can't handle this speed.
     @Test(timeout = 1000 + (DEFAULT_TEST_BUFFER_SIZE * 10 * 1000) / 500000)
     public void test_0500000() throws Exception {
         Assume.assumeNotNull(spc);
         runTest(Baudrate.B500000, DEFAULT_TEST_BUFFER_SIZE);
     }
 
+    @Ignore //if your hardware can't handle this speed.
     @Test(timeout = 1000 + (DEFAULT_TEST_BUFFER_SIZE * 10 * 1000) / 576000)
     public void test_0576000() throws Exception {
         Assume.assumeNotNull(spc);
         runTest(Baudrate.B576000, DEFAULT_TEST_BUFFER_SIZE);
     }
 
-    @Ignore
+    @Ignore //if your hardware can't handle this speed.
     @Test(timeout = 1000 + (DEFAULT_TEST_BUFFER_SIZE * 10 * 1000) / 1000000)
     public void test_1000000() throws Exception {
         Assume.assumeNotNull(spc);
         runTest(Baudrate.B1000000, DEFAULT_TEST_BUFFER_SIZE);
     }
 
-    @Ignore
+    @Ignore //if your hardware can't handle this speed.
     @Test(timeout = 1000 + (DEFAULT_TEST_BUFFER_SIZE * 10 * 1000) / 1152000)
     public void test_1152000() throws Exception {
         Assume.assumeNotNull(spc);
         runTest(Baudrate.B1152000, DEFAULT_TEST_BUFFER_SIZE);
     }
 
-    @Ignore
+    @Ignore //if your hardware can't handle this speed.
     @Test(timeout = 1000 + (DEFAULT_TEST_BUFFER_SIZE * 10 * 1000) / 2000000)
     public void test_2000000() throws Exception {
         Assume.assumeNotNull(spc);
         runTest(Baudrate.B2000000, DEFAULT_TEST_BUFFER_SIZE);
     }
 
-    @Ignore
+    @Ignore //if your hardware can't handle this speed.
     @Test(timeout = 1000 + (DEFAULT_TEST_BUFFER_SIZE * 10 * 1000) / 3000000)
     public void test_3000000() throws Exception {
         Assume.assumeNotNull(spc);
         runTest(Baudrate.B3000000, DEFAULT_TEST_BUFFER_SIZE);
     }
 
-    @Ignore
+    @Ignore //if your hardware can't handle this speed.
     @Test(timeout = 1000 + (DEFAULT_TEST_BUFFER_SIZE * 10 * 1000) / 4000000)
     public void test_4000000() throws Exception {
         Assume.assumeNotNull(spc);

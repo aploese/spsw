@@ -141,7 +141,7 @@ JNIEXPORT void JNICALL JNI_OnUnLoad(JavaVM *jvm, void *reserved) {
     spsw_fd = 0;
     spsw_open = 0;
     spsw_portName = 0;
-
+    
     jint getEnvResult = ((*jvm)->GetEnv(jvm, (void **) &env, JNI_VERSION_1_2));
     if (getEnvResult != JNI_OK) {
         return;
@@ -173,31 +173,59 @@ static void throw_SerialPortException_With_PortName(JNIEnv *env, jobject object,
 }
 
 static void throw_Illegal_Argument_Exception(JNIEnv *env, const char *msg) {
-    (*env)->ThrowNew(env, (*env)->FindClass(env, "java/lang/IllegalArgumentException"), msg);
+    jclass cls = (*env)->FindClass(env, "java/lang/IllegalArgumentException");
+    if (cls != NULL) {
+        (*env)->ThrowNew(env, cls, msg);
+    }
+    (*env)->DeleteLocalRef(env, cls);
 }
 
 static void throw_PortBusyException(JNIEnv *env, jstring portName) {
     const char* port = (*env)->GetStringUTFChars(env, portName, JNI_FALSE);
-    (*env)->ThrowNew(env, (*env)->FindClass(env, "de/ibapl/spsw/api/PortBusyException"), port);
+    jclass cls = (*env)->FindClass(env, "de/ibapl/spsw/api/PortBusyException");
+    if (cls != NULL) {
+        (*env)->ThrowNew(env, cls, port);
+    }
+    (*env)->DeleteLocalRef(env, cls);
     (*env)->ReleaseStringUTFChars(env, portName, port);
 }
 
 static void throw_PortNotFoundException(JNIEnv *env, jstring portName) {
     const char* port = (*env)->GetStringUTFChars(env, portName, JNI_FALSE);
-    (*env)->ThrowNew(env, (*env)->FindClass(env, "de/ibapl/spsw/api/PortNotFoundException"), port);
+    jclass cls = (*env)->FindClass(env, "de/ibapl/spsw/api/PortNotFoundException");
+    if (cls != NULL) {
+        (*env)->ThrowNew(env, cls, port);
+    }
+    (*env)->DeleteLocalRef(env, cls);
     (*env)->ReleaseStringUTFChars(env, portName, port);
 }
 
 static void throw_PermissionDeniedException(JNIEnv *env, jstring portName) {
     const char* port = (*env)->GetStringUTFChars(env, portName, JNI_FALSE);
-    (*env)->ThrowNew(env, (*env)->FindClass(env, "de/ibapl/spsw/api/PermissionDeniedException"), port);
+    jclass cls = (*env)->FindClass(env, "de/ibapl/spsw/api/PermissionDeniedException");
+    if (cls != NULL) {
+        (*env)->ThrowNew(env, cls, port);
+    }
+    (*env)->DeleteLocalRef(env, cls);
     (*env)->ReleaseStringUTFChars(env, portName, port);
 }
 
 static void throw_NotASerialPortException(JNIEnv *env, jstring portName) {
     const char* port = (*env)->GetStringUTFChars(env, portName, JNI_FALSE);
-    (*env)->ThrowNew(env, (*env)->FindClass(env, "de/ibapl/spsw/api/NotASerialPortException"), port);
+    jclass cls = (*env)->FindClass(env, "de/ibapl/spsw/api/NotASerialPortException");
+    if (cls != NULL) {
+        (*env)->ThrowNew(env, cls, port);
+    }
+    (*env)->DeleteLocalRef(env, cls);
     (*env)->ReleaseStringUTFChars(env, portName, port);
+}
+
+static void throw_Read_Timeout_Exception(JNIEnv *env, const char *msg) {
+    jclass cls = (*env)->FindClass(env, "java/io/InterruptedIOException");
+    if (cls != NULL) {
+        (*env)->ThrowNew(env, cls, msg);
+    }
+    (*env)->DeleteLocalRef(env, cls);
 }
 
 static jboolean getLineStatus(JNIEnv *env, jobject object, int bitMask) {
@@ -517,8 +545,7 @@ JNIEXPORT void JNICALL Java_de_ibapl_spsw_provider_GenericTermiosSerialPortSocke
             /* Raw output */
             settings.c_oflag = 0;
             settings.c_cc[VMIN] = 1; // min 1 char to receive
-            settings.c_cc[VTIME] = 1; // wait max a 1/10 sec for new chars after receiving the last char
-            //settings.c_cc[VTIME] = 0;
+            settings.c_cc[VTIME] = 0; // no inter byte timeout
             if (tcsetattr(fd, TCSANOW, &settings) != 0) {
                 close(fd);
                 (*env)->SetIntField(env, object, spsw_fd, -1);
@@ -563,7 +590,7 @@ JNIEXPORT void JNICALL Java_de_ibapl_spsw_provider_GenericTermiosSerialPortSocke
     }
 
     settings.c_cc[VMIN] = 0;
-    settings.c_cc[VTIME] = 1;
+    settings.c_cc[VTIME] = 0;
     if (tcsetattr(fd, TCSANOW, &settings) != 0) {
         //        perror("NATIVE Error Close - tcsetattr");
     }
@@ -761,9 +788,15 @@ JNIEXPORT jint JNICALL Java_de_ibapl_spsw_provider_GenericTermiosSerialPortSocke
     jint nread = (jint) read((*env)->GetIntField(env, object, spsw_fd), &lpBuffer, 1);
     if (nread == 1) {
         return lpBuffer & 0xFF;
-    } else if (nread <= 0) {
-        // read blocked but no data, probaply closing down.
-        return -1;
+    } else if (nread == 0) {
+        if ((*env)->GetIntField(env, object, spsw_fd) > 0) {
+            //Filehandle valid - a timeout occured
+            throw_Read_Timeout_Exception(env, "Timeout read single byte");
+            return -2;
+        } else {
+            //Filehandle not valid - closing down?
+            return -1;
+        }
     } else if (nread < 0) {
         //TODO use isOpen ???
         if ((*env)->GetBooleanField(env, object, spsw_open)) {
@@ -773,6 +806,10 @@ JNIEXPORT jint JNICALL Java_de_ibapl_spsw_provider_GenericTermiosSerialPortSocke
             //closed
             return -1;
         }
+    } else {
+        // read more than 1 byte
+        throw_SerialPortException_With_PortName(env, object, "readSingle more than one byte - Should never happen");
+        return -1;
     }
 
     // we should never reach this ...
@@ -788,8 +825,14 @@ JNIEXPORT jint JNICALL Java_de_ibapl_spsw_provider_GenericTermiosSerialPortSocke
     if (nread > 0) {
         (*env)->SetByteArrayRegion(env, bytes, off, nread, lpBuffer);
     } else if (nread == 0) {
-        // read unblocked but no data probaply closing down.
-        nread = -1;
+        if ((*env)->GetIntField(env, object, spsw_fd) > 0) {
+            //Filehandle valid - a timeout occured
+            throw_Read_Timeout_Exception(env, "Timeout read multiple bytes");
+            nread = -1;
+        } else {
+            //Filehandle not valid - closing down?
+            nread = -1;
+        }
     } else {
         if ((*env)->GetIntField(env, object, spsw_fd) == -1) {
             //closed
@@ -814,6 +857,20 @@ JNIEXPORT jint JNICALL Java_de_ibapl_spsw_provider_GenericTermiosSerialPortSocke
     int result = ioctl(fd, FIONREAD, &returnValue);
     if (result != 0) {
         throw_SerialPortException_With_PortName(env, object, "Can't read in buffer size");
+    }
+    return returnValue;
+}
+
+/*
+ * Get bytes count in serial port buffers (Output)
+ */
+JNIEXPORT jint JNICALL Java_de_ibapl_spsw_provider_GenericTermiosSerialPortSocket_getOutBufferBytesCount
+(JNIEnv *env, jobject object) {
+    int fd = (*env)->GetIntField(env, object, spsw_fd);
+    jint returnValue = -1;
+    int result = ioctl(fd, TIOCOUTQ, &returnValue);
+    if (result != 0) {
+        throw_SerialPortException_With_PortName(env, object, "Can't read out buffer size");
     }
     return returnValue;
 }
@@ -979,7 +1036,7 @@ JNIEXPORT void JNICALL Java_de_ibapl_spsw_provider_GenericTermiosSerialPortSocke
     int fd = (*env)->GetIntField(env, object, spsw_fd);
     struct termios settings;
     if (tcgetattr(fd, &settings) != 0) {
-        throw_SerialPortException_With_PortName(env, object, "setStopBits tcgetattr");
+        throw_SerialPortException_With_PortName(env, object, "setParity tcgetattr");
         return;
     }
 
@@ -1037,7 +1094,36 @@ JNIEXPORT void JNICALL Java_de_ibapl_spsw_provider_GenericTermiosSerialPortSocke
 
 /*
  * Class:     de_ibapl_spsw_provider_GenericTermiosSerialPortSocket
- * Method:    getBaudrate
+ * Method:    setTimeout
+ * Signature: (JI)V
+ */
+JNIEXPORT void JNICALL Java_de_ibapl_spsw_provider_GenericTermiosSerialPortSocket_setTimeout
+(JNIEnv *env, jobject object, jint timeout) {
+    int fd = (*env)->GetIntField(env, object, spsw_fd);
+    struct termios settings;
+    if (tcgetattr(fd, &settings) != 0) {
+        throw_SerialPortException_With_PortName(env, object, "setTimeout tcgetattr");
+        return;
+    }
+
+    if (timeout == 0) {
+        settings.c_cc[VMIN] = 1; // min 1 char to receive
+        settings.c_cc[VTIME] = 0; // no inter byte timeout - wait infinite
+    } else if (timeout >= 0){    
+        settings.c_cc[VMIN] = 0; // set this to 0 so VTIME becomes the overall timeout
+        settings.c_cc[VTIME] = timeout / 100; // the overall timeout
+    } else {
+        throw_Illegal_Argument_Exception(env, "Time out must not < 0");
+    }
+    
+    if (tcsetattr(fd, TCSANOW, &settings) != 0) {
+        throw_SerialPortException_With_PortName(env, object, "setTimeout tcsetattr");
+    }
+}
+
+/*
+ * Class:     de_ibapl_spsw_provider_GenericTermiosSerialPortSocket
+ * Method:    getBaudrate0
  * Signature: (J)I
  */
 JNIEXPORT jint JNICALL Java_de_ibapl_spsw_provider_GenericTermiosSerialPortSocket_getBaudrate0
@@ -1060,7 +1146,7 @@ JNIEXPORT jint JNICALL Java_de_ibapl_spsw_provider_GenericTermiosSerialPortSocke
 
 /*
  * Class:     de_ibapl_spsw_provider_GenericTermiosSerialPortSocket
- * Method:    getDataBits
+ * Method:    getDataBits0
  * Signature: (J)I
  */
 JNIEXPORT jint JNICALL Java_de_ibapl_spsw_provider_GenericTermiosSerialPortSocket_getDataBits0
@@ -1090,7 +1176,7 @@ JNIEXPORT jint JNICALL Java_de_ibapl_spsw_provider_GenericTermiosSerialPortSocke
 
 /*
  * Class:     de_ibapl_spsw_provider_GenericTermiosSerialPortSocket
- * Method:    getStopBits
+ * Method:    getStopBits0
  * Signature: (J)I
  */
 JNIEXPORT jint JNICALL Java_de_ibapl_spsw_provider_GenericTermiosSerialPortSocket_getStopBits0
@@ -1112,7 +1198,7 @@ JNIEXPORT jint JNICALL Java_de_ibapl_spsw_provider_GenericTermiosSerialPortSocke
 
 /*
  * Class:     de_ibapl_spsw_provider_GenericTermiosSerialPortSocket
- * Method:    getParity
+ * Method:    getParity0
  * Signature: (J)I
  */
 JNIEXPORT jint JNICALL Java_de_ibapl_spsw_provider_GenericTermiosSerialPortSocket_getParity0
@@ -1158,6 +1244,30 @@ JNIEXPORT jint JNICALL Java_de_ibapl_spsw_provider_GenericTermiosSerialPortSocke
 #endif
     }
     throw_SerialPortException_With_PortName(env, object, "getParity0 Wrong Parity");
+    return -1;
+}
+
+/*
+ * Class:     de_ibapl_spsw_provider_GenericTermiosSerialPortSocket
+ * Method:    getTimeout
+ * Signature: (J)I
+ */
+JNIEXPORT jint JNICALL Java_de_ibapl_spsw_provider_GenericTermiosSerialPortSocket_getTimeout
+(JNIEnv *env, jobject object) {
+    int fd = (*env)->GetIntField(env, object, spsw_fd);
+    struct termios settings;
+    if (tcgetattr(fd, &settings) != 0) {
+        throw_SerialPortException_With_PortName(env, object, "getTimeout tcgetattr");
+        return (jint) - 1;
+    }
+    
+    if ((settings.c_cc[VMIN] == 1) && (settings.c_cc[VTIME] = 0)) {
+        return 0;
+    } else if (settings.c_cc[VMIN] == 0) {    
+        return settings.c_cc[VTIME] * 100; // the overall timeout
+    }
+
+    throw_SerialPortException_With_PortName(env, object, "getTimeout Wrong Timeout settings");
     return -1;
 }
 

@@ -163,4 +163,11 @@ public class GenericTermiosSerialPortSocket extends AbstractSerialPortSocket {
 
     @Override
     public native void sendXOFF() throws IOException;
+
+    @Override
+    public native int getTimeout() throws IOException;
+
+    @Override
+    public native void setTimeout(int timeout) throws IOException;
+    
 }

@@ -27,7 +27,6 @@ package de.ibapl.spsw.tests;
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  * #L%
  */
-
 import java.io.IOException;
 import java.io.InputStream;
 import java.text.MessageFormat;
@@ -43,6 +42,7 @@ import de.ibapl.spsw.api.Parity;
 import de.ibapl.spsw.api.SerialPortSocket;
 import de.ibapl.spsw.api.StopBits;
 import de.ibapl.spsw.provider.SerialPortSocketFactoryImpl;
+import java.io.OutputStream;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Assume;
@@ -216,7 +216,7 @@ public class TwoPortMultipleBytesTest {
             }
             LOG.log(Level.INFO, "Thread finished received");
         }
-            Assert.assertArrayEquals(receiverThread.dataOut, receiverThread.dataIn);
+        Assert.assertArrayEquals(receiverThread.dataOut, receiverThread.dataIn);
     }
 
     private void printPort(SerialPortSocket sPort) throws IOException {
@@ -324,6 +324,59 @@ public class TwoPortMultipleBytesTest {
     public void test_4000000() throws Exception {
         Assume.assumeNotNull(spc);
         runTest(Baudrate.B4000000, DEFAULT_TEST_BUFFER_SIZE);
+    }
+
+    @Test(timeout = 5000)
+    public void testTimeout() throws Exception {
+        Assume.assumeNotNull(spc);
+
+        spc[0].openRaw(Baudrate.B9600, DataBits.DB_8, StopBits.SB_1, Parity.NONE, FlowControl.getFC_RTS_CTS());
+        spc[1].openRaw(spc[0].getBaudrate(), spc[0].getDatatBits(), spc[0].getStopBits(), spc[0].getParity(), spc[0].getFlowControl());
+        spc[0].setTimeout(2000);
+        final InputStream is = spc[0].getInputStream();
+        final OutputStream os = spc[1].getOutputStream();
+
+        final byte[] recBuff = new byte[255];
+        Arrays.fill(recBuff, (byte) 0);
+        
+        final byte[] sendBuff = new byte[128];
+        Arrays.fill(sendBuff, (byte) 0x7F);
+ 
+        final Object lock = new Object();
+        final Thread t = new Thread(() -> {
+            try {
+                Assert.assertEquals("Only expected 1 byte to read", 1, is.read(recBuff));
+                Assert.assertEquals("Error @0", 0x7F, recBuff[0]);
+                Assert.assertEquals("Error @1", 0x00, recBuff[1]);
+                synchronized (lock) {
+                    lock.notifyAll();
+                }
+            } catch (IOException ex) {
+                Assert.fail(ex.getMessage());
+            }
+
+        });
+        t.start();
+        
+        //Quick and dirty time lock to start receiver thread
+        Thread.sleep(200);
+        
+        os.write(sendBuff);
+        os.flush();
+        
+        synchronized (lock) {
+            lock.wait();
+        }
+        
+        //Wait for all data to arrive...
+        Thread.sleep(200);
+        
+        Assert.assertEquals(127, is.read(recBuff, 1, 200));
+        
+        for (int i = 0; i < 128; i++) {
+            Assert.assertEquals("Error @" + i, sendBuff[i], recBuff[i]);
+        }
+        
     }
 
 }
