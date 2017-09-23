@@ -47,24 +47,39 @@ import java.util.Set;
  */
 public abstract class AbstractSerialPortSocket implements SerialPortSocket {
 
-    @Native static final int PORT_MODE_UNCHANGED = 0x0;
-    @Native static final int PORT_MODE_RAW = 0x01;
+    @Native
+    static final int PORT_MODE_UNCHANGED = 0x0;
+    @Native
+    static final int PORT_MODE_RAW = 0x01;
 
-    @Native static final int FLOW_CONTROL_NONE = 0x0;
-    @Native static final int FLOW_CONTROL_RTS_CTS_IN = 0x01;
-    @Native static final int FLOW_CONTROL_RTS_CTS_OUT = 0x02;
-    @Native static final int FLOW_CONTROL_XON_XOFF_IN = 0x04;
-    @Native static final int FLOW_CONTROL_XON_XOFF_OUT = 0x08;
+    @Native
+    static final int FLOW_CONTROL_NONE = 0x0;
+    @Native
+    static final int FLOW_CONTROL_RTS_CTS_IN = 0x01;
+    @Native
+    static final int FLOW_CONTROL_RTS_CTS_OUT = 0x02;
+    @Native
+    static final int FLOW_CONTROL_XON_XOFF_IN = 0x04;
+    @Native
+    static final int FLOW_CONTROL_XON_XOFF_OUT = 0x08;
 
-    @Native static final int STOP_BITS_1 = 0x0;
-    @Native static final int STOP_BITS_1_5 = 0x01;
-    @Native static final int STOP_BITS_2 = 0x02;
+    @Native
+    static final int STOP_BITS_1 = 0x0;
+    @Native
+    static final int STOP_BITS_1_5 = 0x01;
+    @Native
+    static final int STOP_BITS_2 = 0x02;
 
-    @Native static final int PARITY_NONE = 0x0;
-    @Native static final int PARITY_ODD = 0x01;
-    @Native static final int PARITY_EVEN = 0x02;
-    @Native static final int PARITY_MARK = 0x03;
-    @Native static final int PARITY_SPACE = 0x04;
+    @Native
+    static final int PARITY_NONE = 0x0;
+    @Native
+    static final int PARITY_ODD = 0x01;
+    @Native
+    static final int PARITY_EVEN = 0x02;
+    @Native
+    static final int PARITY_MARK = 0x03;
+    @Native
+    static final int PARITY_SPACE = 0x04;
 
     protected SerialInputStream is;
     protected SerialOutputStream os;
@@ -257,19 +272,22 @@ public abstract class AbstractSerialPortSocket implements SerialPortSocket {
 
     @Override
     public void setStopBits(StopBits stopBits) throws IOException {
-        switch (stopBits) {
-            case SB_1:
-                setStopBits(STOP_BITS_1);
-                break;
-            case SB_1_5:
-                setStopBits(STOP_BITS_1_5);
-                break;
-            case SB_2:
-                setStopBits(STOP_BITS_2);
-                break;
-            default:
-                throw new IllegalArgumentException("Cant handle Stopbits");
-
+        try {
+            switch (stopBits) {
+                case SB_1:
+                    setStopBits(STOP_BITS_1);
+                    break;
+                case SB_1_5:
+                    setStopBits(STOP_BITS_1_5);
+                    break;
+                case SB_2:
+                    setStopBits(STOP_BITS_2);
+                    break;
+                default:
+                    throw new IllegalArgumentException("Cant handle Stopbits");
+            }
+        } catch (IllegalArgumentException ex) {
+            throw new IllegalArgumentException("Can't set " + stopBits + " on port: " + getPortName(), ex);
         }
     }
 
@@ -386,7 +404,8 @@ public abstract class AbstractSerialPortSocket implements SerialPortSocket {
 
     /**
      * writes all data in the output buffer
-     * @throws IOException 
+     *
+     * @throws IOException
      */
     protected abstract void drainOutputBuffer() throws IOException;
 
@@ -521,5 +540,5 @@ public abstract class AbstractSerialPortSocket implements SerialPortSocket {
             return "Internal Error " + e;
         }
     }
-    
+
 }

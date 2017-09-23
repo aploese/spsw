@@ -181,6 +181,8 @@ public class TwoPortMultipleBytesTest {
             spc[i] = null;
         }
         receiverThread = null;
+        //On windows the COM ports needs time to properly close...
+        Thread.sleep(100);
     }
 
     private void runTest(Baudrate baudrate, int buffersize) throws Exception {
@@ -326,6 +328,7 @@ public class TwoPortMultipleBytesTest {
         runTest(Baudrate.B4000000, DEFAULT_TEST_BUFFER_SIZE);
     }
 
+    //TODO Winn and termios are different
     @Test(timeout = 5000)
     public void testTimeout() throws Exception {
         Assume.assumeNotNull(spc);
@@ -345,7 +348,10 @@ public class TwoPortMultipleBytesTest {
         final Object lock = new Object();
         final Thread t = new Thread(() -> {
             try {
-                Assert.assertEquals("Only expected 1 byte to read", 1, is.read(recBuff));
+                final long start = System.currentTimeMillis();
+                final int i = is.read(recBuff);
+                final long diff = System.currentTimeMillis() - start;
+                Assert.assertEquals("Only expected 1 byte to read " + diff + "ms ", 1, i);
                 Assert.assertEquals("Error @0", 0x7F, recBuff[0]);
                 Assert.assertEquals("Error @1", 0x00, recBuff[1]);
                 synchronized (lock) {

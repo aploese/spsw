@@ -93,6 +93,8 @@ public class OnePortTest {
             }
         }
         spc = null;
+        //On windows the COM ports needs time to properly close...
+        Thread.sleep(100);
     }
 
     @Test
@@ -103,7 +105,7 @@ public class OnePortTest {
         spc.openAsIs();
         Assert.assertTrue(spc.isOpen());
         spc.close();
-        Assert.assertFalse(spc.isOpen());
+        Assert.assertTrue(spc.isClosed());
     }
 
     @Test
@@ -117,14 +119,14 @@ public class OnePortTest {
         final long start = System.currentTimeMillis();
         try {
             int i = spc.getInputStream().read();
-            Assert.fail("No timeout Exception");
+            Assert.fail("No timeout Exception result of Read: " + i);
         } catch (InterruptedIOException iioe) {
             final long time = System.currentTimeMillis() - start;
             LOG.log(Level.INFO, "Timeout: 2000ms and it took: " + time + "ms");
             Assert.assertEquals(2000.0, time, 100.0);  // We tolerate 5% difference
         }
         spc.close();
-        Assert.assertFalse(spc.isOpen());
+        Assert.assertTrue(spc.isClosed());
     }
 
     @Test(expected = SerialPortException.class)
@@ -151,13 +153,17 @@ public class OnePortTest {
         LOG.log(Level.INFO, "run testFlowControl");
 
         spc.openAsIs();
+
         testFlowControl(FlowControl.getFC_NONE());
         testFlowControl(FlowControl.getFC_RTS_CTS());
         testFlowControl(FlowControl.getFC_XON_XOFF_IN());
         testFlowControl(FlowControl.getFC__XON_XOFF_OUT());
         testFlowControl(FlowControl.getFC_XON_XOFF());
         testFlowControl(FlowControl.getFC_RTS_CTS_XON_XOFF());
-    }
+
+        spc.close();
+        Assert.assertTrue(spc.isClosed());
+}
 
     @Test
     public void testRTS() throws Exception {
@@ -165,6 +171,7 @@ public class OnePortTest {
         LOG.log(Level.INFO, "run testRTS");
 
         spc.openAsIs();
+        
         spc.setRTS(true);
         if (spc instanceof GenericTermiosSerialPortSocket) {
             Assert.assertTrue(((GenericTermiosSerialPortSocket) spc).isRTS());
@@ -173,6 +180,9 @@ public class OnePortTest {
         if (spc instanceof GenericTermiosSerialPortSocket) {
             Assert.assertFalse(((GenericTermiosSerialPortSocket) spc).isRTS());
         }
+
+        spc.close();
+        Assert.assertTrue(spc.isClosed());
     }
 
     @Test
@@ -181,6 +191,7 @@ public class OnePortTest {
         LOG.log(Level.INFO, "run testDTR");
 
         spc.openAsIs();
+
         spc.setDTR(true);
         if (spc instanceof GenericTermiosSerialPortSocket) {
             Assert.assertTrue(((GenericTermiosSerialPortSocket) spc).isDTR());
@@ -189,6 +200,9 @@ public class OnePortTest {
         if (spc instanceof GenericTermiosSerialPortSocket) {
             Assert.assertFalse(((GenericTermiosSerialPortSocket) spc).isDTR());
         }
+
+        spc.close();
+        Assert.assertTrue(spc.isClosed());
     }
 
     @Test
@@ -197,8 +211,12 @@ public class OnePortTest {
         LOG.log(Level.INFO, "run testBreak");
 
         spc.openAsIs();
+
         spc.setBreak(true);
         spc.setBreak(false);
+
+        spc.close();
+        Assert.assertTrue(spc.isClosed());
     }
 
     @Test
@@ -207,7 +225,11 @@ public class OnePortTest {
         LOG.log(Level.INFO, "run testIncommingRI");
 
         spc.openAsIs();
+
         spc.isIncommingRI();
+
+        spc.close();
+        Assert.assertTrue(spc.isClosed());
     }
 
     @Test
@@ -216,7 +238,11 @@ public class OnePortTest {
         LOG.log(Level.INFO, "run testDataBits");
 
         spc.openAsIs();
+
         spc.isCTS();
+
+        spc.close();
+        Assert.assertTrue(spc.isClosed());
     }
 
     @Test
@@ -225,7 +251,11 @@ public class OnePortTest {
         LOG.log(Level.INFO, "run testDSR");
 
         spc.openAsIs();
+
         spc.isDSR();
+
+        spc.close();
+        Assert.assertTrue(spc.isClosed());
     }
 
     @Test
@@ -242,6 +272,9 @@ public class OnePortTest {
         spc.setXONChar('z');
         Assert.assertEquals('z', spc.getXONChar());
         spc.setXONChar(c);
+
+        spc.close();
+        Assert.assertTrue(spc.isClosed());
     }
 
     @Test
@@ -250,12 +283,16 @@ public class OnePortTest {
         LOG.log(Level.INFO, "run testXOFFChar");
 
         spc.openAsIs();
+
         char c = spc.getXOFFChar();
         spc.setXOFFChar('a');
         Assert.assertEquals('a', spc.getXOFFChar());
         spc.setXOFFChar('z');
         Assert.assertEquals('z', spc.getXOFFChar());
         spc.setXOFFChar(c);
+
+        spc.close();
+        Assert.assertTrue(spc.isClosed());
     }
 
     @Test
@@ -264,10 +301,14 @@ public class OnePortTest {
         LOG.log(Level.INFO, "run testParity");
 
         spc.openAsIs();
+
         for (Parity p : Parity.values()) {
             spc.setParity(p);
             Assert.assertEquals(p, spc.getParity());
         }
+
+        spc.close();
+        Assert.assertTrue(spc.isClosed());
     }
 
     @Test
@@ -288,6 +329,9 @@ public class OnePortTest {
 
         spc.setStopBits(StopBits.SB_2);
         Assert.assertEquals(StopBits.SB_2, spc.getStopBits());
+
+        spc.close();
+        Assert.assertTrue(spc.isClosed());
     }
 
 //    @Test
@@ -301,6 +345,9 @@ public class OnePortTest {
         spc.setStopBits(StopBits.SB_2); //TODO SB_2 settin 5 databits will breakwill break this on win ??????
         spc.setDataBits(DataBits.DB_5);
         spc.setDataBits(DataBits.DB_8);
+
+        spc.close();
+        Assert.assertTrue(spc.isClosed());
     }
 
     @Test
@@ -309,12 +356,16 @@ public class OnePortTest {
         LOG.log(Level.INFO, "run testDataBits");
 
         spc.openAsIs();
+
         spc.setStopBits(StopBits.SB_1); //TODO SB_2 will break this on win ??????
         for (DataBits db : DataBits.values()) {
             spc.setDataBits(db);
             LOG.log(Level.SEVERE, "DATABITS: {0}", db);
             Assert.assertEquals(db.toString() + "Failed", db, spc.getDatatBits());
         }
+
+        spc.close();
+        Assert.assertTrue(spc.isClosed());
     }
 
     @Test
@@ -323,6 +374,7 @@ public class OnePortTest {
         LOG.log(Level.INFO, "run testBaudrate");
 
         spc.openAsIs();
+
         for (Baudrate b : Baudrate.values()) {
             try {
                 spc.setBaudrate(b);
@@ -340,17 +392,9 @@ public class OnePortTest {
             }
 //            Assert.assertEquals(b.value, spc.getBaudrate());
         }
-    }
 
-    @Ignore("Only std baudrates are currently supported")
-    @Test(expected = IOException.class)
-    public void testBaudrate42() throws Exception {
-        Assume.assumeNotNull(spc);
-        LOG.log(Level.INFO, "run testBaudrate42");
-
-        spc.openAsIs();
-        //NON std spc.setBaudrate(42);
-        Assert.fail();
+        spc.close();
+        Assert.assertTrue(spc.isClosed());
     }
 
     @Test(expected = SerialPortException.class)
@@ -371,6 +415,7 @@ public class OnePortTest {
         LOG.log(Level.INFO, "run testWrite");
 
         spc.openRaw();
+        
         Assert.assertEquals(0, spc.getOutBufferBytesCount());
 
         spc.setBaudrate(Baudrate.B9600);
@@ -383,6 +428,9 @@ public class OnePortTest {
         spc.getOutputStream().write((char) 'A');
         spc.getOutputStream().write((char) '1');
         spc.getOutputStream().write(1);
+
+        spc.close();
+        Assert.assertTrue(spc.isClosed());
     }
 
     @Test
@@ -391,6 +439,7 @@ public class OnePortTest {
         LOG.log(Level.INFO, "run testWriteBytes");
 
         spc.openRaw();
+
         Assert.assertEquals(0, spc.getOutBufferBytesCount());
 
         spc.setBaudrate(Baudrate.B19200);
@@ -399,6 +448,9 @@ public class OnePortTest {
         spc.setStopBits(StopBits.SB_1);
         spc.setFlowControl(FlowControl.getFC_NONE());
         spc.getOutputStream().write("abcdefghijklmnopqrstuvwxyz ABCDEFGHIJKLMNOPQRSTUVWXYZ\n\r".getBytes());
+
+        spc.close();
+        Assert.assertTrue(spc.isClosed());
     }
 
     class TestRead implements Runnable {
@@ -412,7 +464,7 @@ public class OnePortTest {
                 try {
                     LOG.info("Start Read");
                     int data = spc.getInputStream().read();
-                    LOG.info("Read done");
+                    LOG.info("Read done: " + data);
                     if (data == -1) {
                         LOG.info("Will notify");
                         synchronized (lock) {
@@ -466,6 +518,7 @@ public class OnePortTest {
             LOG.info("Close Port");
             Thread.sleep(100);
             spc.close();
+            Assert.assertTrue(spc.isClosed());
             LOG.info("Port closed");
             t.interrupt();
             synchronized (tr.lock) {
