@@ -1097,28 +1097,37 @@ JNIEXPORT void JNICALL Java_de_ibapl_spsw_provider_GenericTermiosSerialPortSocke
  * Method:    setTimeout
  * Signature: (JI)V
  */
-JNIEXPORT void JNICALL Java_de_ibapl_spsw_provider_GenericTermiosSerialPortSocket_setTimeout
+JNIEXPORT jint JNICALL Java_de_ibapl_spsw_provider_GenericTermiosSerialPortSocket_setTimeout
 (JNIEnv *env, jobject object, jint timeout) {
     int fd = (*env)->GetIntField(env, object, spsw_fd);
     struct termios settings;
+    
     if (tcgetattr(fd, &settings) != 0) {
         throw_SerialPortException_With_PortName(env, object, "setTimeout tcgetattr");
-        return;
+        return timeout;
     }
 
     if (timeout == 0) {
         settings.c_cc[VMIN] = 1; // min 1 char to receive
-        settings.c_cc[VTIME] = 0; // no inter byte timeout - wait infinite
+        settings.c_cc[VTIME] = 0; // no inter byte timeout, and wait infinite for a byte
     } else if (timeout >= 0){    
         settings.c_cc[VMIN] = 0; // set this to 0 so VTIME becomes the overall timeout
         settings.c_cc[VTIME] = timeout / 100; // the overall timeout
+        if (settings.c_cc[VTIME] == 0) {
+            // have at least a tenth of a second ...
+            settings.c_cc[VTIME] = 1; 
+        }
     } else {
-        throw_Illegal_Argument_Exception(env, "Time out must not < 0");
+        throw_Illegal_Argument_Exception(env, "setTimeout: timeout must not < 0");
+        return timeout;
     }
     
     if (tcsetattr(fd, TCSANOW, &settings) != 0) {
         throw_SerialPortException_With_PortName(env, object, "setTimeout tcsetattr");
+        return timeout;
     }
+    
+    return settings.c_cc[VTIME] * 100;
 }
 
 /*

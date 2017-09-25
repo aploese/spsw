@@ -170,6 +170,6 @@ public class GenericWinSerialPortSocket extends AbstractSerialPortSocket {
     public native int getTimeout() throws IOException;
 
     @Override
-    public native void setTimeout(int timeout) throws IOException;
+    public native int setTimeout(int timeout) throws IOException;
 
 }

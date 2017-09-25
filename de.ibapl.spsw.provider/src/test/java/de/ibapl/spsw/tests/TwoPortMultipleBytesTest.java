@@ -37,7 +37,6 @@ import java.util.logging.Logger;
 import de.ibapl.spsw.api.Baudrate;
 import de.ibapl.spsw.api.DataBits;
 import de.ibapl.spsw.api.FlowControl;
-import de.ibapl.spsw.provider.GenericTermiosSerialPortSocket;
 import de.ibapl.spsw.api.Parity;
 import de.ibapl.spsw.api.SerialPortSocket;
 import de.ibapl.spsw.api.StopBits;
@@ -328,7 +327,6 @@ public class TwoPortMultipleBytesTest {
         runTest(Baudrate.B4000000, DEFAULT_TEST_BUFFER_SIZE);
     }
 
-    //TODO Winn and termios are different
     @Test(timeout = 5000)
     public void testTimeout() throws Exception {
         Assume.assumeNotNull(spc);
@@ -378,6 +376,36 @@ public class TwoPortMultipleBytesTest {
         Thread.sleep(200);
         
         Assert.assertEquals(127, is.read(recBuff, 1, 200));
+        
+        for (int i = 0; i < 128; i++) {
+            Assert.assertEquals("Error @" + i, sendBuff[i], recBuff[i]);
+        }
+        
+    }
+
+        @Test(timeout = 5000)
+    public void testInfiniteTimeout() throws Exception {
+        Assume.assumeNotNull(spc);
+
+        spc[0].openRaw(Baudrate.B9600, DataBits.DB_8, StopBits.SB_1, Parity.NONE, FlowControl.getFC_RTS_CTS());
+        spc[1].openRaw(spc[0].getBaudrate(), spc[0].getDatatBits(), spc[0].getStopBits(), spc[0].getParity(), spc[0].getFlowControl());
+        final InputStream is = spc[0].getInputStream();
+        final OutputStream os = spc[1].getOutputStream();
+
+        final byte[] recBuff = new byte[255];
+        Arrays.fill(recBuff, (byte) 0);
+        
+        final byte[] sendBuff = new byte[128];
+        Arrays.fill(sendBuff, (byte) 0x7F);
+ 
+        os.write(sendBuff);
+        os.flush();
+
+        Thread.sleep(200);
+        Assert.assertEquals(128, is.available());
+        final int bytesread = is.read(recBuff);
+        
+        Assert.assertEquals(128, bytesread);
         
         for (int i = 0; i < 128; i++) {
             Assert.assertEquals("Error @" + i, sendBuff[i], recBuff[i]);

@@ -914,7 +914,7 @@ JNIEXPORT void JNICALL Java_de_ibapl_spsw_provider_GenericWinSerialPortSocket_se
  * Method:    setTimeout
  * Signature: (JI)V
  */
-JNIEXPORT void JNICALL Java_de_ibapl_spsw_provider_GenericWinSerialPortSocket_setTimeout
+JNIEXPORT jint JNICALL Java_de_ibapl_spsw_provider_GenericWinSerialPortSocket_setTimeout
 (JNIEnv *env, jobject object, jint timeout) {
 
 #if defined(__i386)
@@ -926,7 +926,7 @@ JNIEXPORT void JNICALL Java_de_ibapl_spsw_provider_GenericWinSerialPortSocket_se
     COMMTIMEOUTS lpCommTimeouts;
     if (!GetCommTimeouts(hFile, &lpCommTimeouts)) {
         throw_SerialPortException_With_PortName(env, object, "getTimeout");
-        return;
+        return timeout;
     }
     
     if (timeout == 0) {
@@ -938,13 +938,16 @@ JNIEXPORT void JNICALL Java_de_ibapl_spsw_provider_GenericWinSerialPortSocket_se
         lpCommTimeouts.ReadTotalTimeoutMultiplier  = MAXDWORD;
         lpCommTimeouts.ReadTotalTimeoutConstant = timeout;
     } else {
-        throw_Illegal_Argument_Exception(env, "setTimeout: timeout must be >= 0");
+        throw_Illegal_Argument_Exception(env, "setTimeout: timeout must not < 0");
+        return timeout;
     }
 
     if (!SetCommTimeouts(hFile, &lpCommTimeouts)) {
         throw_SerialPortException_With_PortName(env, object, "setTimeout SetCommTimeouts");
-        return;
+        return timeout;
     }
+    
+    return lpCommTimeouts.ReadTotalTimeoutConstant;
 }
 
 /*

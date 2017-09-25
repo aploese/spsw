@@ -334,17 +334,22 @@ public class OnePortTest {
         Assert.assertTrue(spc.isClosed());
     }
 
-//    @Test
+    @Test
     public void testWinFun() throws Exception {
         Assume.assumeNotNull(spc);
         LOG.log(Level.INFO, "run testWinFun");
 
         spc.openRaw(Baudrate.B9600, DataBits.DB_8, StopBits.SB_1, Parity.NONE, FlowControl.getFC_NONE());
         spc.setDataBits(DataBits.DB_5);
+        Assert.assertEquals(DataBits.DB_5, spc.getDatatBits());
         spc.setDataBits(DataBits.DB_8);
-        spc.setStopBits(StopBits.SB_2); //TODO SB_2 settin 5 databits will breakwill break this on win ??????
+        Assert.assertEquals(DataBits.DB_8, spc.getDatatBits());
+        spc.setStopBits(StopBits.SB_2); //TODO SB_2 setting 5 databits will break this on win ??????
+        Assert.assertEquals(StopBits.SB_2, spc.getStopBits());
         spc.setDataBits(DataBits.DB_5);
+        Assert.assertEquals(DataBits.DB_5, spc.getDatatBits());
         spc.setDataBits(DataBits.DB_8);
+        Assert.assertEquals(DataBits.DB_8, spc.getDatatBits());
 
         spc.close();
         Assert.assertTrue(spc.isClosed());
@@ -360,7 +365,6 @@ public class OnePortTest {
         spc.setStopBits(StopBits.SB_1); //TODO SB_2 will break this on win ??????
         for (DataBits db : DataBits.values()) {
             spc.setDataBits(db);
-            LOG.log(Level.SEVERE, "DATABITS: {0}", db);
             Assert.assertEquals(db.toString() + "Failed", db, spc.getDatatBits());
         }
 
@@ -376,7 +380,8 @@ public class OnePortTest {
         spc.openAsIs();
 
         for (Baudrate b : Baudrate.values()) {
-            try {
+            spc.setBaudrate(b);
+/*            try {
                 spc.setBaudrate(b);
             } catch (SerialPortException ex) {
                 if ("Set baudrate not supported".equals(ex.getMessage())) {
@@ -389,8 +394,8 @@ public class OnePortTest {
                 if ("Get baudrate not supported".equals(ex.getMessage())) {
                     System.err.println(ex.getMessage() + b.value);
                 }
-            }
-//            Assert.assertEquals(b.value, spc.getBaudrate());
+            }*/
+            Assert.assertEquals("testBaudrate", b, spc.getBaudrate());
         }
 
         spc.close();
@@ -424,9 +429,9 @@ public class OnePortTest {
         spc.setStopBits(StopBits.SB_1);
         spc.setFlowControl(FlowControl.getFC_NONE());
 
-        spc.getOutputStream().write((char) 'a');
-        spc.getOutputStream().write((char) 'A');
-        spc.getOutputStream().write((char) '1');
+        spc.getOutputStream().write('a');
+        spc.getOutputStream().write('A');
+        spc.getOutputStream().write('1');
         spc.getOutputStream().write(1);
 
         spc.close();
@@ -544,6 +549,41 @@ public class OnePortTest {
         Assert.assertEquals(0, spc.getOutBufferBytesCount());
         spc.getOutputStream().write(null);
     }
+
+    @Test
+    public void testAllSettings() throws Exception {
+        Assume.assumeNotNull(spc);
+        LOG.log(Level.INFO, "run testAllSettings");
+
+        spc.openAsIs();
+        
+        for (Baudrate br : Baudrate.values()) {
+            spc.setBaudrate(br); 
+            for (DataBits db: DataBits.values()) {
+                spc.setDataBits(db); 
+                for (Parity p : Parity.values()) {
+                    spc.setParity(p); 
+                    for (StopBits sb: StopBits.values()) {
+                        try {
+                            spc.setStopBits(sb);
+                        } catch (IllegalArgumentException iae) {
+                            if (sb == StopBits.SB_1_5) {
+                                continue;
+                            }
+                        }
+                        Assert.assertEquals(br, spc.getBaudrate());
+                        Assert.assertEquals(db, spc.getDatatBits());
+                        Assert.assertEquals(p, spc.getParity());
+                        Assert.assertEquals(sb, spc.getStopBits());
+                    }
+                }
+            }
+        }
+
+        spc.close();
+        Assert.assertTrue(spc.isClosed());
+    }
+
 
     private void printPort(SerialPortSocket sPort) throws IOException {
         System.err.println(sPort.toString());

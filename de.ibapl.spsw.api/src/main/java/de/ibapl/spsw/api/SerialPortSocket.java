@@ -183,6 +183,12 @@ public interface SerialPortSocket extends Closeable {
 
     void setDataBits(DataBits dataBits) throws IOException;
 
+    /**
+     * 
+     * @param stopBits The stopbits to set.
+     * @throws IOException 
+     * @throws IllegalArgumentException if the hardware does not support the new value.
+     */
     void setStopBits(StopBits stopBits) throws IOException;
 
     void setParity(Parity parity) throws IOException;
@@ -216,12 +222,18 @@ public interface SerialPortSocket extends Closeable {
      *  prior to entering the blocking operation to have effect. The
      *  timeout must be {@code > 0}.
      *  A timeout of zero is interpreted as an infinite timeout.
+     *  If a timeout value can't be set (I.E: resolution is a 
+     *  tenth of a second for posix termios)
+     *  the next smaller value will be used an returned. 
+     *  Except if its to small to set. 
+     *  In this case the smallest value will be used and returned. 
      *
      * @param timeout the specified timeout, in milliseconds.
      * @exception SocketException if there is an error
      * in the underlying protocol, such as a TCP error.
      * @see #getTimeout()
+     * @return the supported timeout by the native implementation.
      */
-    void setTimeout(int timeout) throws IOException;
+    int setTimeout(int timeout) throws IOException;
 
 }

@@ -62,11 +62,12 @@ public class LoggingSerialPortSocket implements SerialPortSocket {
     }
 
     @Override
-    public void setTimeout(int timeout) throws IOException {
+    public int setTimeout(int timeout) throws IOException {
         logWriter.beforeSetTimeout(Instant.now(), timeout);
         try {
-            serialPortSocket.setTimeout(timeout);
-            logWriter.afterSetTimeout(Instant.now());
+            final int result = serialPortSocket.setTimeout(timeout);
+            logWriter.afterSetTimeout(Instant.now(), result);
+            return result;
         } catch (IOException e) {
             logWriter.afterSetTimeout(Instant.now(), e);
             throw e;

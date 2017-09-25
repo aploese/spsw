@@ -617,8 +617,8 @@ public class LogWriter {
         log.flush();
     }
 
-    void afterSetTimeout(Instant ts) {
-        log.append("SP ").append(ACION_RETURN).append(" setTimeout @").println(dateTimeFormatter.format(ts));
+    void afterSetTimeout(Instant ts, int result) {
+        log.append("SP ").append(ACION_RETURN).append(" setTimeout @").append(dateTimeFormatter.format(ts)).append(": ").println(result);
         log.flush();
     }
 
