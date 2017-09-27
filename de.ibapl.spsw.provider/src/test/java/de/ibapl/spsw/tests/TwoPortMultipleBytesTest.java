@@ -333,7 +333,9 @@ public class TwoPortMultipleBytesTest {
 
         spc[0].openRaw(Baudrate.B9600, DataBits.DB_8, StopBits.SB_1, Parity.NONE, FlowControl.getFC_RTS_CTS());
         spc[1].openRaw(spc[0].getBaudrate(), spc[0].getDatatBits(), spc[0].getStopBits(), spc[0].getParity(), spc[0].getFlowControl());
-        spc[0].setTimeout(2000);
+//        spc[0].setInterByteTimeout(100);
+//        spc[0].setOverallTimeout(2000);
+        Assert.assertEquals(100, spc[0].getInterByteTimeout());
         final InputStream is = spc[0].getInputStream();
         final OutputStream os = spc[1].getOutputStream();
 

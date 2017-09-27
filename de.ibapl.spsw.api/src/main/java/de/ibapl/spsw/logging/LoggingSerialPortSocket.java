@@ -49,27 +49,39 @@ import org.osgi.annotation.versioning.ProviderType;
 public class LoggingSerialPortSocket implements SerialPortSocket {
 
     @Override
-    public int getTimeout() throws IOException {
-        logWriter.beforeGetTimeout(Instant.now());
+    public int getInterByteTimeout() throws IOException {
+        logWriter.beforeGetInterByteTimeout(Instant.now());
         try {
-            final int result = serialPortSocket.getTimeout();
-            logWriter.afterGetTimeout(Instant.now(), result);
+            final int result = serialPortSocket.getOverallTimeout();
+            logWriter.afterGetInterByteTimeout(Instant.now(), result);
             return result;
         } catch (IOException e) {
-            logWriter.afterGetTimeout(Instant.now(), e);
+            logWriter.afterGetInterByteTimeout(Instant.now(), e);
             throw e;
         }
     }
 
     @Override
-    public int setTimeout(int timeout) throws IOException {
-        logWriter.beforeSetTimeout(Instant.now(), timeout);
+    public int getOverallTimeout() throws IOException {
+        logWriter.beforeGetOverallTimeout(Instant.now());
         try {
-            final int result = serialPortSocket.setTimeout(timeout);
-            logWriter.afterSetTimeout(Instant.now(), result);
+            final int result = serialPortSocket.getOverallTimeout();
+            logWriter.afterGetOverallTimeout(Instant.now(), result);
             return result;
         } catch (IOException e) {
-            logWriter.afterSetTimeout(Instant.now(), e);
+            logWriter.afterGetOverallTimeout(Instant.now(), e);
+            throw e;
+        }
+    }
+
+    @Override
+    public void setTimeouts(int interByteTimeout, int overallTimeout) throws IOException {
+        logWriter.beforeSetTimeouts(Instant.now(), interByteTimeout, overallTimeout);
+        try {
+            serialPortSocket.setTimeouts(interByteTimeout, overallTimeout);
+            logWriter.afterSetTimeouts(Instant.now());
+        } catch (IOException e) {
+            logWriter.afterSetTimeouts(Instant.now(), e);
             throw e;
         }
     }

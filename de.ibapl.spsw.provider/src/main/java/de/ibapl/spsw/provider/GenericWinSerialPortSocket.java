@@ -167,9 +167,12 @@ public class GenericWinSerialPortSocket extends AbstractSerialPortSocket {
     public native char getXOFFChar() throws IOException;
 
     @Override
-    public native int getTimeout() throws IOException;
+    public native int getOverallTimeout() throws IOException;
 
     @Override
-    public native int setTimeout(int timeout) throws IOException;
+    public native void setTimeouts(int interbyteTimeout, int overallTimeout) throws IOException;
+    
+    @Override
+    public native int getInterByteTimeout() throws IOException;
 
 }

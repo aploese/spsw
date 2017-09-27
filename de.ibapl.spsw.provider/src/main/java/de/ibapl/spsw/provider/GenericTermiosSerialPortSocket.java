@@ -41,6 +41,11 @@ public class GenericTermiosSerialPortSocket extends AbstractSerialPortSocket {
      * The file descriptor or handle for this Port
      */
     private int fd = -1;
+    
+    /**
+     * used in native code
+     */
+    private int pollTimeout = -1;
 
     public GenericTermiosSerialPortSocket(String portName) {
         super(portName);
@@ -165,9 +170,12 @@ public class GenericTermiosSerialPortSocket extends AbstractSerialPortSocket {
     public native void sendXOFF() throws IOException;
 
     @Override
-    public native int getTimeout() throws IOException;
+    public native int getOverallTimeout() throws IOException;
 
     @Override
-    public native int setTimeout(int timeout) throws IOException;
+    public native void setTimeouts(int interByteTimeout, int overallTimeout) throws IOException;
     
+    @Override
+    public native int getInterByteTimeout() throws IOException;
+
 }

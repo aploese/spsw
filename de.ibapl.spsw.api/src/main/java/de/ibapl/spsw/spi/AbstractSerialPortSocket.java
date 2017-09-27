@@ -110,11 +110,9 @@ public abstract class AbstractSerialPortSocket implements SerialPortSocket {
         open = false;
         //Make streams closed, so that they can not be reopend.
         if (is != null) {
-            is.open = false;
             is = null;
         }
         if (os != null) {
-            os.open = false;
             os = null;
         }
         close0();
@@ -122,24 +120,22 @@ public abstract class AbstractSerialPortSocket implements SerialPortSocket {
 
     @Override
     public synchronized InputStream getInputStream() throws IOException {
-        if (!isOpen()) {
-            throw new SerialPortException(portName, "Port is not opend");
+        if (!open) {
+            throw new SerialPortException(portName, SERIAL_PORT_CLOSED);
         }
         if (is == null) {
             is = new SerialInputStream();
-            is.open = isOpen();
         }
         return is;
     }
 
     @Override
     public synchronized OutputStream getOutputStream() throws IOException {
-        if (!isOpen()) {
-            throw new SerialPortException(portName, "Port is not opend");
+        if (!open) {
+            throw new SerialPortException(portName, SERIAL_PORT_CLOSED);
         }
         if (os == null) {
             os = new SerialOutputStream();
-            os.open = isOpen();
         }
         return os;
     }
@@ -411,8 +407,6 @@ public abstract class AbstractSerialPortSocket implements SerialPortSocket {
 
     protected class SerialInputStream extends InputStream {
 
-        private boolean open = false;
-
         @Override
         public void close() throws IOException {
             AbstractSerialPortSocket.this.close();
@@ -420,11 +414,7 @@ public abstract class AbstractSerialPortSocket implements SerialPortSocket {
 
         @Override
         public int read() throws IOException {
-            if (open) {
                 return AbstractSerialPortSocket.this.readSingle();
-            } else {
-                return -1;
-            }
         }
 
         @Override
@@ -435,11 +425,7 @@ public abstract class AbstractSerialPortSocket implements SerialPortSocket {
                 return 0;
             }
 
-            if (open) {
                 return AbstractSerialPortSocket.this.readBytes(b, 0, b.length);
-            } else {
-                return -1;
-            }
         }
 
         @Override
@@ -452,27 +438,17 @@ public abstract class AbstractSerialPortSocket implements SerialPortSocket {
                 return 0;
             }
 
-            if (open) {
                 return AbstractSerialPortSocket.this.readBytes(b, off, len);
-            } else {
-                return -1;
-            }
         }
 
         @Override
         public int available() throws IOException {
-            if (open) {
                 return AbstractSerialPortSocket.this.getInBufferBytesCount();
-            } else {
-                throw new SerialPortException(portName, "Port is closed");
-            }
         }
 
     }
 
     protected class SerialOutputStream extends OutputStream {
-
-        private boolean open;
 
         @Override
         public void close() throws IOException {
@@ -481,11 +457,7 @@ public abstract class AbstractSerialPortSocket implements SerialPortSocket {
 
         @Override
         public void write(int b) throws IOException {
-            if (open) {
                 AbstractSerialPortSocket.this.writeSingle(b);
-            } else {
-                throw new SerialPortException(portName, "port is closed");
-            }
         }
 
         @Override
@@ -496,11 +468,7 @@ public abstract class AbstractSerialPortSocket implements SerialPortSocket {
                 return;
             }
 
-            if (open) {
                 AbstractSerialPortSocket.this.writeBytes(b, 0, b.length);
-            } else {
-                throw new SerialPortException(portName, "port is closed");
-            }
         }
 
         @Override
@@ -514,20 +482,12 @@ public abstract class AbstractSerialPortSocket implements SerialPortSocket {
                 return;
             }
 
-            if (open) {
                 AbstractSerialPortSocket.this.writeBytes(b, off, len);
-            } else {
-                throw new SerialPortException(portName, "port is closed");
-            }
         }
 
         @Override
         public void flush() throws IOException {
-            if (open) {
                 AbstractSerialPortSocket.this.drainOutputBuffer();
-            } else {
-                throw new SerialPortException(portName, "port is closed");
-            }
         }
 
     }

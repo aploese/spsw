@@ -27,7 +27,6 @@ package de.ibapl.spsw.tests;
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  * #L%
  */
-
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -108,23 +107,37 @@ public class OnePortTest {
         Assert.assertTrue(spc.isClosed());
     }
 
-    @Test
-    public void testTimeoutNoDataReceived() throws Exception {
+    @Test(timeout = 5000)
+    public void testOverallTimeoutBlocking() throws Exception {
         Assume.assumeNotNull(spc);
-        LOG.log(Level.INFO, "run testTimeoutNoDataReceived");
+        LOG.log(Level.INFO, "run testOverallTimeoutBlocking");
 
         spc.openAsIs();
-        spc.setTimeout(2000);
-        Assert.assertTrue(spc.isOpen());
-        final long start = System.currentTimeMillis();
+
+        spc.setTimeouts(100, 1000);
+
+        long start = System.currentTimeMillis();
         try {
             int i = spc.getInputStream().read();
             Assert.fail("No timeout Exception result of Read: " + i);
         } catch (InterruptedIOException iioe) {
             final long time = System.currentTimeMillis() - start;
-            LOG.log(Level.INFO, "Timeout: 2000ms and it took: " + time + "ms");
-            Assert.assertEquals(2000.0, time, 100.0);  // We tolerate 5% difference
+            LOG.log(Level.INFO, "Timeout: 1000ms and it took: " + time + "ms");
+            Assert.assertEquals(1000.0, time, 100.0);  // We tolerate 5% difference
         }
+
+        spc.setTimeouts(0, spc.getOverallTimeout());
+
+        start = System.currentTimeMillis();
+        try {
+            int i = spc.getInputStream().read();
+            Assert.fail("No timeout Exception result of Read: " + i);
+        } catch (InterruptedIOException iioe) {
+            final long time = System.currentTimeMillis() - start;
+            LOG.log(Level.INFO, "Timeout: 1000ms and it took: " + time + "ms");
+            Assert.assertEquals(1000.0, time, 100.0);  // We tolerate 5% difference
+        }
+
         spc.close();
         Assert.assertTrue(spc.isClosed());
     }
@@ -163,7 +176,7 @@ public class OnePortTest {
 
         spc.close();
         Assert.assertTrue(spc.isClosed());
-}
+    }
 
     @Test
     public void testRTS() throws Exception {
@@ -171,7 +184,7 @@ public class OnePortTest {
         LOG.log(Level.INFO, "run testRTS");
 
         spc.openAsIs();
-        
+
         spc.setRTS(true);
         if (spc instanceof GenericTermiosSerialPortSocket) {
             Assert.assertTrue(((GenericTermiosSerialPortSocket) spc).isRTS());
@@ -381,7 +394,7 @@ public class OnePortTest {
 
         for (Baudrate b : Baudrate.values()) {
             spc.setBaudrate(b);
-/*            try {
+            /*            try {
                 spc.setBaudrate(b);
             } catch (SerialPortException ex) {
                 if ("Set baudrate not supported".equals(ex.getMessage())) {
@@ -420,7 +433,7 @@ public class OnePortTest {
         LOG.log(Level.INFO, "run testWrite");
 
         spc.openRaw();
-        
+
         Assert.assertEquals(0, spc.getOutBufferBytesCount());
 
         spc.setBaudrate(Baudrate.B9600);
@@ -475,13 +488,22 @@ public class OnePortTest {
                         synchronized (lock) {
                             done = true;
                             lock.notifyAll();
-                            return;
                         }
+                        return;
                     } else {
                         LOG.info(String.format("DATA: %x", data));
                     }
+                } catch (InterruptedIOException iioe) {
+                    LOG.log(Level.INFO, "Caught Timeout: ", iioe);
                 } catch (IOException e) {
-
+                    LOG.log(Level.SEVERE, "Caught Exception: ", e);
+                    if (spc.isClosed()) {
+                        synchronized (lock) {
+                            done = true;
+                            lock.notifyAll();
+                        }
+                        return;
+                    }
                 }
             }
         }
@@ -556,14 +578,14 @@ public class OnePortTest {
         LOG.log(Level.INFO, "run testAllSettings");
 
         spc.openAsIs();
-        
+
         for (Baudrate br : Baudrate.values()) {
-            spc.setBaudrate(br); 
-            for (DataBits db: DataBits.values()) {
-                spc.setDataBits(db); 
+            spc.setBaudrate(br);
+            for (DataBits db : DataBits.values()) {
+                spc.setDataBits(db);
                 for (Parity p : Parity.values()) {
-                    spc.setParity(p); 
-                    for (StopBits sb: StopBits.values()) {
+                    spc.setParity(p);
+                    for (StopBits sb : StopBits.values()) {
                         try {
                             spc.setStopBits(sb);
                         } catch (IllegalArgumentException iae) {
@@ -583,7 +605,6 @@ public class OnePortTest {
         spc.close();
         Assert.assertTrue(spc.isClosed());
     }
-
 
     private void printPort(SerialPortSocket sPort) throws IOException {
         System.err.println(sPort.toString());

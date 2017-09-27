@@ -612,18 +612,20 @@ public class LogWriter {
         log.flush();
     }
 
-    void beforeSetTimeout(Instant ts, int value) {
-        log.append("SP ").append(ACION_CALL).append(" setTimeout @").append(dateTimeFormatter.format(ts)).append(": ").println(value);
+    void beforeSetTimeouts(Instant ts, int interByteTimeout, int overallTimeout) {
+        log.append("SP ").append(ACION_CALL).append(" setTimeouts @").append(dateTimeFormatter.format(ts)).append(": (interbyteTimeout= ").print(interByteTimeout);
+        log.append(", ovarllTimeout= ").print(overallTimeout);
+        log.println(")");
         log.flush();
     }
 
-    void afterSetTimeout(Instant ts, int result) {
-        log.append("SP ").append(ACION_RETURN).append(" setTimeout @").append(dateTimeFormatter.format(ts)).append(": ").println(result);
+    void afterSetTimeouts(Instant ts) {
+        log.append("SP ").append(ACION_RETURN).append(" setOverallTimeout @").println(dateTimeFormatter.format(ts));
         log.flush();
     }
 
-    void afterSetTimeout(Instant ts, IOException e) {
-        log.append("SP ").append(ACION_RETURN).append(" setTimeout @").append(dateTimeFormatter.format(ts)).append(": ").println(e.toString());
+    void afterSetTimeouts(Instant ts, IOException e) {
+        log.append("SP ").append(ACION_RETURN).append(" setOverallTimeout @").append(dateTimeFormatter.format(ts)).append(": ").println(e.toString());
         e.printStackTrace(log);
         log.flush();
     }
@@ -692,17 +694,33 @@ public class LogWriter {
         log.flush();
     }
 
-    void beforeGetTimeout(Instant ts) {
-        log.append("SP ").append(ACION_CALL).append(" getTimeout @").println(dateTimeFormatter.format(ts));
+    void beforeGetInterByteTimeout(Instant ts) {
+        log.append("SP ").append(ACION_CALL).append(" getInterByteTimeout @").println(dateTimeFormatter.format(ts));
         log.flush();
     }
 
-    void afterGetTimeout(Instant ts, int result) {
-        log.append("SP ").append(ACION_RETURN).append(" getTimeout @").append(dateTimeFormatter.format(ts)).append(": ").println(result);
+    void afterGetInterByteTimeout(Instant ts, int result) {
+        log.append("SP ").append(ACION_RETURN).append(" getInterByteTimeout @").append(dateTimeFormatter.format(ts)).append(": ").println(result);
         log.flush();
     }
 
-    void afterGetTimeout(Instant ts, IOException e) {
+    void afterGetInterByteTimeout(Instant ts, IOException e) {
+        log.append("SP ").append(ACION_RETURN).append(" getInterByteTimeout @").append(dateTimeFormatter.format(ts)).append(": ").println(e.toString());
+        e.printStackTrace(log);
+        log.flush();
+    }
+
+    void beforeGetOverallTimeout(Instant ts) {
+        log.append("SP ").append(ACION_CALL).append(" getOverallTimeout @").println(dateTimeFormatter.format(ts));
+        log.flush();
+    }
+
+    void afterGetOverallTimeout(Instant ts, int result) {
+        log.append("SP ").append(ACION_RETURN).append(" getOverallTimeout @").append(dateTimeFormatter.format(ts)).append(": ").println(result);
+        log.flush();
+    }
+
+    void afterGetOverallTimeout(Instant ts, IOException e) {
         log.append("SP ").append(ACION_RETURN).append(" getTimeout @").append(dateTimeFormatter.format(ts)).append(": ").println(e.toString());
         e.printStackTrace(log);
         log.flush();

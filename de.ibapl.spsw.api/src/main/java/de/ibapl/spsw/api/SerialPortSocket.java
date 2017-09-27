@@ -42,6 +42,8 @@ import org.osgi.annotation.versioning.ProviderType;
 @ProviderType
 public interface SerialPortSocket extends Closeable {
 
+    static final String SERIAL_PORT_CLOSED = "SerialPort closed";
+
     boolean isClosed();
 
     boolean isCTS() throws IOException;
@@ -209,9 +211,11 @@ public interface SerialPortSocket extends Closeable {
      *
      * @return the timeout
      *
-     * @see #setTimeout(int)
+     * @see #setOverallTimeout(int)
      */
-    int getTimeout() throws IOException;
+    int getOverallTimeout() throws IOException;
+
+    int getInterByteTimeout() throws IOException;
     
     /**
      *  Enable/disable the timeout, in milliseconds. With this option set
@@ -228,12 +232,13 @@ public interface SerialPortSocket extends Closeable {
      *  Except if its to small to set. 
      *  In this case the smallest value will be used and returned. 
      *
+     *  A overallTimeout of zero is interpreted as an infinite timeout.
+
      * @param timeout the specified timeout, in milliseconds.
      * @exception SocketException if there is an error
      * in the underlying protocol, such as a TCP error.
-     * @see #getTimeout()
-     * @return the supported timeout by the native implementation.
+     * @see #getOverallTimeout()
      */
-    int setTimeout(int timeout) throws IOException;
-
+    void setTimeouts(int interByteTimeout, int overallTimeout) throws IOException;
+    
 }
