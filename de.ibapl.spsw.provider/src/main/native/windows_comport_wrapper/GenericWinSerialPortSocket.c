@@ -1056,6 +1056,10 @@ JNIEXPORT void JNICALL Java_de_ibapl_spsw_provider_GenericWinSerialPortSocket_se
     dcb.BaudRate = baudRate;
 
     if (!SetCommState(hFile, &dcb)) {
+        if (GetLastError() == ERROR_INVALID_PARAMETER) {
+            throw_Illegal_Argument_Exception(env, "setBaudrate: Wrong Baudrate");
+            return;
+        } 
         if ((*env)->GetIntField(env, object, spsw_fd) == INVALID_FD) {
             throw_SerialPortException_Closed(env, object);
             return;

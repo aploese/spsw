@@ -393,22 +393,13 @@ public class OnePortTest {
         spc.openAsIs();
 
         for (Baudrate b : Baudrate.values()) {
-            spc.setBaudrate(b);
-            /*            try {
-                spc.setBaudrate(b);
-            } catch (SerialPortException ex) {
-                if ("Set baudrate not supported".equals(ex.getMessage())) {
-                    System.err.println(ex.getMessage() + b.value);
-                }
-            }
             try {
-                System.err.println("BR: " + b.value + "  OT: " + spc.getBaudrate());
-            } catch (SerialPortException ex) {
-                if ("Get baudrate not supported".equals(ex.getMessage())) {
-                    System.err.println(ex.getMessage() + b.value);
-                }
-            }*/
-            Assert.assertEquals("testBaudrate", b, spc.getBaudrate());
+                spc.setBaudrate(b);
+                Assert.assertEquals("testBaudrate", b, spc.getBaudrate());
+            } catch (IllegalArgumentException iae) {
+                //This is Hardware dependent watch for logs ...
+                LOG.log(Level.WARNING, "Error setBaudrate " + b, iae);
+            }
         }
 
         spc.close();
@@ -576,7 +567,13 @@ public class OnePortTest {
         spc.openAsIs();
 
         for (Baudrate br : Baudrate.values()) {
-            spc.setBaudrate(br);
+            try {
+                spc.setBaudrate(br);
+            } catch (IllegalArgumentException iae) {
+                //Some HW supports this, some not ...
+                //This is logged in testSetBaudrate so ignore it here.
+                    continue;
+            }
             for (DataBits db : DataBits.values()) {
                 spc.setDataBits(db);
                 for (Parity p : Parity.values()) {
