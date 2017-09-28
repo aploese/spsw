@@ -55,7 +55,7 @@ public class Main {
 
     static class Sender implements Runnable {
 
-        SerialPortSocket serialPort = SerialPortSocketFactoryImpl.singleton().createSerialPortSocket("/dev/ttyUSB1");
+        SerialPortSocket serialPort = SerialPortSocketFactoryImpl.singleton().createSerialPortSocket("COM3");
 
         @Override
         public void run() {
@@ -88,7 +88,7 @@ public class Main {
 
     public static void main(String[] args) throws Exception {
         DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ISO_INSTANT;
-        SerialPortSocket serialPort = SerialPortSocketFactoryImpl.singleton().createSerialPortSocket("/dev/ttyUSB0");
+        SerialPortSocket serialPort = SerialPortSocketFactoryImpl.singleton().createSerialPortSocket("COM5");
         serialPort.openRaw(Baudrate.B9600, DataBits.DB_8, StopBits.SB_2, Parity.EVEN, FlowControl.getFC_NONE());
 
         serialPort.setReadTimeouts(0, 0);

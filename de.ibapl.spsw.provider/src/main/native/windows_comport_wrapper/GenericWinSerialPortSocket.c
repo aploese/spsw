@@ -829,6 +829,9 @@ JNIEXPORT jint JNICALL Java_de_ibapl_spsw_provider_GenericWinSerialPortSocket_re
             throw_Read_Timeout_Exception(env, "Timeout read single byte");
             return -1;
         }
+    } else {
+    throw_SerialPortException_With_PortName(env, object, "Should never happen! readSingle dwBytes < 0");
+    return -1;
     }
 
     throw_SerialPortException_With_PortName(env, object, "Should never happen! readSingle falltrough");
@@ -894,6 +897,7 @@ JNIEXPORT jint JNICALL Java_de_ibapl_spsw_provider_GenericWinSerialPortSocket_re
             throw_Read_Timeout_Exception(env, "Timeout read multiple bytes");
             return -1;
         }
+}
 
         CloseHandle(overlapped.hEvent);
 
@@ -912,10 +916,13 @@ JNIEXPORT jint JNICALL Java_de_ibapl_spsw_provider_GenericWinSerialPortSocket_re
                 throw_Read_Timeout_Exception(env, "Timeout read single byte");
                 return -1;
             }
-        }
-    }
+        } else {
+    throw_SerialPortException_With_PortName(env, object, "Should never happen! readBytes dwBytes < 0");
+    return -1;
+}
+    
 
-    throw_SerialPortException_With_PortName(env, object, "Should never happen! readSingle falltrough");
+    throw_SerialPortException_With_PortName(env, object, "Should never happen! readBytes falltrough");
     return -1;
 }
 
@@ -1087,10 +1094,17 @@ JNIEXPORT void JNICALL Java_de_ibapl_spsw_provider_GenericWinSerialPortSocket_se
     if (overallTimeout < 0) {
         throw_Illegal_Argument_Exception(env, "setReadTimeouts: overallTimeout must >= 0");
         return;
-    }
+    } else if (overallTimeout == MAXDWORD) {
+        //MAXDWORD has a special meaning...
+        overallTimeout == MAXDWORD -1;
+   }
+    
     if (interByteTimeout < 0) {
         throw_Illegal_Argument_Exception(env, "setReadTimeouts: interByteTimeout must >= 0");
         return;
+    } else if (interByteTimeout == MAXDWORD) {
+        //MAXDWORD has a special meaning...
+        interByteTimeout  = MAXDWORD -1;
     }
 
     lpCommTimeouts.ReadIntervalTimeout = interByteTimeout;
@@ -1102,7 +1116,7 @@ JNIEXPORT void JNICALL Java_de_ibapl_spsw_provider_GenericWinSerialPortSocket_se
             throw_SerialPortException_Closed(env, object);
             return;
         } else {
-            throw_SerialPortException_With_PortName(env, object, "setTimeout SetCommTimeouts");
+            throw_SerialPortException_With_PortName(env, object, "setReadTimeouts SetCommTimeouts");
             return;
         }
     }
