@@ -114,7 +114,7 @@ public class OnePortTest {
 
         spc.openAsIs();
 
-        spc.setTimeouts(100, 1000);
+        spc.setReadTimeouts(100, 1000);
 
         long start = System.currentTimeMillis();
         try {
@@ -126,7 +126,7 @@ public class OnePortTest {
             Assert.assertEquals(1000.0, time, 100.0);  // We tolerate 5% difference
         }
 
-        spc.setTimeouts(0, spc.getOverallTimeout());
+        spc.setReadTimeouts(0, spc.getOverallReadTimeout());
 
         start = System.currentTimeMillis();
         try {
@@ -484,11 +484,7 @@ public class OnePortTest {
                     int data = spc.getInputStream().read();
                     LOG.info("Read done: " + data);
                     if (data == -1) {
-                        LOG.info("Will notify");
-                        synchronized (lock) {
-                            done = true;
-                            lock.notifyAll();
-                        }
+                        Assert.fail("caught unexpected EOF");
                         return;
                     } else {
                         LOG.info(String.format("DATA: %x", data));

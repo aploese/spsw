@@ -170,12 +170,12 @@ public class GenericTermiosSerialPortSocket extends AbstractSerialPortSocket {
     public native void sendXOFF() throws IOException;
 
     @Override
-    public native int getOverallTimeout() throws IOException;
+    public native int getOverallReadTimeout() throws IOException;
 
     @Override
-    public native void setTimeouts(int interByteTimeout, int overallTimeout) throws IOException;
+    public native void setReadTimeouts(int interByteTimeout, int overallTimeout) throws IOException;
     
     @Override
-    public native int getInterByteTimeout() throws IOException;
+    public native int getInterByteReadTimeout() throws IOException;
 
 }

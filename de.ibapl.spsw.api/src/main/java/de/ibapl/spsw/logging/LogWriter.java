@@ -612,20 +612,20 @@ public class LogWriter {
         log.flush();
     }
 
-    void beforeSetTimeouts(Instant ts, int interByteTimeout, int overallTimeout) {
-        log.append("SP ").append(ACION_CALL).append(" setTimeouts @").append(dateTimeFormatter.format(ts)).append(": (interbyteTimeout= ").print(interByteTimeout);
+    void beforeSetReadTimeouts(Instant ts, int interByteTimeout, int overallTimeout) {
+        log.append("SP ").append(ACION_CALL).append(" setReadTimeouts @").append(dateTimeFormatter.format(ts)).append(": (interbyteTimeout= ").print(interByteTimeout);
         log.append(", ovarllTimeout= ").print(overallTimeout);
         log.println(")");
         log.flush();
     }
 
-    void afterSetTimeouts(Instant ts) {
-        log.append("SP ").append(ACION_RETURN).append(" setOverallTimeout @").println(dateTimeFormatter.format(ts));
+    void afterSetReadTimeouts(Instant ts) {
+        log.append("SP ").append(ACION_RETURN).append(" setReadTimeouts @").println(dateTimeFormatter.format(ts));
         log.flush();
     }
 
-    void afterSetTimeouts(Instant ts, IOException e) {
-        log.append("SP ").append(ACION_RETURN).append(" setOverallTimeout @").append(dateTimeFormatter.format(ts)).append(": ").println(e.toString());
+    void afterSetReadTimeouts(Instant ts, IOException e) {
+        log.append("SP ").append(ACION_RETURN).append(" setReadTimeouts @").append(dateTimeFormatter.format(ts)).append(": ").println(e.toString());
         e.printStackTrace(log);
         log.flush();
     }
@@ -694,34 +694,34 @@ public class LogWriter {
         log.flush();
     }
 
-    void beforeGetInterByteTimeout(Instant ts) {
-        log.append("SP ").append(ACION_CALL).append(" getInterByteTimeout @").println(dateTimeFormatter.format(ts));
+    void beforeGetInterByteReadTimeout(Instant ts) {
+        log.append("SP ").append(ACION_CALL).append(" getInterByteReadTimeout @").println(dateTimeFormatter.format(ts));
         log.flush();
     }
 
-    void afterGetInterByteTimeout(Instant ts, int result) {
-        log.append("SP ").append(ACION_RETURN).append(" getInterByteTimeout @").append(dateTimeFormatter.format(ts)).append(": ").println(result);
+    void afterGetInterByteReadTimeout(Instant ts, int result) {
+        log.append("SP ").append(ACION_RETURN).append(" getInterByteReadTimeout @").append(dateTimeFormatter.format(ts)).append(": ").println(result);
         log.flush();
     }
 
-    void afterGetInterByteTimeout(Instant ts, IOException e) {
-        log.append("SP ").append(ACION_RETURN).append(" getInterByteTimeout @").append(dateTimeFormatter.format(ts)).append(": ").println(e.toString());
+    void afterGetInterByteReadTimeout(Instant ts, IOException e) {
+        log.append("SP ").append(ACION_RETURN).append(" getInterByteReadTimeout @").append(dateTimeFormatter.format(ts)).append(": ").println(e.toString());
         e.printStackTrace(log);
         log.flush();
     }
 
-    void beforeGetOverallTimeout(Instant ts) {
-        log.append("SP ").append(ACION_CALL).append(" getOverallTimeout @").println(dateTimeFormatter.format(ts));
+    void beforeGetOverallReadTimeout(Instant ts) {
+        log.append("SP ").append(ACION_CALL).append(" getOverallReadTimeout @").println(dateTimeFormatter.format(ts));
         log.flush();
     }
 
-    void afterGetOverallTimeout(Instant ts, int result) {
-        log.append("SP ").append(ACION_RETURN).append(" getOverallTimeout @").append(dateTimeFormatter.format(ts)).append(": ").println(result);
+    void afterGetOverallReadTimeout(Instant ts, int result) {
+        log.append("SP ").append(ACION_RETURN).append(" getOverallReadTimeout @").append(dateTimeFormatter.format(ts)).append(": ").println(result);
         log.flush();
     }
 
-    void afterGetOverallTimeout(Instant ts, IOException e) {
-        log.append("SP ").append(ACION_RETURN).append(" getTimeout @").append(dateTimeFormatter.format(ts)).append(": ").println(e.toString());
+    void afterGetOverallReadTimeout(Instant ts, IOException e) {
+        log.append("SP ").append(ACION_RETURN).append(" getOverallReadTimeout @").append(dateTimeFormatter.format(ts)).append(": ").println(e.toString());
         e.printStackTrace(log);
         log.flush();
     }

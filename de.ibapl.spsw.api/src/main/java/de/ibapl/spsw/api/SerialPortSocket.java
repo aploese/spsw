@@ -213,9 +213,9 @@ public interface SerialPortSocket extends Closeable {
      *
      * @see #setOverallTimeout(int)
      */
-    int getOverallTimeout() throws IOException;
+    int getOverallReadTimeout() throws IOException;
 
-    int getInterByteTimeout() throws IOException;
+    int getInterByteReadTimeout() throws IOException;
     
     /**
      *  Enable/disable the timeout, in milliseconds. With this option set
@@ -239,6 +239,6 @@ public interface SerialPortSocket extends Closeable {
      * in the underlying protocol, such as a TCP error.
      * @see #getOverallTimeout()
      */
-    void setTimeouts(int interByteTimeout, int overallTimeout) throws IOException;
+    void setReadTimeouts(int interByteTimeout, int overallTimeout) throws IOException;
     
 }

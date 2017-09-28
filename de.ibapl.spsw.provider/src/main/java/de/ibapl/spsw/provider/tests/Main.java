@@ -41,6 +41,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InterruptedIOException;
 import java.io.OutputStream;
+import java.net.Socket;
 import java.nio.channels.InterruptedByTimeoutException;
 import java.time.Instant;
 import java.time.format.DateTimeFormatter;
@@ -53,15 +54,16 @@ import java.time.format.DateTimeFormatter;
 public class Main {
 
     static class Sender implements Runnable {
+
         SerialPortSocket serialPort = SerialPortSocketFactoryImpl.singleton().createSerialPortSocket("/dev/ttyUSB1");
 
         @Override
         public void run() {
             try {
-        serialPort.openRaw(Baudrate.B9600, DataBits.DB_8, StopBits.SB_2, Parity.EVEN, FlowControl.getFC_NONE());
-        final OutputStream os = serialPort.getOutputStream();
-                
-        while (true) {
+                serialPort.openRaw(Baudrate.B9600, DataBits.DB_8, StopBits.SB_2, Parity.EVEN, FlowControl.getFC_NONE());
+                final OutputStream os = serialPort.getOutputStream();
+
+                while (true) {
                     String s = "abcdefghijklmnopqrstuvwxyz1234567890ABCDEFGHIJKLMNOPQRSTUVWXYZ";
                     os.write("XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX".getBytes());
                     os.flush();
@@ -71,35 +73,31 @@ public class Main {
                         try {
                             Thread.sleep(10);
                         } catch (InterruptedException ie) {
-                            
+
                         }
                     }
                 }
-            
+
             } catch (IOException ioe) {
                 System.out.println("de.ibapl.spsw.provider.tests.Main.Sender.run() " + ioe);
-            
+
+            }
+
         }
-        
     }
-    }
-    
+
     public static void main(String[] args) throws Exception {
         DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ISO_INSTANT;
         SerialPortSocket serialPort = SerialPortSocketFactoryImpl.singleton().createSerialPortSocket("/dev/ttyUSB0");
         serialPort.openRaw(Baudrate.B9600, DataBits.DB_8, StopBits.SB_2, Parity.EVEN, FlowControl.getFC_NONE());
-        
-        serialPort.setTimeouts(0, 0);
 
+        serialPort.setReadTimeouts(0, 0);
 
-        System.err.println("Overall TO: " + serialPort.getOverallTimeout());
-        System.err.println("InterbyteTO: " + serialPort.getInterByteTimeout());
-        
-        System.err.println("InterByteTimeout: " + serialPort.getInterByteTimeout());
-        System.err.println("OverallTimeout: " + serialPort.getOverallTimeout());
+        System.err.println("InterByteReadTimeout: " + serialPort.getInterByteReadTimeout());
+        System.err.println("OverallReadTimeout: " + serialPort.getOverallReadTimeout());
         final OutputStream os = serialPort.getOutputStream();
         final InputStream is = serialPort.getInputStream();
-        
+
         os.write("\r\n".getBytes());
         os.flush();
         Thread.sleep(100);
@@ -109,7 +107,7 @@ public class Main {
         Thread t = new Thread(s);
         t.setDaemon(false);
         t.start();
-        
+
         byte[] buffer = new byte[64];
         int count;
         long startTime = 0;
@@ -136,14 +134,14 @@ public class Main {
                 } else {
                     //System.err.println("NODATA" + (System.currentTimeMillis() - startTime));
                 }
-                
+
             } catch (InterruptedIOException iioe) {
                 if (!timeout) {
                     System.err.println("\n.");
                 }
                 timeout = true;
                 System.err.println('.');
-             //System.err.println("Timeout @" + dateTimeFormatter.format(Instant.now()) + " " + (System.currentTimeMillis() - startTime));
+                //System.err.println("Timeout @" + dateTimeFormatter.format(Instant.now()) + " " + (System.currentTimeMillis() - startTime));
             }
         }
     }

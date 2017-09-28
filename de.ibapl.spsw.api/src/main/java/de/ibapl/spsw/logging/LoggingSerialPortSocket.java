@@ -49,39 +49,39 @@ import org.osgi.annotation.versioning.ProviderType;
 public class LoggingSerialPortSocket implements SerialPortSocket {
 
     @Override
-    public int getInterByteTimeout() throws IOException {
-        logWriter.beforeGetInterByteTimeout(Instant.now());
+    public int getInterByteReadTimeout() throws IOException {
+        logWriter.beforeGetInterByteReadTimeout(Instant.now());
         try {
-            final int result = serialPortSocket.getOverallTimeout();
-            logWriter.afterGetInterByteTimeout(Instant.now(), result);
+            final int result = serialPortSocket.getOverallReadTimeout();
+            logWriter.afterGetInterByteReadTimeout(Instant.now(), result);
             return result;
         } catch (IOException e) {
-            logWriter.afterGetInterByteTimeout(Instant.now(), e);
+            logWriter.afterGetInterByteReadTimeout(Instant.now(), e);
             throw e;
         }
     }
 
     @Override
-    public int getOverallTimeout() throws IOException {
-        logWriter.beforeGetOverallTimeout(Instant.now());
+    public int getOverallReadTimeout() throws IOException {
+        logWriter.beforeGetOverallReadTimeout(Instant.now());
         try {
-            final int result = serialPortSocket.getOverallTimeout();
-            logWriter.afterGetOverallTimeout(Instant.now(), result);
+            final int result = serialPortSocket.getOverallReadTimeout();
+            logWriter.afterGetOverallReadTimeout(Instant.now(), result);
             return result;
         } catch (IOException e) {
-            logWriter.afterGetOverallTimeout(Instant.now(), e);
+            logWriter.afterGetOverallReadTimeout(Instant.now(), e);
             throw e;
         }
     }
 
     @Override
-    public void setTimeouts(int interByteTimeout, int overallTimeout) throws IOException {
-        logWriter.beforeSetTimeouts(Instant.now(), interByteTimeout, overallTimeout);
+    public void setReadTimeouts(int interByteTimeout, int overallTimeout) throws IOException {
+        logWriter.beforeSetReadTimeouts(Instant.now(), interByteTimeout, overallTimeout);
         try {
-            serialPortSocket.setTimeouts(interByteTimeout, overallTimeout);
-            logWriter.afterSetTimeouts(Instant.now());
+            serialPortSocket.setReadTimeouts(interByteTimeout, overallTimeout);
+            logWriter.afterSetReadTimeouts(Instant.now());
         } catch (IOException e) {
-            logWriter.afterSetTimeouts(Instant.now(), e);
+            logWriter.afterSetReadTimeouts(Instant.now(), e);
             throw e;
         }
     }
