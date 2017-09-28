@@ -60,7 +60,7 @@ public class Main {
         @Override
         public void run() {
             try {
-                serialPort.openRaw(Baudrate.B9600, DataBits.DB_8, StopBits.SB_2, Parity.EVEN, FlowControl.getFC_NONE());
+                serialPort.openRaw(Baudrate.B110, DataBits.DB_8, StopBits.SB_2, Parity.EVEN, FlowControl.getFC_NONE());
                 final OutputStream os = serialPort.getOutputStream();
 
                 while (true) {
@@ -89,9 +89,9 @@ public class Main {
     public static void main(String[] args) throws Exception {
         DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ISO_INSTANT;
         SerialPortSocket serialPort = SerialPortSocketFactoryImpl.singleton().createSerialPortSocket("COM5");
-        serialPort.openRaw(Baudrate.B9600, DataBits.DB_8, StopBits.SB_2, Parity.EVEN, FlowControl.getFC_NONE());
+        serialPort.openRaw(Baudrate.B110, DataBits.DB_8, StopBits.SB_2, Parity.EVEN, FlowControl.getFC_NONE());
 
-        serialPort.setReadTimeouts(0, 0);
+        serialPort.setReadTimeouts(0, 10000);
 
         System.err.println("InterByteReadTimeout: " + serialPort.getInterByteReadTimeout());
         System.err.println("OverallReadTimeout: " + serialPort.getOverallReadTimeout());

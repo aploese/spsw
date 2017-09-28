@@ -830,8 +830,8 @@ JNIEXPORT jint JNICALL Java_de_ibapl_spsw_provider_GenericWinSerialPortSocket_re
             return -1;
         }
     } else {
-    throw_SerialPortException_With_PortName(env, object, "Should never happen! readSingle dwBytes < 0");
-    return -1;
+        throw_SerialPortException_With_PortName(env, object, "Should never happen! readSingle dwBytes < 0");
+        return -1;
     }
 
     throw_SerialPortException_With_PortName(env, object, "Should never happen! readSingle falltrough");
@@ -897,30 +897,30 @@ JNIEXPORT jint JNICALL Java_de_ibapl_spsw_provider_GenericWinSerialPortSocket_re
             throw_Read_Timeout_Exception(env, "Timeout read multiple bytes");
             return -1;
         }
-}
+    }
 
-        CloseHandle(overlapped.hEvent);
+    CloseHandle(overlapped.hEvent);
 
-        (*env)->SetByteArrayRegion(env, bytes, off, dwBytesRead, lpBuffer);
+    (*env)->SetByteArrayRegion(env, bytes, off, dwBytesRead, lpBuffer);
 
-        free(lpBuffer);
+    free(lpBuffer);
 
-        if (dwBytesRead > 0) {
-            //Success
-            return dwBytesRead;
-        } else if (dwBytesRead == 0) {
-            if ((*env)->GetIntField(env, object, spsw_fd) == INVALID_FD) {
-                throw_SerialPortException_Closed(env, object);
-                return -1;
-            } else {
-                throw_Read_Timeout_Exception(env, "Timeout read single byte");
-                return -1;
-            }
+    if (dwBytesRead > 0) {
+        //Success
+        return dwBytesRead;
+    } else if (dwBytesRead == 0) {
+        if ((*env)->GetIntField(env, object, spsw_fd) == INVALID_FD) {
+            throw_SerialPortException_Closed(env, object);
+            return -1;
         } else {
-    throw_SerialPortException_With_PortName(env, object, "Should never happen! readBytes dwBytes < 0");
-    return -1;
-}
-    
+            throw_Read_Timeout_Exception(env, "Timeout read single byte");
+            return -1;
+        }
+    } else {
+        throw_SerialPortException_With_PortName(env, object, "Should never happen! readBytes dwBytes < 0");
+        return -1;
+    }
+
 
     throw_SerialPortException_With_PortName(env, object, "Should never happen! readBytes falltrough");
     return -1;
@@ -1079,7 +1079,7 @@ JNIEXPORT void JNICALL Java_de_ibapl_spsw_provider_GenericWinSerialPortSocket_se
 #elif defined(__x86_64)
     HANDLE hFile = (HANDLE) (*env)->GetLongField(env, object, spsw_fd);
 #endif
-    
+
     COMMTIMEOUTS lpCommTimeouts;
     if (!GetCommTimeouts(hFile, &lpCommTimeouts)) {
         if ((*env)->GetIntField(env, object, spsw_fd) == INVALID_FD) {
@@ -1096,20 +1096,27 @@ JNIEXPORT void JNICALL Java_de_ibapl_spsw_provider_GenericWinSerialPortSocket_se
         return;
     } else if (overallTimeout == MAXDWORD) {
         //MAXDWORD has a special meaning...
-        overallTimeout == MAXDWORD -1;
-   }
-    
+        overallTimeout = MAXDWORD - 1;
+    }
+
     if (interByteTimeout < 0) {
         throw_Illegal_Argument_Exception(env, "setReadTimeouts: interByteTimeout must >= 0");
         return;
     } else if (interByteTimeout == MAXDWORD) {
         //MAXDWORD has a special meaning...
-        interByteTimeout  = MAXDWORD -1;
+        interByteTimeout = MAXDWORD - 1;
     }
 
-    lpCommTimeouts.ReadIntervalTimeout = interByteTimeout;
-    lpCommTimeouts.ReadTotalTimeoutMultiplier = 0;
-    lpCommTimeouts.ReadTotalTimeoutConstant = overallTimeout;
+    if ((interByteTimeout == 0) && (overallTimeout > 0)) {
+        //This fits best for wait a timeout and have no interByteTimeout see also getInterbyteTimeout for reading back
+        lpCommTimeouts.ReadIntervalTimeout = MAXDWORD;
+        lpCommTimeouts.ReadTotalTimeoutMultiplier = MAXDWORD;
+        lpCommTimeouts.ReadTotalTimeoutConstant = overallTimeout;
+    } else {
+        lpCommTimeouts.ReadIntervalTimeout = interByteTimeout;
+        lpCommTimeouts.ReadTotalTimeoutMultiplier = 0;
+        lpCommTimeouts.ReadTotalTimeoutConstant = overallTimeout;
+    }
 
     if (!SetCommTimeouts(hFile, &lpCommTimeouts)) {
         if ((*env)->GetIntField(env, object, spsw_fd) == INVALID_FD) {
@@ -1500,7 +1507,11 @@ JNIEXPORT jint JNICALL Java_de_ibapl_spsw_provider_GenericWinSerialPortSocket_ge
             return -1;
         }
     }
-    return lpCommTimeouts.ReadIntervalTimeout;
+    if ((lpCommTimeouts.ReadIntervalTimeout == MAXDWORD) && (lpCommTimeouts.ReadTotalTimeoutMultiplier == MAXDWORD)) {
+        return 0;
+    } else {
+        return lpCommTimeouts.ReadIntervalTimeout;
+    }
 }
 
 /*
