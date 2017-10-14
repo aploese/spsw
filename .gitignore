@@ -2,4 +2,6 @@
 .gradle/
 **/generated/
 **/nbactions.xml
-/de.ibapl.spsw.api/nbproject/
+**/.classpath
+**/.project
+**/.settings/

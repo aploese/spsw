@@ -51,49 +51,40 @@ import java.time.format.DateTimeFormatter;
  *
  * @author aploese
  */
-public class Main {
-
-    final static String[] port = new String[] {"/dev/ttyUSB0", "/dev/ttyUSB1"};
-    final static DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ISO_INSTANT;
-    
-    static class Sender implements Runnable {
-
-        SerialPortSocket serialPort = SerialPortSocketFactoryImpl.singleton().createSerialPortSocket(port[0]);
-
-        @Override
-        public void run() {
-            try {
-                serialPort.openRaw(Baudrate.B110, DataBits.DB_8, StopBits.SB_2, Parity.EVEN, FlowControl.getFC_NONE());
-                final OutputStream os = serialPort.getOutputStream();
-                        os.write(0xFF);
-                    System.err.println("Write End @" + dateTimeFormatter.format(Instant.now()) + " IBC" + serialPort.getInBufferBytesCount());
-            } catch (IOException ioe) {
-                System.out.println("de.ibapl.spsw.provider.tests.Main.Sender.run() " + ioe);
-
-            }
-
-        }
-    }
+public class WriteTest {
 
     public static void main(String[] args) throws Exception {
-        SerialPortSocket serialPort = SerialPortSocketFactoryImpl.singleton().createSerialPortSocket(port[1]);
-        serialPort.openRaw(Baudrate.B110, DataBits.DB_8, StopBits.SB_2, Parity.EVEN, FlowControl.getFC_NONE());
+        long startTime = System.currentTimeMillis();
+        DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ISO_INSTANT;
+        SerialPortSocket serialPort = SerialPortSocketFactoryImpl.singleton().createSerialPortSocket("/dev/ttyUSB0");
+        System.err.println("Port aquired: " + (System.currentTimeMillis() - startTime) + "ms");
+        serialPort.openRaw(Baudrate.B19200, DataBits.DB_8, StopBits.SB_2, Parity.EVEN, FlowControl.getFC_RTS_CTS());
+        System.err.println("Port opend: " + (System.currentTimeMillis() - startTime) + "ms\n"+ serialPort);
 
-        System.err.println("InterByteReadTimeout: " + serialPort.getInterByteReadTimeout());
-        System.err.println("OverallReadTimeout: " + serialPort.getOverallReadTimeout());
         final OutputStream os = serialPort.getOutputStream();
-        final InputStream is = serialPort.getInputStream();
 
-        Thread t = new Thread(new Sender());
-        t.setDaemon(false);
-        t.start();
-
-        while (true) {
-            
+        for (int i = 0; i < 1024; i++) {
             try {
-                System.err.println("ReadStart @" + dateTimeFormatter.format(Instant.now()) + " IBC: " + is.available());
-                Thread.sleep(10);
-            } catch (Exception iioe) {
+                startTime = System.currentTimeMillis();
+                os.write(i);
+                System.err.println("Write (" + i + ") took: \t" + (System.currentTimeMillis() - startTime) + "ms " + serialPort.getOutBufferBytesCount() + " Bytes in Out Buffer");
+            } catch (IOException ioe) {
+                System.err.println("EX: " + ioe);
+                serialPort.close();
+                System.err.println("Port Closed: " + ioe);
+                return;
+            }
+            try {
+                Thread.sleep(100);
+                System.err.println("BiOB: "+ serialPort.getOutBufferBytesCount());
+                startTime = System.currentTimeMillis();
+                os.flush();
+                System.err.println("Flush (" + i + ") took: \t" + (System.currentTimeMillis() - startTime) + "ms " + serialPort.getOutBufferBytesCount() + " Bytes in Out Buffer");
+            } catch (IOException ioe) {
+                System.err.println("EX: " + ioe);
+                serialPort.close();
+                System.err.println("Port Closed: " + ioe);
+                return;
             }
         }
     }

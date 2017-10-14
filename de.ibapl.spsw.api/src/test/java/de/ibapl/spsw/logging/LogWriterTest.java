@@ -46,7 +46,7 @@ public class LogWriterTest {
         System.out.println("logWrite");
         Instant ts = Instant.parse("2017-07-25T18:47:02.763Z");
         ByteArrayOutputStream os = new ByteArrayOutputStream(1024);
-        LogWriter instance = new LogWriter(os, false);
+        LogWriter instance = new LogWriter(os, false, TimeStampLogging.UTF, true);
         instance.beforeRead(ts);
         instance.beforeWrite(ts, (byte)1);
         instance.afterWrite(ts);
@@ -75,7 +75,7 @@ public class LogWriterTest {
         System.out.println("logWriteACII");
         Instant ts = Instant.parse("2017-07-25T18:47:02.763Z");
         ByteArrayOutputStream os = new ByteArrayOutputStream(1024);
-        LogWriter instance = new LogWriter(os, true);
+        LogWriter instance = new LogWriter(os, true, TimeStampLogging.UTF, true);
         instance.beforeRead(ts);
         instance.beforeWrite(ts, (byte)'A');
         instance.afterWrite(ts);

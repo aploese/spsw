@@ -236,9 +236,18 @@ public class LoggingSerialPortSocket implements SerialPortSocket {
     private LIS lis;
     private final LogWriter logWriter;
 
-    public LoggingSerialPortSocket(SerialPortSocket serialPortSocket, OutputStream logOS, boolean ascii, boolean verbose) throws FileNotFoundException {
+    private LoggingSerialPortSocket(SerialPortSocket serialPortSocket, OutputStream logOs, boolean ascii, boolean verbose, TimeStampLogging timeStampLogging) throws FileNotFoundException {
         this.serialPortSocket = serialPortSocket;
-        this.logWriter = new LogWriter(logOS, ascii);
+        this.logWriter = new LogWriter(logOs, ascii, timeStampLogging, verbose);
+        
+    }
+    
+    public static LoggingSerialPortSocket wrapWithAsciiOutputStream(SerialPortSocket serialPortSocket, OutputStream logOs, boolean verbose, TimeStampLogging timeStampLogging) throws FileNotFoundException  {
+    	return new LoggingSerialPortSocket(serialPortSocket, logOs, true, verbose, timeStampLogging);
+    }
+
+    public static LoggingSerialPortSocket wrapWithHexOutputStream(SerialPortSocket serialPortSocket, OutputStream logOs, boolean verbose, TimeStampLogging timeStampLogging) throws FileNotFoundException  {
+    	return new LoggingSerialPortSocket(serialPortSocket, logOs, false, verbose, timeStampLogging);
     }
 
     @Override
@@ -334,7 +343,7 @@ public class LoggingSerialPortSocket implements SerialPortSocket {
 
     @Override
     public void openAsIs() throws IOException {
-        logWriter.beforeSpOpen(Instant.now(), "AsIs");
+        logWriter.beforeSpOpen(Instant.now(), serialPortSocket.getPortName(), "AsIs");
         try {
             serialPortSocket.openAsIs();
             logWriter.afterSpOpen(Instant.now(), "AsIs");
@@ -346,7 +355,7 @@ public class LoggingSerialPortSocket implements SerialPortSocket {
 
     @Override
     public void openRaw() throws IOException {
-        logWriter.beforeSpOpen(Instant.now(), "Raw");
+        logWriter.beforeSpOpen(Instant.now(), serialPortSocket.getPortName(), "Raw");
         try {
             serialPortSocket.openRaw();
             logWriter.afterSpOpen(Instant.now(), "Raw");
@@ -358,7 +367,7 @@ public class LoggingSerialPortSocket implements SerialPortSocket {
 
     @Override
     public void openTerminal() throws IOException {
-        logWriter.beforeSpOpen(Instant.now(), "Terminal");
+        logWriter.beforeSpOpen(Instant.now(), serialPortSocket.getPortName(), "Terminal");
         try {
             serialPortSocket.openTerminal();
             logWriter.afterSpOpen(Instant.now(), "Terminal");
@@ -370,7 +379,7 @@ public class LoggingSerialPortSocket implements SerialPortSocket {
 
     @Override
     public void openModem() throws IOException {
-        logWriter.beforeSpOpen(Instant.now(), "Modem");
+        logWriter.beforeSpOpen(Instant.now(), serialPortSocket.getPortName(), "Modem");
         try {
             serialPortSocket.openModem();
             logWriter.afterSpOpen(Instant.now(), "Modem");
@@ -382,7 +391,7 @@ public class LoggingSerialPortSocket implements SerialPortSocket {
 
     @Override
     public void openRaw(Baudrate baudRate, DataBits dataBits, StopBits stopBits, Parity parity, Set<FlowControl> flowControls) throws IOException {
-        logWriter.beforeSpOpen(Instant.now(), "Raw()");
+        logWriter.beforeSpOpen(Instant.now(), serialPortSocket.getPortName(), "Raw(dataBits=" + dataBits + ", stopBits=" + stopBits + ", partity=" + parity + ", flowControl=" + flowControls + ")");
         try {
             serialPortSocket.openRaw(baudRate, dataBits, stopBits, parity, flowControls);
             logWriter.afterSpOpen(Instant.now(), "Raw()");
