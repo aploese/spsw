@@ -15,10 +15,19 @@
     <properties>
         <version.windows.amd64>1.0.1</version.windows.amd64>
         <version.windows.x86>1.0.1</version.windows.x86>
-        <version.linux.i386>1.1.0</version.linux.i386>
-        <version.linux.amd64>1.1.0</version.linux.amd64>
-        <version.linux.armhf>1.1.0</version.linux.armhf>
-        <version.linux.mipsel>1.1.0</version.linux.mipsel>
+
+        <version.arm-linux-gnueabi>1.1.0</version.arm-linux-gnueabi>
+        <version.arm-linux-gnueabihf>1.1.0</version.arm-linux-gnueabihf>
+        <version.aarch64-linux-gnu>1.1.0</version.aarch64-linux-gnu>
+
+        <version.mips-linux-gnu>1.1.0</version.mips-linux-gnu>
+        <version.mipsel-linux-gnu>1.1.0</version.mipsel-linux-gnu>
+        <version.mips64-linux-gnuabi64>1.1.0</version.mips64-linux-gnuabi64>
+        <version.mips64el-linux-gnuabi64>1.1.0</version.mips64el-linux-gnuabi64>
+
+        <version.x86_64-linux-gnu>1.1.0</version.x86_64-linux-gnu>
+        <version.i386-linux-gnu>1.1.0</version.i386-linux-gnu>
+
         <license.licenseResolver>${project.baseUri}/../src/license</license.licenseResolver>
     </properties>
     
@@ -74,18 +83,30 @@
                 <configuration>
                     <bnd><![CDATA[
 Bundle-NativeCode: \
- lib/linux/armhf/libspsw-${version.linux.armhf}.so; \
+ lib/linux/arm-linux-gnueabihf/libspsw-${version.arm-linux-gnueabihf}.so; \
   osname=Linux; \
-  processor=arm_le; processor=arm,\
- lib/linux/i386/libspsw-${version.linux.i386}.so; \
+  processor=arm,\
+ lib/linux/aarch64-linux-gnu/libspsw-${version.aarch64-linux-gnu}.so; \
+  osname=Linux; \
+  processor=arm64,\
+ lib/linux/i386-linux-gnu/libspsw-${version.i386-linux-gnu}.so; \
   osname=Linux; \
   processor=x86,\
- lib/linux/amd64/libspsw-${version.linux.amd64}.so; \
+ lib/linux/x86_64-linux-gnu/libspsw-${version.x86_64-linux-gnu}.so; \
   osname=Linux; \
   processor=x86-64,\
- lib/linux/mipsel/libspsw-${version.linux.mipsel}.so; \
+ lib/linux/mips-linux-gnu/libspsw-${version.mips-linux-gnu}.so; \
   osname=Linux; \
   processor=mips,\
+ lib/linux/mipsel-linux-gnu/libspsw-${version.mipsel-linux-gnu}.so; \
+  osname=Linux; \
+  processor=mipsel,\
+ lib/linux/mips64-linux-gnuabi64/libspsw-${version.mips64-linux-gnuabi64}.so; \
+  osname=Linux; \
+  processor=mips64,\
+ lib/linux/mips64el-linux-gnuabi64/libspsw-${version.mips64el-linux-gnuabi64}.so; \
+  osname=Linux; \
+  processor=mips64el,\
  lib/windows/amd64/spsw-${version.windows.amd64}.dll; \
   osname=Windows7; osname=Windows8; osname=Windows10; \
   processor=x86-64,\
@@ -100,8 +121,7 @@ Bundle-NativeCode: \
     
     <profiles>
         <profile>
-            <id>linux-amd64</id>
-            <!--activation><os><name>linux</name><arch>amd64</arch></os></activation-->
+            <id>x86_64-linux-gnu-gcc</id>
             <build>
                 <plugins>
                     <plugin>
@@ -110,7 +130,7 @@ Bundle-NativeCode: \
                         <extensions>true</extensions>  
                         <executions>
                             <execution>
-                                <id>libspsw-linux-amd64</id>
+                                <id>libspsw-x86_64-linux-gnu-gcc</id>
                                 <phase>compile</phase>
                                 <goals>
                                     <goal>initialize</goal>
@@ -144,7 +164,7 @@ Bundle-NativeCode: \
  
                                     <!-- wait for 1.0-alpha9 to define linkerOutputExtension-->
                                     <linkerEndOptions>
-                                        <linkerEndOption>-o ${basedir}/src/main/resources/lib/linux/amd64/libspsw-${version.linux.amd64}.so</linkerEndOption>
+                                        <linkerEndOption>-o ${basedir}/src/main/resources/lib/linux/x86_64-linux-gnu/libspsw-${version.x86_64-linux-gnu}.so</linkerEndOption>
                                     </linkerEndOptions>
                                 </configuration>
                             </execution>
@@ -154,8 +174,9 @@ Bundle-NativeCode: \
 
             </build>
         </profile>
+
         <profile>
-            <id>linux-i386</id>
+            <id>i386-linux-gnu-gcc</id>
             <build>
                 <plugins>
                     <plugin>
@@ -164,7 +185,7 @@ Bundle-NativeCode: \
                         <extensions>true</extensions>       
                         <executions>
                             <execution>
-                                <id>libspsw-linux-i386</id>
+                                <id>libspsw-i386-linux-gnu-gcc</id>
                                 <phase>compile</phase>
                                 <goals>
                                     <goal>initialize</goal>
@@ -194,7 +215,7 @@ Bundle-NativeCode: \
                                     </linkerStartOptions>
                                     <linkerFinalName />
                                     <linkerEndOptions>
-                                        <linkerEndOption>-o ${basedir}/src/main/resources/lib/linux/i386/libspsw-${version.linux.i386}.so</linkerEndOption>
+                                        <linkerEndOption>-o ${basedir}/src/main/resources/lib/linux/i386-linux-gnu/libspsw-${version.i386-linux-gnu}.so</linkerEndOption>
                                     </linkerEndOptions>
                                 </configuration>
                             </execution>
@@ -203,6 +224,59 @@ Bundle-NativeCode: \
                 </plugins>
             </build>
         </profile>
+
+        <profile>
+            <id>arm-linux-gnueabi-gcc</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.codehaus.mojo</groupId>
+                        <artifactId>native-maven-plugin</artifactId>
+                        <extensions>true</extensions>  
+                        <executions>
+                            <execution>
+                                <id>libspsw-arm-linux-gnueabi</id>
+                                <phase>compile</phase>
+                                <goals>
+                                    <goal>initialize</goal>
+                                    <goal>javah</goal>
+                                    <goal>compile</goal>
+                                    <goal>link</goal>
+                                </goals>
+                                <configuration>
+                                    <javahOS>linux</javahOS>
+                                    <javahClassNames>
+                                        <javahClassName>de.ibapl.spsw.provider.GenericTermiosSerialPortSocket</javahClassName>
+                                    </javahClassNames>
+                                    <compilerProvider>generic</compilerProvider>
+                                    <compilerExecutable>arm-linux-gnueabi-gcc</compilerExecutable>
+                                    <compilerStartOptions>
+                                        <compilerStartOption>-fPIC -O</compilerStartOption>
+                                    </compilerStartOptions>
+                                    <sources>
+                                        <source>
+                                            <directory>src/main/native/posix_termios_wrapper</directory>
+                                            <fileNames>
+                                                <fileName>GenericTermiosSerialPortSocket.c</fileName>
+                                            </fileNames>
+                                        </source>
+                                    </sources>
+                                    <linkerExecutable>arm-linux-gnueabi-gcc</linkerExecutable>
+                                    <linkerStartOptions>
+                                        <linkerStartOption>-shared -lc -ldl -s</linkerStartOption>
+                                    </linkerStartOptions>
+                                    <linkerFinalName />
+                                    <linkerEndOptions>
+                                        <linkerEndOption>-o ${basedir}/src/main/resources/lib/linux/arm-linux-gnueabi/libspsw-${version.arm-linux-gnueabi}.so</linkerEndOption>
+                                    </linkerEndOptions>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+
         <profile>
             <id>arm-linux-gnueabihf-gcc</id>
             <build>
@@ -213,7 +287,7 @@ Bundle-NativeCode: \
                         <extensions>true</extensions>  
                         <executions>
                             <execution>
-                                <id>libspsw-linux-armhf</id>
+                                <id>libspsw-arm-linux-gnueabihf</id>
                                 <phase>compile</phase>
                                 <goals>
                                     <goal>initialize</goal>
@@ -245,7 +319,111 @@ Bundle-NativeCode: \
                                     </linkerStartOptions>
                                     <linkerFinalName />
                                     <linkerEndOptions>
-                                        <linkerEndOption>-o ${basedir}/src/main/resources/lib/linux/armhf/libspsw-${version.linux.armhf}.so</linkerEndOption>
+                                        <linkerEndOption>-o ${basedir}/src/main/resources/lib/linux/arm-linux-gnueabihf/libspsw-${version.arm-linux-gnueabihf}.so</linkerEndOption>
+                                    </linkerEndOptions>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+
+        <profile>
+            <id>aarch64-linux-gnu-gcc</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.codehaus.mojo</groupId>
+                        <artifactId>native-maven-plugin</artifactId>
+                        <extensions>true</extensions>  
+                        <executions>
+                            <execution>
+                                <id>libspsw-aarch64-linux-gnu</id>
+                                <phase>compile</phase>
+                                <goals>
+                                    <goal>initialize</goal>
+                                    <goal>javah</goal>
+                                    <goal>compile</goal>
+                                    <goal>link</goal>
+                                </goals>
+                                <configuration>
+                                    <javahOS>linux</javahOS>
+                                    <javahClassNames>
+                                        <javahClassName>de.ibapl.spsw.provider.GenericTermiosSerialPortSocket</javahClassName>
+                                    </javahClassNames>
+                                    <compilerProvider>generic</compilerProvider>
+                                    <compilerExecutable>aarch64-linux-gnu-gcc</compilerExecutable>
+                                    <compilerStartOptions>
+                                        <compilerStartOption>-fPIC -O</compilerStartOption>
+                                    </compilerStartOptions>
+                                    <sources>
+                                        <source>
+                                            <directory>src/main/native/posix_termios_wrapper</directory>
+                                            <fileNames>
+                                                <fileName>GenericTermiosSerialPortSocket.c</fileName>
+                                            </fileNames>
+                                        </source>
+                                    </sources>
+                                    <linkerExecutable>aarch64-linux-gnu-gcc</linkerExecutable>
+                                    <linkerStartOptions>
+                                        <linkerStartOption>-shared -lc -ldl -s</linkerStartOption>
+                                    </linkerStartOptions>
+                                    <linkerFinalName />
+                                    <linkerEndOptions>
+                                        <linkerEndOption>-o ${basedir}/src/main/resources/lib/linux/aarch64-linux-gnu/libspsw-${version.aarch64-linux-gnu}.so</linkerEndOption>
+                                    </linkerEndOptions>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+
+        <profile>
+            <id>mips-linux-gnu-gcc</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.codehaus.mojo</groupId>
+                        <artifactId>native-maven-plugin</artifactId>
+                        <extensions>true</extensions>  
+                        <executions>
+                            <execution>
+                                <id>libspsw-mips-linux-gnu-gcc</id>
+                                <phase>compile</phase>
+                                <goals>
+                                    <goal>initialize</goal>
+                                    <goal>javah</goal>
+                                    <goal>compile</goal>
+                                    <goal>link</goal>
+                                </goals>
+                                <configuration>
+                                    <javahOS>linux</javahOS>
+                                    <javahClassNames>
+                                        <javahClassName>de.ibapl.spsw.provider.GenericTermiosSerialPortSocket</javahClassName>
+                                    </javahClassNames>
+                                    <compilerProvider>generic</compilerProvider>
+                                    <compilerExecutable>mips-linux-gnu-gcc</compilerExecutable>
+                                    <compilerStartOptions>
+                                        <compilerStartOption>-fPIC -O -s</compilerStartOption>
+                                    </compilerStartOptions>
+                                    <sources>
+                                        <source>
+                                            <directory>src/main/native/posix_termios_wrapper</directory>
+                                            <fileNames>
+                                                <fileName>GenericTermiosSerialPortSocket.c</fileName>
+                                            </fileNames>
+                                        </source>
+                                    </sources>
+                                    <linkerExecutable>mips-linux-gnu-gcc</linkerExecutable>
+                                    <linkerStartOptions>
+                                        <linkerStartOption>-shared -lc -ldl</linkerStartOption>
+                                    </linkerStartOptions>
+                                    <linkerFinalName />
+                                    <linkerEndOptions>
+                                        <linkerEndOption>-o ${basedir}/src/main/resources/lib/linux/mips-linux-gnu/libspsw-${version.mips-linux-gnu}.so</linkerEndOption>
                                     </linkerEndOptions>
                                 </configuration>
                             </execution>
@@ -265,7 +443,7 @@ Bundle-NativeCode: \
                         <extensions>true</extensions>  
                         <executions>
                             <execution>
-                                <id>libspsw-linux-mipsel</id>
+                                <id>libspsw-mipsel-linux-gnu-gcc</id>
                                 <phase>compile</phase>
                                 <goals>
                                     <goal>initialize</goal>
@@ -297,7 +475,111 @@ Bundle-NativeCode: \
                                     </linkerStartOptions>
                                     <linkerFinalName />
                                     <linkerEndOptions>
-                                        <linkerEndOption>-o ${basedir}/src/main/resources/lib/linux/mipsel/libspsw-${version.linux.mipsel}.so</linkerEndOption>
+                                        <linkerEndOption>-o ${basedir}/src/main/resources/lib/linux/mipsel-linux-gnu/libspsw-${version.mipsel-linux-gnu}.so</linkerEndOption>
+                                    </linkerEndOptions>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+
+        <profile>
+            <id>mips64-linux-gnuabi64-gcc</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.codehaus.mojo</groupId>
+                        <artifactId>native-maven-plugin</artifactId>
+                        <extensions>true</extensions>  
+                        <executions>
+                            <execution>
+                                <id>libspsw-mips64-linux-gnuabi64-gcc</id>
+                                <phase>compile</phase>
+                                <goals>
+                                    <goal>initialize</goal>
+                                    <goal>javah</goal>
+                                    <goal>compile</goal>
+                                    <goal>link</goal>
+                                </goals>
+                                <configuration>
+                                    <javahOS>linux</javahOS>
+                                    <javahClassNames>
+                                        <javahClassName>de.ibapl.spsw.provider.GenericTermiosSerialPortSocket</javahClassName>
+                                    </javahClassNames>
+                                    <compilerProvider>generic</compilerProvider>
+                                    <compilerExecutable>mips64-linux-gnuabi64-gcc</compilerExecutable>
+                                    <compilerStartOptions>
+                                        <compilerStartOption>-fPIC -O -s</compilerStartOption>
+                                    </compilerStartOptions>
+                                    <sources>
+                                        <source>
+                                            <directory>src/main/native/posix_termios_wrapper</directory>
+                                            <fileNames>
+                                                <fileName>GenericTermiosSerialPortSocket.c</fileName>
+                                            </fileNames>
+                                        </source>
+                                    </sources>
+                                    <linkerExecutable>mips64-linux-gnuabi64-gcc</linkerExecutable>
+                                    <linkerStartOptions>
+                                        <linkerStartOption>-shared -lc -ldl</linkerStartOption>
+                                    </linkerStartOptions>
+                                    <linkerFinalName />
+                                    <linkerEndOptions>
+                                        <linkerEndOption>-o ${basedir}/src/main/resources/lib/linux/mips64-linux-gnuabi64/libspsw-${version.mips64-linux-gnuabi64}.so</linkerEndOption>
+                                    </linkerEndOptions>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+
+        <profile>
+            <id>mips64el-linux-gnuabi64-gcc</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.codehaus.mojo</groupId>
+                        <artifactId>native-maven-plugin</artifactId>
+                        <extensions>true</extensions>  
+                        <executions>
+                            <execution>
+                                <id>libspsw-mips64el-linux-gnuabi64-gcc</id>
+                                <phase>compile</phase>
+                                <goals>
+                                    <goal>initialize</goal>
+                                    <goal>javah</goal>
+                                    <goal>compile</goal>
+                                    <goal>link</goal>
+                                </goals>
+                                <configuration>
+                                    <javahOS>linux</javahOS>
+                                    <javahClassNames>
+                                        <javahClassName>de.ibapl.spsw.provider.GenericTermiosSerialPortSocket</javahClassName>
+                                    </javahClassNames>
+                                    <compilerProvider>generic</compilerProvider>
+                                    <compilerExecutable>mips64el-linux-gnuabi64-gcc</compilerExecutable>
+                                    <compilerStartOptions>
+                                        <compilerStartOption>-fPIC -O -s</compilerStartOption>
+                                    </compilerStartOptions>
+                                    <sources>
+                                        <source>
+                                            <directory>src/main/native/posix_termios_wrapper</directory>
+                                            <fileNames>
+                                                <fileName>GenericTermiosSerialPortSocket.c</fileName>
+                                            </fileNames>
+                                        </source>
+                                    </sources>
+                                    <linkerExecutable>mips64el-linux-gnuabi64-gcc</linkerExecutable>
+                                    <linkerStartOptions>
+                                        <linkerStartOption>-shared -lc -ldl</linkerStartOption>
+                                    </linkerStartOptions>
+                                    <linkerFinalName />
+                                    <linkerEndOptions>
+                                        <linkerEndOption>-o ${basedir}/src/main/resources/lib/linux/mips64el-linux-gnuabi64/libspsw-${version.mips64el-linux-gnuabi64}.so</linkerEndOption>
                                     </linkerEndOptions>
                                 </configuration>
                             </execution>

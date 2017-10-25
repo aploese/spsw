@@ -95,6 +95,20 @@ public abstract class AbstractSerialPortSocketFactory implements SerialPortSocke
         }
     }
 
+    
+    public String getMultiArchTupel() {
+        Process dpkg = Runtime.getRuntime().exec("dpkg --print-architecture");
+                            try (BufferedReader reader = new BufferedReader(new InputStreamReader(readelfProcess.getInputStream()))) {
+                                String buffer;
+                                while ((buffer = reader.readLine()) != null && !buffer.isEmpty()) {
+                                    if (buffer.toLowerCase().contains("Tag_ABI_VFP_args".toLowerCase())) {
+                                        return osArch + "hf";
+                                    }
+                                }
+                            }
+                        } catch (Exception ex) {
+    }
+    
     /**
      * figures out the arch
      * 
@@ -114,31 +128,7 @@ public abstract class AbstractSerialPortSocketFactory implements SerialPortSocke
         String osArch = System.getProperty("os.arch");
         switch (getOsName()) {
             case "linux":
-                if ("arm".equals(osArch)) {
-                    if (System.getProperty("java.library.path").contains("gnueabihf") || System.getProperty("java.library.path").contains("armhf")) {
-                    return osArch + "hf";
-                    } else {
-                        LOG.log(Level.WARNING, "Can't find hardware|software floating point in libpath try readelf");
-                        try {
-                            Process readelfProcess = Runtime.getRuntime().exec("readelf -A /proc/self/exe");
-                            try (BufferedReader reader = new BufferedReader(new InputStreamReader(readelfProcess.getInputStream()))) {
-                                String buffer;
-                                while ((buffer = reader.readLine()) != null && !buffer.isEmpty()) {
-                                    if (buffer.toLowerCase().contains("Tag_ABI_VFP_args".toLowerCase())) {
-                                        return osArch + "hf";
-                                    }
-                                }
-                            }
-                        } catch (Exception ex) {
-                            LOG.severe("Please install binutils to detect architecture ... use hf as default");
-                            //try with hf
-                            return osArch + "hf";
-                        }
-                    }
-                    return osArch + "el";
-                } else {
-                    return osArch;
-                }
+                return getMultiArchTupel();
             default:
                 return osArch;
         }
@@ -209,9 +199,9 @@ public abstract class AbstractSerialPortSocketFactory implements SerialPortSocke
 
     }
 
-    public abstract boolean isLibLoaded();
+    public abstract boolean isInitialized();
 
-    public abstract boolean loadNativeLib();
+    public abstract boolean initialize();
 
     //since 2.1.0 -> Fully rewrited port name comparator
     protected class PortnamesComparator implements Comparator<String> {
@@ -359,10 +349,6 @@ public abstract class AbstractSerialPortSocketFactory implements SerialPortSocke
         }
         switch (getOsName()) {
             case "windows":
-                if (!isLibLoaded()) {
-                    //Make sure lib is loaded to avoid Link error
-                    loadNativeLib();
-                }
                 return getWindowsPortNames(pattern, comparator, hideBusyPorts);
             default:
                 return getUnixBasedPortNames(searchPath, pattern, comparator, hideBusyPorts);

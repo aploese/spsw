@@ -79,7 +79,7 @@ public class SerialPortSocketFactoryImpl extends AbstractSerialPortSocketFactory
     public final static String SPSW_PROPERTIES = "de/ibapl/spsw/provider/spsw.properties";
 
     @Override
-    public boolean isLibLoaded() {
+    public boolean isInitialized() {
         return libLoaded;
     }
 
@@ -89,7 +89,7 @@ public class SerialPortSocketFactoryImpl extends AbstractSerialPortSocketFactory
 
     //TODO usable LOG INFOS ...
     @Override
-    public synchronized boolean loadNativeLib() {
+    public synchronized boolean initialize() {
         if (libLoaded) {
             LOG.log(Level.INFO, "Lib was Loaded");
             return false;
@@ -184,6 +184,11 @@ public class SerialPortSocketFactoryImpl extends AbstractSerialPortSocketFactory
 
     @Override
     protected String[] getWindowsBasedPortNames(boolean hideBusyPorts) throws IOException {
+        if (!isInitialized()) {
+            //Make sure lib is loaded to avoid Link error
+            initialize();
+        }
+
         return GenericWinSerialPortSocket.getWindowsBasedPortNames(hideBusyPorts);
     }
 
@@ -255,7 +260,7 @@ public class SerialPortSocketFactoryImpl extends AbstractSerialPortSocketFactory
     @Activate
     public void activate() {
         if (!libLoaded) {
-            loadNativeLib();
+            initialize();
         }
     }
 
