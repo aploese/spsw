@@ -860,33 +860,38 @@ JNIEXPORT jint JNICALL Java_de_ibapl_spsw_provider_GenericTermiosSerialPortSocke
     int poll_result = poll(&fds, 1, pollTimeout);
 
     if (poll_result == 0) {
-        //Timeout or Closed?
-        if ((*env)->GetIntField(env, object, spsw_fd) == INVALID_FD) {
-            //Filehandle not valid -> closed.
-            throw_SerialPortException_Closed(env, object);
-            return -1;
-        } else {
+        //Timeout
             //Filehandle valid -> a timeout occured
-            throw_Read_Timeout_Exception(env, "Timeout read single byte");
+            throw_Read_Timeout_Exception(env, "Timeout read bytes");
             return -1;
-        }
     } else if ((poll_result < 0)) {
-        //ERROR
-        if ((*env)->GetIntField(env, object, spsw_fd) == INVALID_FD) {
-            //Filehandle not valid -> closed.
-            throw_SerialPortException_Closed(env, object);
+            throw_SerialPortException_With_PortName(env, object, "readSingle poll: Error during poll");
             return -1;
-        } else {
-            throw_SerialPortException_With_PortName(env, object, "readSingle poll: Should never happen");
-            return -1;
-        }
     } else {
         //Happy path just check if its the right event...
-        if (fds.revents != POLLIN) {
-            throw_SerialPortException_With_PortName(env, object, "readSingle poll: received event other than expected POLLIN");
-            return -1;
-        }
-
+        switch (fds.revents) {
+		case  POLLIN:
+	        //Happy path all is right...
+		break;
+        	case  POLLNVAL:
+			// closed?
+		        if ((*env)->GetIntField(env, object, spsw_fd) == INVALID_FD) {
+            			//Filehandle not valid -> closed.
+		        	return -1;
+			} else {
+				throw_SerialPortException_With_PortName(env, object, "readSingle poll: received event POLLNVAL and port not closed");
+				return -1;
+ 			}
+		case POLLERR:
+			throw_SerialPortException_With_PortName(env, object, "readSingle poll: received event POLLERR");
+			return -1;
+		case POLLHUP:
+			throw_SerialPortException_With_PortName(env, object, "readSingle poll: received event POLLHUP");
+			return -1;
+		default:
+			throw_SerialPortException_With_PortName(env, object, "readSingle poll: received event other than expected POLLIN, POLLNVAL, POLLHUP or POLLERR");
+			return -1;
+		}
     }
 
     //OK No timeout and no error, we should read the byte without blocking.
@@ -933,33 +938,38 @@ JNIEXPORT jint JNICALL Java_de_ibapl_spsw_provider_GenericTermiosSerialPortSocke
     int poll_result = poll(&fds, 1, pollTimeout);
 
     if (poll_result == 0) {
-        //Timeout or Closed?
-        if ((*env)->GetIntField(env, object, spsw_fd) == INVALID_FD) {
-            //Filehandle not valid -> closed.
-            throw_SerialPortException_Closed(env, object);
-            return -1;
-        } else {
+        //Timeout
             //Filehandle valid -> a timeout occured
             throw_Read_Timeout_Exception(env, "Timeout read bytes");
             return -1;
-        }
     } else if ((poll_result < 0)) {
-        //ERROR
-        if ((*env)->GetIntField(env, object, spsw_fd) == INVALID_FD) {
-            //Filehandle not valid -> closed.
-            throw_SerialPortException_Closed(env, object);
+            throw_SerialPortException_With_PortName(env, object, "readBytes poll: Error during poll");
             return -1;
-        } else {
-            throw_SerialPortException_With_PortName(env, object, "readBytes poll: Should never happen");
-            return -1;
-        }
     } else {
         //Happy path just check if its the right event...
-        if (fds.revents != POLLIN) {
-            throw_SerialPortException_With_PortName(env, object, "readBytes poll: received event other than expected POLLIN");
-            return -1;
-        }
-
+        switch (fds.revents) {
+		case  POLLIN:
+	        //Happy path all is right...
+		break;
+        	case  POLLNVAL:
+			// closed?
+		        if ((*env)->GetIntField(env, object, spsw_fd) == INVALID_FD) {
+            			//Filehandle not valid -> closed.
+		        	return -1;
+			} else {
+				throw_SerialPortException_With_PortName(env, object, "readBytes poll: received event POLLNVAL and port not closed");
+				return -1;
+ 			}
+		case POLLERR:
+			throw_SerialPortException_With_PortName(env, object, "readBytes poll: received event POLLERR");
+			return -1;
+		case POLLHUP:
+			throw_SerialPortException_With_PortName(env, object, "readBytes poll: received event POLLHUP");
+			return -1;
+		default:
+			throw_SerialPortException_With_PortName(env, object, "readBytes poll: received event other than expected POLLIN, POLLNVAL, POLLHUP or POLLERR");
+			return -1;
+		}
     }
 
     //OK No timeout and no error, we should read the byte without blocking.

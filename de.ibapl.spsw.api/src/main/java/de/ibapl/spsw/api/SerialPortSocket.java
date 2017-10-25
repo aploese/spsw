@@ -240,5 +240,5 @@ public interface SerialPortSocket extends Closeable {
      * @see #getOverallTimeout()
      */
     void setReadTimeouts(int interByteTimeout, int overallTimeout) throws IOException;
-    
+
 }

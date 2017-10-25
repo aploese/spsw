@@ -16,6 +16,7 @@ import de.ibapl.spsw.api.FlowControl;
 import de.ibapl.spsw.api.Parity;
 import de.ibapl.spsw.api.SerialPortSocket;
 import de.ibapl.spsw.api.StopBits;
+import java.net.URL;
 
 @ProviderType
 public class Ser2NetProvider implements SerialPortSocket {
