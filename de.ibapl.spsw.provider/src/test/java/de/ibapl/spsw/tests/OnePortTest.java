@@ -637,7 +637,18 @@ public class OnePortTest {
 		assertEquals(-1, result);
 	}
 
+	@Test
+	public void testSendBreakBlocking() throws Exception {
+		Assume.assumeNotNull(spc);
+		spc.openRaw(Baudrate.B2400, DataBits.DB_8, StopBits.SB_1, Parity.EVEN, FlowControl.getFC_NONE());
+		final long start = System.currentTimeMillis();
+		spc.sendBreak(500);
+		final long end = System.currentTimeMillis();
+		assertEquals(500, end - start, 50);
+	}
+
 	private void printPort(SerialPortSocket sPort) throws IOException {
 		System.err.println(sPort.toString());
 	}
+
 }

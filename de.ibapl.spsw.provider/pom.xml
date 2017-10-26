@@ -9,12 +9,11 @@
     </parent>
   
     <artifactId>de.ibapl.spsw.provider</artifactId>
-    <version>1.1.0-SNAPSHOT</version>
     <name>SPSW Provider</name>
     
     <properties>
-        <version.windows.amd64>1.0.1</version.windows.amd64>
-        <version.windows.x86>1.0.1</version.windows.x86>
+        <version.x86_64-windows-pe32PLUS>1.0.1</version.x86_64-windows-pe32PLUS>
+        <version.x86-windows-pe32>1.0.1</version.x86-windows-pe32>
 
         <version.arm-linux-gnueabi>1.1.0</version.arm-linux-gnueabi>
         <version.arm-linux-gnueabihf>1.1.0</version.arm-linux-gnueabihf>
@@ -83,34 +82,34 @@
                 <configuration>
                     <bnd><![CDATA[
 Bundle-NativeCode: \
- lib/linux/arm-linux-gnueabihf/libspsw-${version.arm-linux-gnueabihf}.so; \
+ lib/arm-linux-gnueabihf/libspsw-${version.arm-linux-gnueabihf}.so; \
   osname=Linux; \
   processor=arm,\
- lib/linux/aarch64-linux-gnu/libspsw-${version.aarch64-linux-gnu}.so; \
+ lib/aarch64-linux-gnu/libspsw-${version.aarch64-linux-gnu}.so; \
   osname=Linux; \
   processor=arm64,\
- lib/linux/i386-linux-gnu/libspsw-${version.i386-linux-gnu}.so; \
+ lib/i386-linux-gnu/libspsw-${version.i386-linux-gnu}.so; \
   osname=Linux; \
   processor=x86,\
- lib/linux/x86_64-linux-gnu/libspsw-${version.x86_64-linux-gnu}.so; \
+ lib/x86_64-linux-gnu/libspsw-${version.x86_64-linux-gnu}.so; \
   osname=Linux; \
   processor=x86-64,\
- lib/linux/mips-linux-gnu/libspsw-${version.mips-linux-gnu}.so; \
+ lib/mips-linux-gnu/libspsw-${version.mips-linux-gnu}.so; \
   osname=Linux; \
   processor=mips,\
- lib/linux/mipsel-linux-gnu/libspsw-${version.mipsel-linux-gnu}.so; \
+ lib/mipsel-linux-gnu/libspsw-${version.mipsel-linux-gnu}.so; \
   osname=Linux; \
   processor=mipsel,\
- lib/linux/mips64-linux-gnuabi64/libspsw-${version.mips64-linux-gnuabi64}.so; \
+ lib/mips64-linux-gnuabi64/libspsw-${version.mips64-linux-gnuabi64}.so; \
   osname=Linux; \
   processor=mips64,\
- lib/linux/mips64el-linux-gnuabi64/libspsw-${version.mips64el-linux-gnuabi64}.so; \
+ lib/mips64el-linux-gnuabi64/libspsw-${version.mips64el-linux-gnuabi64}.so; \
   osname=Linux; \
   processor=mips64el,\
- lib/windows/amd64/spsw-${version.windows.amd64}.dll; \
+ lib/x86_64-windows-pe32+/spsw-${version.x86_64-windows-pe32PLUS}.dll; \
   osname=Windows7; osname=Windows8; osname=Windows10; \
   processor=x86-64,\
- lib/windows/x86/spsw-${version.windows.x86}.dll; \
+ lib/x86-windows-pe32/spsw-${version.x86-windows-pe32}.dll; \
   osname=Windows7; osname=Windows8; osname=Windows10; \
   processor=x86
 ]]></bnd>
@@ -164,7 +163,7 @@ Bundle-NativeCode: \
  
                                     <!-- wait for 1.0-alpha9 to define linkerOutputExtension-->
                                     <linkerEndOptions>
-                                        <linkerEndOption>-o ${basedir}/src/main/resources/lib/linux/x86_64-linux-gnu/libspsw-${version.x86_64-linux-gnu}.so</linkerEndOption>
+                                        <linkerEndOption>-o ${basedir}/src/main/resources/lib/x86_64-linux-gnu/libspsw-${version.x86_64-linux-gnu}.so</linkerEndOption>
                                     </linkerEndOptions>
                                 </configuration>
                             </execution>
@@ -215,7 +214,7 @@ Bundle-NativeCode: \
                                     </linkerStartOptions>
                                     <linkerFinalName />
                                     <linkerEndOptions>
-                                        <linkerEndOption>-o ${basedir}/src/main/resources/lib/linux/i386-linux-gnu/libspsw-${version.i386-linux-gnu}.so</linkerEndOption>
+                                        <linkerEndOption>-o ${basedir}/src/main/resources/lib/i386-linux-gnu/libspsw-${version.i386-linux-gnu}.so</linkerEndOption>
                                     </linkerEndOptions>
                                 </configuration>
                             </execution>
@@ -267,7 +266,7 @@ Bundle-NativeCode: \
                                     </linkerStartOptions>
                                     <linkerFinalName />
                                     <linkerEndOptions>
-                                        <linkerEndOption>-o ${basedir}/src/main/resources/lib/linux/arm-linux-gnueabi/libspsw-${version.arm-linux-gnueabi}.so</linkerEndOption>
+                                        <linkerEndOption>-o ${basedir}/src/main/resources/lib/arm-linux-gnueabi/libspsw-${version.arm-linux-gnueabi}.so</linkerEndOption>
                                     </linkerEndOptions>
                                 </configuration>
                             </execution>
@@ -319,7 +318,7 @@ Bundle-NativeCode: \
                                     </linkerStartOptions>
                                     <linkerFinalName />
                                     <linkerEndOptions>
-                                        <linkerEndOption>-o ${basedir}/src/main/resources/lib/linux/arm-linux-gnueabihf/libspsw-${version.arm-linux-gnueabihf}.so</linkerEndOption>
+                                        <linkerEndOption>-o ${basedir}/src/main/resources/lib/arm-linux-gnueabihf/libspsw-${version.arm-linux-gnueabihf}.so</linkerEndOption>
                                     </linkerEndOptions>
                                 </configuration>
                             </execution>
@@ -371,7 +370,7 @@ Bundle-NativeCode: \
                                     </linkerStartOptions>
                                     <linkerFinalName />
                                     <linkerEndOptions>
-                                        <linkerEndOption>-o ${basedir}/src/main/resources/lib/linux/aarch64-linux-gnu/libspsw-${version.aarch64-linux-gnu}.so</linkerEndOption>
+                                        <linkerEndOption>-o ${basedir}/src/main/resources/lib/aarch64-linux-gnu/libspsw-${version.aarch64-linux-gnu}.so</linkerEndOption>
                                     </linkerEndOptions>
                                 </configuration>
                             </execution>
@@ -423,7 +422,7 @@ Bundle-NativeCode: \
                                     </linkerStartOptions>
                                     <linkerFinalName />
                                     <linkerEndOptions>
-                                        <linkerEndOption>-o ${basedir}/src/main/resources/lib/linux/mips-linux-gnu/libspsw-${version.mips-linux-gnu}.so</linkerEndOption>
+                                        <linkerEndOption>-o ${basedir}/src/main/resources/lib/mips-linux-gnu/libspsw-${version.mips-linux-gnu}.so</linkerEndOption>
                                     </linkerEndOptions>
                                 </configuration>
                             </execution>
@@ -475,7 +474,7 @@ Bundle-NativeCode: \
                                     </linkerStartOptions>
                                     <linkerFinalName />
                                     <linkerEndOptions>
-                                        <linkerEndOption>-o ${basedir}/src/main/resources/lib/linux/mipsel-linux-gnu/libspsw-${version.mipsel-linux-gnu}.so</linkerEndOption>
+                                        <linkerEndOption>-o ${basedir}/src/main/resources/lib/mipsel-linux-gnu/libspsw-${version.mipsel-linux-gnu}.so</linkerEndOption>
                                     </linkerEndOptions>
                                 </configuration>
                             </execution>
@@ -527,7 +526,7 @@ Bundle-NativeCode: \
                                     </linkerStartOptions>
                                     <linkerFinalName />
                                     <linkerEndOptions>
-                                        <linkerEndOption>-o ${basedir}/src/main/resources/lib/linux/mips64-linux-gnuabi64/libspsw-${version.mips64-linux-gnuabi64}.so</linkerEndOption>
+                                        <linkerEndOption>-o ${basedir}/src/main/resources/lib/mips64-linux-gnuabi64/libspsw-${version.mips64-linux-gnuabi64}.so</linkerEndOption>
                                     </linkerEndOptions>
                                 </configuration>
                             </execution>
@@ -579,7 +578,7 @@ Bundle-NativeCode: \
                                     </linkerStartOptions>
                                     <linkerFinalName />
                                     <linkerEndOptions>
-                                        <linkerEndOption>-o ${basedir}/src/main/resources/lib/linux/mips64el-linux-gnuabi64/libspsw-${version.mips64el-linux-gnuabi64}.so</linkerEndOption>
+                                        <linkerEndOption>-o ${basedir}/src/main/resources/lib/mips64el-linux-gnuabi64/libspsw-${version.mips64el-linux-gnuabi64}.so</linkerEndOption>
                                     </linkerEndOptions>
                                 </configuration>
                             </execution>
@@ -638,7 +637,7 @@ Bundle-NativeCode: \
                                     </linkerStartOptions>
                                     <linkerFinalName />
                                     <linkerEndOptions>
-                                        <linkerEndOption>-o ${basedir}/src/main/resources/lib/windows/x86/spsw-${version.windows.x86}.dll</linkerEndOption>
+                                        <linkerEndOption>-o ${basedir}/src/main/resources/lib/x86-windows-pe32/spsw-${version.x86-windows-pe32}.dll</linkerEndOption>
                                     </linkerEndOptions>
                                 </configuration>
                             </execution>
@@ -696,7 +695,7 @@ Bundle-NativeCode: \
                                     </linkerStartOptions>
                                     <linkerFinalName />
                                     <linkerEndOptions>
-                                        <linkerEndOption>-o ${basedir}/src/main/resources/lib/windows/amd64/spsw-${version.windows.amd64}.dll</linkerEndOption>
+                                        <linkerEndOption>-o ${basedir}/src/main/resources/lib/x86_64-windows-pe32+/spsw-${version.x86_64-windows-pe32PLUS}.dll</linkerEndOption>
                                     </linkerEndOptions>
                                 </configuration>
                             </execution>

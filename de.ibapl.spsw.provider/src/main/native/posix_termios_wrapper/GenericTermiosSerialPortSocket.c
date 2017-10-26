@@ -685,7 +685,7 @@ JNIEXPORT void JNICALL Java_de_ibapl_spsw_provider_GenericTermiosSerialPortSocke
 JNIEXPORT void Java_de_ibapl_spsw_provider_GenericTermiosSerialPortSocket_sendBreak
 (JNIEnv *env, jobject object, jint duration) {
     int fd = (*env)->GetIntField(env, object, spsw_fd);
-    if (tcsendbreak(fd, (int) (duration / 250)) != 0) {
+    if (tcsendbreak(fd, duration) != 0) {
         if ((*env)->GetIntField(env, object, spsw_fd) == INVALID_FD) {
             throw_SerialPortException_Closed(env, object);
             return;

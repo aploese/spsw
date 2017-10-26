@@ -96,19 +96,6 @@ public abstract class AbstractSerialPortSocketFactory implements SerialPortSocke
     }
 
     
-    public String getMultiArchTupel() {
-        Process dpkg = Runtime.getRuntime().exec("dpkg --print-architecture");
-                            try (BufferedReader reader = new BufferedReader(new InputStreamReader(readelfProcess.getInputStream()))) {
-                                String buffer;
-                                while ((buffer = reader.readLine()) != null && !buffer.isEmpty()) {
-                                    if (buffer.toLowerCase().contains("Tag_ABI_VFP_args".toLowerCase())) {
-                                        return osArch + "hf";
-                                    }
-                                }
-                            }
-                        } catch (Exception ex) {
-    }
-    
     /**
      * figures out the arch
      * 
@@ -124,13 +111,37 @@ public abstract class AbstractSerialPortSocketFactory implements SerialPortSocke
      * 
      * @return the os.arch except on arm distingush between hf und sf ...
      */
-    public String getArch() {
-        String osArch = System.getProperty("os.arch");
+    public String getProcessorOsArchTupel() {
+        final String osArch = System.getProperty("os.arch");
         switch (getOsName()) {
             case "linux":
-                return getMultiArchTupel();
+            	switch (osArch) {
+				case "arm": 
+					return "arm-linux-gnueabihf";
+				case "aarch64": 
+					return "aarch64-linux-gnu";
+				case "amd64": 
+					return "x86_64-linux-gnu";
+				case "i386": 
+					return "i386-linux-gnu";
+				case "mips": 
+					return "mips-linux-gnu";
+				case "mips64": 
+					return "mips64-linux-gnuabi64";
+				default:
+					throw new UnsupportedOperationException("Cant handle Linux architecture: " + osArch);
+            	}
+            case "windows":
+            	switch (osArch) {
+				case "amd64":
+					return "x86_64-windows-pe32+";
+				case "x86":
+					return "x86-windows-pe32";
+				default:
+					throw new UnsupportedOperationException("Cant handle Windows architecture: " + osArch);
+				}
             default:
-                return osArch;
+				throw new UnsupportedOperationException("Cant handle "+ getOsName() + " architecture: " + osArch);
         }
 
     }
@@ -198,10 +209,6 @@ public abstract class AbstractSerialPortSocketFactory implements SerialPortSocke
         }
 
     }
-
-    public abstract boolean isInitialized();
-
-    public abstract boolean initialize();
 
     //since 2.1.0 -> Fully rewrited port name comparator
     protected class PortnamesComparator implements Comparator<String> {

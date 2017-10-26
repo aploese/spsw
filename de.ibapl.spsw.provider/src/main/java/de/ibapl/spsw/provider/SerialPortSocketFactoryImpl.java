@@ -78,8 +78,7 @@ public class SerialPortSocketFactoryImpl extends AbstractSerialPortSocketFactory
     private static String libName;
     public final static String SPSW_PROPERTIES = "de/ibapl/spsw/provider/spsw.properties";
 
-    @Override
-    public boolean isInitialized() {
+    public boolean isLibLoaded() {
         return libLoaded;
     }
 
@@ -88,8 +87,7 @@ public class SerialPortSocketFactoryImpl extends AbstractSerialPortSocketFactory
     }
 
     //TODO usable LOG INFOS ...
-    @Override
-    public synchronized boolean initialize() {
+    public synchronized boolean loadNativeLib() {
         if (libLoaded) {
             LOG.log(Level.INFO, "Lib was Loaded");
             return false;
@@ -103,7 +101,7 @@ public class SerialPortSocketFactoryImpl extends AbstractSerialPortSocketFactory
             throw new RuntimeException("Can't load version information", ex);
         }
 
-        libName = String.format("spsw-%s", p.getProperty("version." + getOsName() + "." + getArch()));
+        libName = String.format("spsw-%s", p.getProperty("version." + getProcessorOsArchTupel()));
 
         //Try it plain - OSGi will load with the bundle classloader - or if there are in the "java.library.path"
         LOG.log(Level.INFO, "Try plain with libName: {0}", libName);
@@ -120,7 +118,7 @@ public class SerialPortSocketFactoryImpl extends AbstractSerialPortSocketFactory
         }
 
         //Figure out os and arch
-        final String libResourceName = String.format("lib/%s/%s/%s", getOsName(), getArch(), System.mapLibraryName(libName));
+        final String libResourceName = String.format("lib/%s/%s", getProcessorOsArchTupel(), System.mapLibraryName(libName));
         //Try from filesystem like the tests do
         libName = getClass().getClassLoader().getResource(libResourceName).getFile();
         if (new File(libName).exists()) {
@@ -184,9 +182,9 @@ public class SerialPortSocketFactoryImpl extends AbstractSerialPortSocketFactory
 
     @Override
     protected String[] getWindowsBasedPortNames(boolean hideBusyPorts) throws IOException {
-        if (!isInitialized()) {
+        if (!isLibLoaded()) {
             //Make sure lib is loaded to avoid Link error
-            initialize();
+            loadNativeLib();
         }
 
         return GenericWinSerialPortSocket.getWindowsBasedPortNames(hideBusyPorts);
@@ -260,7 +258,7 @@ public class SerialPortSocketFactoryImpl extends AbstractSerialPortSocketFactory
     @Activate
     public void activate() {
         if (!libLoaded) {
-            initialize();
+            loadNativeLib();
         }
     }
 
