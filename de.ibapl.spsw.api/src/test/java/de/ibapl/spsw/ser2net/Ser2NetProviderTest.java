@@ -626,10 +626,11 @@ public class Ser2NetProviderTest {
     @Ignore
   public void testSetReadTimeouts() throws Exception {
         System.out.println("setReadTimeouts");
-        int interByteTimeout = 0;
-        int overallTimeout = 0;
+        int interByteReadTimeout = 0;
+        int overallReadTimeout = 0;
+        int overallWriteTimeout = 0;
         Ser2NetProvider instance = null;
-        instance.setReadTimeouts(interByteTimeout, overallTimeout);
+        instance.setTimeouts(interByteReadTimeout, overallReadTimeout, overallWriteTimeout);
         // TODO review the generated test code and remove the default call to fail.
         fail("The test case is a prototype.");
     }

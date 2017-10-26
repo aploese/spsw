@@ -1,6 +1,7 @@
 package de.ibapl.spsw.tests;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 /*-
@@ -52,7 +53,6 @@ import org.junit.Assert;
 import org.junit.Assume;
 import org.junit.Before;
 import org.junit.BeforeClass;
-import org.junit.Ignore;
 import org.junit.Test;
 
 /**
@@ -111,13 +111,57 @@ public class OnePortTest {
 	}
 
 	@Test(timeout = 5000)
+	public void testSetTimeouts() throws Exception {
+		Assume.assumeNotNull(spc);
+		LOG.log(Level.INFO, "run testSetTimeOuts");
+
+		spc.openAsIs();
+
+		spc.setTimeouts(100, 1000, 2000);
+		assertEquals(100, spc.getInterByteReadTimeout());
+		assertEquals(1000, spc.getOverallReadTimeout());
+		assertEquals(2000, spc.getOverallWriteTimeout());
+
+		spc.setTimeouts(0, 2222, 3333);
+		assertEquals(0, spc.getInterByteReadTimeout());
+		assertEquals(2222, spc.getOverallReadTimeout());
+		assertEquals(3333, spc.getOverallWriteTimeout());
+
+		spc.setTimeouts(0, 2222, 0);
+		assertEquals(0, spc.getInterByteReadTimeout());
+		assertEquals(2222, spc.getOverallReadTimeout());
+		assertEquals(0, spc.getOverallWriteTimeout());
+
+		spc.setTimeouts(0, 0, 3333);
+		assertEquals(0, spc.getInterByteReadTimeout());
+		assertEquals(0, spc.getOverallReadTimeout());
+		assertEquals(3333, spc.getOverallWriteTimeout());
+
+		spc.setTimeouts(100, 0, 3333);
+		assertEquals(100, spc.getInterByteReadTimeout());
+		assertEquals(0, spc.getOverallReadTimeout());
+		assertEquals(3333, spc.getOverallWriteTimeout());
+
+		spc.setTimeouts(100, 0, 0);
+		assertEquals(100, spc.getInterByteReadTimeout());
+		assertEquals(0, spc.getOverallReadTimeout());
+		assertEquals(0, spc.getOverallWriteTimeout());
+
+		spc.close();
+		Assert.assertTrue(spc.isClosed());
+}
+
+	@Test(timeout = 5000)
 	public void testOverallTimeoutBlocking() throws Exception {
 		Assume.assumeNotNull(spc);
 		LOG.log(Level.INFO, "run testOverallTimeoutBlocking");
 
 		spc.openAsIs();
 
-		spc.setReadTimeouts(100, 1000);
+		spc.setTimeouts(100, 1000, 2000);
+		assertEquals(100, spc.getInterByteReadTimeout());
+		assertEquals(1000, spc.getOverallReadTimeout());
+		assertEquals(2000, spc.getOverallWriteTimeout());
 
 		long start = System.currentTimeMillis();
 		try {
@@ -129,7 +173,10 @@ public class OnePortTest {
 			Assert.assertEquals(1000.0, time, 100.0); // We tolerate 5% difference
 		}
 
-		spc.setReadTimeouts(0, spc.getOverallReadTimeout());
+		spc.setTimeouts(0, spc.getOverallReadTimeout(), spc.getOverallWriteTimeout());
+		assertEquals(0, spc.getInterByteReadTimeout());
+		assertEquals(1000, spc.getOverallReadTimeout());
+		assertEquals(2000, spc.getOverallWriteTimeout());
 
 		start = System.currentTimeMillis();
 		try {
@@ -239,13 +286,13 @@ public class OnePortTest {
 	public void testIncommingRI() throws Exception {
 		Assume.assumeNotNull(spc);
 		LOG.log(Level.INFO, "run testIncommingRI");
-
 		spc.openAsIs();
 
 		spc.isIncommingRI();
 
 		spc.close();
 		Assert.assertTrue(spc.isClosed());
+		LOG.log(Level.INFO, "testIncommingRI done");
 	}
 
 	@Test
@@ -509,6 +556,7 @@ public class OnePortTest {
 			t.setDaemon(false);
 			LOG.info("Start Thread");
 			t.start();
+			Thread.yield();
 			LOG.info("Thread started");
 
 			spc.getOutputStream().write(104);
@@ -547,6 +595,8 @@ public class OnePortTest {
 			}
 		}
 		LOG.info("OK Finish");
+		
+		Assert.assertTrue(spc.isClosed());
 	}
 
 	@Test(expected = NullPointerException.class)
@@ -602,6 +652,7 @@ public class OnePortTest {
 	@Test
 	public void testCloseDuringSingleRead() throws Exception {
 		Assume.assumeNotNull(spc);
+		LOG.log(Level.INFO, "run testCloseDuringSingleRead");
 		spc.openRaw(Baudrate.B2400, DataBits.DB_8, StopBits.SB_1, Parity.EVEN, FlowControl.getFC_NONE());
 		assertEquals(0, spc.getInBufferBytesCount());
 		new Thread(() -> {
@@ -612,15 +663,17 @@ public class OnePortTest {
 				fail("Exception occured");
 			}
 		}).start();
-		;
 
 		int result = spc.getInputStream().read();
 		assertEquals(-1, result);
+
+		Assert.assertTrue(spc.isClosed());
 	}
 
 	@Test
 	public void testCloseDuringBytesRead() throws Exception {
 		Assume.assumeNotNull(spc);
+		LOG.log(Level.INFO, "run testCloseDuringBytesRead");
 		spc.openRaw(Baudrate.B2400, DataBits.DB_8, StopBits.SB_1, Parity.EVEN, FlowControl.getFC_NONE());
 		assertEquals(0, spc.getInBufferBytesCount());
 		new Thread(() -> {
@@ -635,16 +688,114 @@ public class OnePortTest {
 		byte b[] = new byte[255];
 		int result = spc.getInputStream().read(b);
 		assertEquals(-1, result);
+
+		Assert.assertTrue(spc.isClosed());
 	}
 
 	@Test
 	public void testSendBreakBlocking() throws Exception {
 		Assume.assumeNotNull(spc);
+		LOG.log(Level.INFO, "run testSendBreakBlocking");
 		spc.openRaw(Baudrate.B2400, DataBits.DB_8, StopBits.SB_1, Parity.EVEN, FlowControl.getFC_NONE());
 		final long start = System.currentTimeMillis();
 		spc.sendBreak(500);
 		final long end = System.currentTimeMillis();
 		assertEquals(500, end - start, 50);
+
+		spc.close();
+		Assert.assertTrue(spc.isClosed());
+	}
+
+	@Test
+	public void testWriteBytesTimeout() throws Exception {
+		Assume.assumeNotNull(spc);
+		LOG.log(Level.INFO, "run testWriteBytesTimeout");
+		spc.openRaw(Baudrate.B115200, DataBits.DB_8, StopBits.SB_1, Parity.EVEN, FlowControl.getFC_RTS_CTS());
+		spc.setTimeouts(100, 1000, 1000);
+		assertEquals(1000, spc.getOverallWriteTimeout());
+		assertEquals(100, spc.getInterByteReadTimeout());
+		assertEquals(1000, spc.getOverallReadTimeout());
+		byte[] data = new byte[1024];
+		try {
+			for (int i = 1; i < 1024; i++) {
+				spc.getOutputStream().write(data);
+			}
+			fail();
+		} catch (InterruptedIOException e) {
+			assertTrue(true);
+		}
+		try {
+			spc.getOutputStream().flush();
+			fail();
+		} catch (InterruptedIOException e) {
+			assertTrue(true);
+		}
+
+		try {
+			spc.getOutputStream().write(data);
+			fail();
+		} catch (IOException e) {
+			assertTrue(true);
+		}
+		try {
+			spc.getOutputStream().flush();
+			fail();
+		} catch (InterruptedIOException e) {
+			assertTrue(true);
+		}
+
+		spc.close();
+		Assert.assertTrue(spc.isClosed());
+	}
+
+	@Test
+	public void testWriteSingleByteTimeout() throws Exception {
+		Assume.assumeNotNull(spc);
+		LOG.log(Level.INFO, "run testWriteSingleByteTimeout");
+		spc.openRaw(Baudrate.B115200, DataBits.DB_8, StopBits.SB_1, Parity.EVEN, FlowControl.getFC_RTS_CTS());
+		spc.setTimeouts(100, 1000, 1000);
+		assertEquals(1000, spc.getOverallWriteTimeout());
+		assertEquals(100, spc.getInterByteReadTimeout());
+		assertEquals(1000, spc.getOverallReadTimeout());
+		int i = 0;
+		try {
+			for (i = 0; i < 1048576; i++) {
+				spc.getOutputStream().write(0);
+			}
+			fail();
+		} catch (InterruptedIOException e) {
+			int s = spc.getOutBufferBytesCount();
+			LOG.log(Level.INFO, "First: " +i + " bytes written; OutBuf:  " + s);
+			assertTrue(true);
+		}
+		try {
+			spc.getOutputStream().flush();
+			fail();
+		} catch (InterruptedIOException e) {
+			assertTrue(true);
+		}
+
+		try {
+			for (i = 0; i < 1048576; i++) {
+				spc.getOutputStream().write(0);
+			}
+			fail();
+		} catch (IOException e) {
+			int s = spc.getOutBufferBytesCount();
+			LOG.log(Level.INFO, "Second: " + i + " bytes written; OutBuf:  " + s);
+			assertTrue(true);
+		}
+		try {
+			spc.getOutputStream().flush();
+			fail();
+		} catch (InterruptedIOException e) {
+			assertTrue(true);
+		}
+
+		LOG.log(Level.INFO, "will close port");
+		spc.close();
+		Assert.assertTrue(spc.isClosed());
+		LOG.log(Level.INFO, "port closed");
 	}
 
 	private void printPort(SerialPortSocket sPort) throws IOException {

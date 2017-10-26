@@ -756,23 +756,24 @@ public class LogWriter {
 		log.flush();
 	}
 
-	void beforeSetReadTimeouts(Instant ts, int interByteTimeout, int overallTimeout) {
-		log.append(formatTs(ts)).append("SP").append(ACION_CALL).append(" setReadTimeouts:\t(interByteTimeout=").print(interByteTimeout);
-		log.append(", overallTimeout=").print(overallTimeout);
+	void beforeSetTimeouts(Instant ts, int interByteReadTimeout, int overallReadTimeout, int overallWriteTimeout) {
+		log.append(formatTs(ts)).append("SP").append(ACION_CALL).append(" setTimeouts:\t(interByteReadTimeout=").print(interByteReadTimeout);
+		log.append(", overallReadTimeout=").print(overallReadTimeout);
+		log.append(", overallWriteTimeout=").print(overallWriteTimeout);
 		log.println(")");
 		log.flush();
 	}
 
-	void afterSetReadTimeouts(Instant ts) {
+	void afterSetTimeouts(Instant ts) {
 		if (!verbose) {
 			return;
 		}
-		log.append(formatTs(ts)).append("SP").append(ACION_RETURN).println(" setReadTimeouts");
+		log.append(formatTs(ts)).append("SP").append(ACION_RETURN).println(" setTimeouts");
 		log.flush();
 	}
 
-	void afterSetReadTimeouts(Instant ts, IOException e) {
-		log.append(formatTs(ts)).append("SP").append(ACION_RETURN).append(" setReadTimeouts:\t")
+	void afterSetTimeouts(Instant ts, IOException e) {
+		log.append(formatTs(ts)).append("SP").append(ACION_RETURN).append(" setTimeouts:\t")
 				.println(e.toString());
 		e.printStackTrace(log);
 		log.flush();
@@ -908,6 +909,29 @@ public class LogWriter {
 
 	void afterGetOverallReadTimeout(Instant ts, IOException e) {
 		log.append(formatTs(ts)).append("SP").append(ACION_RETURN).append(" getOverallReadTimeout:\t")
+				.println(e.toString());
+		e.printStackTrace(log);
+		log.flush();
+	}
+
+	void beforeGetOverallWriteTimeout(Instant ts) {
+		if (!verbose) {
+			return;
+		}
+		log.append(formatTs(ts)).append("SP").append(ACION_CALL).println(" getOverallWriteTimeout");
+		log.flush();
+	}
+
+	void afterGetOverallWriteTimeout(Instant ts, int result) {
+		if (!verbose) {
+			return;
+		}
+		log.append(formatTs(ts)).append("SP").append(ACION_RETURN).append(" getOverallWriteTimeout:\t").println(result);
+		log.flush();
+	}
+
+	void afterGetOverallWriteTimeout(Instant ts, IOException e) {
+		log.append(formatTs(ts)).append("SP").append(ACION_RETURN).append(" getOverallWriteTimeout:\t")
 				.println(e.toString());
 		e.printStackTrace(log);
 		log.flush();

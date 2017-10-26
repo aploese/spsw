@@ -45,7 +45,8 @@ public class GenericTermiosSerialPortSocket extends AbstractSerialPortSocket {
     /**
      * used in native code
      */
-    private int pollTimeout = -1;
+    private int pollReadTimeout = -1;
+    private int pollWriteTimeout = -1;
 
     public GenericTermiosSerialPortSocket(String portName) {
         super(portName);
@@ -173,7 +174,10 @@ public class GenericTermiosSerialPortSocket extends AbstractSerialPortSocket {
     public native int getOverallReadTimeout() throws IOException;
 
     @Override
-    public native void setReadTimeouts(int interByteTimeout, int overallTimeout) throws IOException;
+    public native int getOverallWriteTimeout() throws IOException;
+
+    @Override
+    public native void setTimeouts(int interByteReadTimeout, int overallReadTimeout, int overallWriteTimeout) throws IOException;
     
     @Override
     public native int getInterByteReadTimeout() throws IOException;

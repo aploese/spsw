@@ -274,8 +274,13 @@ public class Ser2NetProvider implements SerialPortSocket {
 	}
 
 	@Override
-	public void setReadTimeouts(int interByteTimeout, int overallTimeout) throws IOException {
-		dataSocket.setSoTimeout(overallTimeout);
+	public int getOverallWriteTimeout() throws IOException {
+		return 0;
+	}
+	@Override
+	public void setTimeouts(int interByteReadTimeout, int overallReadTimeout, int overallWriteTimeout) throws IOException {
+		dataSocket.setSoTimeout(overallReadTimeout);
+		//TODO Output Timeout??
 	}
 
 

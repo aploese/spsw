@@ -217,7 +217,9 @@ public interface SerialPortSocket extends Closeable {
 
     int getInterByteReadTimeout() throws IOException;
     
-    /**
+    int getOverallWriteTimeout() throws IOException;
+    
+  /**
      *  Enable/disable the timeout, in milliseconds. With this option set
      *  to a non-zero timeout, a read() call on the InputStream associated with
      *  this Socket will block for only this amount of time.  If the timeout
@@ -232,13 +234,14 @@ public interface SerialPortSocket extends Closeable {
      *  Except if its to small to set. 
      *  In this case the smallest value will be used and returned. 
      *
-     *  A overallTimeout of zero is interpreted as an infinite timeout.
+     *  A overallReadTimeout and of zero is interpreted as an infinite read timeout.
+     *  A overallWriteTimeout and of zero is interpreted as an infinite write timeout.
 
      * @param timeout the specified timeout, in milliseconds.
      * @exception SocketException if there is an error
      * in the underlying protocol, such as a TCP error.
      * @see #getOverallTimeout()
      */
-    void setReadTimeouts(int interByteTimeout, int overallTimeout) throws IOException;
+    void setTimeouts(int interByteReadTimeout, int overallReadTimeout, int overallWriteTimeout) throws IOException;
 
 }

@@ -16,6 +16,11 @@ public class ReadElfHeaderTest {
 		ReadElfHeader elfHeader = new ReadElfHeader(is);
 		assertEquals(ReadElfHeader.Format._32_BIT,elfHeader.getFormat());
 		assertEquals(ReadElfHeader.Endian.LITTLE_ENDIAN,elfHeader.getEndian());
+		assertEquals(1,elfHeader.getElfVersion());
+		assertEquals(ReadElfHeader.OsAbi.SYSTEM_V,elfHeader.getOsAbi());
+		assertEquals(0,elfHeader.getAbiVersion());
+		assertEquals(ReadElfHeader.Type.SHARED,elfHeader.getType());
+		assertEquals(ReadElfHeader.Isa.ARM,elfHeader.getMachine());
 	}
 
 	@Test
@@ -24,6 +29,11 @@ public class ReadElfHeaderTest {
 		ReadElfHeader elfHeader = new ReadElfHeader(is);
 		assertEquals(ReadElfHeader.Format._64_BIT,elfHeader.getFormat());
 		assertEquals(ReadElfHeader.Endian.LITTLE_ENDIAN,elfHeader.getEndian());
+		assertEquals(1,elfHeader.getElfVersion());
+		assertEquals(ReadElfHeader.OsAbi.SYSTEM_V,elfHeader.getOsAbi());
+		assertEquals(0,elfHeader.getAbiVersion());
+		assertEquals(ReadElfHeader.Type.SHARED,elfHeader.getType());
+		assertEquals(ReadElfHeader.Isa.A_ARCH_64,elfHeader.getMachine());
 	}
 
 	@Test

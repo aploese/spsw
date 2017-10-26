@@ -62,6 +62,19 @@ public class LoggingSerialPortSocket implements SerialPortSocket {
     }
 
     @Override
+    public int getOverallWriteTimeout() throws IOException {
+        logWriter.beforeGetOverallWriteTimeout(Instant.now());
+        try {
+            final int result = serialPortSocket.getOverallWriteTimeout();
+            logWriter.afterGetOverallWriteTimeout(Instant.now(), result);
+            return result;
+        } catch (IOException e) {
+            logWriter.afterGetOverallWriteTimeout(Instant.now(), e);
+            throw e;
+        }
+    }
+
+    @Override
     public int getOverallReadTimeout() throws IOException {
         logWriter.beforeGetOverallReadTimeout(Instant.now());
         try {
@@ -75,13 +88,13 @@ public class LoggingSerialPortSocket implements SerialPortSocket {
     }
 
     @Override
-    public void setReadTimeouts(int interByteTimeout, int overallTimeout) throws IOException {
-        logWriter.beforeSetReadTimeouts(Instant.now(), interByteTimeout, overallTimeout);
+    public void setTimeouts(int interByteReadTimeout, int overallReadTimeout, int overallWriteTimeout) throws IOException {
+        logWriter.beforeSetTimeouts(Instant.now(), interByteReadTimeout, overallReadTimeout, overallWriteTimeout);
         try {
-            serialPortSocket.setReadTimeouts(interByteTimeout, overallTimeout);
-            logWriter.afterSetReadTimeouts(Instant.now());
+            serialPortSocket.setTimeouts(interByteReadTimeout, overallReadTimeout, overallWriteTimeout);
+            logWriter.afterSetTimeouts(Instant.now());
         } catch (IOException e) {
-            logWriter.afterSetReadTimeouts(Instant.now(), e);
+            logWriter.afterSetTimeouts(Instant.now(), e);
             throw e;
         }
     }

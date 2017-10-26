@@ -249,13 +249,21 @@ static void throw_SerialPortException_Closed(JNIEnv *env, jobject object) {
     (*env)->DeleteLocalRef(env, speClass);
 }
 
-static void throw_Read_Timeout_Exception(JNIEnv *env, const char *msg) {
-    const jclass cls = (*env)->FindClass(env, "java/io/InterruptedIOException");
-    if (cls != NULL) {
-        (*env)->ThrowNew(env, cls, msg);
-    }
-    (*env)->DeleteLocalRef(env, cls);
+static void throw_InterruptedIOException(JNIEnv *env, jobject object, int bytesTransferred, const char *msg) {
+    const jstring portName = (jstring) (*env)->GetObjectField(env, object, spsw_portName);
+    const char* port = (*env)->GetStringUTFChars(env, portName, JNI_FALSE);
+    char buf[2048];
+    snprintf(buf, 2048, "%s (%s) : Unknown port error %d: (%s)", msg, port, errno, strerror(errno));
+    (*env)->ReleaseStringUTFChars(env, portName, port);
+    const jclass iioeClass = (*env)->FindClass(env, "java/io/InterruptedIOException");
+    const jmethodID iioeConstructor = (*env)->GetMethodID(env, iioeClass, "<init>", "(Ljava/lang/String;)V");
+    const jobject iioeEx = (*env)->NewObject(env, iioeClass, iioeConstructor, (*env)->NewStringUTF(env, buf));
+    const jfieldID bytesTransferredId = (*env)->GetFieldID(env, iioeClass, "bytesTransferred", "I");
+    (*env)->SetIntField(env, iioeEx, bytesTransferredId, bytesTransferred);
+    (*env)->Throw(env, iioeEx);
+    (*env)->DeleteLocalRef(env, iioeClass);
 }
+
 
 static jboolean getCommModemStatus(JNIEnv *env, jobject object, DWORD bitMask) {
     DWORD lpModemStat;
@@ -812,7 +820,7 @@ JNIEXPORT jint JNICALL Java_de_ibapl_spsw_provider_GenericWinSerialPortSocket_re
             throw_SerialPortException_Closed(env, object);
             return -1;
         } else {
-            throw_Read_Timeout_Exception(env, "Timeout read single byte");
+            throw_InterruptedIOException(env, object, dwBytesRead, "Timeout read single byte");
             return -1;
         }
     }
@@ -826,7 +834,7 @@ JNIEXPORT jint JNICALL Java_de_ibapl_spsw_provider_GenericWinSerialPortSocket_re
             throw_SerialPortException_Closed(env, object);
             return -1;
         } else {
-            throw_Read_Timeout_Exception(env, "Timeout read single byte");
+            throw_InterruptedIOException(env, object, dwBytesRead, "Timeout read single byte");
             return -1;
         }
     } else {
@@ -894,7 +902,7 @@ JNIEXPORT jint JNICALL Java_de_ibapl_spsw_provider_GenericWinSerialPortSocket_re
             throw_SerialPortException_Closed(env, object);
             return -1;
         } else {
-            throw_Read_Timeout_Exception(env, "Timeout read multiple bytes");
+            throw_InterruptedIOException(env, object, dwBytesRead, "Timeout readBytes");
             return -1;
         }
     }
@@ -913,7 +921,7 @@ JNIEXPORT jint JNICALL Java_de_ibapl_spsw_provider_GenericWinSerialPortSocket_re
             throw_SerialPortException_Closed(env, object);
             return -1;
         } else {
-            throw_Read_Timeout_Exception(env, "Timeout read single byte");
+            throw_InterruptedIOException(env, object, dwBytesRead, "Timeout readBytes");
             return -1;
         }
     } else {
@@ -1072,11 +1080,11 @@ JNIEXPORT void JNICALL Java_de_ibapl_spsw_provider_GenericWinSerialPortSocket_se
 
 /*
  * Class:     de_ibapl_spsw_provider_GenericWinSerialPortSocket
- * Method:    setReadTimeouts
+ * Method:    setTimeouts
  * Signature: (JI)V
  */
-JNIEXPORT void JNICALL Java_de_ibapl_spsw_provider_GenericWinSerialPortSocket_setReadTimeouts
-(JNIEnv *env, jobject object, jint interByteTimeout, jint overallTimeout) {
+JNIEXPORT void JNICALL Java_de_ibapl_spsw_provider_GenericWinSerialPortSocket_setTimeouts
+(JNIEnv *env, jobject object, jint interByteReadTimeout, jint overallReadTimeout, jint overallWriteTimeout) {
 
 #if defined(__i386)
     HANDLE hFile = (HANDLE) (DWORD) (*env)->GetLongField(env, object, spsw_fd);
@@ -1090,44 +1098,57 @@ JNIEXPORT void JNICALL Java_de_ibapl_spsw_provider_GenericWinSerialPortSocket_se
             throw_SerialPortException_Closed(env, object);
             return;
         } else {
-            throw_SerialPortException_With_PortName(env, object, "getTimeout");
+            throw_SerialPortException_With_PortName(env, object, "setTimeouts");
             return;
         }
     }
 
-    if (overallTimeout < 0) {
-        throw_Illegal_Argument_Exception(env, "setReadTimeouts: overallTimeout must >= 0");
+    if (overallWriteTimeout < 0) {
+        throw_Illegal_Argument_Exception(env, "setTimeouts: overallWriteTimeout must >= 0");
         return;
-    } else if (overallTimeout == MAXDWORD) {
+    } else if (overallWriteTimeout == MAXDWORD) {
         //MAXDWORD has a special meaning...
-        overallTimeout = MAXDWORD - 1;
+        overallWriteTimeout = MAXDWORD - 1;
     }
 
-    if (interByteTimeout < 0) {
-        throw_Illegal_Argument_Exception(env, "setReadTimeouts: interByteTimeout must >= 0");
+    if (overallReadTimeout < 0) {
+        throw_Illegal_Argument_Exception(env, "setTimeouts: overallReadTimeout must >= 0");
         return;
-    } else if (interByteTimeout == MAXDWORD) {
+    } else if (overallReadTimeout == MAXDWORD) {
         //MAXDWORD has a special meaning...
-        interByteTimeout = MAXDWORD - 1;
+        overallReadTimeout = MAXDWORD - 1;
     }
 
-    if ((interByteTimeout == 0) && (overallTimeout > 0)) {
-        //This fits best for wait a timeout and have no interByteTimeout see also getInterbyteTimeout for reading back
+    if (interByteReadTimeout < 0) {
+        throw_Illegal_Argument_Exception(env, "setReadTimeouts: interByteReadTimeout must >= 0");
+        return;
+    } else if (interByteReadTimeout == MAXDWORD) {
+        //MAXDWORD has a special meaning...
+        interByteReadTimeout = MAXDWORD - 1;
+    }
+
+    if ((interByteReadTimeout == 0) && (overallReadTimeout > 0)) {
+        //This fits best for wait a timeout and have no interByteReadTimeout see also getInterbyteReadTimeout for reading back
         lpCommTimeouts.ReadIntervalTimeout = MAXDWORD;
         lpCommTimeouts.ReadTotalTimeoutMultiplier = MAXDWORD;
-        lpCommTimeouts.ReadTotalTimeoutConstant = overallTimeout;
+        lpCommTimeouts.ReadTotalTimeoutConstant = overallReadTimeout;
     } else {
-        lpCommTimeouts.ReadIntervalTimeout = interByteTimeout;
+        lpCommTimeouts.ReadIntervalTimeout = interByteReadTimeout;
         lpCommTimeouts.ReadTotalTimeoutMultiplier = 0;
-        lpCommTimeouts.ReadTotalTimeoutConstant = overallTimeout;
+        lpCommTimeouts.ReadTotalTimeoutConstant = overallReadTimeout;
     }
+
+
+        lpCommTimeouts.WriteTotalTimeoutMultiplier = 0;
+	lpCommTimeouts.WriteTotalTimeoutConstant = overallWriteTimeout;
+
 
     if (!SetCommTimeouts(hFile, &lpCommTimeouts)) {
         if ((*env)->GetIntField(env, object, spsw_fd) == INVALID_FD) {
             throw_SerialPortException_Closed(env, object);
             return;
         } else {
-            throw_SerialPortException_With_PortName(env, object, "setReadTimeouts SetCommTimeouts");
+            throw_SerialPortException_With_PortName(env, object, "setTimeouts SetCommTimeouts");
             return;
         }
     }
@@ -1462,6 +1483,33 @@ JNIEXPORT jint JNICALL Java_de_ibapl_spsw_provider_GenericWinSerialPortSocket_ge
 
 /*
  * Class:     de_ibapl_spsw_provider_GenericWinSerialPortSocket
+ * Method:    getOverallWriteTimeout
+ * Signature: (J)I
+ */
+JNIEXPORT jint JNICALL Java_de_ibapl_spsw_provider_GenericWinSerialPortSocket_getOverallWriteTimeout
+(JNIEnv *env, jobject object) {
+
+#if defined(__i386)
+    HANDLE hFile = (HANDLE) (DWORD) (*env)->GetLongField(env, object, spsw_fd);
+#elif defined(__x86_64)
+    HANDLE hFile = (HANDLE) (*env)->GetLongField(env, object, spsw_fd);
+#endif
+
+    COMMTIMEOUTS lpCommTimeouts;
+    if (!GetCommTimeouts(hFile, &lpCommTimeouts)) {
+        if ((*env)->GetIntField(env, object, spsw_fd) == INVALID_FD) {
+            throw_SerialPortException_Closed(env, object);
+            return -1;
+        } else {
+            throw_SerialPortException_With_PortName(env, object, "getOverallWriteTimeout");
+            return -1;
+        }
+    }
+    return lpCommTimeouts.WriteTotalTimeoutConstant;
+}
+
+/*
+ * Class:     de_ibapl_spsw_provider_GenericWinSerialPortSocket
  * Method:    getOverallReadTimeout
  * Signature: (J)I
  */
@@ -1480,7 +1528,7 @@ JNIEXPORT jint JNICALL Java_de_ibapl_spsw_provider_GenericWinSerialPortSocket_ge
             throw_SerialPortException_Closed(env, object);
             return -1;
         } else {
-            throw_SerialPortException_With_PortName(env, object, "getOverallTimeout");
+            throw_SerialPortException_With_PortName(env, object, "getOverallReadTimeout");
             return -1;
         }
     }
@@ -1507,7 +1555,7 @@ JNIEXPORT jint JNICALL Java_de_ibapl_spsw_provider_GenericWinSerialPortSocket_ge
             throw_SerialPortException_Closed(env, object);
             return -1;
         } else {
-            throw_SerialPortException_With_PortName(env, object, "getInterByteTimeout");
+            throw_SerialPortException_With_PortName(env, object, "getInterByteReadTimeout");
             return -1;
         }
     }
