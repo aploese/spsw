@@ -418,7 +418,7 @@ Bundle-NativeCode: \
                                     </sources>
                                     <linkerExecutable>mips-linux-gnu-gcc</linkerExecutable>
                                     <linkerStartOptions>
-                                        <linkerStartOption>-shared -lc -ldl</linkerStartOption>
+                                        <linkerStartOption>-shared -lc -ldl -s</linkerStartOption>
                                     </linkerStartOptions>
                                     <linkerFinalName />
                                     <linkerEndOptions>
@@ -470,7 +470,7 @@ Bundle-NativeCode: \
                                     </sources>
                                     <linkerExecutable>mipsel-linux-gnu-gcc</linkerExecutable>
                                     <linkerStartOptions>
-                                        <linkerStartOption>-shared -lc -ldl</linkerStartOption>
+                                        <linkerStartOption>-shared -lc -ldl -s</linkerStartOption>
                                     </linkerStartOptions>
                                     <linkerFinalName />
                                     <linkerEndOptions>
@@ -522,7 +522,7 @@ Bundle-NativeCode: \
                                     </sources>
                                     <linkerExecutable>mips64-linux-gnuabi64-gcc</linkerExecutable>
                                     <linkerStartOptions>
-                                        <linkerStartOption>-shared -lc -ldl</linkerStartOption>
+                                        <linkerStartOption>-shared -lc -ldl -s</linkerStartOption>
                                     </linkerStartOptions>
                                     <linkerFinalName />
                                     <linkerEndOptions>
@@ -574,7 +574,7 @@ Bundle-NativeCode: \
                                     </sources>
                                     <linkerExecutable>mips64el-linux-gnuabi64-gcc</linkerExecutable>
                                     <linkerStartOptions>
-                                        <linkerStartOption>-shared -lc -ldl</linkerStartOption>
+                                        <linkerStartOption>-shared -lc -ldl -s</linkerStartOption>
                                     </linkerStartOptions>
                                     <linkerFinalName />
                                     <linkerEndOptions>
