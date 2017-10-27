@@ -149,7 +149,7 @@ public class OnePortTest {
 
 		spc.close();
 		Assert.assertTrue(spc.isClosed());
-}
+	}
 
 	@Test(timeout = 5000)
 	public void testOverallTimeoutBlocking() throws Exception {
@@ -595,7 +595,7 @@ public class OnePortTest {
 			}
 		}
 		LOG.info("OK Finish");
-		
+
 		Assert.assertTrue(spc.isClosed());
 	}
 
@@ -706,92 +706,114 @@ public class OnePortTest {
 		Assert.assertTrue(spc.isClosed());
 	}
 
+	/**
+	 * Write byte[1024] blocks with set RTS/CTS so the port will actually block 
+	 * The logs give information about the actual behavior
+	 * 
+	 * @throws Exception
+	 */
 	@Test
 	public void testWriteBytesTimeout() throws Exception {
 		Assume.assumeNotNull(spc);
 		LOG.log(Level.INFO, "run testWriteBytesTimeout");
-		spc.openRaw(Baudrate.B115200, DataBits.DB_8, StopBits.SB_1, Parity.EVEN, FlowControl.getFC_RTS_CTS());
+		// Set a high baudrate to speed up things
+		spc.openRaw(Baudrate.B4000000, DataBits.DB_8, StopBits.SB_1, Parity.EVEN, FlowControl.getFC_RTS_CTS());
+		// make sure out buffer is empty
+		assertEquals(0, spc.getOutBufferBytesCount());
 		spc.setTimeouts(100, 1000, 1000);
 		assertEquals(1000, spc.getOverallWriteTimeout());
 		assertEquals(100, spc.getInterByteReadTimeout());
 		assertEquals(1000, spc.getOverallReadTimeout());
 		byte[] data = new byte[1024];
-		try {
-			for (int i = 1; i < 1024; i++) {
-				spc.getOutputStream().write(data);
+		int round = 1;
+		int i = 0;
+		int dataWritten;
+		int overallDataWritten = 0;
+		do {
+			dataWritten = 0;
+			try {
+				for (i = 0; i < 1024; i++) {
+					spc.getOutputStream().write(data);
+				}
+				fail();
+			} catch (InterruptedIOException e) {
+				dataWritten = ((i * data.length) + e.bytesTransferred);
+				LOG.log(Level.INFO, "Round: " + round + ": " + dataWritten + " bytes written; OutBuf:  "
+						+ spc.getOutBufferBytesCount());
+				assertTrue(true);
 			}
-			fail();
-		} catch (InterruptedIOException e) {
-			assertTrue(true);
-		}
-		try {
-			spc.getOutputStream().flush();
-			fail();
-		} catch (InterruptedIOException e) {
-			assertTrue(true);
-		}
+			try {
+				spc.getOutputStream().flush();
+				fail();
+			} catch (InterruptedIOException e) {
+				LOG.log(Level.INFO, "Round: " + round + " Flush; OutBuf:  " + spc.getOutBufferBytesCount());
+				assertTrue(true);
+			}
+			round++;
+			overallDataWritten += dataWritten;
+		} while (dataWritten > 0);
 
-		try {
-			spc.getOutputStream().write(data);
-			fail();
-		} catch (IOException e) {
-			assertTrue(true);
-		}
-		try {
-			spc.getOutputStream().flush();
-			fail();
-		} catch (InterruptedIOException e) {
-			assertTrue(true);
-		}
-
+		LOG.log(Level.INFO,
+				"Wrote: " + overallDataWritten + " in " + round + " rounds; OutBuf:  " + spc.getOutBufferBytesCount());
+		LOG.log(Level.INFO, "disable flow control to sped up closing");
+		spc.setFlowControl(FlowControl.getFC_NONE());
+		LOG.log(Level.INFO, "will close port");
 		spc.close();
 		Assert.assertTrue(spc.isClosed());
+		LOG.log(Level.INFO, "port closed");
 	}
 
+	/**
+	 * Write a single byte with set RTS/CTS so the port will actually block 
+	 * The logs give information about the actual behavior
+	 * 
+	 * @throws Exception
+	 */
 	@Test
 	public void testWriteSingleByteTimeout() throws Exception {
 		Assume.assumeNotNull(spc);
 		LOG.log(Level.INFO, "run testWriteSingleByteTimeout");
-		spc.openRaw(Baudrate.B115200, DataBits.DB_8, StopBits.SB_1, Parity.EVEN, FlowControl.getFC_RTS_CTS());
+		// Set a high baudrate to speed up things
+		spc.openRaw(Baudrate.B4000000, DataBits.DB_8, StopBits.SB_1, Parity.EVEN, FlowControl.getFC_RTS_CTS());
+		// make sure out buffer is empty
+		assertEquals(0, spc.getOutBufferBytesCount());
 		spc.setTimeouts(100, 1000, 1000);
 		assertEquals(1000, spc.getOverallWriteTimeout());
 		assertEquals(100, spc.getInterByteReadTimeout());
 		assertEquals(1000, spc.getOverallReadTimeout());
+		int round = 1;
 		int i = 0;
-		try {
-			for (i = 0; i < 1048576; i++) {
-				spc.getOutputStream().write(0);
+		int dataWritten;
+		int overallDataWritten = 0;
+		do {
+			dataWritten = 0;
+			try {
+				for (i = 0; i < 1048576; i++) {
+					spc.getOutputStream().write(0);
+				}
+				fail();
+			} catch (InterruptedIOException e) {
+				dataWritten = i + e.bytesTransferred;
+				LOG.log(Level.INFO, "Round: " + round + ": " + dataWritten + " bytes written; OutBuf:  "
+						+ spc.getOutBufferBytesCount());
+				assertTrue(true);
 			}
-			fail();
-		} catch (InterruptedIOException e) {
-			int s = spc.getOutBufferBytesCount();
-			LOG.log(Level.INFO, "First: " +i + " bytes written; OutBuf:  " + s);
-			assertTrue(true);
-		}
-		try {
-			spc.getOutputStream().flush();
-			fail();
-		} catch (InterruptedIOException e) {
-			assertTrue(true);
-		}
-
-		try {
-			for (i = 0; i < 1048576; i++) {
-				spc.getOutputStream().write(0);
+			try {
+				spc.getOutputStream().flush();
+				fail();
+			} catch (InterruptedIOException e) {
+				LOG.log(Level.INFO, "Round: " + round + " Flush; OutBuf:  " + spc.getOutBufferBytesCount());
+				assertTrue(true);
 			}
-			fail();
-		} catch (IOException e) {
-			int s = spc.getOutBufferBytesCount();
-			LOG.log(Level.INFO, "Second: " + i + " bytes written; OutBuf:  " + s);
-			assertTrue(true);
-		}
-		try {
-			spc.getOutputStream().flush();
-			fail();
-		} catch (InterruptedIOException e) {
-			assertTrue(true);
-		}
+			round++;
+			overallDataWritten += dataWritten;
 
+		} while (dataWritten > 0);
+
+		LOG.log(Level.INFO,
+				"Wrote: " + overallDataWritten + " in " + round + " rounds; OutBuf:  " + spc.getOutBufferBytesCount());
+		LOG.log(Level.INFO, "disable flow control to sped up closing");
+		spc.setFlowControl(FlowControl.getFC_NONE());
 		LOG.log(Level.INFO, "will close port");
 		spc.close();
 		Assert.assertTrue(spc.isClosed());

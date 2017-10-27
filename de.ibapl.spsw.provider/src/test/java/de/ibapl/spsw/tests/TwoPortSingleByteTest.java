@@ -1,5 +1,7 @@
 package de.ibapl.spsw.tests;
 
+import static org.junit.Assert.fail;
+
 /*-
  * #%L
  * SPSW Provider
@@ -334,4 +336,12 @@ public class TwoPortSingleByteTest {
         runTest(Baudrate.B4000000, DEFAULT_TEST_BUFFER_SIZE);
     }
 
+    //TODO Implement
+    @Ignore
+    @Test
+    public void testWriteBufferFull() {
+    	// TODO fill out buffer and read then some bytes single and multiple ...
+    	fail();
+    }
+    
 }
