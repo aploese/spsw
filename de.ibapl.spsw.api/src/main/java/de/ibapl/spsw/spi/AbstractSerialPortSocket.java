@@ -108,20 +108,15 @@ public abstract class AbstractSerialPortSocket implements SerialPortSocket {
     @Override
     public synchronized void close() throws IOException {
         open = false;
-        //Make streams closed, so that they can not be reopend.
-        if (is != null) {
-            is = null;
-        }
-        if (os != null) {
-            os = null;
-        }
+        is = null;
+        os = null;
         close0();
     }
 
     @Override
     public synchronized InputStream getInputStream() throws IOException {
         if (!open) {
-            throw new SerialPortException(portName, SERIAL_PORT_CLOSED);
+            throw new SerialPortException(SerialPortException.SERIAL_PORT_SOCKET_CLOSED);
         }
         if (is == null) {
             is = new SerialInputStream();
@@ -132,7 +127,7 @@ public abstract class AbstractSerialPortSocket implements SerialPortSocket {
     @Override
     public synchronized OutputStream getOutputStream() throws IOException {
         if (!open) {
-            throw new SerialPortException(portName, SERIAL_PORT_CLOSED);
+            throw new SerialPortException(SerialPortException.SERIAL_PORT_SOCKET_CLOSED);
         }
         if (os == null) {
             os = new SerialOutputStream();

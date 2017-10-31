@@ -38,18 +38,10 @@ import org.osgi.annotation.versioning.ProviderType;
 @ProviderType
 public class SerialPortException extends IOException {
 
-    private final String portName;
+    public static final String SERIAL_PORT_SOCKET_CLOSED = "SerialPortSocket closed";
 
-    /**
-     * @return the portName
-     */
-    public String getPortName() {
-        return portName;
-    }
-
-    public SerialPortException(String portName, String message) {
+    public SerialPortException(String message) {
         super(message);
-        this.portName = portName;
     }
 
 }

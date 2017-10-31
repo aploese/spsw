@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.Socket;
+import java.net.SocketTimeoutException;
 import java.util.Set;
 
 import javax.net.SocketFactory;
@@ -14,19 +15,120 @@ import de.ibapl.spsw.api.Baudrate;
 import de.ibapl.spsw.api.DataBits;
 import de.ibapl.spsw.api.FlowControl;
 import de.ibapl.spsw.api.Parity;
+import de.ibapl.spsw.api.SerialPortException;
 import de.ibapl.spsw.api.SerialPortSocket;
 import de.ibapl.spsw.api.StopBits;
-import java.net.URL;
+import de.ibapl.spsw.api.TimeoutIOException;
 
 @ProviderType
 public class Ser2NetProvider implements SerialPortSocket {
+	
+	protected class InputStreamWrapper extends InputStream {
+		
+		private InputStreamWrapper() throws IOException {
+			origin = dataSocket.getInputStream();
+		}
+	
+		private final InputStream origin;
+		
+	        @Override
+	        public void close() throws IOException {
+	        	Ser2NetProvider.this.close();
+	        }
 
+	        @Override
+	        public int read() throws IOException {
+	            try {
+	            	return origin.read();
+	            } catch (SocketTimeoutException e) {
+	            	TimeoutIOException timeoutIOException = new TimeoutIOException(e.getMessage());
+	            	timeoutIOException.bytesTransferred = e.bytesTransferred;
+	            	timeoutIOException.initCause(e);
+	            	throw timeoutIOException;
+				}
+	        }
+
+	        @Override
+	        public int read(byte b[]) throws IOException {
+	            try {
+	            	return origin.read(b);
+	            } catch (SocketTimeoutException e) {
+	            	TimeoutIOException timeoutIOException = new TimeoutIOException(e.getMessage());
+	            	timeoutIOException.bytesTransferred = e.bytesTransferred;
+	            	timeoutIOException.initCause(e);
+	            	throw timeoutIOException;
+				}
+	        }
+
+	        @Override
+	        public int read(byte b[], int off, int len) throws IOException {
+	            try {
+	            	return origin.read(b, off, len);
+	            } catch (SocketTimeoutException e) {
+	            	TimeoutIOException timeoutIOException = new TimeoutIOException(e.getMessage());
+	            	timeoutIOException.bytesTransferred = e.bytesTransferred;
+	            	timeoutIOException.initCause(e);
+	            	throw timeoutIOException;
+				}
+	        }
+
+	        @Override
+	        public int available() throws IOException {
+            	return origin.available();
+	        }
+	}
+	
+    protected class OutputStreamWrapper extends OutputStream {
+		
+    	private OutputStreamWrapper() throws IOException {
+			origin = dataSocket.getOutputStream();
+
+		}
+	
+		private final OutputStream origin;
+
+        @Override
+        public void close() throws IOException {
+            Ser2NetProvider.this.close();
+        }
+
+        @Override
+        public void write(int b) throws IOException {
+                origin.write(b);
+        }
+
+        @Override
+        public void write(byte b[]) throws IOException {
+        	origin.write(b);
+        }
+
+        @Override
+        public void write(byte b[], int off, int len) throws IOException {
+        	origin.write(b, off, len);
+        }
+
+        @Override
+        public void flush() throws IOException {
+        	origin.flush();
+        }
+
+    }
+	
 	private Socket dataSocket;
 	private Socket controlSocket;
 	private String host;
 	private int dataPort;
 	private int controlPort;
-	
+	private Baudrate baudrate;
+	private Parity parity;
+	private StopBits stopBits;
+	private DataBits dataBits;
+	private Set<FlowControl> flowControl;
+	private InputStreamWrapper is;
+    private OutputStreamWrapper os;
+    
+
+
 	public Ser2NetProvider(String host, int dataPort, int controlPort) {
 		this.host = host;
 		this.dataPort = dataPort;
@@ -61,15 +163,25 @@ public class Ser2NetProvider implements SerialPortSocket {
 	}
 
 	@Override
-	public InputStream getInputStream() throws IOException {
-		// TODO Auto-generated method stub
-		return dataSocket.getInputStream();
+	public synchronized InputStream getInputStream() throws IOException {
+		if (isClosed()) {
+			throw new Ser2NetException(SerialPortException.SERIAL_PORT_SOCKET_CLOSED);
+		}
+        if (is == null) {
+            is = new InputStreamWrapper();
+        }
+        return is;
 	}
 
 	@Override
-	public OutputStream getOutputStream() throws IOException {
-		// TODO Auto-generated method stub
-		return dataSocket.getOutputStream();
+	public synchronized OutputStream getOutputStream() throws IOException {
+		if (isClosed()) {
+			throw new Ser2NetException(SerialPortException.SERIAL_PORT_SOCKET_CLOSED);
+		}
+        if (os == null) {
+            os = new OutputStreamWrapper();
+        }
+        return os;
 	}
 
 	@Override
@@ -111,20 +223,24 @@ public class Ser2NetProvider implements SerialPortSocket {
 	}
 
 	@Override
-	public void openRaw(Baudrate baudRate, DataBits dataBits, StopBits stopBits, Parity parity,
+	public void openRaw(Baudrate baudrate, DataBits dataBits, StopBits stopBits, Parity parity,
 			Set<FlowControl> flowControls) throws IOException {
-		dataSocket = SocketFactory.getDefault().createSocket(host, dataPort);
-		if (controlPort != -1) {
-			controlSocket = SocketFactory.getDefault().createSocket(host, controlPort);
-			//TODO Set port settings
-		} else {
-			//TODO print warning
-		}
+		this.baudrate = baudrate;
+		this.dataBits = dataBits;
+		this.stopBits = stopBits;
+		this.parity = parity;
+		this.flowControl = flowControls;
+		this.openRaw();
 	}
 
 	@Override
-	public void close() throws IOException {
-		dataSocket.close();
+	public synchronized void close() throws IOException {
+final Socket s = 		dataSocket;
+	dataSocket = null;
+		is = null;
+        os = null;
+        
+		s.close();
 		if (controlSocket != null) {
 			controlSocket.close();
 		}
@@ -186,8 +302,7 @@ public class Ser2NetProvider implements SerialPortSocket {
 
 	@Override
 	public int getInBufferBytesCount() throws IOException {
-		// TODO Auto-generated method stub
-		return 0;
+		return dataSocket.getInputStream().available();
 	}
 
 	@Override
@@ -204,62 +319,52 @@ public class Ser2NetProvider implements SerialPortSocket {
 
 	@Override
 	public void setFlowControl(Set<FlowControl> flowControls) throws IOException {
-		// TODO Auto-generated method stub
-		
+		this.flowControl = flowControls;
 	}
 
 	@Override
 	public void setBaudrate(Baudrate baudrate) throws IOException {
-		// TODO Auto-generated method stub
-		
+		this.baudrate = baudrate;
 	}
 
 	@Override
 	public void setDataBits(DataBits dataBits) throws IOException {
-		// TODO Auto-generated method stub
-		
+		this.dataBits = dataBits;
 	}
 
 	@Override
 	public void setStopBits(StopBits stopBits) throws IOException {
-		// TODO Auto-generated method stub
-		
+			this.stopBits = stopBits;
 	}
 
 	@Override
 	public void setParity(Parity parity) throws IOException {
-		// TODO Auto-generated method stub
-		
+		this.parity = parity;
 	}
 
 	@Override
 	public Baudrate getBaudrate() throws IOException {
-		// TODO Auto-generated method stub
-		return null;
+		return baudrate;
 	}
 
 	@Override
 	public DataBits getDatatBits() throws IOException {
-		// TODO Auto-generated method stub
-		return null;
+		return dataBits;
 	}
 
 	@Override
 	public StopBits getStopBits() throws IOException {
-		// TODO Auto-generated method stub
-		return null;
+		return stopBits;
 	}
 
 	@Override
 	public Parity getParity() throws IOException {
-		// TODO Auto-generated method stub
-		return null;
+		return parity;
 	}
 
 	@Override
 	public Set<FlowControl> getFlowControl() throws IOException {
-		// TODO Auto-generated method stub
-		return null;
+		return flowControl;
 	}
 
 	@Override
@@ -275,6 +380,7 @@ public class Ser2NetProvider implements SerialPortSocket {
 
 	@Override
 	public int getOverallWriteTimeout() throws IOException {
+		// TODO Auto-generated method stub
 		return 0;
 	}
 	@Override

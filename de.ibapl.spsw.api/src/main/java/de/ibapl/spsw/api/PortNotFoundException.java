@@ -38,7 +38,7 @@ import org.osgi.annotation.versioning.ProviderType;
 public class PortNotFoundException extends SerialPortException {
 
     public PortNotFoundException(String portName) {
-        super(portName, "Port not found: " + portName);
+        super("Port not found: " + portName);
     }
 
 }

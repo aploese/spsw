@@ -38,7 +38,7 @@ import org.osgi.annotation.versioning.ProviderType;
 public class NotASerialPortException extends SerialPortException {
 
     public NotASerialPortException(String portname) {
-        super(portname, "Not a serial port: " + portname);
+        super("Not a serial port: " + portname);
     }
 
 }

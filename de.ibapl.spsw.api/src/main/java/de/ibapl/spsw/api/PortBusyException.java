@@ -38,7 +38,7 @@ import org.osgi.annotation.versioning.ProviderType;
 public class PortBusyException extends SerialPortException {
 
     public PortBusyException(String portName) {
-        super(portName, "Port is busy: " + portName);
+        super("Port is busy: " + portName);
     }
 
 }

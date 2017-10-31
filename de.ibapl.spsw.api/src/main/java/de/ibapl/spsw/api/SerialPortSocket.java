@@ -42,8 +42,6 @@ import org.osgi.annotation.versioning.ProviderType;
 @ProviderType
 public interface SerialPortSocket extends Closeable {
 
-    static final String SERIAL_PORT_CLOSED = "SerialPort closed";
-
     boolean isClosed();
 
     boolean isCTS() throws IOException;

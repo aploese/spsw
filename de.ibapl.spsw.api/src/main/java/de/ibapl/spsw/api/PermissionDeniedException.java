@@ -38,7 +38,7 @@ import org.osgi.annotation.versioning.ProviderType;
 public class PermissionDeniedException extends SerialPortException {
 
     public PermissionDeniedException(String portName) {
-        super(portName, "Permission denied: " + portName);
+        super("Permission denied: " + portName);
     }
 
 }

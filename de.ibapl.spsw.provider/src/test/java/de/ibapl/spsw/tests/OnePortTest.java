@@ -46,8 +46,8 @@ import de.ibapl.spsw.api.Parity;
 import de.ibapl.spsw.api.SerialPortException;
 import de.ibapl.spsw.api.SerialPortSocket;
 import de.ibapl.spsw.api.StopBits;
+import de.ibapl.spsw.api.TimeoutIOException;
 import de.ibapl.spsw.provider.SerialPortSocketFactoryImpl;
-import java.io.InterruptedIOException;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Assume;
@@ -167,7 +167,7 @@ public class OnePortTest {
 		try {
 			int i = spc.getInputStream().read();
 			Assert.fail("No timeout Exception result of Read: " + i);
-		} catch (InterruptedIOException iioe) {
+		} catch (TimeoutIOException tioe) {
 			final long time = System.currentTimeMillis() - start;
 			LOG.log(Level.INFO, "Timeout: 1000ms and it took: " + time + "ms");
 			Assert.assertEquals(1000.0, time, 100.0); // We tolerate 5% difference
@@ -182,7 +182,7 @@ public class OnePortTest {
 		try {
 			int i = spc.getInputStream().read();
 			Assert.fail("No timeout Exception result of Read: " + i);
-		} catch (InterruptedIOException iioe) {
+		} catch (TimeoutIOException tioe) {
 			final long time = System.currentTimeMillis() - start;
 			LOG.log(Level.INFO, "Timeout: 1000ms and it took: " + time + "ms");
 			Assert.assertEquals(1000.0, time, 100.0); // We tolerate 5% difference
@@ -534,8 +534,8 @@ public class OnePortTest {
 					} else {
 						LOG.info(String.format("DATA: %x", data));
 					}
-				} catch (InterruptedIOException iioe) {
-					LOG.log(Level.INFO, "Caught Timeout: ", iioe);
+				} catch (TimeoutIOException tioe) {
+					LOG.log(Level.INFO, "Caught Timeout: ", tioe);
 				} catch (IOException e) {
 					LOG.log(Level.SEVERE, "Caught Exception: ", e);
 				}
@@ -736,7 +736,7 @@ public class OnePortTest {
 					spc.getOutputStream().write(data);
 				}
 				fail();
-			} catch (InterruptedIOException e) {
+			} catch (TimeoutIOException e) {
 				dataWritten = ((i * data.length) + e.bytesTransferred);
 				LOG.log(Level.INFO, "Round: " + round + ": " + dataWritten + " bytes written; OutBuf:  "
 						+ spc.getOutBufferBytesCount());
@@ -745,7 +745,7 @@ public class OnePortTest {
 			try {
 				spc.getOutputStream().flush();
 				fail();
-			} catch (InterruptedIOException e) {
+			} catch (TimeoutIOException e) {
 				LOG.log(Level.INFO, "Round: " + round + " Flush; OutBuf:  " + spc.getOutBufferBytesCount());
 				assertTrue(true);
 			}
@@ -792,7 +792,7 @@ public class OnePortTest {
 					spc.getOutputStream().write(0);
 				}
 				fail();
-			} catch (InterruptedIOException e) {
+			} catch (TimeoutIOException e) {
 				dataWritten = i + e.bytesTransferred;
 				LOG.log(Level.INFO, "Round: " + round + ": " + dataWritten + " bytes written; OutBuf:  "
 						+ spc.getOutBufferBytesCount());
@@ -801,7 +801,7 @@ public class OnePortTest {
 			try {
 				spc.getOutputStream().flush();
 				fail();
-			} catch (InterruptedIOException e) {
+			} catch (TimeoutIOException e) {
 				LOG.log(Level.INFO, "Round: " + round + " Flush; OutBuf:  " + spc.getOutBufferBytesCount());
 				assertTrue(true);
 			}
