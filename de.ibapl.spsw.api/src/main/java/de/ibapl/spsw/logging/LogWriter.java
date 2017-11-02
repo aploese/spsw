@@ -209,16 +209,33 @@ public class LogWriter {
 	}
 
 	void afterRead(final Instant ts, IOException e) {
-		log.append(formatTs(ts)).append("IS").append(ACION_RETURN).append(" read:\t").println(e.toString());
+		Duration d = Duration.between(readStartTS, ts);
+		log.append(formatTs(ts)).append("IS").append(ACION_RETURN).append(" read:\t").print(e.toString());
+		if (d.isZero()) {
+			log.println();
+		} else if (timeStampLogging != timeStampLogging.NONE) {
+			log.append("\"\tduration: ").println(d.toString());
+		} else {
+			log.println();
+		}
+
 		e.printStackTrace(log);
 		log.flush();
 	}
 
 	void afterWrite(Instant ts, IOException e) {
+		Duration d = Duration.between(readStartTS, ts);
 		if (!verbose) {
 			return;
 		}
-		log.append(formatTs(ts)).append("OS").append(ACION_RETURN).append(" write:\t").println(e.toString());
+		log.append(formatTs(ts)).append("OS").append(ACION_RETURN).append(" write:\t").print(e.toString());
+		if (d.isZero()) {
+			log.println();
+		} else if (timeStampLogging != timeStampLogging.NONE) {
+			log.append("\"\tduration: ").println(d.toString());
+		} else {
+			log.println();
+		}
 		e.printStackTrace(log);
 		log.flush();
 	}

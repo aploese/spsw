@@ -8,4 +8,7 @@ public class TimeoutIOException extends InterruptedIOException {
 		super(message);
 	}
 
+	public TimeoutIOException() {
+	}
+
 }
