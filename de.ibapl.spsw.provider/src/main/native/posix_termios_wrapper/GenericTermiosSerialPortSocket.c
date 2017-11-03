@@ -912,7 +912,7 @@ JNIEXPORT void JNICALL Java_de_ibapl_spsw_provider_GenericTermiosSerialPortSocke
     if (poll_result == 0) {
         //Timeout
         //Filehandle valid -> a timeout occured
-        throw_TimeoutIOException(env, 0);
+        throw_TimeoutIOException(env, written);
         return;
     } else if ((poll_result < 0)) {
         throw_InterruptedIOExceptionWithError(env, written, "poll timeout with error writeBytes");
@@ -942,6 +942,7 @@ JNIEXPORT void JNICALL Java_de_ibapl_spsw_provider_GenericTermiosSerialPortSocke
         return;
     }
 
+    int firstWritten = written;
     written = write(fd, buf, len);
     free(buf);
 
@@ -950,10 +951,10 @@ JNIEXPORT void JNICALL Java_de_ibapl_spsw_provider_GenericTermiosSerialPortSocke
             //Filehandle not valid -> closed.
             throw_SerialPortException_Closed(env);
 	} else {
-            throw_InterruptedIOExceptionWithError(env, 0, "writeBytes after poll no bytes written");
+            throw_InterruptedIOExceptionWithError(env, firstWritten, "writeBytes after poll no bytes written");
         }
     } else if (written < len) {
-        throw_TimeoutIOException(env, written);
+        throw_TimeoutIOException(env, firstWritten + written);
     }
 
 }
@@ -1541,7 +1542,7 @@ JNIEXPORT jint JNICALL Java_de_ibapl_spsw_provider_GenericTermiosSerialPortSocke
         }
 #endif
     }
-    throw_SerialPortException_With_PortName(env, object, "getParity0 Wrong Parity");
+    throw_SerialPortException_NativeError(env, "getParity0 Wrong Parity");
     return -1;
 }
 

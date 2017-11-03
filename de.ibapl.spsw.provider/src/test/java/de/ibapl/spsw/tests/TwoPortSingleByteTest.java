@@ -1,5 +1,7 @@
 package de.ibapl.spsw.tests;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 /*-
@@ -43,6 +45,7 @@ import de.ibapl.spsw.provider.GenericTermiosSerialPortSocket;
 import de.ibapl.spsw.api.Parity;
 import de.ibapl.spsw.api.SerialPortSocket;
 import de.ibapl.spsw.api.StopBits;
+import de.ibapl.spsw.api.TimeoutIOException;
 import de.ibapl.spsw.provider.SerialPortSocketFactoryImpl;
 import java.util.Arrays;
 import org.junit.After;
@@ -336,12 +339,149 @@ public class TwoPortSingleByteTest {
         runTest(Baudrate.B4000000, DEFAULT_TEST_BUFFER_SIZE);
     }
 
-    //TODO Implement
-    @Ignore
+    @Ignore // Can't test this my USB driver does not really do RTS/CTS
     @Test
-    public void testWriteBufferFull() {
-    	// TODO fill out buffer and read then some bytes single and multiple ...
+    public void testWriteBufferFull() throws Exception {
+        Assume.assumeNotNull(spc);
+		LOG.log(Level.INFO, "run testWriteSingleByteTimeout");
+		// Set a high baudrate to speed up things
+		spc[0].openRaw(Baudrate.B115200, DataBits.DB_8, StopBits.SB_1, Parity.EVEN, FlowControl.getFC_RTS_CTS());
+		assertEquals(FlowControl.getFC_RTS_CTS(), spc[0].getFlowControl());
+		spc[1].openRaw(Baudrate.B115200, DataBits.DB_8, StopBits.SB_1, Parity.EVEN, FlowControl.getFC_RTS_CTS());
+		assertEquals(FlowControl.getFC_RTS_CTS(), spc[1].getFlowControl());
+		// make sure out buffer is empty
+		assertEquals(0, spc[0].getOutBufferBytesCount());
+		spc[0].setTimeouts(100, 1000, 10000);
+		spc[1].setTimeouts(100, 1000, 10000);
+		final byte[] b = new byte[1024*1024];
+		for (int i = 0; i < b.length; i++ ) {
+			b[i] = (byte)i;
+		}
+		int round = 1;
+		int dataWritten;
+		int overallDataWritten = 0;
+
+		do {
+			try {
+				spc[0].getOutputStream().write(0xFF);
+				dataWritten = 1; //b.length;
+			} catch (TimeoutIOException e) {
+				dataWritten = e.bytesTransferred;
+			}
+			try {
+				spc[0].getOutputStream().flush();
+			} catch (TimeoutIOException e) {
+			}
+			round++;
+			overallDataWritten += dataWritten;
+			LOG.log(Level.INFO,
+					"Wrote: " + dataWritten + " (" + overallDataWritten + ") in " + round + " rounds; OutBuf:  " + spc[0].getOutBufferBytesCount() + "inBuffer: " + spc[1].getInBufferBytesCount());
+		} while (dataWritten > 0);
+
+		LOG.log(Level.INFO,
+				"Wrote: " + overallDataWritten + " in " + round + " rounds; OutBuf:  " + spc[0].getOutBufferBytesCount());
+		LOG.log(Level.INFO, "disable flow control to sped up closing");
+		byte[] read = new byte[256];
+		assertEquals(256, spc[1].getInputStream().read(read));
+		new Thread(() -> {
+			try {
+				spc[0].getOutputStream().write(b, 0, 1024);
+				fail();
+			} catch (TimeoutIOException tIoException) {
+				assertEquals(512, tIoException.bytesTransferred);
+			}catch (Exception e) {
+				fail();
+			}
+		}).start();
+
+		Thread.yield();
+		Thread.sleep(2000);
+		
+		assertEquals(256, spc[1].getInputStream().read(read));
+		
+		
+		
+		spc[0].setBaudrate(Baudrate.B500000);
+		spc[0].setFlowControl(FlowControl.getFC_NONE());
+		spc[0].close();
+		spc[1].close();
+		Assert.assertTrue(spc[0].isClosed());
+		Assert.assertTrue(spc[1].isClosed());
+		LOG.log(Level.INFO, "port closed");
     	fail();
     }
     
+    /**
+     * The receiving (spc[1] should stop transfer via RTS/CTS ...
+     * @throws Exception
+     */
+    @Ignore // Can't test this my USB driver does not really do RTS/CTS
+    @Test
+    public void testFillInbuffer() throws Exception {
+        Assume.assumeNotNull(spc);
+		LOG.log(Level.INFO, "run testWriteSingleByteTimeout");
+		// Set a high baudrate to speed up things
+		spc[0].openRaw(Baudrate.B115200, DataBits.DB_8, StopBits.SB_1, Parity.EVEN, FlowControl.getFC_RTS_CTS());
+		assertEquals(FlowControl.getFC_RTS_CTS(), spc[0].getFlowControl());
+		spc[1].openRaw(Baudrate.B115200, DataBits.DB_8, StopBits.SB_1, Parity.EVEN, FlowControl.getFC_RTS_CTS());
+		assertEquals(FlowControl.getFC_RTS_CTS(), spc[1].getFlowControl());
+		// make sure out buffer is empty
+		assertEquals(0, spc[0].getOutBufferBytesCount());
+		spc[0].setTimeouts(100, 1000, 10000);
+		spc[1].setTimeouts(100, 1000, 10000);
+		final byte[] b = new byte[1024];
+		for (int i = 0; i < b.length; i++ ) {
+			b[i] = (byte)i;
+		}
+		int round = 0;
+		int dataWritten;
+		int overallDataWritten = 0;
+
+		do {
+			try {
+				spc[0].getOutputStream().write(b);
+				dataWritten = b.length;
+			} catch (TimeoutIOException e) {
+				dataWritten = e.bytesTransferred;
+			}
+			try {
+				spc[0].getOutputStream().flush();
+			} catch (TimeoutIOException e) {
+			}
+			round++;
+			overallDataWritten += dataWritten;
+			LOG.log(Level.INFO,
+					"Wrote: " + dataWritten + " (" + overallDataWritten + ") in " + round + " rounds; OutBuf:  " + spc[0].getOutBufferBytesCount() + "inBuffer: " + spc[1].getInBufferBytesCount());
+			if (round == 1024) {
+				break;
+			}
+		} while (dataWritten > 0);
+
+		LOG.log(Level.INFO,
+				"Wrote: " + overallDataWritten + " in " + round + " rounds; OutBuf:  " + spc[0].getOutBufferBytesCount());
+		LOG.log(Level.INFO, "disable flow control to sped up closing");
+		int dataread = 0;
+		int readTotal = 0;;
+		do {
+			try {
+				dataread = spc[1].getInputStream().read(b);
+				LOG.log(Level.INFO, "Read: " + dataread);
+			} catch (TimeoutIOException e) {
+				dataread = e.bytesTransferred;
+				LOG.log(Level.INFO, "Got timeout");
+			}
+			readTotal += dataread;
+		} while (dataread > 0);
+		assertEquals(overallDataWritten, readTotal);
+		
+		
+		
+		spc[0].setBaudrate(Baudrate.B500000);
+		spc[0].setFlowControl(FlowControl.getFC_NONE());
+		spc[0].close();
+		spc[1].close();
+		Assert.assertTrue(spc[0].isClosed());
+		Assert.assertTrue(spc[1].isClosed());
+		LOG.log(Level.INFO, "port closed");
+    }
 }
