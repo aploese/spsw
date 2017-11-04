@@ -364,7 +364,7 @@ public class TwoPortMultipleBytesTest {
         t.start();
         
         //Quick and dirty time lock to start receiver thread
-        Thread.yield();
+        Thread.sleep(100);
         
         os.write(sendBuff);
         os.flush();

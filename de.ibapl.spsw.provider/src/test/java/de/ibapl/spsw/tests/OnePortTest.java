@@ -657,9 +657,9 @@ public class OnePortTest {
 		assertEquals(0, spc.getInBufferBytesCount());
 		new Thread(() -> {
 			try {
-				Thread.yield();
+				Thread.sleep(100);
 				spc.close();
-			} catch (IOException e) {
+			} catch (InterruptedException | IOException e) {
 				fail("Exception occured");
 			}
 		}).start();
@@ -679,9 +679,9 @@ public class OnePortTest {
 		assertEquals(0, spc.getInBufferBytesCount());
 		new Thread(() -> {
 			try {
-				Thread.yield();
+				Thread.sleep(100);
 				spc.close();
-			} catch (IOException e) {
+			} catch (InterruptedException | IOException e) {
 				fail("Exception occured");
 			}
 		}).start();

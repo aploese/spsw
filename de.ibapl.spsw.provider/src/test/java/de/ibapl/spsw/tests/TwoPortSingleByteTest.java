@@ -394,7 +394,6 @@ public class TwoPortSingleByteTest {
 			}
 		}).start();
 
-		Thread.yield();
 		Thread.sleep(2000);
 		
 		assertEquals(256, spc[1].getInputStream().read(read));
