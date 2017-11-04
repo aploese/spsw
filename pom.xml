@@ -69,7 +69,7 @@
         </repository>
     </repositories>
 
-    <pluginRepositories>
+    <!--pluginRepositories>
         <pluginRepository>
             <id>bnd-snapshots</id>
             <url>https://bndtools.ci.cloudbees.com/job/bnd.master/lastSuccessfulBuild/artifact/dist/bundles/</url>
@@ -78,7 +78,7 @@
                 <enabled>true</enabled>
             </snapshots>
         </pluginRepository>
-    </pluginRepositories>
+    </pluginRepositories-->
 
 
     <distributionManagement>
@@ -237,7 +237,7 @@
                 <plugin>
                     <groupId>biz.aQute.bnd</groupId>
                     <artifactId>bnd-maven-plugin</artifactId>
-                    <version>3.5.0-SNAPSHOT</version>
+                    <version>3.5.0</version>
                     <executions>
                         <execution>
                             <goals>
@@ -252,7 +252,7 @@
                 <plugin>
                     <groupId>biz.aQute.bnd</groupId>
                     <artifactId>bnd-testing-maven-plugin</artifactId>
-                    <version>3.5.0-SNAPSHOT</version>
+                    <version>3.5.0</version>
                     <executions>
                         <execution>
                             <goals>

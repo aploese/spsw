@@ -225,8 +225,8 @@ static void throw_NotASerialPortException(JNIEnv *env, jstring portName) {
 
 static void throw_SerialPortException_Closed(JNIEnv *env) {
     const jclass speClass = (*env)->FindClass(env, "de/ibapl/spsw/api/SerialPortException");
-    const jfieldID spe_spsc = (*env)->GetFieldID(env, speClass, "SERIAL_PORT_SOCKET_CLOSED", "Ljava/lang/String;");
     if (speClass != NULL) {
+        const jfieldID spe_spsc = (*env)->GetStaticFieldID(env, speClass, "SERIAL_PORT_SOCKET_CLOSED", "Ljava/lang/String;");
         const jmethodID speConstructor = (*env)->GetMethodID(env, speClass, "<init>", "(Ljava/lang/String;)V");
         const jobject speEx = (*env)->NewObject(env, speClass, speConstructor, (*env)->GetStaticObjectField(env, speClass, spe_spsc));
         (*env)->Throw(env, speEx);

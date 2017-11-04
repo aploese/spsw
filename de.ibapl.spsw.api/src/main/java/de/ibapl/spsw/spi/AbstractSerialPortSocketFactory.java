@@ -32,6 +32,7 @@ import de.ibapl.spsw.api.SerialPortSocket;
 import de.ibapl.spsw.api.SerialPortSocketFactory;
 import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.Collections;
@@ -113,15 +114,15 @@ public abstract class AbstractSerialPortSocketFactory implements SerialPortSocke
 	 * @return the os.arch except on arm distingush between hf und sf ...
 	 */
 	public String getProcessorOsArchTupel() {
-		ReadElfHeader elfHeader;
-		try {
-			elfHeader = new ReadElfHeader();
-		} catch (IOException e) {
-			throw new RuntimeException(e);
-		}
 		final String osArch = System.getProperty("os.arch");
 		switch (getOsName()) {
 		case "linux":
+			ReadElfHeader elfHeader;
+			try {
+				elfHeader = new ReadElfHeader();
+			} catch (IOException e) {
+				throw new RuntimeException(e);
+			}
 			switch (osArch) {
 			case "arm":
 				return "arm-linux-gnueabihf";

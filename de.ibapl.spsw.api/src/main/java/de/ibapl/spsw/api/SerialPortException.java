@@ -29,6 +29,7 @@ package de.ibapl.spsw.api;
  * #L%
  */
 import java.io.IOException;
+import java.lang.annotation.Native;
 import org.osgi.annotation.versioning.ProviderType;
 
 /**
@@ -38,6 +39,7 @@ import org.osgi.annotation.versioning.ProviderType;
 @ProviderType
 public class SerialPortException extends IOException {
 
+    @Native
     public static final String SERIAL_PORT_SOCKET_CLOSED = "SerialPortSocket closed";
 
     public SerialPortException(String message) {
