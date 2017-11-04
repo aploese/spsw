@@ -824,7 +824,8 @@ public class OnePortTest {
 
 	@Test
 	public void testDefaultTimeouts() throws IOException {
-		spc.openRaw();
+		Assume.assumeNotNull(spc);
+  		spc.openRaw();
 		assertEquals(100, spc.getInterByteReadTimeout());
 		assertEquals(0, spc.getOverallReadTimeout());
 		assertEquals(0, spc.getOverallWriteTimeout());
