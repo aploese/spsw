@@ -30,10 +30,8 @@ package de.ibapl.spsw.spi;
  */
 import de.ibapl.spsw.api.SerialPortSocket;
 import de.ibapl.spsw.api.SerialPortSocketFactory;
-import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
-import java.io.InputStreamReader;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Set;
@@ -113,12 +111,6 @@ public abstract class AbstractSerialPortSocketFactory implements SerialPortSocke
 	 * @return the os.arch except on arm distingush between hf und sf ...
 	 */
 	public String getProcessorOsArchTupel() {
-		ReadElfHeader elfHeader;
-		try {
-			elfHeader = new ReadElfHeader();
-		} catch (IOException e) {
-			throw new RuntimeException(e);
-		}
 		final String osArch = System.getProperty("os.arch");
 		switch (getOsName()) {
 		case "linux":
@@ -132,7 +124,7 @@ public abstract class AbstractSerialPortSocketFactory implements SerialPortSocke
 			case "i386":
 				return "i386-linux-gnu";
 			case "mips":
-				switch (elfHeader.getEndian()) {
+				switch (getEndian()) {
 				case LITTLE_ENDIAN:
 					return "mipsel-linux-gnu";
 				case BIG_ENDIAN:
@@ -141,7 +133,7 @@ public abstract class AbstractSerialPortSocketFactory implements SerialPortSocke
 					throw new RuntimeException("Unknown endianess");
 				}
 			case "mips64":
-				switch (elfHeader.getEndian()) {
+				switch (getEndian()) {
 				case LITTLE_ENDIAN:
 					return "mips64el-linux-gnuabi64";
 				case BIG_ENDIAN:
@@ -166,6 +158,15 @@ public abstract class AbstractSerialPortSocketFactory implements SerialPortSocke
 		}
 
 	}
+    
+    private ReadElfHeader.Endian getEndian() {
+		try {
+			ReadElfHeader elfHeader = new ReadElfHeader();
+            return elfHeader.getEndian();
+		} catch (IOException e) {
+			throw new RuntimeException(e);
+		}
+    }
 
 	public String getOsName() {
 		switch (System.getProperty("os.name")) {
