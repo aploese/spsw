@@ -1,0 +1,288 @@
+ELF Header:
+  Magic:   7f 45 4c 46 01 01 01 00 00 00 00 00 00 00 00 00 
+  Class:                             ELF32
+  Data:                              2's complement, little endian
+  Version:                           1 (current)
+  OS/ABI:                            UNIX - System V
+  ABI Version:                       0
+  Type:                              DYN (Shared object file)
+  Machine:                           ARM
+  Version:                           0x1
+  Entry point address:               0x1780
+  Start of program headers:          52 (bytes into file)
+  Start of section headers:          20928 (bytes into file)
+  Flags:                             0x5000400, Version5 EABI, hard-float ABI
+  Size of this header:               52 (bytes)
+  Size of program headers:           32 (bytes)
+  Number of program headers:         6
+  Size of section headers:           40 (bytes)
+  Number of section headers:         25
+  Section header string table index: 24
+
+Section Headers:
+  [Nr] Name              Type            Addr     Off    Size   ES Flg Lk Inf Al
+  [ 0]                   NULL            00000000 000000 000000 00      0   0  0
+  [ 1] .note.gnu.build-i NOTE            000000f4 0000f4 000024 00   A  0   0  4
+  [ 2] .gnu.hash         GNU_HASH        00000118 000118 0001c0 04   A  3   0  4
+  [ 3] .dynsym           DYNSYM          000002d8 0002d8 000520 10   A  4   3  4
+  [ 4] .dynstr           STRTAB          000007f8 0007f8 000c8f 00   A  0   0  1
+  [ 5] .gnu.version      VERSYM          00001488 001488 0000a4 02   A  3   0  2
+  [ 6] .gnu.version_r    VERNEED         0000152c 00152c 000020 00   A  4   1  4
+  [ 7] .rel.dyn          REL             0000154c 00154c 000070 08   A  3   0  4
+  [ 8] .rel.plt          REL             000015bc 0015bc 0000a8 08  AI  3  19  4
+  [ 9] .init             PROGBITS        00001664 001664 00000c 00  AX  0   0  4
+  [10] .plt              PROGBITS        00001670 001670 000110 04  AX  0   0  4
+  [11] .text             PROGBITS        00001780 001780 0021d0 00  AX  0   0  4
+  [12] .fini             PROGBITS        00003950 003950 000008 00  AX  0   0  4
+  [13] .rodata           PROGBITS        00003958 003958 000ac4 01 AMS  0   0  4
+  [14] .eh_frame         PROGBITS        0000441c 00441c 000004 00   A  0   0  4
+  [15] .init_array       INIT_ARRAY      00014f0c 004f0c 000004 04  WA  0   0  4
+  [16] .fini_array       FINI_ARRAY      00014f10 004f10 000004 04  WA  0   0  4
+  [17] .jcr              PROGBITS        00014f14 004f14 000004 00  WA  0   0  4
+  [18] .dynamic          DYNAMIC         00014f18 004f18 0000e8 08  WA  4   0  4
+  [19] .got              PROGBITS        00015000 005000 00008c 04  WA  0   0  4
+  [20] .data             PROGBITS        0001508c 00508c 000004 00  WA  0   0  4
+  [21] .bss              NOBITS          00015090 005090 00001c 00  WA  0   0  4
+  [22] .comment          PROGBITS        00000000 005090 000026 01  MS  0   0  1
+  [23] .ARM.attributes   ARM_ATTRIBUTES  00000000 0050b6 000031 00      0   0  1
+  [24] .shstrtab         STRTAB          00000000 0050e7 0000d9 00      0   0  1
+Key to Flags:
+  W (write), A (alloc), X (execute), M (merge), S (strings), I (info),
+  L (link order), O (extra OS processing required), G (group), T (TLS),
+  C (compressed), x (unknown), o (OS specific), E (exclude),
+  y (purecode), p (processor specific)
+
+There are no section groups in this file.
+
+Program Headers:
+  Type           Offset   VirtAddr   PhysAddr   FileSiz MemSiz  Flg Align
+  LOAD           0x000000 0x00000000 0x00000000 0x04420 0x04420 R E 0x10000
+  LOAD           0x004f0c 0x00014f0c 0x00014f0c 0x00184 0x001a0 RW  0x10000
+  DYNAMIC        0x004f18 0x00014f18 0x00014f18 0x000e8 0x000e8 RW  0x4
+  NOTE           0x0000f4 0x000000f4 0x000000f4 0x00024 0x00024 R   0x4
+  GNU_STACK      0x000000 0x00000000 0x00000000 0x00000 0x00000 RW  0x10
+  GNU_RELRO      0x004f0c 0x00014f0c 0x00014f0c 0x000f4 0x000f4 R   0x1
+
+ Section to Segment mapping:
+  Segment Sections...
+   00     .note.gnu.build-id .gnu.hash .dynsym .dynstr .gnu.version .gnu.version_r .rel.dyn .rel.plt .init .plt .text .fini .rodata .eh_frame 
+   01     .init_array .fini_array .jcr .dynamic .got .data .bss 
+   02     .dynamic 
+   03     .note.gnu.build-id 
+   04     
+   05     .init_array .fini_array .jcr .dynamic 
+
+Dynamic section at offset 0x4f18 contains 25 entries:
+  Tag        Type                         Name/Value
+ 0x00000001 (NEEDED)                     Shared library: [libc.so.6]
+ 0x00000001 (NEEDED)                     Shared library: [libdl.so.2]
+ 0x0000000c (INIT)                       0x1664
+ 0x0000000d (FINI)                       0x3950
+ 0x00000019 (INIT_ARRAY)                 0x14f0c
+ 0x0000001b (INIT_ARRAYSZ)               4 (bytes)
+ 0x0000001a (FINI_ARRAY)                 0x14f10
+ 0x0000001c (FINI_ARRAYSZ)               4 (bytes)
+ 0x6ffffef5 (GNU_HASH)                   0x118
+ 0x00000005 (STRTAB)                     0x7f8
+ 0x00000006 (SYMTAB)                     0x2d8
+ 0x0000000a (STRSZ)                      3215 (bytes)
+ 0x0000000b (SYMENT)                     16 (bytes)
+ 0x00000003 (PLTGOT)                     0x15000
+ 0x00000002 (PLTRELSZ)                   168 (bytes)
+ 0x00000014 (PLTREL)                     REL
+ 0x00000017 (JMPREL)                     0x15bc
+ 0x00000011 (REL)                        0x154c
+ 0x00000012 (RELSZ)                      112 (bytes)
+ 0x00000013 (RELENT)                     8 (bytes)
+ 0x6ffffffe (VERNEED)                    0x152c
+ 0x6fffffff (VERNEEDNUM)                 1
+ 0x6ffffff0 (VERSYM)                     0x1488
+ 0x6ffffffa (RELCOUNT)                   3
+ 0x00000000 (NULL)                       0x0
+
+Relocation section '.rel.dyn' at offset 0x154c contains 14 entries:
+ Offset     Info    Type            Sym.Value  Sym. Name
+00014f0c  00000017 R_ARM_RELATIVE   
+00014f10  00000017 R_ARM_RELATIVE   
+0001508c  00000017 R_ARM_RELATIVE   
+00015060  00000315 R_ARM_GLOB_DAT    00000000   __cxa_finalize@GLIBC_2.4
+00015064  00000415 R_ARM_GLOB_DAT    00000000   _ITM_deregisterTMClone
+00015068  00003215 R_ARM_GLOB_DAT    00015094   spsw_fd
+0001506c  00004615 R_ARM_GLOB_DAT    00015098   spsw_pollWriteTimeout
+00015070  00001015 R_ARM_GLOB_DAT    00000000   __gmon_start__
+00015074  00003415 R_ARM_GLOB_DAT    0001509c   spsw_portName
+00015078  00004015 R_ARM_GLOB_DAT    000150a0   spsw_pollReadTimeout
+0001507c  00003315 R_ARM_GLOB_DAT    000150a4   genericTermiosSerialPo
+00015080  00001615 R_ARM_GLOB_DAT    00000000   _Jv_RegisterClasses
+00015084  00002f15 R_ARM_GLOB_DAT    000150a8   serialPortSocketFactor
+00015088  00001815 R_ARM_GLOB_DAT    00000000   _ITM_registerTMCloneTa
+
+Relocation section '.rel.plt' at offset 0x15bc contains 21 entries:
+ Offset     Info    Type            Sym.Value  Sym. Name
+0001500c  00000316 R_ARM_JUMP_SLOT   00000000   __cxa_finalize@GLIBC_2.4
+00015010  00000516 R_ARM_JUMP_SLOT   00000000   read@GLIBC_2.4
+00015014  00000616 R_ARM_JUMP_SLOT   00000000   tcflush@GLIBC_2.4
+00015018  00000716 R_ARM_JUMP_SLOT   00000000   free@GLIBC_2.4
+0001501c  00000816 R_ARM_JUMP_SLOT   00000000   tcsendbreak@GLIBC_2.4
+00015020  00000916 R_ARM_JUMP_SLOT   00000000   cfgetispeed@GLIBC_2.4
+00015024  00000a16 R_ARM_JUMP_SLOT   00000000   poll@GLIBC_2.4
+00015028  00000b16 R_ARM_JUMP_SLOT   00000000   ioctl@GLIBC_2.4
+0001502c  00000c16 R_ARM_JUMP_SLOT   00000000   tcsetattr@GLIBC_2.4
+00015030  00000d16 R_ARM_JUMP_SLOT   00000000   malloc@GLIBC_2.4
+00015034  00000e16 R_ARM_JUMP_SLOT   00000000   strerror@GLIBC_2.4
+00015038  00000f16 R_ARM_JUMP_SLOT   00000000   tcdrain@GLIBC_2.4
+0001503c  00001016 R_ARM_JUMP_SLOT   00000000   __gmon_start__
+00015040  00001116 R_ARM_JUMP_SLOT   00000000   open@GLIBC_2.4
+00015044  00001216 R_ARM_JUMP_SLOT   00000000   cfgetospeed@GLIBC_2.4
+00015048  00001316 R_ARM_JUMP_SLOT   00000000   __errno_location@GLIBC_2.4
+0001504c  00001416 R_ARM_JUMP_SLOT   00000000   snprintf@GLIBC_2.4
+00015050  00001516 R_ARM_JUMP_SLOT   00000000   write@GLIBC_2.4
+00015054  00001716 R_ARM_JUMP_SLOT   00000000   cfsetspeed@GLIBC_2.4
+00015058  00001916 R_ARM_JUMP_SLOT   00000000   close@GLIBC_2.4
+0001505c  00001a16 R_ARM_JUMP_SLOT   00000000   tcgetattr@GLIBC_2.4
+
+There are no unwind sections in this file.
+
+Symbol table '.dynsym' contains 82 entries:
+   Num:    Value  Size Type    Bind   Vis      Ndx Name
+     0: 00000000     0 NOTYPE  LOCAL  DEFAULT  UND 
+     1: 00001664     0 SECTION LOCAL  DEFAULT    9 
+     2: 00014f14     0 SECTION LOCAL  DEFAULT   17 
+     3: 00000000     0 FUNC    WEAK   DEFAULT  UND __cxa_finalize@GLIBC_2.4 (2)
+     4: 00000000     0 NOTYPE  WEAK   DEFAULT  UND _ITM_deregisterTMCloneTab
+     5: 00000000     0 FUNC    GLOBAL DEFAULT  UND read@GLIBC_2.4 (2)
+     6: 00000000     0 FUNC    GLOBAL DEFAULT  UND tcflush@GLIBC_2.4 (2)
+     7: 00000000     0 FUNC    GLOBAL DEFAULT  UND free@GLIBC_2.4 (2)
+     8: 00000000     0 FUNC    GLOBAL DEFAULT  UND tcsendbreak@GLIBC_2.4 (2)
+     9: 00000000     0 FUNC    GLOBAL DEFAULT  UND cfgetispeed@GLIBC_2.4 (2)
+    10: 00000000     0 FUNC    GLOBAL DEFAULT  UND poll@GLIBC_2.4 (2)
+    11: 00000000     0 FUNC    GLOBAL DEFAULT  UND ioctl@GLIBC_2.4 (2)
+    12: 00000000     0 FUNC    GLOBAL DEFAULT  UND tcsetattr@GLIBC_2.4 (2)
+    13: 00000000     0 FUNC    GLOBAL DEFAULT  UND malloc@GLIBC_2.4 (2)
+    14: 00000000     0 FUNC    GLOBAL DEFAULT  UND strerror@GLIBC_2.4 (2)
+    15: 00000000     0 FUNC    GLOBAL DEFAULT  UND tcdrain@GLIBC_2.4 (2)
+    16: 00000000     0 NOTYPE  WEAK   DEFAULT  UND __gmon_start__
+    17: 00000000     0 FUNC    GLOBAL DEFAULT  UND open@GLIBC_2.4 (2)
+    18: 00000000     0 FUNC    GLOBAL DEFAULT  UND cfgetospeed@GLIBC_2.4 (2)
+    19: 00000000     0 FUNC    GLOBAL DEFAULT  UND __errno_location@GLIBC_2.4 (2)
+    20: 00000000     0 FUNC    GLOBAL DEFAULT  UND snprintf@GLIBC_2.4 (2)
+    21: 00000000     0 FUNC    GLOBAL DEFAULT  UND write@GLIBC_2.4 (2)
+    22: 00000000     0 NOTYPE  WEAK   DEFAULT  UND _Jv_RegisterClasses
+    23: 00000000     0 FUNC    GLOBAL DEFAULT  UND cfsetspeed@GLIBC_2.4 (2)
+    24: 00000000     0 NOTYPE  WEAK   DEFAULT  UND _ITM_registerTMCloneTable
+    25: 00000000     0 FUNC    GLOBAL DEFAULT  UND close@GLIBC_2.4 (2)
+    26: 00000000     0 FUNC    GLOBAL DEFAULT  UND tcgetattr@GLIBC_2.4 (2)
+    27: 000021c9    16 FUNC    GLOBAL DEFAULT   11 Java_de_ibapl_spsw_provid
+    28: 000024f3    10 FUNC    GLOBAL DEFAULT   11 Java_de_ibapl_spsw_provid
+    29: 000021d9    10 FUNC    GLOBAL DEFAULT   11 Java_de_ibapl_spsw_provid
+    30: 00003275   564 FUNC    GLOBAL DEFAULT   11 Java_de_ibapl_spsw_provid
+    31: 000036d9   420 FUNC    GLOBAL DEFAULT   11 Java_de_ibapl_spsw_provid
+    32: 00003950     0 FUNC    GLOBAL DEFAULT   12 _fini
+    33: 00003651   136 FUNC    GLOBAL DEFAULT   11 Java_de_ibapl_spsw_provid
+    34: 00002ab5   108 FUNC    GLOBAL DEFAULT   11 Java_de_ibapl_spsw_provid
+    35: 000150ac     0 NOTYPE  GLOBAL DEFAULT   21 _bss_end__
+    36: 00002f95   224 FUNC    GLOBAL DEFAULT   11 Java_de_ibapl_spsw_provid
+    37: 000021ad    10 FUNC    GLOBAL DEFAULT   11 Java_de_ibapl_spsw_provid
+    38: 00003075   224 FUNC    GLOBAL DEFAULT   11 Java_de_ibapl_spsw_provid
+    39: 00002461   104 FUNC    GLOBAL DEFAULT   11 Java_de_ibapl_spsw_provid
+    40: 0000282d   240 FUNC    GLOBAL DEFAULT   11 Java_de_ibapl_spsw_provid
+    41: 000035bd   148 FUNC    GLOBAL DEFAULT   11 Java_de_ibapl_spsw_provid
+    42: 000022a9   168 FUNC    GLOBAL DEFAULT   11 Java_de_ibapl_spsw_provid
+    43: 000021b7    18 FUNC    GLOBAL DEFAULT   11 Java_de_ibapl_spsw_provid
+    44: 000024fd   344 FUNC    GLOBAL DEFAULT   11 Java_de_ibapl_spsw_provid
+    45: 00001c6d   284 FUNC    GLOBAL DEFAULT   11 JNI_OnLoad
+    46: 00001e29   776 FUNC    GLOBAL DEFAULT   11 Java_de_ibapl_spsw_provid
+    47: 000150a8     4 OBJECT  GLOBAL DEFAULT   21 serialPortSocketFactoryIm
+    48: 000021e3   106 FUNC    GLOBAL DEFAULT   11 Java_de_ibapl_spsw_provid
+    49: 0000291d   300 FUNC    GLOBAL DEFAULT   11 Java_de_ibapl_spsw_provid
+    50: 00015094     4 OBJECT  GLOBAL DEFAULT   21 spsw_fd
+    51: 000150a4     4 OBJECT  GLOBAL DEFAULT   21 genericTermiosSerialPortS
+    52: 0001509c     4 OBJECT  GLOBAL DEFAULT   21 spsw_portName
+    53: 0000392d    36 FUNC    GLOBAL DEFAULT   11 Java_de_ibapl_spsw_provid
+    54: 0000387d   140 FUNC    GLOBAL DEFAULT   11 Java_de_ibapl_spsw_provid
+    55: 000150ac     0 NOTYPE  GLOBAL DEFAULT   21 __end__
+    56: 00003909    36 FUNC    GLOBAL DEFAULT   11 Java_de_ibapl_spsw_provid
+    57: 000024d3    10 FUNC    GLOBAL DEFAULT   11 Java_de_ibapl_spsw_provid
+    58: 00003549   116 FUNC    GLOBAL DEFAULT   11 Java_de_ibapl_spsw_provid
+    59: 000023f9   104 FUNC    GLOBAL DEFAULT   11 Java_de_ibapl_spsw_provid
+    60: 00002a49   108 FUNC    GLOBAL DEFAULT   11 Java_de_ibapl_spsw_provid
+    61: 00002131   124 FUNC    GLOBAL DEFAULT   11 Java_de_ibapl_spsw_provid
+    62: 000034a9   160 FUNC    GLOBAL DEFAULT   11 Java_de_ibapl_spsw_provid
+    63: 00015090     0 NOTYPE  GLOBAL DEFAULT   21 __bss_start
+    64: 000150a0     4 OBJECT  GLOBAL DEFAULT   21 spsw_pollReadTimeout
+    65: 000150ac     0 NOTYPE  GLOBAL DEFAULT   21 _end
+    66: 00002cdd   696 FUNC    GLOBAL DEFAULT   11 Java_de_ibapl_spsw_provid
+    67: 00002c01   220 FUNC    GLOBAL DEFAULT   11 Java_de_ibapl_spsw_provid
+    68: 00015090     0 NOTYPE  GLOBAL DEFAULT   20 _edata
+    69: 00002655   472 FUNC    GLOBAL DEFAULT   11 Java_de_ibapl_spsw_provid
+    70: 00015098     4 OBJECT  GLOBAL DEFAULT   21 spsw_pollWriteTimeout
+    71: 00003155   288 FUNC    GLOBAL DEFAULT   11 Java_de_ibapl_spsw_provid
+    72: 000024e9    10 FUNC    GLOBAL DEFAULT   11 Java_de_ibapl_spsw_provid
+    73: 00002b21   224 FUNC    GLOBAL DEFAULT   11 Java_de_ibapl_spsw_provid
+    74: 00002351   168 FUNC    GLOBAL DEFAULT   11 Java_de_ibapl_spsw_provid
+    75: 000150ac     0 NOTYPE  GLOBAL DEFAULT   21 __bss_end__
+    76: 0000224d    92 FUNC    GLOBAL DEFAULT   11 Java_de_ibapl_spsw_provid
+    77: 000024c9    10 FUNC    GLOBAL DEFAULT   11 Java_de_ibapl_spsw_provid
+    78: 00001664     0 FUNC    GLOBAL DEFAULT    9 _init
+    79: 00015090     0 NOTYPE  GLOBAL DEFAULT   21 __bss_start__
+    80: 00001d89   160 FUNC    GLOBAL DEFAULT   11 JNI_OnUnLoad
+    81: 000024dd    12 FUNC    GLOBAL DEFAULT   11 Java_de_ibapl_spsw_provid
+
+Histogram for `.gnu.hash' bucket list length (total of 37 buckets):
+ Length  Number     % of total  Coverage
+      0  8          ( 21.6%)
+      1  12         ( 32.4%)     21.8%
+      2  9          ( 24.3%)     54.5%
+      3  7          ( 18.9%)     92.7%
+      4  1          (  2.7%)    100.0%
+
+Version symbols section '.gnu.version' contains 82 entries:
+ Addr: 0000000000001488  Offset: 0x001488  Link: 3 (.dynsym)
+  000:   0 (*local*)       0 (*local*)       0 (*local*)       2 (GLIBC_2.4)  
+  004:   0 (*local*)       2 (GLIBC_2.4)     2 (GLIBC_2.4)     2 (GLIBC_2.4)  
+  008:   2 (GLIBC_2.4)     2 (GLIBC_2.4)     2 (GLIBC_2.4)     2 (GLIBC_2.4)  
+  00c:   2 (GLIBC_2.4)     2 (GLIBC_2.4)     2 (GLIBC_2.4)     2 (GLIBC_2.4)  
+  010:   0 (*local*)       2 (GLIBC_2.4)     2 (GLIBC_2.4)     2 (GLIBC_2.4)  
+  014:   2 (GLIBC_2.4)     2 (GLIBC_2.4)     0 (*local*)       2 (GLIBC_2.4)  
+  018:   0 (*local*)       2 (GLIBC_2.4)     2 (GLIBC_2.4)     1 (*global*)   
+  01c:   1 (*global*)      1 (*global*)      1 (*global*)      1 (*global*)   
+  020:   1 (*global*)      1 (*global*)      1 (*global*)      1 (*global*)   
+  024:   1 (*global*)      1 (*global*)      1 (*global*)      1 (*global*)   
+  028:   1 (*global*)      1 (*global*)      1 (*global*)      1 (*global*)   
+  02c:   1 (*global*)      1 (*global*)      1 (*global*)      1 (*global*)   
+  030:   1 (*global*)      1 (*global*)      1 (*global*)      1 (*global*)   
+  034:   1 (*global*)      1 (*global*)      1 (*global*)      1 (*global*)   
+  038:   1 (*global*)      1 (*global*)      1 (*global*)      1 (*global*)   
+  03c:   1 (*global*)      1 (*global*)      1 (*global*)      1 (*global*)   
+  040:   1 (*global*)      1 (*global*)      1 (*global*)      1 (*global*)   
+  044:   1 (*global*)      1 (*global*)      1 (*global*)      1 (*global*)   
+  048:   1 (*global*)      1 (*global*)      1 (*global*)      1 (*global*)   
+  04c:   1 (*global*)      1 (*global*)      1 (*global*)      1 (*global*)   
+  050:   1 (*global*)      1 (*global*)   
+
+Version needs section '.gnu.version_r' contains 1 entries:
+ Addr: 0x000000000000152c  Offset: 0x00152c  Link: 4 (.dynstr)
+  000000: Version: 1  File: libc.so.6  Cnt: 1
+  0x0010:   Name: GLIBC_2.4  Flags: none  Version: 2
+
+Displaying notes found in: .note.gnu.build-id
+  Owner                 Data size	Description
+  GNU                  0x00000014	NT_GNU_BUILD_ID (unique build ID bitstring)
+    Build ID: c145a1caf9dce11332686220690637fa057854e4
+Attribute Section: aeabi
+File Attributes
+  Tag_CPU_name: "7-A"
+  Tag_CPU_arch: v7
+  Tag_CPU_arch_profile: Application
+  Tag_ARM_ISA_use: Yes
+  Tag_THUMB_ISA_use: Thumb-2
+  Tag_FP_arch: VFPv3-D16
+  Tag_ABI_PCS_wchar_t: 4
+  Tag_ABI_FP_denormal: Needed
+  Tag_ABI_FP_exceptions: Needed
+  Tag_ABI_FP_number_model: IEEE 754
+  Tag_ABI_align_needed: 8-byte
+  Tag_ABI_align_preserved: 8-byte, except leaf SP
+  Tag_ABI_enum_size: int
+  Tag_ABI_VFP_args: VFP registers
+  Tag_CPU_unaligned_access: v6

@@ -1,6 +1,8 @@
 
 package de.ibapl.spsw.spi;
 
+import de.ibapl.nativeutils.ElfFileParser;
+import de.ibapl.nativeutils.ElfHeader;
 /*
  * #%L
  * SPSW Java
@@ -117,41 +119,11 @@ public abstract class AbstractSerialPortSocketFactory implements SerialPortSocke
 		final String osArch = System.getProperty("os.arch");
 		switch (getOsName()) {
 		case "linux":
-			ReadElfHeader elfHeader;
 			try {
-				elfHeader = new ReadElfHeader();
+				ElfFileParser elfFileParser= new ElfFileParser();
+				return elfFileParser.getMultiarchTupel(getOsName());
 			} catch (IOException e) {
 				throw new RuntimeException(e);
-			}
-			switch (osArch) {
-			case "arm":
-				return "arm-linux-gnueabihf";
-			case "aarch64":
-				return "aarch64-linux-gnu";
-			case "amd64":
-				return "x86_64-linux-gnu";
-			case "i386":
-				return "i386-linux-gnu";
-			case "mips":
-				switch (elfHeader.getEndian()) {
-				case LITTLE_ENDIAN:
-					return "mipsel-linux-gnu";
-				case BIG_ENDIAN:
-					return "mips-linux-gnu";
-				default:
-					throw new RuntimeException("Unknown endianess");
-				}
-			case "mips64":
-				switch (elfHeader.getEndian()) {
-				case LITTLE_ENDIAN:
-					return "mips64el-linux-gnuabi64";
-				case BIG_ENDIAN:
-					return "mips64-linux-gnuabi64";
-				default:
-					throw new RuntimeException("Unknown endianess");
-				}
-			default:
-				throw new UnsupportedOperationException("Cant handle Linux architecture: " + osArch);
 			}
 		case "windows":
 			switch (osArch) {
