@@ -154,12 +154,13 @@ public class LogWriter {
 		if (!verbose) {
 			return;
 		}
-		Duration d = Duration.between(writeStartTS, ts);
 		log.append(formatTs(ts)).append("OS").append(ACION_RETURN).println(" write");
-		if (d.isZero()) {
-		} else if (timeStampLogging != timeStampLogging.NONE) {
-			log.append("\tduration: ").append(d.toString());
-		} else {
+		if (timeStampLogging != TimeStampLogging.NONE) {
+			final Duration d = Duration.between(writeStartTS, ts);
+			if (d.isZero()) {
+			} else {
+				log.append("\tduration: ").println(d.toString());
+			}
 		}
 		log.println();
 		log.flush();
@@ -176,14 +177,16 @@ public class LogWriter {
 
 	public void afterRead(final Instant ts, int b) {
 		log.append(formatTs(ts)).append("IS").append(ACION_RETURN).append(" read:\t\"");
-		Duration d = Duration.between(readStartTS, ts);
 		if (b >= 0) {
 			appendByte((byte) b);
 		}
-		if (d.isZero()) {
-			log.append('\"');
-		} else if (timeStampLogging != timeStampLogging.NONE) {
-			log.append("\"\tduration: ").append(d.toString());
+		if (timeStampLogging != TimeStampLogging.NONE) {
+			final Duration d = Duration.between(readStartTS, ts);
+			if (d.isZero()) {
+				log.append('\"');
+			} else {
+				log.append("\"\tduration: ").println(d.toString());
+			}
 		} else {
 			log.append('\"');
 		}
@@ -193,14 +196,16 @@ public class LogWriter {
 
 	public void afterRead(final Instant ts, int readLength, byte[] b, int off) {
 		log.append(formatTs(ts)).append("IS").append(ACION_RETURN).append(" read:\t\"");
-		Duration d = Duration.between(readStartTS, ts);
 		for (int i = 0; i < readLength; i++) {
 			appendByte(b[off + i]);
 		}
-		if (d.isZero()) {
-			log.append('\"');
-		} else if (timeStampLogging != timeStampLogging.NONE) {
-			log.append("\"\tduration: ").append(d.toString());
+		if (timeStampLogging != TimeStampLogging.NONE) {
+			final Duration d = Duration.between(readStartTS, ts);
+			if (d.isZero()) {
+				log.append('\"');
+			} else {
+				log.append("\"\tduration: ").println(d.toString());
+			}
 		} else {
 			log.append('\"');
 		}
@@ -209,12 +214,14 @@ public class LogWriter {
 	}
 
 	void afterRead(final Instant ts, IOException e) {
-		Duration d = Duration.between(readStartTS, ts);
 		log.append(formatTs(ts)).append("IS").append(ACION_RETURN).append(" read:\t").print(e.toString());
-		if (d.isZero()) {
-			log.println();
-		} else if (timeStampLogging != timeStampLogging.NONE) {
-			log.append("\"\tduration: ").println(d.toString());
+		if (timeStampLogging != TimeStampLogging.NONE) {
+			final Duration d = Duration.between(readStartTS, ts);
+			if (d.isZero()) {
+				log.println();
+			} else {
+				log.append("\"\tduration: ").println(d.toString());
+			}
 		} else {
 			log.println();
 		}
@@ -224,15 +231,17 @@ public class LogWriter {
 	}
 
 	void afterWrite(Instant ts, IOException e) {
-		Duration d = Duration.between(readStartTS, ts);
 		if (!verbose) {
 			return;
 		}
 		log.append(formatTs(ts)).append("OS").append(ACION_RETURN).append(" write:\t").print(e.toString());
-		if (d.isZero()) {
-			log.println();
-		} else if (timeStampLogging != timeStampLogging.NONE) {
-			log.append("\"\tduration: ").println(d.toString());
+		if (timeStampLogging != TimeStampLogging.NONE) {
+			final Duration d = Duration.between(writeStartTS, ts);
+			if (d.isZero()) {
+				log.println();
+			} else {
+				log.append("\"\tduration: ").println(d.toString());
+			}
 		} else {
 			log.println();
 		}
@@ -266,7 +275,8 @@ public class LogWriter {
 		readStartTS = null;
 		writeStartTS = null;
 		baseTimeStamp = Instant.now();
-		log.append('@').append(dateTimeFormatter.format(ts)).append("\tSP").append(ACION_CALL).append(" open:\t\"").append(portname).append("\" ").println(type);
+		log.append('@').append(dateTimeFormatter.format(ts)).append("\tSP").append(ACION_CALL).append(" open:\t\"")
+				.append(portname).append("\" ").println(type);
 		log.flush();
 	}
 
@@ -604,8 +614,7 @@ public class LogWriter {
 		if (!verbose) {
 			return;
 		}
-		log.append(formatTs(ts)).append("SP").append(ACION_RETURN).append(" getInBufferBytesCount:\t")
-				.println(result);
+		log.append(formatTs(ts)).append("SP").append(ACION_RETURN).append(" getInBufferBytesCount:\t").println(result);
 		log.flush();
 	}
 
@@ -628,8 +637,7 @@ public class LogWriter {
 		if (!verbose) {
 			return;
 		}
-		log.append(formatTs(ts)).append("SP").append(ACION_RETURN).append(" getOutBufferBytesCount:\t")
-				.println(result);
+		log.append(formatTs(ts)).append("SP").append(ACION_RETURN).append(" getOutBufferBytesCount:\t").println(result);
 		log.flush();
 	}
 
@@ -774,7 +782,8 @@ public class LogWriter {
 	}
 
 	void beforeSetTimeouts(Instant ts, int interByteReadTimeout, int overallReadTimeout, int overallWriteTimeout) {
-		log.append(formatTs(ts)).append("SP").append(ACION_CALL).append(" setTimeouts:\t(interByteReadTimeout=").print(interByteReadTimeout);
+		log.append(formatTs(ts)).append("SP").append(ACION_CALL).append(" setTimeouts:\t(interByteReadTimeout=")
+				.print(interByteReadTimeout);
 		log.append(", overallReadTimeout=").print(overallReadTimeout);
 		log.append(", overallWriteTimeout=").print(overallWriteTimeout);
 		log.println(")");
@@ -790,8 +799,7 @@ public class LogWriter {
 	}
 
 	void afterSetTimeouts(Instant ts, IOException e) {
-		log.append(formatTs(ts)).append("SP").append(ACION_RETURN).append(" setTimeouts:\t")
-				.println(e.toString());
+		log.append(formatTs(ts)).append("SP").append(ACION_RETURN).append(" setTimeouts:\t").println(e.toString());
 		e.printStackTrace(log);
 		log.flush();
 	}

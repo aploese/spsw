@@ -107,6 +107,9 @@ public abstract class AbstractSerialPortSocket implements SerialPortSocket {
 
     @Override
     public synchronized void close() throws IOException {
+    	if (!open) {
+    		throw new IOException(PORT_NOT_OPEN);
+    	}
         open = false;
         is = null;
         os = null;
@@ -147,23 +150,35 @@ public abstract class AbstractSerialPortSocket implements SerialPortSocket {
 
     @Override
     public synchronized void openAsIs() throws IOException {
+    	if (open) {
+    		throw new IOException(PORT_IS_OPEN);
+    	}
         open(portName, PORT_MODE_UNCHANGED);
         open = true;
     }
 
     @Override
     public synchronized void openRaw() throws IOException {
+    	if (open) {
+    		throw new IOException(PORT_IS_OPEN);
+    	}
         open(portName, PORT_MODE_RAW);
         open = true;
     }
 
     @Override
     public synchronized void openTerminal() throws IOException {
+    	if (open) {
+    		throw new IOException(PORT_IS_OPEN);
+    	}
         throw new UnsupportedOperationException("Terminal mode not yet supported");
     }
 
     @Override
     public synchronized void openModem() throws IOException {
+    	if (open) {
+    		throw new IOException(PORT_IS_OPEN);
+    	}
         throw new UnsupportedOperationException("Modem mode not yet supported");
     }
 
@@ -244,8 +259,9 @@ public abstract class AbstractSerialPortSocket implements SerialPortSocket {
             if (isOpen()) {
                 close();
             }
-        } catch (IOException e) {
-
+        } catch (Exception e) {
+        	//This should always work
+        	System.err.println("SerialPortSocket " + getPortName() + " finalize() exception: " + e);
         } finally {
             super.finalize();
         }

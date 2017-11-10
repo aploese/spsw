@@ -41,6 +41,9 @@ import org.osgi.annotation.versioning.ProviderType;
  */
 @ProviderType
 public interface SerialPortSocket extends Closeable {
+	
+	public final static String PORT_IS_OPEN = "Port is open";
+	public final static String PORT_NOT_OPEN = "Port not open";
 
     boolean isClosed();
 

@@ -165,6 +165,7 @@ JNIEXPORT void JNICALL JNI_OnUnLoad(JavaVM *jvm, void *reserved) {
 
 
 // Helper method
+
 static void throw_SerialPortException_NativeError(JNIEnv *env, const char *msg) {
     char buf[2048];
     snprintf(buf, 2048, "%s: Unknown port error %d: (%s)", msg, errno, strerror(errno));
@@ -239,24 +240,24 @@ static void throw_InterruptedIOExceptionWithError(JNIEnv *env, int bytesTransfer
     snprintf(buf, 2048, "%s: Unknown port error %d: (%s)", msg, errno, strerror(errno));
     const jclass iioeClass = (*env)->FindClass(env, "java/io/InterruptedIOException");
     if (iioeClass != NULL) {
-    const jmethodID iioeConstructor = (*env)->GetMethodID(env, iioeClass, "<init>", "(Ljava/lang/String;)V");
-    const jobject iioeEx = (*env)->NewObject(env, iioeClass, iioeConstructor, (*env)->NewStringUTF(env, buf));
-    const jfieldID bytesTransferredId = (*env)->GetFieldID(env, iioeClass, "bytesTransferred", "I");
-    (*env)->SetIntField(env, iioeEx, bytesTransferredId, bytesTransferred);
-    (*env)->Throw(env, iioeEx);
-    (*env)->DeleteLocalRef(env, iioeClass);
+        const jmethodID iioeConstructor = (*env)->GetMethodID(env, iioeClass, "<init>", "(Ljava/lang/String;)V");
+        const jobject iioeEx = (*env)->NewObject(env, iioeClass, iioeConstructor, (*env)->NewStringUTF(env, buf));
+        const jfieldID bytesTransferredId = (*env)->GetFieldID(env, iioeClass, "bytesTransferred", "I");
+        (*env)->SetIntField(env, iioeEx, bytesTransferredId, bytesTransferred);
+        (*env)->Throw(env, iioeEx);
+        (*env)->DeleteLocalRef(env, iioeClass);
     }
 }
 
 static void throw_TimeoutIOException(JNIEnv *env, int bytesTransferred) {
     const jclass tioeClass = (*env)->FindClass(env, "de/ibapl/spsw/api/TimeoutIOException");
     if (tioeClass != NULL) {
-    const jmethodID tioeConstructor = (*env)->GetMethodID(env, tioeClass, "<init>", "(Ljava/lang/String;)V");
-    const jobject tioeEx = (*env)->NewObject(env, tioeClass, tioeConstructor, (*env)->NewStringUTF(env, "Timeout"));
-    const jfieldID bytesTransferredId = (*env)->GetFieldID(env, tioeClass, "bytesTransferred", "I");
-    (*env)->SetIntField(env, tioeEx, bytesTransferredId, bytesTransferred);
-    (*env)->Throw(env, tioeEx);
-    (*env)->DeleteLocalRef(env, tioeClass);
+        const jmethodID tioeConstructor = (*env)->GetMethodID(env, tioeClass, "<init>", "(Ljava/lang/String;)V");
+        const jobject tioeEx = (*env)->NewObject(env, tioeClass, tioeConstructor, (*env)->NewStringUTF(env, "Timeout"));
+        const jfieldID bytesTransferredId = (*env)->GetFieldID(env, tioeClass, "bytesTransferred", "I");
+        (*env)->SetIntField(env, tioeEx, bytesTransferredId, bytesTransferred);
+        (*env)->Throw(env, tioeEx);
+        (*env)->DeleteLocalRef(env, tioeClass);
     }
 }
 
@@ -517,8 +518,14 @@ static speed_t baudrate2speed_t(JNIEnv *env, jint baudRate) {
  * In 2.2.0 added useTIOCEXCL
  */
 JNIEXPORT void JNICALL Java_de_ibapl_spsw_provider_GenericTermiosSerialPortSocket_open(JNIEnv *env, jobject object, jstring portName, jint portMode) {
-    const char* port = (*env)->GetStringUTFChars(env, portName, JNI_FALSE);
 
+    //Do not try to reopen port and therefor failing and overriding the filedescriptor
+    if ((*env)->GetIntField(env, object, spsw_fd) != INVALID_FD) {
+        throw_SerialPortException_NativeError(env, "serial port socket has valid filedescriptor!");
+        return;
+    }
+
+    const char* port = (*env)->GetStringUTFChars(env, portName, JNI_FALSE);
     int fd = open(port, O_RDWR | O_NOCTTY | O_NDELAY);
 
     (*env)->ReleaseStringUTFChars(env, portName, port);
@@ -950,7 +957,7 @@ JNIEXPORT void JNICALL Java_de_ibapl_spsw_provider_GenericTermiosSerialPortSocke
         if ((*env)->GetIntField(env, object, spsw_fd) == INVALID_FD) {
             //Filehandle not valid -> closed.
             throw_SerialPortException_Closed(env);
-	} else {
+        } else {
             throw_InterruptedIOExceptionWithError(env, firstWritten, "writeBytes after poll no bytes written");
         }
     } else if (written < len) {
@@ -1048,7 +1055,7 @@ JNIEXPORT jint JNICALL Java_de_ibapl_spsw_provider_GenericTermiosSerialPortSocke
         if ((*env)->GetIntField(env, object, spsw_fd) == INVALID_FD) {
             nread = -1;
         } else if (nread == 0) {
-            throw_TimeoutIOException(env, 0);//Is this right???
+            throw_TimeoutIOException(env, 0); //Is this right???
         } else {
             throw_InterruptedIOExceptionWithError(env, 0, "readBytes read error: Should never happen");
             nread = -1;

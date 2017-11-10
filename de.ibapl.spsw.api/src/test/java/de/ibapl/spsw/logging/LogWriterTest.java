@@ -12,6 +12,9 @@ import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
+
+import de.ibapl.spsw.api.TimeoutIOException;
+
 import static org.junit.Assert.*;
 import org.junit.Ignore;
 
@@ -19,6 +22,7 @@ import org.junit.Ignore;
  *
  * @author aploese
  */
+@Ignore
 public class LogWriterTest {
     
     public LogWriterTest() {
@@ -40,13 +44,16 @@ public class LogWriterTest {
     public void tearDown() {
     }
 
-    @Ignore
-    @Test
-    public void testLogWrite() {
+    private void writeHEX(TimeStampLogging timeStampLogging, boolean verbose, String expected) {
         System.out.println("logWrite");
         Instant ts = Instant.parse("2017-07-25T18:47:02.763Z");
         ByteArrayOutputStream os = new ByteArrayOutputStream(1024);
-        LogWriter instance = new LogWriter(os, false, TimeStampLogging.UTF, true);
+        LogWriter instance = new LogWriter(os, false, timeStampLogging, verbose);
+        instance.beforeSpOpen(ts, "HEX_TEST_PORT", "raw");
+        ts = ts.plusMillis(1);
+        instance.afterSpOpen(ts, "raw");
+        instance.beforeAvailable(ts);
+        instance.afterAvailable(ts, 0);
         instance.beforeRead(ts);
         instance.beforeWrite(ts, (byte)1);
         instance.afterWrite(ts);
@@ -64,18 +71,26 @@ public class LogWriterTest {
         instance.afterRead(ts, 3);
         instance.beforeRead(ts);
         ts = ts.plusSeconds(1);
+        instance.afterRead(ts, new TimeoutIOException());
+        instance.beforeRead(ts);
+        ts = ts.plusSeconds(1);
         instance.afterRead(ts, -1);
-        assertEquals("", os.toString());
-        fail();
+        instance.beforeSpClose(ts);
+        ts = ts.plusSeconds(1);
+        instance.afterSpClose(ts);
+        assertEquals(expected, os.toString());
     }
     
-    @Ignore
-    @Test
-    public void testLogWriteASCII() {
+    private void writeASCII(TimeStampLogging timeStampLogging, boolean verbose, String expected) {
         System.out.println("logWriteACII");
         Instant ts = Instant.parse("2017-07-25T18:47:02.763Z");
         ByteArrayOutputStream os = new ByteArrayOutputStream(1024);
-        LogWriter instance = new LogWriter(os, true, TimeStampLogging.UTF, true);
+        LogWriter instance = new LogWriter(os, true, timeStampLogging, verbose);
+        instance.beforeSpOpen(ts, "ASCII_TEST_PORT", "raw");
+        ts = ts.plusMillis(1);
+        instance.afterSpOpen(ts, "raw");
+        instance.beforeAvailable(ts);
+        instance.afterAvailable(ts, 0);
         instance.beforeRead(ts);
         instance.beforeWrite(ts, (byte)'A');
         instance.afterWrite(ts);
@@ -94,9 +109,74 @@ public class LogWriterTest {
         instance.afterRead(ts, '\n');
         instance.beforeRead(ts);
         ts = ts.plusSeconds(1);
+        instance.afterRead(ts, new TimeoutIOException());
+        instance.beforeRead(ts);
+        ts = ts.plusSeconds(1);
         instance.afterRead(ts, -1);
-        assertEquals("", os.toString());
-        fail();
+        instance.beforeSpClose(ts);
+        ts = ts.plusSeconds(1);
+        instance.afterSpClose(ts);
+        assertEquals(expected, os.toString());
+    }
+
+    @Test
+    public void testWriteASCII_UTF_Verbose() {
+    	writeASCII(TimeStampLogging.UTF, true, "");
+    }
+    		
+    @Test
+    public void testWriteASCII_FROM_OPEN_Verbose() {
+    	writeASCII(TimeStampLogging.FROM_OPEN, true, "");
+    }
+
+    @Test
+    public void testWriteASCII_NONE_Verbose() {
+    	writeASCII(TimeStampLogging.NONE, true, "");
+    }
+
+    @Test
+    public void testWriteASCII_UTF_NonVerbose() {
+    	writeASCII(TimeStampLogging.UTF, false, "");
+    }
+    		
+    @Test
+    public void testWriteASCII_FROM_OPEN_NonVerbose() {
+    	writeASCII(TimeStampLogging.FROM_OPEN, false, "");
+    }
+
+    @Test
+    public void testWriteASCII_NONE_NonVerbose() {
+    	writeASCII(TimeStampLogging.NONE, false, "");
+    }
+
+    @Test
+    public void testWriteHEX_UTF_Verbose() {
+    	writeHEX(TimeStampLogging.UTF, true, "");
+    }
+    		
+    @Test
+    public void testWriteHEX_FROM_OPEN_Verbose() {
+    	writeHEX(TimeStampLogging.FROM_OPEN, true, "");
+    }
+
+    @Test
+    public void testWriteHEX_NONE_Verbose() {
+    	writeHEX(TimeStampLogging.NONE, true, "");
+    }
+
+    @Test
+    public void testWriteHEX_UTF_NonVerbose() {
+    	writeHEX(TimeStampLogging.UTF, false, "");
+    }
+    		
+    @Test
+    public void testWriteHEX_FROM_OPEN_NonVerbose() {
+    	writeHEX(TimeStampLogging.FROM_OPEN, false, "");
+    }
+
+    @Test
+    public void testWriteHEX_NONE_NonVerbose() {
+    	writeHEX(TimeStampLogging.NONE, false, "");
     }
 
 }

@@ -43,6 +43,7 @@ import de.ibapl.spsw.api.DataBits;
 import de.ibapl.spsw.api.FlowControl;
 import de.ibapl.spsw.provider.GenericTermiosSerialPortSocket;
 import de.ibapl.spsw.api.Parity;
+import de.ibapl.spsw.api.PortBusyException;
 import de.ibapl.spsw.api.SerialPortException;
 import de.ibapl.spsw.api.SerialPortSocket;
 import de.ibapl.spsw.api.StopBits;
@@ -832,7 +833,35 @@ public class OnePortTest {
 		spc.close();
 	}
 
-	private void printPort(SerialPortSocket sPort) throws IOException {
+	@Test
+	public void testOpen2Times() throws IOException {
+		Assume.assumeNotNull(spc);
+  		spc.openRaw();
+                SerialPortSocket spc2  = SerialPortSocketFactoryImpl.singleton().createSerialPortSocket(serialPortName);
+                try {
+                    spc2.openRaw();
+                    fail("Port opend twice");
+                } catch (PortBusyException busyException) {
+                    Assert.assertFalse(spc2.isOpen());
+                }
+		spc.close();
+	}
+
+	@Test
+	public void testOpenSamePort2Times() throws IOException {
+		Assume.assumeNotNull(spc);
+  		spc.openRaw();
+                try {
+                    spc.openRaw();
+                    fail("Same port opend twice");
+                } catch (IOException ioe) {
+                    assertEquals(SerialPortSocket.PORT_IS_OPEN, ioe.getMessage());
+                    Assert.assertTrue(spc.isOpen());
+                }
+		spc.close();
+	}
+
+        private void printPort(SerialPortSocket sPort) throws IOException {
 		System.err.println(sPort.toString());
 	}
 
