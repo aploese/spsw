@@ -1,44 +1,31 @@
-/*
+package de.ibapl.spsw.mock;
+
+/*-
  * #%L
- * mbus4j-core
+ * SPSW API
  * %%
- * Copyright (C) 2009 - 2014 MBus4J
+ * Copyright (C) 2009 - 2018 Arne Plöse
  * %%
- * mbus4j - Drivers for the M-Bus protocol - http://mbus4j.sourceforge.net/
- * Copyright (C) 2009-2014, mbus4j.sf.net, and individual contributors as indicated
- * by the @authors tag. See the copyright.txt in the distribution for a
- * full listing of individual contributors.
+ * This program and the accompanying materials are made available under the
+ * terms of the Eclipse Public License 2.0 which is available at
+ * http://www.eclipse.org/legal/epl-2.0.
  * 
- * This is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License as
- * published by the Free Software Foundation; either version 3 of
- * the License, or (at your option) any later version.
+ * This Source Code may also be made available under the following Secondary
+ * Licenses when the conditions for such availability set forth in the Eclipse
+ * Public License, v. 2.0 are satisfied: GNU General Public License, version 2
+ * with the GNU Classpath Exception which is
+ * available at https://www.gnu.org/software/classpath/license.html.
  * 
- * This software is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
- * Lesser General Public License for more details.
- * 
- * You should have received a copy of the GNU Lesser General Public
- * License along with this software; if not, write to the Free
- * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
- * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
+ * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  * #L%
  */
 
-package de.ibapl.spsw.mock;
-
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.InterruptedIOException;
 import java.io.OutputStream;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.LinkedList;
-import java.util.List;
 import java.util.Set;
-import java.util.concurrent.TimeoutException;
-import java.util.logging.Logger;
 
 import de.ibapl.spsw.api.Baudrate;
 import de.ibapl.spsw.api.DataBits;
@@ -47,12 +34,10 @@ import de.ibapl.spsw.api.Parity;
 import de.ibapl.spsw.api.SerialPortException;
 import de.ibapl.spsw.api.SerialPortSocket;
 import de.ibapl.spsw.api.StopBits;
-import de.ibapl.spsw.api.TimeoutIOException;
 
 /**
  *
- * @author arnep@users.sourceforge.net
- * @version $Id$
+ * @author aploese
  */
 public class MockSerialPortSocket implements SerialPortSocket {
 

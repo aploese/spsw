@@ -8,7 +8,7 @@ package de.ibapl.spsw.provider;
  * Copyright (C) 2009 - 2017 Arne Plöse
  * %%
  * SPSW - Drivers for the serial port, https://github.com/aploese/spsw/
- * Copyright (C) 2009, 2017, Arne Plöse and individual contributors as indicated
+ * Copyright (C) 2009-2018, Arne Plöse and individual contributors as indicated
  * by the @authors tag. See the copyright.txt in the distribution for a
  * full listing of individual contributors.
  * 

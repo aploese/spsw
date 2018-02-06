@@ -1,0 +1,7 @@
+#Define ports to use if two ports available its assumed that there are connected via a null modem cable
+#For Linux
+port0=/dev/ttyUSB0
+port1=/dev/ttyUSB1
+#For Win
+port0=COM0
+port1=COM1

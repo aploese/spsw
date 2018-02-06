@@ -23,8 +23,10 @@
         <compile.target>1.8</compile.target>
         <sourceEncoding>UTF-8</sourceEncoding>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <license.licenseName>fhz4j-lgpl</license.licenseName>
-        <license.licenseResolver>${project.baseUri}/src/license</license.licenseResolver>
+        <license.licenseName.lgpl>spsw-lgpl-3</license.licenseName.lgpl>
+        <license.licenseName.epl>spsw-epl-2</license.licenseName.epl>
+        <license.licenseResolver>${project.baseUri}/src/licenses</license.licenseResolver>
+        <license.licenseName>${license.licenseName.epl}</license.licenseName>
     </properties>
     
     <developers>
@@ -43,6 +45,11 @@
 
     <!-- Licenses -->
     <licenses>
+        <license>
+            <name>Eclipse Public License - v 2.0</name>
+            <url>https://www.eclipse.org/org/documents/epl-2.0/EPL-2.0.txt</url>
+            <distribution>repo</distribution>
+        </license>
         <license>
             <name>GNU LESSER GENERAL PUBLIC LICENSE, Version 3</name>
             <url>http://www.gnu.org/licenses/lgpl.txt</url>
@@ -104,6 +111,7 @@
 
     <modules>
         <module>de.ibapl.spsw.api</module>
+        <module>de.ibapl.spsw.api.tests</module>
         <module>de.ibapl.spsw.provider</module>
         <module>de.ibapl.spsw.provider.osgi-tests</module>
         <!-- wait for plugin bnd-maven-plugin:3.4.0 and bnd-testing-maven-plugin:3.4.0  --> 
@@ -189,7 +197,7 @@
                 <plugin>
                     <groupId>org.codehaus.mojo</groupId>
                     <artifactId>license-maven-plugin</artifactId>
-                    <version>1.13</version>
+                    <version>1.14</version>
                     <configuration>
                         <excludes>
                             <exclude>**/*.txt</exclude>

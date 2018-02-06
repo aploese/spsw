@@ -14,7 +14,8 @@
     <packaging>pom</packaging>
     
     <properties>
-        <license.licenseResolver>${project.baseUri}/../src/license</license.licenseResolver>
+        <license.licenseResolver>${project.baseUri}/../src/licenses</license.licenseResolver>
+        <license.licenseName>${license.licenseName.lgpl}</license.licenseName>
     </properties>
 
     <build>
