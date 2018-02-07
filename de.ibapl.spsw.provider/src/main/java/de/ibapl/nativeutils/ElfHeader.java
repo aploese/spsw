@@ -97,12 +97,8 @@ public class ElfHeader<EF extends EFlags> {
 		return e_Flags;
 	}
 
-	/**
-	 * https://wiki.debian.org/Multiarch/Tuples
-	 */
-	public String getMultiarchTupel(String osName) {
-		switch (getMachine()) {
-		case EM_ARM:
+        
+        protected String getArm32Tupel() {
 			switch (getElfData()) {
 			case ELFDATA2LSB:
 				if (e_Flags.contains(ArmEFlags.EF_ARM_VFP_FLOAT)) {
@@ -110,13 +106,28 @@ public class ElfHeader<EF extends EFlags> {
 				} else if (e_Flags.contains(ArmEFlags.EF_ARM_SOFT_FLOAT)) {
 					return "arm-linux-gnueabi";
 				}
-				break;
+				throw new RuntimeException("Unknown e_Flags" + e_Flags);
 			default:
-				throw new RuntimeException("Not implemented yet");
+				throw new RuntimeException("Not implemented yet: " + getElfData());
 			}
-
+        }
+	/**
+	 * https://wiki.debian.org/Multiarch/Tuples
+	 */
+	public String getMultiarchTupel(String osName) {
+	//TODO use osName	
+            switch (getMachine()) {
+		case EM_ARM:
+                    return getArm32Tupel();
 		case EM_AARCH64:
-			return "aarch64-linux-gnu";
+                    // reading /proc/self/exe may lead us to this ...
+                    switch (getElfClass()) {
+                        case ELFCLASS32:
+                            System.err.println("Machine aarch64 but elfClass is arm and not aarch64!");
+                            return getArm32Tupel();
+                        case ELFCLASS64:
+                            return "aarch64-linux-gnu";
+                    }
 		case EM_X86_64:
 			return "x86_64-linux-gnu";
 		case EM_386:
