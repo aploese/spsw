@@ -32,6 +32,7 @@
  * and open the template in the editor.
  */
 
+import de.ibapl.spsw.api.SerialPortSocketFactory;
 import de.ibapl.spsw.provider.AbstractSerialPortSocket;
 import de.ibapl.spsw.provider.SerialPortSocketFactoryImpl;
 import java.net.URL;
@@ -77,4 +78,11 @@ public class SerialPortSocketTest {
         URL u = AbstractSerialPortSocket.class.getClassLoader().getResource(SerialPortSocketFactoryImpl.SPSW_PROPERTIES);
         assertNotNull(u);
     }
+    
+    @Test
+    public void testLoadLib() {
+        SerialPortSocketFactory spsf = SerialPortSocketFactoryImpl.singleton();
+        assertNotNull(spsf);
+    }
+
 }
