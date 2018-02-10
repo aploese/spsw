@@ -713,7 +713,7 @@ JNIEXPORT jint JNICALL Java_de_ibapl_spsw_provider_GenericWinSerialPortSocket_re
         if (GET_FILEDESCRIPTOR(env, object) == INVALID_HANDLE_VALUE) {
             //closed no-op
         } else {
-            throw_TimeoutIOException(env, dwBytesRead);
+            throw_InterruptedIOExceptionWithError(env, dwBytesRead, "Error readSingle (GetOverlappedResult)");
         }
         return -1;
     }
@@ -787,7 +787,7 @@ JNIEXPORT jint JNICALL Java_de_ibapl_spsw_provider_GenericWinSerialPortSocket_re
         if (GET_FILEDESCRIPTOR(env, object) == INVALID_HANDLE_VALUE) {
             //closed no-op
         } else {
-            throw_TimeoutIOException(env, dwBytesRead);
+            throw_InterruptedIOExceptionWithError(env, dwBytesRead, "Error readBytes (GetOverlappedResult)");
         }
         return -1;
     }
@@ -1109,7 +1109,6 @@ JNIEXPORT void JNICALL Java_de_ibapl_spsw_provider_GenericWinSerialPortSocket_se
 
     if (!SetCommState(hFile, &dcb)) {
         throw_ClosedOrNativeException(env, object, "setParity SetCommState");
-        return;
     }
 }
 
