@@ -28,9 +28,13 @@ package de.ibapl.spsw.tests;
  * #L%
  */
 
+import de.ibapl.spsw.api.SerialPortSocket;
 import de.ibapl.spsw.api.SerialPortSocketFactory;
 import de.ibapl.spsw.provider.GenericTermiosSerialPortSocket;
 import de.ibapl.spsw.provider.SerialPortSocketFactoryImpl;
+import static de.ibapl.spsw.tests.AbstractOnePortTest.serialPortName;
+import java.io.IOException;
+import java.lang.ref.WeakReference;
 import java.util.logging.Level;
 import org.junit.Assert;
 import org.junit.Assume;
@@ -86,7 +90,5 @@ public class OnePortTest extends AbstractOnePortTest {
 		spc.close();
 		Assert.assertTrue(spc.isClosed());
 	}
-
-
 
 }

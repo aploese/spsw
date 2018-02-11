@@ -152,7 +152,7 @@ Bundle-NativeCode: \
           
                                     <compilerProvider>generic</compilerProvider>
                                     <compilerStartOptions>
-                                        <compilerStartOption>-fPIC -O -m64</compilerStartOption>
+                                        <compilerStartOption>-fPIC -O3 -m64</compilerStartOption>
                                     </compilerStartOptions>
                                     <sources>
                                         <source>
@@ -164,7 +164,7 @@ Bundle-NativeCode: \
                                     </sources>
             
                                     <linkerStartOptions>
-                                        <linkerStartOption>-shared -lc -ldl -m64 -s</linkerStartOption>
+                                        <linkerStartOption>-shared -lc -ldl -m64 -s -O3</linkerStartOption>
                                     </linkerStartOptions>
                                     <linkerFinalName />
  
@@ -206,7 +206,7 @@ Bundle-NativeCode: \
                                     </javahClassNames>
                                     <compilerProvider>generic</compilerProvider>
                                     <compilerStartOptions>
-                                        <compilerStartOption>-fPIC -O -m32</compilerStartOption>
+                                        <compilerStartOption>-fPIC -O3 -m32</compilerStartOption>
                                     </compilerStartOptions>
                                     <sources>
                                         <source>
@@ -217,7 +217,7 @@ Bundle-NativeCode: \
                                         </source>
                                     </sources>
                                     <linkerStartOptions>
-                                        <linkerStartOption>-shared -lc -ldl -m32 -s</linkerStartOption>
+                                        <linkerStartOption>-shared -lc -ldl -m32 -s -O3</linkerStartOption>
                                     </linkerStartOptions>
                                     <linkerFinalName />
                                     <linkerEndOptions>
@@ -257,7 +257,7 @@ Bundle-NativeCode: \
                                     <compilerProvider>generic</compilerProvider>
                                     <compilerExecutable>arm-linux-gnueabi-gcc</compilerExecutable>
                                     <compilerStartOptions>
-                                        <compilerStartOption>-fPIC -O</compilerStartOption>
+                                        <compilerStartOption>-fPIC -O3</compilerStartOption>
                                     </compilerStartOptions>
                                     <sources>
                                         <source>
@@ -269,7 +269,7 @@ Bundle-NativeCode: \
                                     </sources>
                                     <linkerExecutable>arm-linux-gnueabi-gcc</linkerExecutable>
                                     <linkerStartOptions>
-                                        <linkerStartOption>-shared -lc -ldl -s</linkerStartOption>
+                                        <linkerStartOption>-shared -lc -ldl -s -O3</linkerStartOption>
                                     </linkerStartOptions>
                                     <linkerFinalName />
                                     <linkerEndOptions>
@@ -309,7 +309,7 @@ Bundle-NativeCode: \
                                     <compilerProvider>generic</compilerProvider>
                                     <compilerExecutable>arm-linux-gnueabihf-gcc</compilerExecutable>
                                     <compilerStartOptions>
-                                        <compilerStartOption>-fPIC -O</compilerStartOption>
+                                        <compilerStartOption>-fPIC -O3</compilerStartOption>
                                     </compilerStartOptions>
                                     <sources>
                                         <source>
@@ -321,7 +321,7 @@ Bundle-NativeCode: \
                                     </sources>
                                     <linkerExecutable>arm-linux-gnueabihf-gcc</linkerExecutable>
                                     <linkerStartOptions>
-                                        <linkerStartOption>-shared -lc -ldl -s</linkerStartOption>
+                                        <linkerStartOption>-shared -lc -ldl -s -O3</linkerStartOption>
                                     </linkerStartOptions>
                                     <linkerFinalName />
                                     <linkerEndOptions>
@@ -361,7 +361,7 @@ Bundle-NativeCode: \
                                     <compilerProvider>generic</compilerProvider>
                                     <compilerExecutable>aarch64-linux-gnu-gcc</compilerExecutable>
                                     <compilerStartOptions>
-                                        <compilerStartOption>-fPIC -O</compilerStartOption>
+                                        <compilerStartOption>-fPIC -O3</compilerStartOption>
                                     </compilerStartOptions>
                                     <sources>
                                         <source>
@@ -373,7 +373,7 @@ Bundle-NativeCode: \
                                     </sources>
                                     <linkerExecutable>aarch64-linux-gnu-gcc</linkerExecutable>
                                     <linkerStartOptions>
-                                        <linkerStartOption>-shared -lc -ldl -s</linkerStartOption>
+                                        <linkerStartOption>-shared -lc -ldl -s -O3</linkerStartOption>
                                     </linkerStartOptions>
                                     <linkerFinalName />
                                     <linkerEndOptions>
@@ -413,7 +413,7 @@ Bundle-NativeCode: \
                                     <compilerProvider>generic</compilerProvider>
                                     <compilerExecutable>mips-linux-gnu-gcc</compilerExecutable>
                                     <compilerStartOptions>
-                                        <compilerStartOption>-fPIC -O -s</compilerStartOption>
+                                        <compilerStartOption>-fPIC -O3 -s</compilerStartOption>
                                     </compilerStartOptions>
                                     <sources>
                                         <source>
@@ -425,7 +425,7 @@ Bundle-NativeCode: \
                                     </sources>
                                     <linkerExecutable>mips-linux-gnu-gcc</linkerExecutable>
                                     <linkerStartOptions>
-                                        <linkerStartOption>-shared -lc -ldl -s</linkerStartOption>
+                                        <linkerStartOption>-shared -lc -ldl -s -O3</linkerStartOption>
                                     </linkerStartOptions>
                                     <linkerFinalName />
                                     <linkerEndOptions>
@@ -465,7 +465,7 @@ Bundle-NativeCode: \
                                     <compilerProvider>generic</compilerProvider>
                                     <compilerExecutable>mipsel-linux-gnu-gcc</compilerExecutable>
                                     <compilerStartOptions>
-                                        <compilerStartOption>-fPIC -O -s</compilerStartOption>
+                                        <compilerStartOption>-fPIC -O3 -s</compilerStartOption>
                                     </compilerStartOptions>
                                     <sources>
                                         <source>
@@ -477,7 +477,7 @@ Bundle-NativeCode: \
                                     </sources>
                                     <linkerExecutable>mipsel-linux-gnu-gcc</linkerExecutable>
                                     <linkerStartOptions>
-                                        <linkerStartOption>-shared -lc -ldl -s</linkerStartOption>
+                                        <linkerStartOption>-shared -lc -ldl -s -O3</linkerStartOption>
                                     </linkerStartOptions>
                                     <linkerFinalName />
                                     <linkerEndOptions>
@@ -517,7 +517,7 @@ Bundle-NativeCode: \
                                     <compilerProvider>generic</compilerProvider>
                                     <compilerExecutable>mips64-linux-gnuabi64-gcc</compilerExecutable>
                                     <compilerStartOptions>
-                                        <compilerStartOption>-fPIC -O -s</compilerStartOption>
+                                        <compilerStartOption>-fPIC -O3 -s</compilerStartOption>
                                     </compilerStartOptions>
                                     <sources>
                                         <source>
@@ -529,7 +529,7 @@ Bundle-NativeCode: \
                                     </sources>
                                     <linkerExecutable>mips64-linux-gnuabi64-gcc</linkerExecutable>
                                     <linkerStartOptions>
-                                        <linkerStartOption>-shared -lc -ldl -s</linkerStartOption>
+                                        <linkerStartOption>-shared -lc -ldl -s -O3</linkerStartOption>
                                     </linkerStartOptions>
                                     <linkerFinalName />
                                     <linkerEndOptions>
@@ -569,7 +569,7 @@ Bundle-NativeCode: \
                                     <compilerProvider>generic</compilerProvider>
                                     <compilerExecutable>mips64el-linux-gnuabi64-gcc</compilerExecutable>
                                     <compilerStartOptions>
-                                        <compilerStartOption>-fPIC -O -s</compilerStartOption>
+                                        <compilerStartOption>-fPIC -O3 -s</compilerStartOption>
                                     </compilerStartOptions>
                                     <sources>
                                         <source>
@@ -581,7 +581,7 @@ Bundle-NativeCode: \
                                     </sources>
                                     <linkerExecutable>mips64el-linux-gnuabi64-gcc</linkerExecutable>
                                     <linkerStartOptions>
-                                        <linkerStartOption>-shared -lc -ldl -s</linkerStartOption>
+                                        <linkerStartOption>-shared -lc -ldl -s -O3</linkerStartOption>
                                     </linkerStartOptions>
                                     <linkerFinalName />
                                     <linkerEndOptions>
@@ -627,7 +627,7 @@ Bundle-NativeCode: \
                                     <compilerProvider>generic</compilerProvider>
                                     <compilerExecutable>i686-w64-mingw32-gcc</compilerExecutable>
                                     <compilerStartOptions>
-                                        <compilerStartOption>-std=c11 -Wall -m32</compilerStartOption>
+                                        <compilerStartOption>-std=c11 -Wall -m32 -O3</compilerStartOption>
                                     </compilerStartOptions>
 
                                     <sources>
@@ -640,7 +640,7 @@ Bundle-NativeCode: \
                                     </sources>
                                     <linkerExecutable>i686-w64-mingw32-gcc</linkerExecutable>
                                     <linkerStartOptions>
-                                        <linkerStartOption>-m32 -shared -Wl,--dll -Wl,--kill-at -s</linkerStartOption>
+                                        <linkerStartOption>-m32 -shared -Wl,--dll -Wl,--kill-at -s -O3</linkerStartOption>
                                     </linkerStartOptions>
                                     <linkerFinalName />
                                     <linkerEndOptions>
@@ -684,7 +684,7 @@ Bundle-NativeCode: \
                                     <compilerProvider>generic</compilerProvider>
                                     <compilerExecutable>x86_64-w64-mingw32-gcc</compilerExecutable>
                                     <compilerStartOptions>
-                                        <compilerStartOption>-std=c11 -m64 -Wall</compilerStartOption>
+                                        <compilerStartOption>-std=c11 -m64 -Wall -O3</compilerStartOption>
                                     </compilerStartOptions>
 
                                     <sources>
@@ -698,7 +698,7 @@ Bundle-NativeCode: \
             
                                     <linkerExecutable>x86_64-w64-mingw32-gcc</linkerExecutable>
                                     <linkerStartOptions>
-                                        <linkerStartOption>-m64 -shared -Wl,--dll -Wl,--kill-at -s</linkerStartOption>
+                                        <linkerStartOption>-m64 -shared -Wl,--dll -Wl,--kill-at -s -O3</linkerStartOption>
                                     </linkerStartOptions>
                                     <linkerFinalName />
                                     <linkerEndOptions>

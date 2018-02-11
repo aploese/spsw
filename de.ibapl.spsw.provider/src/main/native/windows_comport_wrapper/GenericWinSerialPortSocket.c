@@ -437,7 +437,11 @@ JNIEXPORT void JNICALL Java_de_ibapl_spsw_provider_GenericWinSerialPortSocket_se
     HANDLE hFile = GET_FILEDESCRIPTOR(env, object);
 
     if (!EscapeCommFunction(hFile, dwFunc)) {
-        throw_ClosedOrNativeException(env, object, "Can't set/clear RTS");
+        if (GetLastError() == ERROR_INVALID_PARAMETER) {
+            throw_Illegal_Argument_Exception(env, "setRTS: Wrong value");
+        } else {
+            throw_ClosedOrNativeException(env, object, "Can't set/clear RTS");
+        }
     }
 }
 
@@ -461,7 +465,11 @@ JNIEXPORT void JNICALL Java_de_ibapl_spsw_provider_GenericWinSerialPortSocket_se
     HANDLE hFile = GET_FILEDESCRIPTOR(env, object);
 
     if (!EscapeCommFunction(hFile, dwFunc)) {
-        throw_ClosedOrNativeException(env, object, "Can't set/clear DTR");
+        if (GetLastError() == ERROR_INVALID_PARAMETER) {
+            throw_Illegal_Argument_Exception(env, "setDTR: Wrong value");
+        } else {
+            throw_ClosedOrNativeException(env, object, "Can't set/clear DTR");
+        }
     }
 }
 
@@ -475,7 +483,11 @@ JNIEXPORT void JNICALL Java_de_ibapl_spsw_provider_GenericWinSerialPortSocket_se
     HANDLE hFile = GET_FILEDESCRIPTOR(env, object);
 
     if (!EscapeCommFunction(hFile, dwFunc)) {
-        throw_ClosedOrNativeException(env, object, "Can't set/clear BREAK");
+        if (GetLastError() == ERROR_INVALID_PARAMETER) {
+            throw_Illegal_Argument_Exception(env, "setBreak: Wrong value");
+        } else {
+            throw_ClosedOrNativeException(env, object, "Can't set/clear BREAK");
+        }
     }
 }
 
@@ -491,7 +503,11 @@ JNIEXPORT void JNICALL Java_de_ibapl_spsw_provider_GenericWinSerialPortSocket_se
     }
     dcb.XonChar = c;
     if (!SetCommState(hFile, &dcb)) {
-        throw_ClosedOrNativeException(env, object, "setXONChar SetCommState");
+        if (GetLastError() == ERROR_INVALID_PARAMETER) {
+            throw_Illegal_Argument_Exception(env, "setXONChar: Wrong value");
+        } else {
+            throw_ClosedOrNativeException(env, object, "setXONChar SetCommState");
+        }
     }
 }
 
@@ -507,8 +523,11 @@ JNIEXPORT void JNICALL Java_de_ibapl_spsw_provider_GenericWinSerialPortSocket_se
     }
     dcb.XoffChar = c;
     if (!SetCommState(hFile, &dcb)) {
-        throw_ClosedOrNativeException(env, object, "setXOFFChar SetCommState");
-        return;
+        if (GetLastError() == ERROR_INVALID_PARAMETER) {
+            throw_Illegal_Argument_Exception(env, "setXOFFChar: Wrong value");
+        } else {
+            throw_ClosedOrNativeException(env, object, "setXOFFChar SetCommState");
+        }
     }
 }
 
@@ -882,10 +901,12 @@ JNIEXPORT void JNICALL Java_de_ibapl_spsw_provider_GenericWinSerialPortSocket_se
         }
     }
     if (!SetCommState(hFile, &dcb)) {
-        throw_ClosedOrNativeException(env, object, "setFlowControl SetCommState");
-        return;
+        if (GetLastError() == ERROR_INVALID_PARAMETER) {
+            throw_Illegal_Argument_Exception(env, "setFlowControl: Wrong FlowControl");
+        } else {
+            throw_ClosedOrNativeException(env, object, "setFlowControl SetCommState");
+        }
     }
-
 }
 
 /*
@@ -909,9 +930,9 @@ JNIEXPORT void JNICALL Java_de_ibapl_spsw_provider_GenericWinSerialPortSocket_se
     if (!SetCommState(hFile, &dcb)) {
         if (GetLastError() == ERROR_INVALID_PARAMETER) {
             throw_Illegal_Argument_Exception(env, "setBaudrate: Wrong Baudrate");
-            return;
+        } else {
+            throw_ClosedOrNativeException(env, object, "setBaudrate SetCommState");
         }
-        throw_ClosedOrNativeException(env, object, "setBaudrate SetCommState");
         return;
     }
 }
@@ -973,7 +994,11 @@ JNIEXPORT void JNICALL Java_de_ibapl_spsw_provider_GenericWinSerialPortSocket_se
 
 
     if (!SetCommTimeouts(hFile, &lpCommTimeouts)) {
-        throw_ClosedOrNativeException(env, object, "setTimeouts SetCommTimeouts");
+        if (GetLastError() == ERROR_INVALID_PARAMETER) {
+            throw_Illegal_Argument_Exception(env, "setTimeouts: Wrong Timeouts");
+        } else {
+            throw_ClosedOrNativeException(env, object, "setTimeouts SetCommTimeouts");
+        }
         return;
     }
 }
@@ -1024,7 +1049,11 @@ JNIEXPORT void JNICALL Java_de_ibapl_spsw_provider_GenericWinSerialPortSocket_se
     dcb.ByteSize = dataBits;
 
     if (!SetCommState(hFile, &dcb)) {
-        throw_ClosedOrNativeException(env, object, "setDataBits SetCommState");
+        if (GetLastError() == ERROR_INVALID_PARAMETER) {
+            throw_Illegal_Argument_Exception(env, "setDataBits: Wrong DataBits");
+        } else {
+            throw_ClosedOrNativeException(env, object, "setDataBits SetCommState");
+        }
         return;
     }
 }
