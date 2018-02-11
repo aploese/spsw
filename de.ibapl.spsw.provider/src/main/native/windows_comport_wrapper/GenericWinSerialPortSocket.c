@@ -743,7 +743,7 @@ JNIEXPORT jint JNICALL Java_de_ibapl_spsw_provider_GenericWinSerialPortSocket_re
         return lpBuffer & 0xFF;
     } else if (dwBytesRead == 0) {
         if (GET_FILEDESCRIPTOR(env, object) == INVALID_HANDLE_VALUE) {
-            throw_SerialPortException_Closed(env);
+            //closed no-op
         } else {
             throw_TimeoutIOException(env, dwBytesRead);
         }
