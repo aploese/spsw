@@ -677,8 +677,8 @@ public abstract class AbstractOnePortTest {
         //spc.openRaw();
         //spc.close();
         //Assert.assertTrue(spc.isClosed());
-        //Or 20ms will also do
-        Thread.sleep(20);
+        //Or 40ms will also do
+        Thread.sleep(40);
     }
 
     @Test(timeout = 5000)
@@ -709,8 +709,8 @@ public abstract class AbstractOnePortTest {
         //spc.openRaw();
         //spc.close();
         //Assert.assertTrue(spc.isClosed());
-        //Or 20ms will also do
-        Thread.sleep(20);
+        //Or 40s will also do
+        Thread.sleep(40);
     }
 
     @Test
