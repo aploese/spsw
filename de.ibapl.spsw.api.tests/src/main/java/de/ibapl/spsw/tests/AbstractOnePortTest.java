@@ -672,6 +672,13 @@ public abstract class AbstractOnePortTest {
         assertEquals(-1, result);
 
         Assert.assertTrue(spc.isClosed());
+        //TODO commenting this out will make the next Test fail on windowx with  port busy ??? I have no idea why
+        //Make sure it can be opend
+        //spc.openRaw();
+        //spc.close();
+        //Assert.assertTrue(spc.isClosed());
+        //Or 20ms will also do
+        Thread.sleep(20);
     }
 
     @Test(timeout = 5000)
@@ -696,6 +703,14 @@ public abstract class AbstractOnePortTest {
         assertEquals(-1, result);
 
         Assert.assertTrue(spc.isClosed());
+        
+        //Make sure it can be opend
+        //TODO commenting this out will make the next Test fail on windowx with  port busy ??? I have no idea why
+        //spc.openRaw();
+        //spc.close();
+        //Assert.assertTrue(spc.isClosed());
+        //Or 20ms will also do
+        Thread.sleep(20);
     }
 
     @Test
@@ -832,7 +847,7 @@ public abstract class AbstractOnePortTest {
     @Test
     public void testDefaultTimeouts() throws IOException {
         Assume.assumeNotNull(spc);
-        LOG.log(Level.INFO, "run testDefaultTimeouts");
+        LOG.log(Level.INFO, "ruf testDefaultTimeouts");
 
         spc.openRaw();
         assertEquals(100, spc.getInterByteReadTimeout());
