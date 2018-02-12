@@ -50,6 +50,9 @@
  * e-mail: scream3r.org@gmail.com
  * web-site: http://scream3r.org | http://code.google.com/p/java-simple-serial-connector/
  */
+
+#define _WIN32_WINNT 0x600
+
 #include <jni.h>
 #include <stdlib.h>
 #include <windows.h>
@@ -421,6 +424,13 @@ JNIEXPORT void JNICALL Java_de_ibapl_spsw_provider_GenericWinSerialPortSocket_cl
 
     HANDLE hFile = GET_FILEDESCRIPTOR(env, object);
     SET_FILEDESCRIPTOR(env, object, INVALID_HANDLE_VALUE);
+    // if only ReadIntervalTimeout is set and port is closed during pending read the read operation will hang forever...
+    if (!CancelIo(hFile)) {
+        //no-op we dont care
+    }
+    if (!CancelIoEx(hFile, NULL)) {
+        //no-op we dont care
+    }
 
     if (!CloseHandle(hFile)) {
         throw_SerialPortException_NativeError(env, "Can't close port");

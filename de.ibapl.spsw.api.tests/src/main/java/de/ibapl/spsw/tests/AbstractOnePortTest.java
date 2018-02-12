@@ -42,6 +42,7 @@ import org.junit.Assert;
 import org.junit.Assume;
 import org.junit.Before;
 import org.junit.BeforeClass;
+import org.junit.Ignore;
 import org.junit.Test;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
@@ -519,7 +520,9 @@ public abstract class AbstractOnePortTest {
                     int data = spc.getInputStream().read();
                     LOG.info("Read done: " + data);
                     if (data == -1) {
+                        LOG.log(Level.INFO, "Received -1");
                         if (spc.isClosed()) {
+                            LOG.log(Level.INFO, "Received -1 and port is closed");
                             synchronized (lock) {
                                 done = true;
                                 lock.notifyAll();
@@ -548,13 +551,14 @@ public abstract class AbstractOnePortTest {
 
         for (int loopIndex = 0; loopIndex < 1; loopIndex++) {
             spc.openRaw(Baudrate.B2400, DataBits.DB_8, StopBits.SB_1, Parity.EVEN, FlowControl.getFC_NONE());
+           // spc.setTimeouts(100,  1000,  1000);
             printPort(spc);
             final TestRead tr = new TestRead();
             Thread t = new Thread(tr);
             t.setDaemon(false);
             LOG.info("Start Thread");
             t.start();
-            Thread.yield();
+            Thread.sleep(100);
             LOG.info("Thread started");
 
             spc.getOutputStream().write(104);
@@ -580,11 +584,11 @@ public abstract class AbstractOnePortTest {
             spc.close();
             Assert.assertTrue(spc.isClosed());
             LOG.info("Port closed");
-            t.interrupt();
+
             synchronized (tr.lock) {
                 if (!tr.done) {
                     LOG.info("Will Wait");
-                    tr.lock.wait(5000); // Allow 5s to close the port and unlock the rad/write Threads.
+                    tr.lock.wait(5000); // Allow 1s to close the port and unlock the rad/write Threads.
                     if (!tr.done) {
                         Assert.fail("Port not closed in loopIndex = " + loopIndex);
                     }
@@ -877,24 +881,21 @@ public abstract class AbstractOnePortTest {
     @Test
     public void testFinalize() throws IOException, InterruptedException {
         Assume.assumeNotNull(spc);
-        LOG.log(Level.INFO, "run testFinalize");
+        LOG.log(Level.INFO, "run testFinalize on " + spc.getPortName());
 
         spc.openRaw();
         WeakReference<SerialPortSocket> refSpc = new WeakReference<>(spc);
         spc = null;
 
-        for (int i = 0; i < 10; i++) {
             //Order matters! First garbage collect then finalize....
             Runtime.getRuntime().gc();
             Runtime.getRuntime().runFinalization();
-            if (refSpc.get() == null) {
-                LOG.info("spc was finalized by the garbage collector after the " + i + " round");
-                break;
-            } else {
-                LOG.severe("spc was not finalized by the garbage collector in the " + i + " round");
-            }
-        }
         Assert.assertNull(refSpc.get());
+
+        //On Windows the GC needs some time - I don't know why...
+        if (System.getProperty("os.name").startsWith("Windows")) {
+        	Thread.sleep(100);
+        }
         
         spc = getSerialPortSocketFactory().createSerialPortSocket(serialPortName);
         spc.openRaw();
