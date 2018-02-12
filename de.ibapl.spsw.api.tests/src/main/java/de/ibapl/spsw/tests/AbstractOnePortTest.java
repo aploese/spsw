@@ -91,7 +91,7 @@ public abstract class AbstractOnePortTest {
         }
         spc = null;
         // On windows the COM ports needs time to properly close...
-        Thread.sleep(100);
+        // Thread.sleep(100);
     }
 
     @Test
@@ -651,7 +651,7 @@ public abstract class AbstractOnePortTest {
         Assert.assertTrue(spc.isClosed());
     }
 
-    @Test
+    @Test(timeout = 5000)
     public void testCloseDuringSingleRead() throws Exception {
         Assume.assumeNotNull(spc);
         LOG.log(Level.INFO, "run testCloseDuringSingleRead");
@@ -674,7 +674,7 @@ public abstract class AbstractOnePortTest {
         Assert.assertTrue(spc.isClosed());
     }
 
-    @Test
+    @Test(timeout = 5000)
     public void testCloseDuringBytesRead() throws Exception {
         Assume.assumeNotNull(spc);
         LOG.log(Level.INFO, "run testCloseDuringBytesRead");

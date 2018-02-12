@@ -176,8 +176,8 @@ public abstract class AbstractTwoPortSingleByteTest {
             spc[i] = null;
         }
         receiverThread = null;
-        //On windows the COM ports needs time to properly close...
-        Thread.sleep(100);
+        // On windows the COM ports needs time to properly close...
+        // Thread.sleep(100);
     }
 
     private void runTest(Baudrate baudrate, int buffersize) throws Exception {
