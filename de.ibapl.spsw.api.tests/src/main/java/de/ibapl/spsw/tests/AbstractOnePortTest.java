@@ -731,6 +731,7 @@ public abstract class AbstractOnePortTest {
     /**
      * Write byte[1024] blocks with set RTS/CTS so the port will actually block
      * The logs give information about the actual behavior
+     * If the port does not support RTS/CTS (like MCS7820 on linux TODO BUG?)it will caught by the timeout.
      *
      * @throws Exception
      */
@@ -774,6 +775,7 @@ public abstract class AbstractOnePortTest {
             }
             round++;
             overallDataWritten += dataWritten;
+            assertTrue("Rounds exceed maximum of " + 100, 100 > round);
         } while (dataWritten > 0);
 
         LOG.log(Level.INFO,

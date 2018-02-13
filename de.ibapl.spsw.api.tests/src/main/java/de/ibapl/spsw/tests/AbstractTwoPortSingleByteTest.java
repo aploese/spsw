@@ -41,6 +41,7 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Ignore;
 import org.junit.Test;
+
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
 
@@ -170,18 +171,22 @@ public abstract class AbstractTwoPortSingleByteTest {
         for (int i = 0; i < spc.length; i++) {
             if (spc[i] != null) {
                 if (spc[i].isOpen()) {
-                    spc[i].close();
+                    String name = spc[i].getPortName();
+                	spc[i].close();
+                    LOG.severe("CLOSED PORT: " + name);
                 }
             }
             spc[i] = null;
         }
         receiverThread = null;
+       //TODO Thread.sleep(10000);
+        
         // On windows the COM ports needs time to properly close...
         // Thread.sleep(100);
     }
 
     private void runTest(Baudrate baudrate, int buffersize) throws Exception {
-        LOG.info(MessageFormat.format("do run test @baudrate: {0}, buffer size: {1}", baudrate.value, buffersize));
+    	LOG.info(MessageFormat.format("do run test @baudrate: {0}, buffer size: {1}", baudrate.value, buffersize));
 
         receiverThread.initBuffers(buffersize);
         receiverThread.startTimeStamp = System.currentTimeMillis();
@@ -197,8 +202,9 @@ public abstract class AbstractTwoPortSingleByteTest {
 
         receiverThread.start();
 
-        spc[0].getOutputStream().write(receiverThread.dataOut);
-//        for (int i = 0; i < receiverThread.dataOut.length; i++) spc[0].getOutputStream().write(receiverThread.dataOut[i]);
+        for (int i = 0; i < receiverThread.dataOut.length; i++) {
+        	spc[0].getOutputStream().write(receiverThread.dataOut[i]);
+        }
 
         LOG.log(Level.INFO, "Send time in millis:: {0}", (System.currentTimeMillis() - receiverThread.startTimeStamp));
         synchronized (receiverThread.LOCK) {
@@ -473,4 +479,5 @@ public abstract class AbstractTwoPortSingleByteTest {
 		Assert.assertTrue(spc[1].isClosed());
 		LOG.log(Level.INFO, "port closed");
     }
+    
 }

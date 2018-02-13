@@ -25,6 +25,7 @@ import java.io.InterruptedIOException;
 import java.text.MessageFormat;
 import java.util.Arrays;
 import java.util.Properties;
+import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import de.ibapl.spsw.api.Baudrate;
@@ -134,7 +135,11 @@ public abstract class AbstractTwoPortMultipleBytesTest {
     private final SerialPortSocket[] spc = new SerialPortSocket[2];
     private ReceiverThread receiverThread;
     protected abstract SerialPortSocketFactory getSerialPortSocketFactory();
-
+    protected Set<FlowControl> flowControl = FlowControl.getFC_NONE(); // getFC_RTS_CTS();
+    protected Parity parity = Parity.EVEN;
+    protected StopBits stopBits = StopBits.SB_2;
+    protected DataBits dataBits = DataBits.DB_8;
+    
     @BeforeClass
     public static void setUpClass() throws Exception {
         try (InputStream is = AbstractTwoPortMultipleBytesTest.class.getClassLoader().getResourceAsStream("junit-spsw-config.properties")) {
@@ -185,9 +190,9 @@ public abstract class AbstractTwoPortMultipleBytesTest {
         receiverThread.startTimeStamp = System.currentTimeMillis();
 
         Assume.assumeNotNull((Object[]) spc);
-        spc[0].openRaw(baudrate, DataBits.DB_8, StopBits.SB_1, Parity.NONE, FlowControl.getFC_RTS_CTS());
+        spc[0].openRaw(baudrate, dataBits, stopBits, parity, flowControl);
         spc[1].openRaw(spc[0].getBaudrate(), spc[0].getDatatBits(), spc[0].getStopBits(), spc[0].getParity(), spc[0].getFlowControl());
-        printPort(spc[0]);
+        printPorts(spc[0], spc[1]);
 
         //Make sure buffers are empty
         Assert.assertEquals(0, spc[0].getOutBufferBytesCount());
@@ -196,7 +201,6 @@ public abstract class AbstractTwoPortMultipleBytesTest {
         receiverThread.start();
 
         spc[0].getOutputStream().write(receiverThread.dataOut);
-//        for (int i = 0; i < receiverThread.dataOut.length; i++) spc[0].getOutputStream().write(receiverThread.dataOut[i]);
 
         LOG.log(Level.INFO, "Send time in millis:: {0}", (System.currentTimeMillis() - receiverThread.startTimeStamp));
         synchronized (receiverThread.LOCK) {
@@ -214,13 +218,15 @@ public abstract class AbstractTwoPortMultipleBytesTest {
         Assert.assertArrayEquals(receiverThread.dataOut, receiverThread.dataIn);
     }
 
-    private void printPort(SerialPortSocket sPort) throws IOException {
-        System.err.println("Baudrate: " + sPort.getBaudrate().value);
-        System.err.println("DataBits: " + sPort.getDatatBits().value);
-        System.err.println("StopBits: " + sPort.getStopBits().value);
-        System.err.println("Parity: " + sPort.getParity());
-        System.err.println("Flowcontrol: " + sPort.getFlowControl());
-
+    private void printPorts(SerialPortSocket sPort0, SerialPortSocket sPort1) throws IOException {
+    	StringBuilder sb = new StringBuilder();
+    	sb.append(String.format("\n\tName:        %-20s %-20s\n", sPort0.getPortName(), sPort1.getPortName()));
+    	sb.append(String.format("\tBaudrate:    %-20d %-20d\n", sPort0.getBaudrate().value, sPort1.getBaudrate().value));
+    	sb.append(String.format("\tStopBits:    %-20e %-20e\n", sPort0.getStopBits().value, sPort1.getStopBits().value));
+    	sb.append(String.format("\tParity:      %-20s %-20s\n", sPort0.getParity().name(), sPort1.getParity().name()));
+    	sb.append(String.format("\tFlowControl: %-20s %-20s", sPort0.getFlowControl().toString(), sPort1.getFlowControl().toString()));
+    	
+    	LOG.log(Level.INFO, sb.toString());
     }
 
     @Ignore
@@ -327,11 +333,12 @@ public abstract class AbstractTwoPortMultipleBytesTest {
      * But we will only read one byte ... because interbyteRead is 0
      * @throws Exception
      */
+    @Ignore
     @Test(timeout = 5000)
     public void testTimeout() throws Exception {
         Assume.assumeNotNull(spc);
 
-        spc[0].openRaw(Baudrate.B9600, DataBits.DB_8, StopBits.SB_1, Parity.NONE, FlowControl.getFC_RTS_CTS());
+        spc[0].openRaw(Baudrate.B9600, DataBits.DB_8, StopBits.SB_2, Parity.EVEN, FlowControl.getFC_RTS_CTS());
         spc[1].openRaw(spc[0].getBaudrate(), spc[0].getDatatBits(), spc[0].getStopBits(), spc[0].getParity(), spc[0].getFlowControl());
         spc[0].setTimeouts(0, 2000, 2000);
         Assert.assertEquals(0, spc[0].getInterByteReadTimeout());
