@@ -49,24 +49,24 @@ public class TwoPortsBaselineRxTxTest {
 
     private byte[] dataOut;
     private byte[] dataIn;
-    private static final String[] serialPortName = new String[2];
+    private static final String[] SERIAL_PORT_NAMES = new String[2];
     private final RXTXPort[] spc = new RXTXPort[2];
     protected int flowControl = SerialPort.FLOWCONTROL_RTSCTS_IN | SerialPort.FLOWCONTROL_RTSCTS_OUT; 
-    protected int parity = SerialPort.PARITY_EVEN;
-    protected int stopBits = SerialPort.STOPBITS_2;
+    protected int parity = SerialPort.PARITY_NONE;
+    protected int stopBits = SerialPort.STOPBITS_1;
     protected int dataBits = SerialPort.DATABITS_8;
 
     @BeforeClass
     public static void setUpClass() throws Exception {
         try (InputStream is = TwoPortsBaselineRxTxTest.class.getClassLoader().getResourceAsStream("junit-spsw-config.properties")) {
             if (is == null) {
-                serialPortName[0] = null;
-                serialPortName[1] = null;
+                SERIAL_PORT_NAMES[0] = null;
+                SERIAL_PORT_NAMES[1] = null;
             } else {
                 Properties p = new Properties();
                 p.load(is);
-                serialPortName[0] = p.getProperty("port0", null);
-                serialPortName[1] = p.getProperty("port1", null);
+                SERIAL_PORT_NAMES[0] = p.getProperty("port0", null);
+                SERIAL_PORT_NAMES[1] = p.getProperty("port1", null);
             }
         }
     }
@@ -74,9 +74,9 @@ public class TwoPortsBaselineRxTxTest {
     @Before
     public void setUp() throws Exception {
         initBuffers(DEFAULT_TEST_BUFFER_SIZE);
-        for (int i = 0; i < serialPortName.length; i++) {
-            if (serialPortName[i] != null) {
-                CommPortIdentifier portIdentifier = CommPortIdentifier.getPortIdentifier(serialPortName[i]);
+        for (int i = 0; i < SERIAL_PORT_NAMES.length; i++) {
+            if (SERIAL_PORT_NAMES[i] != null) {
+                CommPortIdentifier portIdentifier = CommPortIdentifier.getPortIdentifier(SERIAL_PORT_NAMES[i]);
                 spc[i] = (RXTXPort) portIdentifier.open(this.getClass().getName(), 1000);
             } else {
                 spc[i] = null;
@@ -156,108 +156,117 @@ public class TwoPortsBaselineRxTxTest {
 
     @Test(timeout = 1000 + (DEFAULT_TEST_BUFFER_SIZE * 12 * 1000) / 300)
     public void test_0000300() throws Exception {
-        Assume.assumeNotNull(spc);
+        Assume.assumeNotNull((Object[]) spc);
         runTest(300, DEFAULT_TEST_BUFFER_SIZE);
     }
 
     @Test(timeout = 1000 + (DEFAULT_TEST_BUFFER_SIZE * 12 * 1000) / 2400)
     public void test_0002400() throws Exception {
-        Assume.assumeNotNull(spc);
+        Assume.assumeNotNull((Object[]) spc);
         runTest(2400, DEFAULT_TEST_BUFFER_SIZE);
     }
 
     @Test(timeout = 1000 + (DEFAULT_TEST_BUFFER_SIZE * 12 * 1000) / 4800)
     public void test_0004800() throws Exception {
-        Assume.assumeNotNull(spc);
+        Assume.assumeNotNull((Object[]) spc);
         runTest(4800, DEFAULT_TEST_BUFFER_SIZE);
     }
 
     @Test(timeout = 1000 + (DEFAULT_TEST_BUFFER_SIZE * 12 * 1000) / 9600)
     public void test_0009600() throws Exception {
-        Assume.assumeNotNull(spc);
+        Assume.assumeNotNull((Object[]) spc);
         runTest(9600, DEFAULT_TEST_BUFFER_SIZE);
     }
 
 
-    @Test(timeout = 1000 + (DEFAULT_TEST_BUFFER_SIZE * 12 * 1000) / 38400)
-    public void test_0038400() throws Exception {
-        Assume.assumeNotNull(spc);
-        runTest(38400, DEFAULT_TEST_BUFFER_SIZE);
-    }
-
+    //@Ignore
     @Test(timeout = 1000 + (DEFAULT_TEST_BUFFER_SIZE * 12 * 1000) / 19200)
     public void test_0019200() throws Exception {
-        Assume.assumeNotNull(spc);
+        Assume.assumeNotNull((Object[]) spc);
         runTest(19200, DEFAULT_TEST_BUFFER_SIZE);
     }
 
+    //@Ignore
+    @Test(timeout = 1000 + (DEFAULT_TEST_BUFFER_SIZE * 12 * 1000) / 38400)
+    public void test_0038400() throws Exception {
+        Assume.assumeNotNull((Object[]) spc);
+        runTest(38400, DEFAULT_TEST_BUFFER_SIZE);
+    }
+
+    //@Ignore
     @Test(timeout = 1000 + (DEFAULT_TEST_BUFFER_SIZE * 12 * 1000) / 57600)
     public void test_0057600() throws Exception {
-        Assume.assumeNotNull(spc);
+        Assume.assumeNotNull((Object[]) spc);
         runTest(57600, DEFAULT_TEST_BUFFER_SIZE);
     }
 
+    //@Ignore
     @Test(timeout = 1000 + (DEFAULT_TEST_BUFFER_SIZE * 12 * 1000) / 115200)
     public void test_0115200() throws Exception {
-        Assume.assumeNotNull(spc);
+        Assume.assumeNotNull((Object[]) spc);
         runTest(115200, DEFAULT_TEST_BUFFER_SIZE);
     }
 
+    //@Ignore
     @Test(timeout = 1000 + (DEFAULT_TEST_BUFFER_SIZE * 12 * 1000) / 230400)
     public void test_0230400() throws Exception {
-        Assume.assumeNotNull(spc);
+        Assume.assumeNotNull((Object[]) spc);
         runTest(230400, DEFAULT_TEST_BUFFER_SIZE);
     }
 
+    //@Ignore
     @Test(timeout = 1000 + (DEFAULT_TEST_BUFFER_SIZE * 12 * 1000) / 460800)
     public void test_0460800() throws Exception {
-        Assume.assumeNotNull(spc);
+        Assume.assumeNotNull((Object[]) spc);
         runTest(460800, DEFAULT_TEST_BUFFER_SIZE);
     }
 
+    //@Ignore
     @Test(timeout = 1000 + (DEFAULT_TEST_BUFFER_SIZE * 12 * 1000) / 500000)
     public void test_0500000() throws Exception {
-        Assume.assumeNotNull(spc);
+        Assume.assumeNotNull((Object[]) spc);
         runTest(500000, DEFAULT_TEST_BUFFER_SIZE);
     }
 
+    //@Ignore
     @Test(timeout = 1000 + (DEFAULT_TEST_BUFFER_SIZE * 12 * 1000) / 576000)
     public void test_0576000() throws Exception {
-        Assume.assumeNotNull(spc);
+        Assume.assumeNotNull((Object[]) spc);
         runTest(576000, DEFAULT_TEST_BUFFER_SIZE);
     }
 
+    @Ignore
     @Test(timeout = 1000 + (DEFAULT_TEST_BUFFER_SIZE * 12 * 1000) / 1000000)
     public void test_1000000() throws Exception {
-        Assume.assumeNotNull(spc);
+        Assume.assumeNotNull((Object[]) spc);
         runTest(1000000, DEFAULT_TEST_BUFFER_SIZE);
     }
 
     @Ignore
     @Test(timeout = 1000 + (DEFAULT_TEST_BUFFER_SIZE * 12 * 1000) / 1152000)
     public void test_1152000() throws Exception {
-        Assume.assumeNotNull(spc);
+        Assume.assumeNotNull((Object[]) spc);
         runTest(1152000, DEFAULT_TEST_BUFFER_SIZE);
     }
 
     @Ignore
     @Test(timeout = 1000 + (DEFAULT_TEST_BUFFER_SIZE * 12 * 1000) / 2000000)
     public void test_2000000() throws Exception {
-        Assume.assumeNotNull(spc);
+        Assume.assumeNotNull((Object[]) spc);
         runTest(2000000, DEFAULT_TEST_BUFFER_SIZE);
     }
 
     @Ignore
     @Test(timeout = 1000 + (DEFAULT_TEST_BUFFER_SIZE * 12 * 1000) / 3000000)
     public void test_3000000() throws Exception {
-        Assume.assumeNotNull(spc);
+        Assume.assumeNotNull((Object[]) spc);
         runTest(3000000, DEFAULT_TEST_BUFFER_SIZE);
     }
 
     @Ignore
     @Test(timeout = 1000 + (DEFAULT_TEST_BUFFER_SIZE * 12 * 1000) / 4000000)
     public void test_4000000() throws Exception {
-        Assume.assumeNotNull(spc);
+        Assume.assumeNotNull((Object[]) spc);
         runTest(4000000, DEFAULT_TEST_BUFFER_SIZE);
     }
 
