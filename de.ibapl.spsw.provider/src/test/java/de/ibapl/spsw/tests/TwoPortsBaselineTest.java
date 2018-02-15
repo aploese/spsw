@@ -125,21 +125,7 @@ public class TwoPortsBaselineTest {
         dataIn = new byte[size];
     }
 
-    private void runTest(Baudrate baudrate, int buffersize) throws Exception {
-        Assume.assumeNotNull((Object[]) spc);
-        LOG.info(MessageFormat.format("do run test @baudrate: {0}, buffer size: {1}", baudrate.value, buffersize));
-
-        spc[0].openRaw(baudrate, dataBits, stopBits, parity, flowControl);
-        spc[1].openRaw(spc[0].getBaudrate(), spc[0].getDatatBits(), spc[0].getStopBits(), spc[0].getParity(), spc[0].getFlowControl());
-        spc[0].setTimeouts(100, 200, 200);
-        spc[1].setTimeouts(100, 200, 200);
-        printPorts(spc[0], spc[1]);
-
-        //Make sure buffers are empty
-        Assert.assertEquals(0, spc[0].getOutBufferBytesCount());
-        Assert.assertEquals(0, spc[1].getInBufferBytesCount());
-
-        
+    private void writeBytes() throws IOException {
         try {
             spc[0].getOutputStream().write(dataOut);
             LOG.fine("data written");
@@ -170,11 +156,61 @@ public class TwoPortsBaselineTest {
         Assert.assertArrayEquals(dataOut, dataIn);
     }
 
+    private void writeSingle() throws IOException {
+        try {
+            for (int i = 0; i < dataOut.length; i++) {
+                spc[0].getOutputStream().write(dataOut[i]);
+            }
+            LOG.fine("data written");
+        } catch (InterruptedIOException iioe) {
+            LOG.log(Level.SEVERE, "{0} Bytes send total: {1}", new Object[]{iioe.getMessage(), iioe.bytesTransferred});
+            Assert.fail(iioe.getMessage() + " Bytes send total: " + iioe.bytesTransferred);
+        } catch (IOException e) {
+            LOG.severe(e.getMessage());
+            Assert.fail(e.getMessage());
+        }
+
+        for (int i= 0; i < dataIn.length; i++) {
+            try {
+                int received = spc[1].getInputStream().read();
+                if (received >= 0) {
+                    dataIn[i] = (byte)received;
+                } else {
+                    throw new RuntimeException();
+                }
+            } catch (InterruptedIOException iioe) {
+                LOG.log(Level.SEVERE, "{0} Bytes received total: {1} Bytes received this: {2} Bytes in in/out buffer {3}/{4}", new Object[]{iioe.getMessage(), i, iioe.bytesTransferred, spc[1].getInBufferBytesCount(), spc[0].getOutBufferBytesCount()});
+                Assert.fail(iioe.getMessage() + " Bytes received total: " + i + " Bytes received this: " + iioe.bytesTransferred + " Bytes in in/out buffer " + spc[1].getInBufferBytesCount() + "/" + spc[0].getOutBufferBytesCount());
+            } catch (IOException e) {
+                LOG.severe(e.getMessage());
+            }
+        }
+        Assert.assertArrayEquals(dataOut, dataIn);
+    }
+
+    private void runTest(Baudrate baudrate, int buffersize) throws Exception {
+        Assume.assumeNotNull((Object[]) spc);
+        LOG.info(MessageFormat.format("do run test @baudrate: {0}, buffer size: {1}", baudrate.value, buffersize));
+
+        spc[0].openRaw(baudrate, dataBits, stopBits, parity, flowControl);
+        spc[1].openRaw(spc[0].getBaudrate(), spc[0].getDatatBits(), spc[0].getStopBits(), spc[0].getParity(), spc[0].getFlowControl());
+        spc[0].setTimeouts(100, 200, 200);
+        spc[1].setTimeouts(100, 200, 200);
+        printPorts(spc[0], spc[1]);
+
+        //Make sure buffers are empty
+        Assert.assertEquals(0, spc[0].getOutBufferBytesCount());
+        Assert.assertEquals(0, spc[1].getInBufferBytesCount());
+
+        writeBytes();
+        writeSingle();
+    }
+
     private void printPorts(SerialPortSocket sPort0, SerialPortSocket sPort1) throws IOException {
         StringBuilder sb = new StringBuilder();
         sb.append(String.format("\n\tName:        %-20s %-20s\n", sPort0.getPortName(), sPort1.getPortName()));
         sb.append(String.format("\tBaudrate:    %-20d %-20d\n", sPort0.getBaudrate().value, sPort1.getBaudrate().value));
-        sb.append(String.format("\tStopBits:    %-20e %-20e\n", sPort0.getStopBits().value, sPort1.getStopBits().value));
+        sb.append(String.format("\tStopBits:    %-20f %-20f\n", sPort0.getStopBits().value, sPort1.getStopBits().value));
         sb.append(String.format("\tParity:      %-20s %-20s\n", sPort0.getParity().name(), sPort1.getParity().name()));
         sb.append(String.format("\tFlowControl: %-20s %-20s\n", sPort0.getFlowControl().toString(), sPort1.getFlowControl().toString()));
         sb.append(String.format("\tIntebyteReadTimeout:    %-20d %-20d\n", sPort0.getInterByteReadTimeout(), sPort1.getInterByteReadTimeout()));
@@ -184,116 +220,128 @@ public class TwoPortsBaselineTest {
         LOG.log(Level.INFO, sb.toString());
     }
 
-    @Test(timeout = 1000 + (DEFAULT_TEST_BUFFER_SIZE * 12 * 1000) / 300)
+    @Test(timeout = 1000 + (DEFAULT_TEST_BUFFER_SIZE * 2 * 12 * 1000) / 300)
     public void test_0000300() throws Exception {
         Assume.assumeNotNull((Object[]) spc);
         runTest(Baudrate.B300, DEFAULT_TEST_BUFFER_SIZE);
     }
 
-    @Test(timeout = 1000 + (DEFAULT_TEST_BUFFER_SIZE * 12 * 1000) / 2400)
+    @Test(timeout = 1000 + (DEFAULT_TEST_BUFFER_SIZE * 2 * 12 * 1000) / 600)
+    public void test_0000600() throws Exception {
+        Assume.assumeNotNull((Object[]) spc);
+        runTest(Baudrate.B600, DEFAULT_TEST_BUFFER_SIZE);
+    }
+
+    @Test(timeout = 1000 + (DEFAULT_TEST_BUFFER_SIZE * 2 * 12 * 1000) / 1200)
+    public void test_0001200() throws Exception {
+        Assume.assumeNotNull((Object[]) spc);
+        runTest(Baudrate.B1200, DEFAULT_TEST_BUFFER_SIZE);
+    }
+
+    @Test(timeout = 1000 + (DEFAULT_TEST_BUFFER_SIZE * 2 * 12 * 1000) / 2400)
     public void test_0002400() throws Exception {
         Assume.assumeNotNull((Object[]) spc);
         runTest(Baudrate.B2400, DEFAULT_TEST_BUFFER_SIZE);
     }
 
-    @Test(timeout = 1000 + (DEFAULT_TEST_BUFFER_SIZE * 12 * 1000) / 4800)
+    @Test(timeout = 1000 + (DEFAULT_TEST_BUFFER_SIZE * 2 * 12 * 1000) / 4800)
     public void test_0004800() throws Exception {
         Assume.assumeNotNull((Object[]) spc);
         runTest(Baudrate.B4800, DEFAULT_TEST_BUFFER_SIZE);
     }
 
-    @Test(timeout = 1000 + (DEFAULT_TEST_BUFFER_SIZE * 12 * 1000) / 9600)
+    @Test(timeout = 1000 + (DEFAULT_TEST_BUFFER_SIZE * 2 * 12 * 1000) / 9600)
     public void test_0009600() throws Exception {
         Assume.assumeNotNull((Object[]) spc);
         runTest(Baudrate.B9600, DEFAULT_TEST_BUFFER_SIZE);
     }
 
 //    @Ignore
-    @Test(timeout = 1000 + (DEFAULT_TEST_BUFFER_SIZE * 12 * 1000) / 19200)
+    @Test(timeout = 1000 + (DEFAULT_TEST_BUFFER_SIZE * 2 * 12 * 1000) / 19200)
     public void test_0019200() throws Exception {
         Assume.assumeNotNull((Object[]) spc);
         runTest(Baudrate.B19200, DEFAULT_TEST_BUFFER_SIZE);
     }
 
     //@Ignore
-    @Test(timeout = 1000 + (DEFAULT_TEST_BUFFER_SIZE * 12 * 1000) / 38400)
+    @Test(timeout = 1000 + (DEFAULT_TEST_BUFFER_SIZE * 2 * 12 * 1000) / 38400)
     public void test_0038400() throws Exception {
         Assume.assumeNotNull((Object[]) spc);
         runTest(Baudrate.B38400, DEFAULT_TEST_BUFFER_SIZE);
     }
 
     //@Ignore
-    @Test(timeout = 1000 + (DEFAULT_TEST_BUFFER_SIZE * 12 * 1000) / 57600)
+    @Test(timeout = 1000 + (DEFAULT_TEST_BUFFER_SIZE * 2 * 12 * 1000) / 57600)
     public void test_0057600() throws Exception {
         Assume.assumeNotNull((Object[]) spc);
         runTest(Baudrate.B57600, DEFAULT_TEST_BUFFER_SIZE);
     }
 
     //@Ignore
-    @Test(timeout = 1000 + (DEFAULT_TEST_BUFFER_SIZE * 12 * 1000) / 115200)
+    @Test(timeout = 1000 + (DEFAULT_TEST_BUFFER_SIZE * 2 * 12 * 1000) / 115200)
     public void test_0115200() throws Exception {
         Assume.assumeNotNull((Object[]) spc);
         runTest(Baudrate.B115200, DEFAULT_TEST_BUFFER_SIZE);
     }
 
     //@Ignore
-    @Test(timeout = 1000 + (DEFAULT_TEST_BUFFER_SIZE * 12 * 1000) / 230400)
+    @Test(timeout = 1000 + (DEFAULT_TEST_BUFFER_SIZE * 2 * 12 * 1000) / 230400)
     public void test_0230400() throws Exception {
         Assume.assumeNotNull((Object[]) spc);
         runTest(Baudrate.B230400, DEFAULT_TEST_BUFFER_SIZE);
     }
 
     //@Ignore
-    @Test(timeout = 1000 + (DEFAULT_TEST_BUFFER_SIZE * 12 * 1000) / 460800)
+    @Test(timeout = 1000 + (DEFAULT_TEST_BUFFER_SIZE * 2 * 12 * 1000) / 460800)
     public void test_0460800() throws Exception {
         Assume.assumeNotNull((Object[]) spc);
         runTest(Baudrate.B460800, DEFAULT_TEST_BUFFER_SIZE);
     }
 
     //@Ignore
-    @Test(timeout = 1000 + (DEFAULT_TEST_BUFFER_SIZE * 12 * 1000) / 500000)
+    @Test(timeout = 1000 + (DEFAULT_TEST_BUFFER_SIZE * 2 * 12 * 1000) / 500000)
     public void test_0500000() throws Exception {
         Assume.assumeNotNull((Object[]) spc);
         runTest(Baudrate.B500000, DEFAULT_TEST_BUFFER_SIZE);
     }
 
     //@Ignore
-    @Test(timeout = 1000 + (DEFAULT_TEST_BUFFER_SIZE * 12 * 1000) / 576000)
+    @Test(timeout = 1000 + (DEFAULT_TEST_BUFFER_SIZE * 2 * 12 * 1000) / 576000)
     public void test_0576000() throws Exception {
         Assume.assumeNotNull((Object) spc);
         runTest(Baudrate.B576000, DEFAULT_TEST_BUFFER_SIZE);
     }
 
     @Ignore
-    @Test(timeout = 1000 + (DEFAULT_TEST_BUFFER_SIZE * 12 * 1000) / 1000000)
+    @Test(timeout = 1000 + (DEFAULT_TEST_BUFFER_SIZE * 2 * 12 * 1000) / 1000000)
     public void test_1000000() throws Exception {
         Assume.assumeNotNull((Object[]) spc);
         runTest(Baudrate.B1000000, DEFAULT_TEST_BUFFER_SIZE);
     }
 
     @Ignore
-    @Test(timeout = 1000 + (DEFAULT_TEST_BUFFER_SIZE * 12 * 1000) / 1152000)
+    @Test(timeout = 1000 + (DEFAULT_TEST_BUFFER_SIZE * 2 * 12 * 1000) / 1152000)
     public void test_1152000() throws Exception {
         Assume.assumeNotNull((Object[]) spc);
         runTest(Baudrate.B1152000, DEFAULT_TEST_BUFFER_SIZE);
     }
 
     @Ignore
-    @Test(timeout = 1000 + (DEFAULT_TEST_BUFFER_SIZE * 12 * 1000) / 2000000)
+    @Test(timeout = 1000 + (DEFAULT_TEST_BUFFER_SIZE * 2 * 12 * 1000) / 2000000)
     public void test_2000000() throws Exception {
         Assume.assumeNotNull((Object[]) spc);
         runTest(Baudrate.B2000000, DEFAULT_TEST_BUFFER_SIZE);
     }
 
     @Ignore
-    @Test(timeout = 1000 + (DEFAULT_TEST_BUFFER_SIZE * 12 * 1000) / 3000000)
+    @Test(timeout = 1000 + (DEFAULT_TEST_BUFFER_SIZE * 2 * 12 * 1000) / 3000000)
     public void test_3000000() throws Exception {
         Assume.assumeNotNull((Object[]) spc);
         runTest(Baudrate.B3000000, DEFAULT_TEST_BUFFER_SIZE);
     }
 
     @Ignore
-    @Test(timeout = 1000 + (DEFAULT_TEST_BUFFER_SIZE * 12 * 1000) / 4000000)
+    @Test(timeout = 1000 + (DEFAULT_TEST_BUFFER_SIZE * 2 * 12 * 1000) / 4000000)
     public void test_4000000() throws Exception {
         Assume.assumeNotNull((Object[]) spc);
         runTest(Baudrate.B4000000, DEFAULT_TEST_BUFFER_SIZE);

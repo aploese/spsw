@@ -1023,6 +1023,9 @@ JNIEXPORT jint JNICALL Java_de_ibapl_spsw_provider_GenericTermiosSerialPortSocke
             nread = -1;
         }
     }
+    // if (nread == 1) {
+    //reread 
+    //}
     free(lpBuffer);
     return nread;
 }

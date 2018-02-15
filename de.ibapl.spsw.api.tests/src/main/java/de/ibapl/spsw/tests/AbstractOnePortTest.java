@@ -90,6 +90,8 @@ public abstract class AbstractOnePortTest {
             }
         }
         spc = null;
+        Runtime.getRuntime().gc();
+        Runtime.getRuntime().runFinalization();
         // On windows the COM ports needs time to properly close...
         // Thread.sleep(100);
     }
@@ -422,7 +424,11 @@ public abstract class AbstractOnePortTest {
 
         spc.setStopBits(StopBits.SB_1); // TODO SB_2 will break this on win ??????
         for (DataBits db : DataBits.values()) {
-            spc.setDataBits(db);
+        	try {
+        		spc.setDataBits(db);
+        	} catch (Exception e) {
+        		Assert.fail(e.getMessage() + "dataBits: " + db);
+        	}
             Assert.assertEquals(db.toString() + "Failed", db, spc.getDatatBits());
         }
 
@@ -920,7 +926,17 @@ public abstract class AbstractOnePortTest {
     }
 
     private void printPort(SerialPortSocket sPort) throws IOException {
-        System.err.println(sPort.toString());
-    }
+        StringBuilder sb = new StringBuilder();
+        sb.append(String.format("\n\tName:        %-20s\n", sPort.getPortName()));
+        sb.append(String.format("\tBaudrate:    %-20d\n", sPort.getBaudrate().value));
+        sb.append(String.format("\tStopBits:    %-20f\n", sPort.getStopBits().value));
+        sb.append(String.format("\tParity:      %-20s\n", sPort.getParity().name()));
+        sb.append(String.format("\tFlowControl: %-20s\n", sPort.getFlowControl().toString()));
+        sb.append(String.format("\tIntebyteReadTimeout:    %-20d\n", sPort.getInterByteReadTimeout()));
+        sb.append(String.format("\tOverallReadTimeout:    %-20d\n", sPort.getOverallReadTimeout()));
+        sb.append(String.format("\tOverallWriteTimeout:    %-20d\n", sPort.getOverallWriteTimeout()));
+
+        LOG.log(Level.INFO, sb.toString());
+}
 
 }

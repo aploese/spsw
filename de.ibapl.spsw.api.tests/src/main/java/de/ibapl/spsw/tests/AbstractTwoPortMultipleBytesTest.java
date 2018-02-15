@@ -72,6 +72,7 @@ public abstract class AbstractTwoPortMultipleBytesTest {
                         if (count > 0) {
                             Assert.assertArrayEquals("Error @Offset: " + offset + " @Count: " + count, Arrays.copyOfRange(dataOut, offset, offset + count), Arrays.copyOfRange(dataIn, offset, offset + count));
                             offset += count;
+                    //        LOG.info("DATA Rec: " + offset);
                             if (offset == dataOut.length) {
                                 break;
                             }
@@ -179,6 +180,8 @@ public abstract class AbstractTwoPortMultipleBytesTest {
             spc[i] = null;
         }
         receiverThread = null;
+        Runtime.getRuntime().gc();
+        Runtime.getRuntime().runFinalization();
         // On windows the COM ports needs time to properly close...
         // Thread.sleep(100);
     }
@@ -219,31 +222,37 @@ public abstract class AbstractTwoPortMultipleBytesTest {
     }
 
     private void printPorts(SerialPortSocket sPort0, SerialPortSocket sPort1) throws IOException {
-    	StringBuilder sb = new StringBuilder();
-    	sb.append(String.format("\n\tName:        %-20s %-20s\n", sPort0.getPortName(), sPort1.getPortName()));
-    	sb.append(String.format("\tBaudrate:    %-20d %-20d\n", sPort0.getBaudrate().value, sPort1.getBaudrate().value));
-    	sb.append(String.format("\tStopBits:    %-20e %-20e\n", sPort0.getStopBits().value, sPort1.getStopBits().value));
-    	sb.append(String.format("\tParity:      %-20s %-20s\n", sPort0.getParity().name(), sPort1.getParity().name()));
-    	sb.append(String.format("\tFlowControl: %-20s %-20s", sPort0.getFlowControl().toString(), sPort1.getFlowControl().toString()));
-    	
-    	LOG.log(Level.INFO, sb.toString());
+            StringBuilder sb = new StringBuilder();
+            sb.append(String.format("\n\tName:        %-20s %-20s\n", sPort0.getPortName(), sPort1.getPortName()));
+            sb.append(String.format("\tBaudrate:    %-20d %-20d\n", sPort0.getBaudrate().value, sPort1.getBaudrate().value));
+            sb.append(String.format("\tStopBits:    %-20f %-20f\n", sPort0.getStopBits().value, sPort1.getStopBits().value));
+            sb.append(String.format("\tParity:      %-20s %-20s\n", sPort0.getParity().name(), sPort1.getParity().name()));
+            sb.append(String.format("\tFlowControl: %-20s %-20s\n", sPort0.getFlowControl().toString(), sPort1.getFlowControl().toString()));
+            sb.append(String.format("\tIntebyteReadTimeout:    %-20d %-20d\n", sPort0.getInterByteReadTimeout(), sPort1.getInterByteReadTimeout()));
+            sb.append(String.format("\tOverallReadTimeout:    %-20d %-20d\n", sPort0.getOverallReadTimeout(), sPort1.getOverallReadTimeout()));
+            sb.append(String.format("\tOverallWriteTimeout:    %-20d %-20d\n", sPort0.getOverallWriteTimeout(), sPort1.getOverallWriteTimeout()));
+
+            LOG.log(Level.INFO, sb.toString());
     }
 
-    @Ignore
-    @Test(timeout = 1000 + (DEFAULT_TEST_BUFFER_SIZE * 10 * 1000) / 300)
+    @Test(timeout = 30000 + (DEFAULT_TEST_BUFFER_SIZE * 10 * 1000) / 300)
     public void test_0000300() throws Exception {
         Assume.assumeNotNull(spc);
         runTest(Baudrate.B300, DEFAULT_TEST_BUFFER_SIZE);
     }
 
-    @Ignore
-    @Test(timeout = 1000 + (DEFAULT_TEST_BUFFER_SIZE * 10 * 1000) / 2400)
+    @Test(timeout = 20000 + (DEFAULT_TEST_BUFFER_SIZE * 10 * 1000) / 1200)
+    public void test_0001200() throws Exception {
+        Assume.assumeNotNull(spc);
+        runTest(Baudrate.B1200, DEFAULT_TEST_BUFFER_SIZE);
+    }
+
+    @Test(timeout = 10000 + (DEFAULT_TEST_BUFFER_SIZE * 10 * 1000) / 2400)
     public void test_0002400() throws Exception {
         Assume.assumeNotNull(spc);
         runTest(Baudrate.B2400, DEFAULT_TEST_BUFFER_SIZE);
     }
 
-    @Ignore
     @Test(timeout = 1000 + (DEFAULT_TEST_BUFFER_SIZE * 10 * 1000) / 9600)
     public void test_0009600() throws Exception {
         Assume.assumeNotNull(spc);
