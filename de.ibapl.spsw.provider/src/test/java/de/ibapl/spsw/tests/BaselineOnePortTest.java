@@ -297,6 +297,26 @@ public class BaselineOnePortTest {
 			} catch (IllegalArgumentException iae) {
 				// This is Hardware dependent watch for logs ...
 				LOG.log(Level.WARNING, "Error setBaudrate " + b, iae);
+			} catch (Exception e) {
+				switch (b) {
+				case B0:
+				case B50:
+				case B75:
+				case B110:
+				case B134:
+				case B150:
+				case B200: 
+				case B2500000:
+				case B3000000:
+				case B3500000:
+				case B4000000:
+					if (b != spc.getBaudrate()) {
+						LOG.warning("Can't set Baudrate to " + b);
+					}
+					break;
+				default:
+				fail("Ex @" +b + "Msg: " + e);
+				}
 			}
 		}
 
