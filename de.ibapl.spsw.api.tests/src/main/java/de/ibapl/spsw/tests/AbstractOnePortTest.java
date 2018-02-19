@@ -45,6 +45,7 @@ import org.junit.BeforeClass;
 import org.junit.Ignore;
 import org.junit.Test;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
@@ -738,6 +739,7 @@ public abstract class AbstractOnePortTest {
      * Write byte[1024] blocks with set RTS/CTS so the port will actually block
      * The logs give information about the actual behavior
      * If the port does not support RTS/CTS (like MCS7820 on linux TODO BUG?)it will caught by the timeout.
+     * 
      *
      * @throws Exception
      */
@@ -754,6 +756,9 @@ public abstract class AbstractOnePortTest {
         assertEquals(1000, spc.getOverallWriteTimeout());
         assertEquals(100, spc.getInterByteReadTimeout());
         assertEquals(1000, spc.getOverallReadTimeout());
+        
+        assertFalse(spc.isCTS());
+        
         byte[] data = new byte[1024];
         int round = 1;
         int i = 0;
@@ -765,7 +770,7 @@ public abstract class AbstractOnePortTest {
                 for (i = 0; i < 1024; i++) {
                     spc.getOutputStream().write(data);
                 }
-                fail();
+                fail("RTS/CTS enabled so a timeout is expectd when the buffer is full!");
             } catch (TimeoutIOException e) {
                 dataWritten = ((i * data.length) + e.bytesTransferred);
                 LOG.log(Level.INFO, "Round: " + round + ": " + dataWritten + " bytes written; OutBuf:  "

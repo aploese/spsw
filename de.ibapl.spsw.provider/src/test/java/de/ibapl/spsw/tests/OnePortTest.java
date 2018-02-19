@@ -32,7 +32,7 @@ import de.ibapl.spsw.api.SerialPortSocket;
 import de.ibapl.spsw.api.SerialPortSocketFactory;
 import de.ibapl.spsw.provider.GenericTermiosSerialPortSocket;
 import de.ibapl.spsw.provider.SerialPortSocketFactoryImpl;
-import static de.ibapl.spsw.tests.AbstractOnePortTest.serialPortName;
+import static de.ibapl.spsw.tests.BaselineOnePortTest.serialPortName;
 import java.io.IOException;
 import java.lang.ref.WeakReference;
 import java.util.logging.Level;
@@ -44,7 +44,7 @@ import org.junit.Test;
  *
  * @author aploese
  */
-public class OnePortTest extends AbstractOnePortTest {
+public class OnePortTest extends BaselineOnePortTest {
     
     @Override
     protected SerialPortSocketFactory getSerialPortSocketFactory() {
