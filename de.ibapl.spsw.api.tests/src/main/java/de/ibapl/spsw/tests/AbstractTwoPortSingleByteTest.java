@@ -51,9 +51,8 @@ import static org.junit.Assert.fail;
  * Use @Ignore if your hardware can't handle higer speeds.
  * 
  */
-public abstract class AbstractTwoPortSingleByteTest {
+public abstract class AbstractTwoPortSingleByteTest extends AbstractPortTest {
 
-    private static final Logger LOG = Logger.getLogger("SerialTests");
     private final static int DEFAULT_TEST_BUFFER_SIZE = 1024 * 2;
 
     public class ReceiverThread extends Thread {
@@ -137,7 +136,6 @@ public abstract class AbstractTwoPortSingleByteTest {
     private static final String[] serialPortName = new String[2];
     private final SerialPortSocket[] spc = new SerialPortSocket[2];
     private ReceiverThread receiverThread;
-    protected abstract SerialPortSocketFactory getSerialPortSocketFactory();
 
     @BeforeClass
     public static void setUpClass() throws Exception {
@@ -166,7 +164,6 @@ public abstract class AbstractTwoPortSingleByteTest {
         }
     }
 
-    @After
     public void tearDown() throws Exception {
         for (int i = 0; i < spc.length; i++) {
             if (spc[i] != null) {
@@ -179,12 +176,7 @@ public abstract class AbstractTwoPortSingleByteTest {
             spc[i] = null;
         }
         receiverThread = null;
-        Runtime.getRuntime().gc();
-        Runtime.getRuntime().runFinalization();
-       //TODO Thread.sleep(10000);
-        
-        // On windows the COM ports needs time to properly close...
-        // Thread.sleep(100);
+        super.tearDown();
     }
 
     private void runTest(Baudrate baudrate, int buffersize) throws Exception {

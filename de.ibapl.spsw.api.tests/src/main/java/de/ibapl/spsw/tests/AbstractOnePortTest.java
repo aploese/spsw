@@ -52,14 +52,11 @@ import static org.junit.Assert.fail;
 /**
  * Unit test for simple App.
  */
-public abstract class AbstractOnePortTest {
-
-    protected static final Logger LOG = Logger.getLogger("SerialTests");
+public abstract class AbstractOnePortTest extends AbstractPortTest {
 
     protected static String serialPortName;
     protected SerialPortSocket spc;
 
-    protected abstract SerialPortSocketFactory getSerialPortSocketFactory();
 
     @BeforeClass
     public static void setUpClass() throws Exception {
@@ -83,7 +80,6 @@ public abstract class AbstractOnePortTest {
         }
     }
 
-    @After
     public void tearDown() throws Exception {
         if (spc != null) {
             if (spc.isOpen()) {
@@ -91,10 +87,7 @@ public abstract class AbstractOnePortTest {
             }
         }
         spc = null;
-        Runtime.getRuntime().gc();
-        Runtime.getRuntime().runFinalization();
-        // On windows the COM ports needs time to properly close...
-        // Thread.sleep(100);
+        super.tearDown();
     }
 
     @Test

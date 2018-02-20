@@ -47,9 +47,8 @@ import org.junit.Test;
 /**
  * Unit test for simple App.
  */
-public abstract class AbstractTwoPortMultipleBytesTest {
+public abstract class AbstractTwoPortMultipleBytesTest extends AbstractPortTest {
 
-    private static final Logger LOG = Logger.getLogger("SerialTests");
     private final static int DEFAULT_TEST_BUFFER_SIZE = 1024 * 2;
 
     public class ReceiverThread extends Thread {
@@ -135,7 +134,7 @@ public abstract class AbstractTwoPortMultipleBytesTest {
     private static final String[] serialPortName = new String[2];
     private final SerialPortSocket[] spc = new SerialPortSocket[2];
     private ReceiverThread receiverThread;
-    protected abstract SerialPortSocketFactory getSerialPortSocketFactory();
+
     protected Set<FlowControl> flowControl = FlowControl.getFC_NONE(); // getFC_RTS_CTS();
     protected Parity parity = Parity.EVEN;
     protected StopBits stopBits = StopBits.SB_2;
@@ -169,7 +168,6 @@ public abstract class AbstractTwoPortMultipleBytesTest {
         }
     }
 
-    @After
     public void tearDown() throws Exception {
         for (int i = 0; i < spc.length; i++) {
             if (spc[i] != null) {
@@ -180,10 +178,7 @@ public abstract class AbstractTwoPortMultipleBytesTest {
             spc[i] = null;
         }
         receiverThread = null;
-        Runtime.getRuntime().gc();
-        Runtime.getRuntime().runFinalization();
-        // On windows the COM ports needs time to properly close...
-        // Thread.sleep(100);
+        super.tearDown();
     }
 
     private void runTest(Baudrate baudrate, int buffersize) throws Exception {

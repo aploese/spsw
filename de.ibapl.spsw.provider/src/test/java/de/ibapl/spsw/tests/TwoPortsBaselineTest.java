@@ -48,9 +48,8 @@ import org.junit.Test;
  * Unit test for simple App. Timeout is computed 8 data bits + 2 stop bits +
  * parity bit + start bit == 12
  */
-public class TwoPortsBaselineTest {
+public class TwoPortsBaselineTest extends AbstractPortTest {
 
-    private static final Logger LOG = Logger.getLogger(TwoPortsBaselineTest.class.getName());
     private final static int DEFAULT_TEST_BUFFER_SIZE = 128;
 
     private byte[] dataOut;
@@ -104,13 +103,7 @@ public class TwoPortsBaselineTest {
             }
             spc[i] = null;
         }
-        Runtime.getRuntime().gc();
-        Runtime.getRuntime().runFinalization();
-        Thread.sleep(100);
-        Runtime.getRuntime().gc();
-        Runtime.getRuntime().runFinalization();
-        // On windows the COM ports needs time to properly close...
-        // Thread.sleep(100);
+        super.tearDown();
     }
 
     protected SerialPortSocketFactory getSerialPortSocketFactory() {

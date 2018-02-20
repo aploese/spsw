@@ -54,9 +54,7 @@ import static org.junit.Assert.fail;
  * Baudrates from 300 up to 115200 Parity 8 Databits
  * 
  */
-public class BaselineOnePortTest {
-
-	protected static final Logger LOG = Logger.getLogger("SerialTests");
+public class BaselineOnePortTest extends AbstractPortTest {
 
 	protected static String serialPortName;
 	protected SerialPortSocket spc;
@@ -88,7 +86,6 @@ public class BaselineOnePortTest {
 		}
 	}
 
-	@After
 	public void tearDown() throws Exception {
 		if (spc != null) {
 			if (spc.isOpen()) {
@@ -97,10 +94,7 @@ public class BaselineOnePortTest {
 			}
 		}
 		spc = null;
-		Runtime.getRuntime().gc();
-		Runtime.getRuntime().runFinalization();
-		// On windows the COM ports needs time to properly close...
-		// Thread.sleep(1000);
+		super.tearDown();
 	}
 
 	@Test
