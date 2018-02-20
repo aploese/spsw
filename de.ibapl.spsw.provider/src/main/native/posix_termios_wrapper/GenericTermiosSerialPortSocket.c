@@ -1195,9 +1195,20 @@ JNIEXPORT void JNICALL Java_de_ibapl_spsw_provider_GenericTermiosSerialPortSocke
 		return;
 	}
 
+	//Namely the FTDI driver needs the call to tcsetattr ?
+	if (tcsetattr(fd, TCSANOW, &settings) != 0) {
+		throw_ClosedOrNativeException(env, object, "setBaudrate tcsetattr");
+	}
+
+	struct termios settingsRead;
+	if (tcgetattr(fd, &settingsRead) != 0) {
+		throw_ClosedOrNativeException(env, object, "setBaudrate tcgetattr");
+		return;
+	}
+
 	//Get standard baudrate from "termios.h"
-	speed_t inSpeed = cfgetispeed(&settings);
-	speed_t outSpeed = cfgetospeed(&settings);
+	speed_t inSpeed = cfgetispeed(&settingsRead);
+	speed_t outSpeed = cfgetospeed(&settingsRead);
 	if (inSpeed != baudRateValue || outSpeed != baudRateValue) {
 		throw_Illegal_Argument_Exception(env, "setBaudrate: Baudrate was not set correctly!");
 		return;

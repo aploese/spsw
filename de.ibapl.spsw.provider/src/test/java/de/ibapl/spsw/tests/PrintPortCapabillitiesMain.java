@@ -1,9 +1,11 @@
 package de.ibapl.spsw.tests;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.time.Instant;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
+import java.util.Properties;
 import java.util.logging.Level;
 
 import javax.sql.rowset.serial.SerialException;
@@ -21,7 +23,18 @@ import de.ibapl.spsw.provider.SerialPortSocketFactoryImpl;
 public class PrintPortCapabillitiesMain {
 
 	public static void main(String[] args) throws Exception {
-		SerialPortSocket serialPortSocket = SerialPortSocketFactoryImpl.singleton().createSerialPortSocket("COM6");
+		String serialPortName;
+		try (InputStream is = BaselineOnePortTest.class.getClassLoader()
+				.getResourceAsStream("junit-spsw-config.properties")) {
+			if (is == null) {
+				serialPortName = null;
+			} else {
+				Properties p = new Properties();
+				p.load(is);
+				serialPortName = p.getProperty("port0");
+			}
+		}
+		SerialPortSocket serialPortSocket = SerialPortSocketFactoryImpl.singleton().createSerialPortSocket(serialPortName);
 		serialPortSocket.openRaw();
 		System.out.println("Use device: " + serialPortSocket.getPortName());
 		System.out.println(String.format("%-20s%-20s%-20s%-20s", "Baudrate", "DataBits", "StopBits", "Parity"));
@@ -33,7 +46,7 @@ public class PrintPortCapabillitiesMain {
 						try {
 							serialPortSocket.setBaudrate(br);
 						} catch (IllegalArgumentException e) {
-							System.err.println("Cant set Baudrate to: " + br);
+							System.err.println("Can't set Baudrate to: " + br);
 						} catch (SerialPortException spe) {
 							System.err.println("Error: set Baudrate to: " + br);
 							System.err.println(spe);
@@ -41,7 +54,7 @@ public class PrintPortCapabillitiesMain {
 						try {
 							serialPortSocket.setDataBits(db);
 						} catch (IllegalArgumentException e) {
-							System.err.println("Cant set DataBits to: " + db);
+							System.err.println("Can't set DataBits to: " + db);
 						} catch (SerialPortException spe) {
 							System.err.println("Error: set DataBits to: " + db);
 							System.err.println(spe);
@@ -49,7 +62,7 @@ public class PrintPortCapabillitiesMain {
 						try {
 							serialPortSocket.setStopBits(sb);
 						} catch (IllegalArgumentException e) {
-							System.err.println("Cant set StopBits to: " + sb);
+							System.err.println("Can't set StopBits to: " + sb);
 						} catch (SerialPortException spe) {
 							System.err.println("Error: set StopBits to: " + sb);
 							System.err.println(spe);
@@ -57,7 +70,7 @@ public class PrintPortCapabillitiesMain {
 						try {
 							serialPortSocket.setParity(p);
 						} catch (IllegalArgumentException e) {
-							System.err.println("Cant set Parity to: " + p);
+							System.err.println("Can't set Parity to: " + p);
 						} catch (SerialPortException spe) {
 							System.err.println("Error: set Parity to: " + p);
 							System.err.println(spe);
