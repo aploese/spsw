@@ -758,37 +758,37 @@ JNIEXPORT jint JNICALL Java_de_ibapl_spsw_provider_GenericWinSerialPortSocket_re
 	if (!ReadFile(hFile, &lpBuffer, 1, NULL, &overlapped)) {
 
 		if (GetLastError() != ERROR_IO_PENDING) {
-			CloseHandle(overlapped.hEvent);
 			if (GET_FILEDESCRIPTOR(env, object) == INVALID_HANDLE_VALUE) {
 				//closed no-op
 			} else {
 				throw_SerialPortException_NativeError(env,
 						"Error readSingle (GetLastError)");
 			}
+			CloseHandle(overlapped.hEvent);
 			return -1;
 		}
 
 		if (WaitForSingleObject(overlapped.hEvent, INFINITE) != WAIT_OBJECT_0) {
-			CloseHandle(overlapped.hEvent);
 			if (GET_FILEDESCRIPTOR(env, object) == INVALID_HANDLE_VALUE) {
 				//closed no-op
 			} else {
 				throw_SerialPortException_NativeError(env,
 						"Error readSingle (WaitForSingleObject)");
 			}
+			CloseHandle(overlapped.hEvent);
 			return -1;
 		}
 
 	}
 
 	if (!GetOverlappedResult(hFile, &overlapped, &dwBytesRead, FALSE)) {
-		CloseHandle(overlapped.hEvent);
 		if (GET_FILEDESCRIPTOR(env, object) == INVALID_HANDLE_VALUE) {
 			//closed no-op
 		} else {
 			throw_InterruptedIOExceptionWithError(env, dwBytesRead,
 					"Error readSingle (GetOverlappedResult)");
 		}
+		CloseHandle(overlapped.hEvent);
 		return -1;
 	}
 
@@ -810,7 +810,7 @@ JNIEXPORT jint JNICALL Java_de_ibapl_spsw_provider_GenericWinSerialPortSocket_re
 	}
 
 	throw_SerialPortException_NativeError(env,
-			"Should never happen! readSingle falltrough");
+			"Should never happen! readSingle fall trough");
 	return -1;
 }
 
@@ -833,41 +833,41 @@ JNIEXPORT jint JNICALL Java_de_ibapl_spsw_provider_GenericWinSerialPortSocket_re
 	if (!ReadFile(hFile, lpBuffer, len, NULL, &overlapped)) {
 
 		if (GetLastError() != ERROR_IO_PENDING) {
-			CloseHandle(overlapped.hEvent);
-			free(lpBuffer);
 			if (GET_FILEDESCRIPTOR(env, object) == INVALID_HANDLE_VALUE) {
 				//closed no-op
 			} else {
 				throw_SerialPortException_NativeError(env,
 						"Error readBytes(GetLastError)");
 			}
+			free(lpBuffer);
+			CloseHandle(overlapped.hEvent);
 			return -1;
 		}
 
 		//overlapped path
 		if (WaitForSingleObject(overlapped.hEvent, INFINITE) != WAIT_OBJECT_0) {
-			CloseHandle(overlapped.hEvent);
-			free(lpBuffer);
 			if (GET_FILEDESCRIPTOR(env, object) == INVALID_HANDLE_VALUE) {
 				//closed no-op
 			} else {
 				throw_SerialPortException_NativeError(env,
 						"Error readBytes (WaitForSingleObject)");
 			}
+			free(lpBuffer);
+			CloseHandle(overlapped.hEvent);
 			return -1;
 		}
 
 	}
 
 	if (!GetOverlappedResult(hFile, &overlapped, &dwBytesRead, FALSE)) {
-		CloseHandle(overlapped.hEvent);
-		free(lpBuffer);
 		if (GET_FILEDESCRIPTOR(env, object) == INVALID_HANDLE_VALUE) {
 			//closed no-op
 		} else {
 			throw_InterruptedIOExceptionWithError(env, dwBytesRead,
 					"Error readBytes (GetOverlappedResult)");
 		}
+		free(lpBuffer);
+		CloseHandle(overlapped.hEvent);
 		return -1;
 	}
 
