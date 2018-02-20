@@ -44,7 +44,7 @@ import org.junit.Test;
  *
  * @author aploese
  */
-public class OnePortTest extends BaselineOnePortTest {
+public class OnePortTest extends AbstractOnePortTest {
     
     @Override
     protected SerialPortSocketFactory getSerialPortSocketFactory() {

@@ -100,7 +100,7 @@ public class BaselineOnePortTest {
 		Runtime.getRuntime().gc();
 		Runtime.getRuntime().runFinalization();
 		// On windows the COM ports needs time to properly close...
-//		Thread.sleep(1000);
+		// Thread.sleep(1000);
 	}
 
 	@Test
@@ -275,29 +275,8 @@ public class BaselineOnePortTest {
 		for (Baudrate b : Baudrate.values()) {
 			try {
 				spc.setBaudrate(b);
-				switch (b) {
-				case B0:
-				case B50:
-				case B75:
-				case B110:
-				case B134:
-				case B150:
-				case B200: 
-				case B2500000:
-				case B3000000:
-				case B3500000:
-				case B4000000:
-					if (b != spc.getBaudrate()) {
-						LOG.warning("Can't set Baudrate to " + b);
-					}
-					break;
-				default:
-					Assert.assertEquals("testBaudrate", b, spc.getBaudrate());
-				}
+				Assert.assertEquals("testBaudrate", b, spc.getBaudrate());
 			} catch (IllegalArgumentException iae) {
-				// This is Hardware dependent watch for logs ...
-				LOG.log(Level.WARNING, "Error setBaudrate " + b, iae);
-			} catch (Exception e) {
 				switch (b) {
 				case B0:
 				case B50:
@@ -305,7 +284,7 @@ public class BaselineOnePortTest {
 				case B110:
 				case B134:
 				case B150:
-				case B200: 
+				case B200:
 				case B2500000:
 				case B3000000:
 				case B3500000:
@@ -315,7 +294,7 @@ public class BaselineOnePortTest {
 					}
 					break;
 				default:
-				fail("Ex @" +b + "Msg: " + e);
+					fail("Ex @" + b + "Msg: " + iae);
 				}
 			}
 		}
@@ -627,7 +606,7 @@ public class BaselineOnePortTest {
 		Runtime.getRuntime().runFinalization();
 		Assert.assertNull(refSpc.get());
 
-		//Sometimes the GC needs some time - I don't know why...
+		// Sometimes the GC needs some time - I don't know why...
 		Thread.sleep(100);
 
 		spc = getSerialPortSocketFactory().createSerialPortSocket(serialPortName);
