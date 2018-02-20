@@ -82,9 +82,9 @@ public class PrintPortCapabillitiesMain {
 				// @5 Databis 1 or 1.5 Stopbits otherwise only 1 or 2 Stopbits...
 				try {
 					serialPortSocket.setStopBits(StopBits.SB_1);
-				} catch (SerialPortException spe) {
+				} catch (Exception e) {
 					System.err.println("Error: set StopBits to: " + StopBits.SB_1);
-					System.err.println(spe);
+					System.err.println(e);
 				}
 			}
 		}
