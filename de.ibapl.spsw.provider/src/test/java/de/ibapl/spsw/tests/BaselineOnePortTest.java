@@ -407,26 +407,7 @@ public class BaselineOnePortTest extends AbstractPortTest {
 			Thread.sleep(100);
 			LOG.info("Thread started");
 
-			spc.getOutputStream().write(104);
-			spc.getOutputStream().write(11);
-			spc.getOutputStream().write(11);
-			spc.getOutputStream().write(104);
-			spc.getOutputStream().write(83);
-			spc.getOutputStream().write(-3);
-			spc.getOutputStream().write(82);
-			spc.getOutputStream().write(-1);
-			spc.getOutputStream().write(-1);
-			spc.getOutputStream().write(-1);
-			spc.getOutputStream().write(-1);
-			spc.getOutputStream().write(-1);
-			spc.getOutputStream().write(-1);
-			spc.getOutputStream().write(-1);
-			spc.getOutputStream().write(-1);
-			spc.getOutputStream().write(-102);
-			spc.getOutputStream().write(22);
-
 			LOG.info("Close Port");
-			Thread.sleep(100);
 			spc.close();
 			Assert.assertTrue(spc.isClosed());
 			LOG.info("Port closed");

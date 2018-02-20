@@ -187,8 +187,8 @@ public class TwoPortsBaselineTest extends AbstractPortTest {
 
         spc[0].openRaw(baudrate, dataBits, stopBits, parity, flowControl);
         spc[1].openRaw(spc[0].getBaudrate(), spc[0].getDatatBits(), spc[0].getStopBits(), spc[0].getParity(), spc[0].getFlowControl());
-        spc[0].setTimeouts(100, 200, 200);
-        spc[1].setTimeouts(100, 200, 200);
+        spc[0].setTimeouts(100, 20000, 20000);
+        spc[1].setTimeouts(100, 20000, 20000);
         printPorts(spc[0], spc[1]);
 
         //Make sure buffers are empty
