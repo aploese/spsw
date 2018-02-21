@@ -541,14 +541,14 @@ static speed_t baudrate2speed_t(JNIEnv *env, jint baudRate) {
  */
 JNIEXPORT void JNICALL Java_de_ibapl_spsw_provider_GenericTermiosSerialPortSocket_open(JNIEnv *env, jobject object, jstring portName, jint portMode) {
 
-	//Do not try to reopen port and therefor failing and overriding the filedescriptor
+	//Do not try to reopen port and therefore failing and overriding the file descriptor
 	if ((*env)->GetIntField(env, object, spsw_fd) != INVALID_FD) {
-		throw_SerialPortException_NativeError(env, "serial port socket has valid filedescriptor!");
+		throw_SerialPortException_NativeError(env, "serial port socket has valid file descriptor!");
 		return;
 	}
 
 	const char* port = (*env)->GetStringUTFChars(env, portName, JNI_FALSE);
-	int fd = open(port, O_RDWR | O_NOCTTY | O_NDELAY);
+	int fd = open(port, O_RDWR | O_NOCTTY | O_NONBLOCK);
 
 	(*env)->ReleaseStringUTFChars(env, portName, port);
 

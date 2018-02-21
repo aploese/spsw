@@ -23,42 +23,37 @@ public class OnePortTest extends AbstractOnePortTest {
     
     	@Test
 	public void testRTS() throws Exception {
-		Assume.assumeNotNull(spc);
+		Assume.assumeNotNull(writeSpc);
 		LOG.log(Level.INFO, "run testRTS");
-
-		spc.openAsIs();
-
-		spc.setRTS(true);
-		if (spc instanceof GenericTermiosSerialPortSocket) {
-			Assert.assertTrue(((GenericTermiosSerialPortSocket) spc).isRTS());
+		openDefault();
+		
+		writeSpc.setRTS(true);
+		if (writeSpc instanceof GenericTermiosSerialPortSocket) {
+			Assert.assertTrue(((GenericTermiosSerialPortSocket) writeSpc).isRTS());
 		}
-		spc.setRTS(false);
-		if (spc instanceof GenericTermiosSerialPortSocket) {
-			Assert.assertFalse(((GenericTermiosSerialPortSocket) spc).isRTS());
+		writeSpc.setRTS(false);
+		if (writeSpc instanceof GenericTermiosSerialPortSocket) {
+			Assert.assertFalse(((GenericTermiosSerialPortSocket) writeSpc).isRTS());
 		}
-
-		spc.close();
-		Assert.assertTrue(spc.isClosed());
 	}
         
         	@Test
 	public void testDTR() throws Exception {
-		Assume.assumeNotNull(spc);
+		Assume.assumeNotNull(writeSpc);
 		LOG.log(Level.INFO, "run testDTR");
+		openDefault();
 
-		spc.openAsIs();
-
-		spc.setDTR(true);
-		if (spc instanceof GenericTermiosSerialPortSocket) {
-			Assert.assertTrue(((GenericTermiosSerialPortSocket) spc).isDTR());
+		writeSpc.setDTR(true);
+		if (writeSpc instanceof GenericTermiosSerialPortSocket) {
+			Assert.assertTrue(((GenericTermiosSerialPortSocket) writeSpc).isDTR());
 		}
-		spc.setDTR(false);
-		if (spc instanceof GenericTermiosSerialPortSocket) {
-			Assert.assertFalse(((GenericTermiosSerialPortSocket) spc).isDTR());
+		writeSpc.setDTR(false);
+		if (writeSpc instanceof GenericTermiosSerialPortSocket) {
+			Assert.assertFalse(((GenericTermiosSerialPortSocket) writeSpc).isDTR());
 		}
 
-		spc.close();
-		Assert.assertTrue(spc.isClosed());
+		writeSpc.close();
+		Assert.assertTrue(writeSpc.isClosed());
 	}
 
 }

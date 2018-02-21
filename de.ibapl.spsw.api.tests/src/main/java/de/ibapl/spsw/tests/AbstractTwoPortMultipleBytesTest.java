@@ -67,7 +67,7 @@ public abstract class AbstractTwoPortMultipleBytesTest extends AbstractPortTest 
                 int offset = 0;
                 while (true) {
                     try {
-                        final int count = spc[1].getInputStream().read(dataIn, offset, dataIn.length - offset);
+                        final int count = readSpc.getInputStream().read(dataIn, offset, dataIn.length - offset);
                         if (count > 0) {
                             Assert.assertArrayEquals("Error @Offset: " + offset + " @Count: " + count, Arrays.copyOfRange(dataOut, offset, offset + count), Arrays.copyOfRange(dataIn, offset, offset + count));
                             offset += count;
@@ -131,8 +131,6 @@ public abstract class AbstractTwoPortMultipleBytesTest extends AbstractPortTest 
 
     }
 
-    private static final String[] serialPortName = new String[2];
-    private final SerialPortSocket[] spc = new SerialPortSocket[2];
     private ReceiverThread receiverThread;
 
     protected Set<FlowControl> flowControl = FlowControl.getFC_NONE(); // getFC_RTS_CTS();
@@ -140,65 +138,32 @@ public abstract class AbstractTwoPortMultipleBytesTest extends AbstractPortTest 
     protected StopBits stopBits = StopBits.SB_2;
     protected DataBits dataBits = DataBits.DB_8;
     
-    @BeforeClass
-    public static void setUpClass() throws Exception {
-        try (InputStream is = AbstractTwoPortMultipleBytesTest.class.getClassLoader().getResourceAsStream("junit-spsw-config.properties")) {
-            if (is == null) {
-                serialPortName[0] = null;
-                serialPortName[1] = null;
-            } else {
-                Properties p = new Properties();
-                p.load(is);
-                serialPortName[0] = p.getProperty("port0", null);
-                serialPortName[1] = p.getProperty("port1", null);
-            }
-        }
-    }
-
-    @Before
+    @Override
     public void setUp() throws Exception {
-        for (int i = 0; i < serialPortName.length; i++) {
-            if (serialPortName[i] != null) {
-//LOG output                spc[i] = new LoggingSerialPortSocket(SerialPortSocket.FACTORY.createSerialPortSocket(serialPortName[i]), "/tmp/log." + serialPortName[i].replace("/", "_") + ".txt");
-                spc[i] = getSerialPortSocketFactory().createSerialPortSocket(serialPortName[i]);
-                receiverThread = new ReceiverThread();
-            } else {
-                spc[i] = null;
-            }
-        }
+    	super.setUp();
+    	receiverThread = new ReceiverThread();
     }
-
+    
+    @Override
     public void tearDown() throws Exception {
-        for (int i = 0; i < spc.length; i++) {
-            if (spc[i] != null) {
-                if (spc[i].isOpen()) {
-                    spc[i].close();
-                }
-            }
-            spc[i] = null;
-        }
-        receiverThread = null;
         super.tearDown();
+        receiverThread = null;
     }
 
     private void runTest(Baudrate baudrate, int buffersize) throws Exception {
+        assumeRWTest();;
         LOG.info(MessageFormat.format("do run test @baudrate: {0}, buffer size: {1}", baudrate.value, buffersize));
 
         receiverThread.initBuffers(buffersize);
         receiverThread.startTimeStamp = System.currentTimeMillis();
 
-        Assume.assumeNotNull((Object[]) spc);
-        spc[0].openRaw(baudrate, dataBits, stopBits, parity, flowControl);
-        spc[1].openRaw(spc[0].getBaudrate(), spc[0].getDatatBits(), spc[0].getStopBits(), spc[0].getParity(), spc[0].getFlowControl());
-        printPorts(spc[0], spc[1]);
+        openRaw(baudrate, dataBits, stopBits, parity, flowControl);
+        printPorts();
 
-        //Make sure buffers are empty
-        Assert.assertEquals(0, spc[0].getOutBufferBytesCount());
-        Assert.assertEquals(0, spc[1].getInBufferBytesCount());
 
         receiverThread.start();
 
-        spc[0].getOutputStream().write(receiverThread.dataOut);
+        writeSpc.getOutputStream().write(receiverThread.dataOut);
 
         LOG.log(Level.INFO, "Send time in millis:: {0}", (System.currentTimeMillis() - receiverThread.startTimeStamp));
         synchronized (receiverThread.LOCK) {
@@ -216,119 +181,90 @@ public abstract class AbstractTwoPortMultipleBytesTest extends AbstractPortTest 
         Assert.assertArrayEquals(receiverThread.dataOut, receiverThread.dataIn);
     }
 
-    private void printPorts(SerialPortSocket sPort0, SerialPortSocket sPort1) throws IOException {
-            StringBuilder sb = new StringBuilder();
-            sb.append(String.format("\n\tName:        %-20s %-20s\n", sPort0.getPortName(), sPort1.getPortName()));
-            sb.append(String.format("\tBaudrate:    %-20d %-20d\n", sPort0.getBaudrate().value, sPort1.getBaudrate().value));
-            sb.append(String.format("\tStopBits:    %-20f %-20f\n", sPort0.getStopBits().value, sPort1.getStopBits().value));
-            sb.append(String.format("\tParity:      %-20s %-20s\n", sPort0.getParity().name(), sPort1.getParity().name()));
-            sb.append(String.format("\tFlowControl: %-20s %-20s\n", sPort0.getFlowControl().toString(), sPort1.getFlowControl().toString()));
-            sb.append(String.format("\tIntebyteReadTimeout:    %-20d %-20d\n", sPort0.getInterByteReadTimeout(), sPort1.getInterByteReadTimeout()));
-            sb.append(String.format("\tOverallReadTimeout:    %-20d %-20d\n", sPort0.getOverallReadTimeout(), sPort1.getOverallReadTimeout()));
-            sb.append(String.format("\tOverallWriteTimeout:    %-20d %-20d\n", sPort0.getOverallWriteTimeout(), sPort1.getOverallWriteTimeout()));
-
-            LOG.log(Level.INFO, sb.toString());
-    }
 
     @Test(timeout = 30000 + (DEFAULT_TEST_BUFFER_SIZE * 10 * 1000) / 300)
     public void test_0000300() throws Exception {
-        Assume.assumeNotNull(spc);
         runTest(Baudrate.B300, DEFAULT_TEST_BUFFER_SIZE);
     }
 
     @Test(timeout = 20000 + (DEFAULT_TEST_BUFFER_SIZE * 10 * 1000) / 1200)
     public void test_0001200() throws Exception {
-        Assume.assumeNotNull(spc);
         runTest(Baudrate.B1200, DEFAULT_TEST_BUFFER_SIZE);
     }
 
     @Test(timeout = 10000 + (DEFAULT_TEST_BUFFER_SIZE * 10 * 1000) / 2400)
     public void test_0002400() throws Exception {
-        Assume.assumeNotNull(spc);
         runTest(Baudrate.B2400, DEFAULT_TEST_BUFFER_SIZE);
     }
 
     @Test(timeout = 1000 + (DEFAULT_TEST_BUFFER_SIZE * 10 * 1000) / 9600)
     public void test_0009600() throws Exception {
-        Assume.assumeNotNull(spc);
         runTest(Baudrate.B9600, DEFAULT_TEST_BUFFER_SIZE);
     }
 
     @Test(timeout = 1000 + (DEFAULT_TEST_BUFFER_SIZE * 10 * 1000) / 19200)
     public void test_0019200() throws Exception {
-        Assume.assumeNotNull(spc);
         runTest(Baudrate.B19200, DEFAULT_TEST_BUFFER_SIZE);
     }
 
     @Test(timeout = 1000 + (DEFAULT_TEST_BUFFER_SIZE * 10 * 1000) / 57600)
     public void test_0057600() throws Exception {
-        Assume.assumeNotNull(spc);
         runTest(Baudrate.B57600, DEFAULT_TEST_BUFFER_SIZE);
     }
 
     @Test(timeout = 1000 + (DEFAULT_TEST_BUFFER_SIZE * 10 * 1000) / 115200)
     public void test_0115200() throws Exception {
-        Assume.assumeNotNull(spc);
         runTest(Baudrate.B115200, DEFAULT_TEST_BUFFER_SIZE);
     }
 
     @Test(timeout = 1000 + (DEFAULT_TEST_BUFFER_SIZE * 10 * 1000) / 230400)
     public void test_0230400() throws Exception {
-        Assume.assumeNotNull(spc);
         runTest(Baudrate.B230400, DEFAULT_TEST_BUFFER_SIZE);
     }
 
     @Test(timeout = 1000 + (DEFAULT_TEST_BUFFER_SIZE * 10 * 1000) / 460800)
     public void test_0460800() throws Exception {
-        Assume.assumeNotNull(spc);
         runTest(Baudrate.B460800, DEFAULT_TEST_BUFFER_SIZE);
     }
 
     @Test(timeout = 1000 + (DEFAULT_TEST_BUFFER_SIZE * 10 * 1000) / 500000)
     public void test_0500000() throws Exception {
-        Assume.assumeNotNull(spc);
         runTest(Baudrate.B500000, DEFAULT_TEST_BUFFER_SIZE);
     }
 
     @Ignore //On win cant handle ...
     @Test(timeout = 1000 + (DEFAULT_TEST_BUFFER_SIZE * 10 * 1000) / 576000)
     public void test_0576000() throws Exception {
-        Assume.assumeNotNull(spc);
         runTest(Baudrate.B576000, DEFAULT_TEST_BUFFER_SIZE);
     }
 
     @Ignore
     @Test(timeout = 1000 + (DEFAULT_TEST_BUFFER_SIZE * 10 * 1000) / 1000000)
     public void test_1000000() throws Exception {
-        Assume.assumeNotNull(spc);
         runTest(Baudrate.B1000000, DEFAULT_TEST_BUFFER_SIZE);
     }
 
     @Ignore
     @Test(timeout = 1000 + (DEFAULT_TEST_BUFFER_SIZE * 10 * 1000) / 1152000)
     public void test_1152000() throws Exception {
-        Assume.assumeNotNull(spc);
         runTest(Baudrate.B1152000, DEFAULT_TEST_BUFFER_SIZE);
     }
 
     @Ignore
     @Test(timeout = 1000 + (DEFAULT_TEST_BUFFER_SIZE * 10 * 1000) / 2000000)
     public void test_2000000() throws Exception {
-        Assume.assumeNotNull(spc);
         runTest(Baudrate.B2000000, DEFAULT_TEST_BUFFER_SIZE);
     }
 
     @Ignore
     @Test(timeout = 1000 + (DEFAULT_TEST_BUFFER_SIZE * 10 * 1000) / 3000000)
     public void test_3000000() throws Exception {
-        Assume.assumeNotNull(spc);
         runTest(Baudrate.B3000000, DEFAULT_TEST_BUFFER_SIZE);
     }
 
     @Ignore
     @Test(timeout = 1000 + (DEFAULT_TEST_BUFFER_SIZE * 10 * 1000) / 4000000)
     public void test_4000000() throws Exception {
-        Assume.assumeNotNull(spc);
         runTest(Baudrate.B4000000, DEFAULT_TEST_BUFFER_SIZE);
     }
 
@@ -340,14 +276,15 @@ public abstract class AbstractTwoPortMultipleBytesTest extends AbstractPortTest 
     @Ignore
     @Test(timeout = 5000)
     public void testTimeout() throws Exception {
-        Assume.assumeNotNull(spc);
+        Assume.assumeTrue(HARDWARE_SUPPORTS_RTS_CTS);
+        assumeRWTest();
 
-        spc[0].openRaw(Baudrate.B9600, DataBits.DB_8, StopBits.SB_2, Parity.EVEN, FlowControl.getFC_RTS_CTS());
-        spc[1].openRaw(spc[0].getBaudrate(), spc[0].getDatatBits(), spc[0].getStopBits(), spc[0].getParity(), spc[0].getFlowControl());
-        spc[0].setTimeouts(0, 2000, 2000);
-        Assert.assertEquals(0, spc[0].getInterByteReadTimeout());
-        final InputStream is = spc[0].getInputStream();
-        final OutputStream os = spc[1].getOutputStream();
+        openRaw(Baudrate.B9600, DataBits.DB_8, StopBits.SB_1, Parity.EVEN, FlowControl.getFC_RTS_CTS());
+        setTimeouts(0, 2000, 2000);
+        
+        Assert.assertEquals(0, readSpc.getInterByteReadTimeout());
+        final InputStream is = readSpc.getInputStream();
+        final OutputStream os = writeSpc.getOutputStream();
 
         final byte[] recBuff = new byte[255];
         Arrays.fill(recBuff, (byte) 0);
@@ -399,12 +336,12 @@ public abstract class AbstractTwoPortMultipleBytesTest extends AbstractPortTest 
 
         @Test(timeout = 5000)
     public void testInfiniteTimeout() throws Exception {
-        Assume.assumeNotNull(spc);
+        Assume.assumeTrue(HARDWARE_SUPPORTS_RTS_CTS);
+        assumeRWTest();
 
-        spc[0].openRaw(Baudrate.B9600, DataBits.DB_8, StopBits.SB_1, Parity.NONE, FlowControl.getFC_RTS_CTS());
-        spc[1].openRaw(spc[0].getBaudrate(), spc[0].getDatatBits(), spc[0].getStopBits(), spc[0].getParity(), spc[0].getFlowControl());
-        final InputStream is = spc[0].getInputStream();
-        final OutputStream os = spc[1].getOutputStream();
+        openRaw(Baudrate.B9600, DataBits.DB_8, StopBits.SB_1, Parity.NONE, FlowControl.getFC_RTS_CTS());
+        final InputStream is = readSpc.getInputStream();
+        final OutputStream os = writeSpc.getOutputStream();
 
         final byte[] recBuff = new byte[255];
         Arrays.fill(recBuff, (byte) 0);
