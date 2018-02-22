@@ -162,6 +162,52 @@ public abstract class AbstractOnePortTest extends AbstractPortTest {
 		writeSpc.setXOFFChar(c);
 	}
 
+	@Test(expected = IllegalArgumentException.class)
+	public void test_2_StopBitsAnd_5_DataBits() throws Exception {
+		Assume.assumeNotNull(readSpc);
+		LOG.log(Level.INFO, "run testStopBits");
+		openDefault();
+
+		readSpc.setStopBits(StopBits.SB_1);
+		Assert.assertEquals(StopBits.SB_1, readSpc.getStopBits());
+
+		readSpc.setDataBits(DataBits.DB_5);
+		readSpc.setStopBits(StopBits.SB_2);
+		fail("Could set 2 stopBits @5 dataBits");
+	}
+
+	@Test()
+	public void test_1_5_StopBitsAnd_6_7_8_DataBits() throws Exception {
+		Assume.assumeNotNull(readSpc);
+		LOG.log(Level.INFO, "run testStopBits");
+		openDefault();
+
+		try {
+			readSpc.setStopBits(StopBits.SB_1);
+			Assert.assertEquals(StopBits.SB_1, readSpc.getStopBits());
+			readSpc.setDataBits(DataBits.DB_6);
+			readSpc.setStopBits(StopBits.SB_1_5);
+			fail("Could set 1.5 stopbits @6 dataBits");
+		} catch (IllegalArgumentException iae) {
+		}
+		try {
+			readSpc.setStopBits(StopBits.SB_1);
+			Assert.assertEquals(StopBits.SB_1, readSpc.getStopBits());
+			readSpc.setDataBits(DataBits.DB_7);
+			readSpc.setStopBits(StopBits.SB_1_5);
+			fail("Could set 1.5 stopbits @7 dataBits");
+		} catch (IllegalArgumentException iae) {
+		}
+		try {
+			readSpc.setStopBits(StopBits.SB_1);
+			Assert.assertEquals(StopBits.SB_1, readSpc.getStopBits());
+			readSpc.setDataBits(DataBits.DB_8);
+			readSpc.setStopBits(StopBits.SB_1_5);
+			fail("Could set 1.5 stopbits @8 dataBits");
+		} catch (IllegalArgumentException iae) {
+		}
+	}
+
 	@Test
 	public void testStopBits() throws Exception {
 		Assume.assumeNotNull(readSpc);
@@ -171,18 +217,11 @@ public abstract class AbstractOnePortTest extends AbstractPortTest {
 		readSpc.setStopBits(StopBits.SB_1);
 		Assert.assertEquals(StopBits.SB_1, readSpc.getStopBits());
 
-		try {
-			readSpc.setDataBits(DataBits.DB_5);
-			readSpc.setStopBits(StopBits.SB_1_5);
-			Assert.assertEquals(StopBits.SB_1_5, readSpc.getStopBits());
-			readSpc.setStopBits(StopBits.SB_1);
-			Assert.assertEquals(StopBits.SB_1, readSpc.getStopBits());
-		} catch (IllegalArgumentException ex) {
-			readSpc.setStopBits(StopBits.SB_2);
-			Assert.assertEquals(StopBits.SB_2, readSpc.getStopBits());
-			readSpc.setStopBits(StopBits.SB_1);
-			Assert.assertEquals(StopBits.SB_1, readSpc.getStopBits());
-		}
+		readSpc.setDataBits(DataBits.DB_5);
+		readSpc.setStopBits(StopBits.SB_1_5);
+		Assert.assertEquals(StopBits.SB_1_5, readSpc.getStopBits());
+		readSpc.setStopBits(StopBits.SB_1);
+		Assert.assertEquals(StopBits.SB_1, readSpc.getStopBits());
 
 		readSpc.setDataBits(DataBits.DB_6);
 		readSpc.setStopBits(StopBits.SB_2);
@@ -254,7 +293,6 @@ public abstract class AbstractOnePortTest extends AbstractPortTest {
 		openRaw(Baudrate.B115200, DataBits.DB_8, StopBits.SB_1, Parity.NONE, FlowControl.getFC_RTS_CTS());
 		setTimeouts(100, 1000, 1000);
 		assertFalse(writeSpc.isCTS());
-		
 
 		byte[] data = new byte[1024];
 		int round = 1;
@@ -286,8 +324,8 @@ public abstract class AbstractOnePortTest extends AbstractPortTest {
 			assertTrue("Rounds exceed maximum of " + 100, 100 > round);
 		} while (dataWritten > 0);
 
-		LOG.log(Level.INFO,
-				"Wrote: " + overallDataWritten + " in " + round + " rounds; OutBuf:  " + writeSpc.getOutBufferBytesCount());
+		LOG.log(Level.INFO, "Wrote: " + overallDataWritten + " in " + round + " rounds; OutBuf:  "
+				+ writeSpc.getOutBufferBytesCount());
 		LOG.log(Level.INFO, "disable flow control to sped up closing");
 		writeSpc.setFlowControl(FlowControl.getFC_NONE());
 		LOG.log(Level.INFO, "will close port");
@@ -312,7 +350,7 @@ public abstract class AbstractOnePortTest extends AbstractPortTest {
 		openRaw(Baudrate.B115200, DataBits.DB_8, StopBits.SB_1, Parity.NONE, FlowControl.getFC_RTS_CTS());
 		setTimeouts(100, 1000, 1000);
 		assertFalse(writeSpc.isCTS());
-		
+
 		int round = 1;
 		int i = 0;
 		int dataWritten;
@@ -342,8 +380,8 @@ public abstract class AbstractOnePortTest extends AbstractPortTest {
 
 		} while (dataWritten > 0);
 
-		LOG.log(Level.INFO,
-				"Wrote: " + overallDataWritten + " in " + round + " rounds; OutBuf:  " + writeSpc.getOutBufferBytesCount());
+		LOG.log(Level.INFO, "Wrote: " + overallDataWritten + " in " + round + " rounds; OutBuf:  "
+				+ writeSpc.getOutBufferBytesCount());
 		LOG.log(Level.INFO, "disable flow control to sped up closing");
 		writeSpc.setFlowControl(FlowControl.getFC_NONE());
 		LOG.log(Level.INFO, "will close port");

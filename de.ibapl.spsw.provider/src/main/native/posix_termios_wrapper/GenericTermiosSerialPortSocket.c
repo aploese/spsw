@@ -1283,11 +1283,20 @@ JNIEXPORT void JNICALL Java_de_ibapl_spsw_provider_GenericTermiosSerialPortSocke
 		settings.c_cflag &= ~CSTOPB;
 		break;
 		case SPSW_STOP_BITS_1_5:
-		throw_Illegal_Argument_Exception(env, "setStopBits 1.5 stop bits are not supported by termios");
-		return;
+			if ((settings.c_cflag & CSIZE) == CS5) {
+				settings.c_cflag |= CSTOPB;
+			} else {
+				throw_Illegal_Argument_Exception(env, "setStopBits 1.5 stop bits are only valid for 5 DataBits");
+				return;
+			}
 		break;
 		case SPSW_STOP_BITS_2:
-		settings.c_cflag |= CSTOPB;
+			if ((settings.c_cflag & CSIZE) == CS5) {
+				throw_Illegal_Argument_Exception(env, "setStopBits 2 stop bits are only valid for 6,7,8 DataBits");
+				return;
+			} else {
+				settings.c_cflag |= CSTOPB;
+			}
 		break;
 		default:
 		throw_SerialPortException_NativeError(env, "Unknown stopbits");
@@ -1445,7 +1454,11 @@ JNIEXPORT jint JNICALL Java_de_ibapl_spsw_provider_GenericTermiosSerialPortSocke
 		return SPSW_STOP_BITS_1;
 	}
 	if ((settings.c_cflag & CSTOPB) == CSTOPB) {
-		return SPSW_STOP_BITS_2;
+		if ((settings.c_cflag & CSIZE) == CS5) {
+			return SPSW_STOP_BITS_1_5;
+		} else {
+			return SPSW_STOP_BITS_2;
+		}
 	}
 }
 
