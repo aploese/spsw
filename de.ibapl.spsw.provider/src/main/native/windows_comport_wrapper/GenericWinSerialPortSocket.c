@@ -629,8 +629,10 @@ JNIEXPORT void JNICALL Java_de_ibapl_spsw_provider_GenericWinSerialPortSocket_wr
 
 	HANDLE hFile = GET_FILEDESCRIPTOR(env, object);
 
-	OVERLAPPED overlapped;
 	DWORD dwBytesWritten;
+	OVERLAPPED overlapped;
+	overlapped.Offset = 0;
+	overlapped.OffsetHigh = 0;
 	overlapped.hEvent = CreateEventA(NULL, TRUE, FALSE, NULL);
 
 	if (!WriteFile(hFile, &b, 1, NULL, &overlapped)) {
@@ -693,6 +695,8 @@ JNIEXPORT void JNICALL Java_de_ibapl_spsw_provider_GenericWinSerialPortSocket_wr
 
 	DWORD dwBytesWritten;
 	OVERLAPPED overlapped;
+	overlapped.Offset = 0;
+	overlapped.OffsetHigh = 0;
 	overlapped.hEvent = CreateEventA(NULL, TRUE, FALSE, NULL);
 
 	if (!WriteFile(hFile, buf, len, NULL, &overlapped)) {
@@ -751,8 +755,10 @@ JNIEXPORT jint JNICALL Java_de_ibapl_spsw_provider_GenericWinSerialPortSocket_re
 
 	HANDLE hFile = GET_FILEDESCRIPTOR(env, object);
 
-	OVERLAPPED overlapped;
 	DWORD dwBytesRead;
+	OVERLAPPED overlapped;
+	overlapped.Offset = 0;
+	overlapped.OffsetHigh = 0;
 	overlapped.hEvent = CreateEventA(NULL, TRUE, FALSE, NULL);
 
 	if (!ReadFile(hFile, &lpBuffer, 1, NULL, &overlapped)) {
@@ -828,6 +834,8 @@ JNIEXPORT jint JNICALL Java_de_ibapl_spsw_provider_GenericWinSerialPortSocket_re
 
 	DWORD dwBytesRead;
 	OVERLAPPED overlapped;
+	overlapped.Offset = 0;
+	overlapped.OffsetHigh = 0;
 	overlapped.hEvent = CreateEventA(NULL, TRUE, FALSE, NULL);
 
 	if (!ReadFile(hFile, lpBuffer, len, NULL, &overlapped)) {
