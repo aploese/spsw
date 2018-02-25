@@ -1,5 +1,7 @@
 package de.ibapl.spsw.logging;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
 /*-
  * #%L
  * SPSW API
@@ -22,40 +24,37 @@ package de.ibapl.spsw.logging;
 
 import java.io.ByteArrayOutputStream;
 import java.time.Instant;
-import org.junit.After;
-import org.junit.AfterClass;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
+
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import de.ibapl.spsw.api.TimeoutIOException;
-
-import static org.junit.Assert.*;
-import org.junit.Ignore;
 
 /**
  *
  * @author aploese
  */
-@Ignore
 public class LogWriterTest {
     
     public LogWriterTest() {
     }
     
-    @BeforeClass
+    @BeforeAll
     public static void setUpClass() {
     }
     
-    @AfterClass
+    @AfterAll
     public static void tearDownClass() {
     }
     
-    @Before
+    @BeforeEach
     public void setUp() {
     }
     
-    @After
+    @AfterEach
     public void tearDown() {
     }
 

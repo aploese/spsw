@@ -1,5 +1,7 @@
 package de.ibapl.spsw.tests;
 
+import static org.junit.jupiter.api.Assumptions.assumeTrue;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Properties;
@@ -45,9 +47,17 @@ public abstract class AbstractPortTest {
 		}
 	}
 
+	protected void assumeRTest() {
+		assumeTrue(readSpc != null);
+	}
+	
+	protected void assumeWTest() {
+		assumeTrue(writeSpc != null);
+	}
+	
 	protected void assumeRWTest() {
-		Assume.assumeNotNull(readSpc);
-		Assume.assumeNotNull(writeSpc);
+		assumeRTest();
+		assumeWTest();;
 	}
 
 	protected void openDefault() throws Exception {

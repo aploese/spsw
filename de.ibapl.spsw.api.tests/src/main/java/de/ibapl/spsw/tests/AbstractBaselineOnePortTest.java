@@ -1,5 +1,3 @@
-package de.ibapl.spsw.tests;
-
 /*-
  * #%L
  * SPSW Provider
@@ -19,14 +17,19 @@ package de.ibapl.spsw.tests;
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  * #L%
  */
+package de.ibapl.spsw.tests;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
+
 import java.io.File;
 import java.io.IOException;
 import java.lang.ref.WeakReference;
 import java.util.logging.Level;
 
-import org.junit.Assert;
-import org.junit.Assume;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.condition.EnabledIf;
 
 import de.ibapl.spsw.api.Baudrate;
 import de.ibapl.spsw.api.DataBits;
@@ -38,10 +41,6 @@ import de.ibapl.spsw.api.SerialPortSocket;
 import de.ibapl.spsw.api.StopBits;
 import de.ibapl.spsw.api.TimeoutIOException;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
-
 /**
  * Unit test for simple App. No Handshake (RTS/CTS etc.) Only 1 or 2 Stoppbits
  * Baudrates from 300 up to 115200 Parity 8 Databits
@@ -51,18 +50,18 @@ public abstract class AbstractBaselineOnePortTest extends AbstractPortTest {
 
 	@Test
 	public void testOpenClose() throws Exception {
-		Assume.assumeNotNull(readSpc);
+		assumeRTest();
 		LOG.log(Level.INFO, "run testOpenClose");
 
 		readSpc.openAsIs();
-		Assert.assertTrue(readSpc.isOpen());
+		assertTrue(readSpc.isOpen());
 		readSpc.close();
-		Assert.assertTrue(readSpc.isClosed());
+		assertTrue(readSpc.isClosed());
 	}
 
 	@Test(timeout = 5000)
 	public void testSetTimeouts() throws Exception {
-		Assume.assumeNotNull(readSpc);
+		assumeRTest();
 		LOG.log(Level.INFO, "run testSetTimeOuts");
 
 		openDefault();
@@ -101,7 +100,7 @@ public abstract class AbstractBaselineOnePortTest extends AbstractPortTest {
 
 	@Test(timeout = 5000)
 	public void testOverallTimeoutBlocking() throws Exception {
-		Assume.assumeNotNull(readSpc);
+		assumeRTest();
 		LOG.log(Level.INFO, "run testOverallTimeoutBlocking");
 		openDefault();
 		setTimeouts(100, 1000, 2000);
@@ -109,11 +108,11 @@ public abstract class AbstractBaselineOnePortTest extends AbstractPortTest {
 		long start = System.currentTimeMillis();
 		try {
 			int i = readSpc.getInputStream().read();
-			Assert.fail("No timeout Exception result of Read: " + i);
+			fail("No timeout Exception result of Read: " + i);
 		} catch (TimeoutIOException tioe) {
 			final long time = System.currentTimeMillis() - start;
 			LOG.log(Level.INFO, "Timeout: 1000ms and it took: " + time + "ms");
-			Assert.assertEquals(1000.0, time, 100.0); // We tolerate 5% difference
+			assertEquals(1000.0, time, 100.0); // We tolerate 5% difference
 		}
 
 		readSpc.setTimeouts(0, readSpc.getOverallReadTimeout(), readSpc.getOverallWriteTimeout());
@@ -121,15 +120,15 @@ public abstract class AbstractBaselineOnePortTest extends AbstractPortTest {
 		start = System.currentTimeMillis();
 		try {
 			int i = readSpc.getInputStream().read();
-			Assert.fail("No timeout Exception result of Read: " + i);
+			fail("No timeout Exception result of Read: " + i);
 		} catch (TimeoutIOException tioe) {
 			final long time = System.currentTimeMillis() - start;
 			LOG.log(Level.INFO, "Timeout: 1000ms and it took: " + time + "ms");
-			Assert.assertEquals(1000.0, time, 100.0); // We tolerate 5% difference
+			assertEquals(1000.0, time, 100.0); // We tolerate 5% difference
 		}
 
 		readSpc.close();
-		Assert.assertTrue(readSpc.isClosed());
+		assertTrue(readSpc.isClosed());
 	}
 
 	@Test(expected = SerialPortException.class)
@@ -140,12 +139,12 @@ public abstract class AbstractBaselineOnePortTest extends AbstractPortTest {
 		tmpFile.deleteOnExit();
 		SerialPortSocket sp = getSerialPortSocketFactory().createSerialPortSocket(tmpFile.getAbsolutePath());
 		sp.openAsIs();
-		Assert.fail("No serial port opend");
+		fail("No serial port opend");
 	}
 
 	@Test
 	public void testBreak() throws Exception {
-		Assume.assumeNotNull(writeSpc);
+		assumeWTest();
 		LOG.log(Level.INFO, "run testBreak");
 		openDefault();
 
@@ -155,26 +154,26 @@ public abstract class AbstractBaselineOnePortTest extends AbstractPortTest {
 
 	@Test
 	public void testParity() throws Exception {
-		Assume.assumeNotNull(readSpc);
+		assumeTrue(readSpc != null);
 		LOG.log(Level.INFO, "run testParity");
 		openDefault();
 
 		for (Parity p : Parity.values()) {
 			readSpc.setParity(p);
-			Assert.assertEquals(p, readSpc.getParity());
+			assertEquals(p, readSpc.getParity());
 		}
 	}
 
 	@Test
 	public void testBaudrate() throws Exception {
-		Assume.assumeNotNull(readSpc);
+		assumeRTest();
 		LOG.log(Level.INFO, "run testBaudrate");
 		openDefault();
 
 		for (Baudrate b : Baudrate.values()) {
 			try {
 				readSpc.setBaudrate(b);
-				Assert.assertEquals("testBaudrate", b, readSpc.getBaudrate());
+				assertEquals(b, readSpc.getBaudrate(), "testBaudrate");
 			} catch (IllegalArgumentException iae) {
 				switch (b) {
 				case B0:
@@ -201,19 +200,19 @@ public abstract class AbstractBaselineOnePortTest extends AbstractPortTest {
 
 	@Test(expected = SerialPortException.class)
 	public void testOpen2() throws Exception {
-		Assume.assumeNotNull(readSpc);
+		assumeRTest();
 		LOG.log(Level.INFO, "run testOpen2");
 		openDefault();
 
 		try (SerialPortSocket spc1 = getSerialPortSocketFactory().createSerialPortSocket(readSpc.getPortName())) {
 			spc1.openAsIs();
 		}
-		Assert.fail();
+		fail();
 	}
 
 	@Test
 	public void testWriteSingle() throws Exception {
-		Assume.assumeNotNull(writeSpc);
+		assumeWTest();
 		LOG.log(Level.INFO, "run testWrite");
 		openDefault();
 		writeSpc.setFlowControl(FlowControl.getFC_NONE());
@@ -226,7 +225,7 @@ public abstract class AbstractBaselineOnePortTest extends AbstractPortTest {
 
 	@Test
 	public void testWriteBytes() throws Exception {
-		Assume.assumeNotNull(writeSpc);
+		assumeWTest();
 		LOG.log(Level.INFO, "run testWriteBytes");
 		openDefault();
 		writeSpc.setFlowControl(FlowControl.getFC_NONE());
@@ -272,7 +271,7 @@ public abstract class AbstractBaselineOnePortTest extends AbstractPortTest {
 
 	@Test
 	public void testCloseIn() throws Exception {
-		Assume.assumeNotNull(readSpc);
+		assumeRTest();
 		LOG.log(Level.INFO, "run testCloseIn");
 
 		for (int loopIndex = 0; loopIndex < 1; loopIndex++) {

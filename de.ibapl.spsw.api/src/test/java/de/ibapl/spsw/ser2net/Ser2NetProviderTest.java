@@ -25,18 +25,22 @@ import de.ibapl.spsw.api.DataBits;
 import de.ibapl.spsw.api.FlowControl;
 import de.ibapl.spsw.api.Parity;
 import de.ibapl.spsw.api.StopBits;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.fail;
+
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.URI;
 import java.net.URL;
 import java.util.Set;
-import org.junit.After;
-import org.junit.AfterClass;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Ignore;
-import org.junit.Test;
-import static org.junit.Assert.*;
+
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.osgi.service.component.annotations.Deactivate;
 
 /**
  *
@@ -47,27 +51,27 @@ public class Ser2NetProviderTest {
     public Ser2NetProviderTest() {
     }
     
-    @BeforeClass
+    @BeforeAll
     public static void setUpClass() {
     }
     
-    @AfterClass
+    @AfterAll
     public static void tearDownClass() {
     }
     
-    @Before
+    @BeforeEach
     public void setUp() {
     }
     
-    @After
+    @AfterEach
     public void tearDown() {
     }
 
     /**
-     * Test of isClosed method, of class Ser2NetProvider.
+     * Test of URI method, of class Ser2NetProvider.
      */
     @Test
-    @Ignore
+    @Deactivate
   public void testURL() throws Exception {
         URI uri = new URI("rs232+udp", null, "localhost", 4001, "/dev/ttyUSB0", "remoteprovider=ser2net&controlport=4000", null);
         System.err.println(uri.toString());
@@ -83,14 +87,14 @@ public class Ser2NetProviderTest {
         System.err.println(uri.toString());
         uri = URI.create("/dev/ttyUSB0");
         System.err.println(uri.toString());
-        fail();
+        fail("Not implemented yet");
     }
     
     /**
      * Test of isClosed method, of class Ser2NetProvider.
      */
     @Test
-    @Ignore
+    @Deactivate
     public void testIsClosed() throws Exception {
         System.out.println("isClosed");
         Ser2NetProvider instance = null;
@@ -105,7 +109,7 @@ public class Ser2NetProviderTest {
      * Test of isCTS method, of class Ser2NetProvider.
      */
     @Test
-    @Ignore
+    @Deactivate
     public void testIsCTS() throws Exception {
         System.out.println("isCTS");
         Ser2NetProvider instance = null;
@@ -120,7 +124,7 @@ public class Ser2NetProviderTest {
      * Test of isDSR method, of class Ser2NetProvider.
      */
     @Test
-    @Ignore
+    @Deactivate
    public void testIsDSR() throws Exception {
         System.out.println("isDSR");
         Ser2NetProvider instance = null;
@@ -135,7 +139,7 @@ public class Ser2NetProviderTest {
      * Test of isIncommingRI method, of class Ser2NetProvider.
      */
     @Test
-    @Ignore
+    @Deactivate
    public void testIsIncommingRI() throws Exception {
         System.out.println("isIncommingRI");
         Ser2NetProvider instance = null;
@@ -150,7 +154,7 @@ public class Ser2NetProviderTest {
      * Test of getInputStream method, of class Ser2NetProvider.
      */
     @Test
-    @Ignore
+    @Deactivate
    public void testGetInputStream() throws Exception {
         System.out.println("getInputStream");
         Ser2NetProvider instance = null;
@@ -165,7 +169,7 @@ public class Ser2NetProviderTest {
      * Test of getOutputStream method, of class Ser2NetProvider.
      */
     @Test
-    @Ignore
+    @Deactivate
  public void testGetOutputStream() throws Exception {
         System.out.println("getOutputStream");
         Ser2NetProvider instance = null;
@@ -180,7 +184,7 @@ public class Ser2NetProviderTest {
      * Test of getPortName method, of class Ser2NetProvider.
      */
     @Test
-    @Ignore
+    @Deactivate
   public void testGetPortName() {
         System.out.println("getPortName");
         Ser2NetProvider instance = null;
@@ -195,7 +199,7 @@ public class Ser2NetProviderTest {
      * Test of isOpen method, of class Ser2NetProvider.
      */
     @Test
-    @Ignore
+    @Deactivate
  public void testIsOpen() {
         System.out.println("isOpen");
         Ser2NetProvider instance = null;
@@ -210,7 +214,7 @@ public class Ser2NetProviderTest {
      * Test of openAsIs method, of class Ser2NetProvider.
      */
     @Test
-    @Ignore
+    @Deactivate
  public void testOpenAsIs() throws Exception {
         System.out.println("openAsIs");
         Ser2NetProvider instance = null;
@@ -223,7 +227,7 @@ public class Ser2NetProviderTest {
      * Test of openRaw method, of class Ser2NetProvider.
      */
     @Test
-    @Ignore
+    @Deactivate
  public void testOpenRaw_0args() throws Exception {
         System.out.println("openRaw");
         Ser2NetProvider instance = null;
@@ -236,7 +240,7 @@ public class Ser2NetProviderTest {
      * Test of openTerminal method, of class Ser2NetProvider.
      */
     @Test
-    @Ignore
+    @Deactivate
  public void testOpenTerminal() throws Exception {
         System.out.println("openTerminal");
         Ser2NetProvider instance = null;
@@ -249,7 +253,7 @@ public class Ser2NetProviderTest {
      * Test of openModem method, of class Ser2NetProvider.
      */
     @Test
-    @Ignore
+    @Deactivate
  public void testOpenModem() throws Exception {
         System.out.println("openModem");
         Ser2NetProvider instance = null;
@@ -262,7 +266,7 @@ public class Ser2NetProviderTest {
      * Test of openRaw method, of class Ser2NetProvider.
      */
     @Test
-    @Ignore
+    @Deactivate
  public void testOpenRaw_5args() throws Exception {
         System.out.println("openRaw");
         Baudrate baudRate = null;
@@ -280,7 +284,7 @@ public class Ser2NetProviderTest {
      * Test of close method, of class Ser2NetProvider.
      */
     @Test
-    @Ignore
+    @Deactivate
  public void testClose() throws Exception {
         System.out.println("close");
         Ser2NetProvider instance = null;
@@ -293,7 +297,7 @@ public class Ser2NetProviderTest {
      * Test of setRTS method, of class Ser2NetProvider.
      */
     @Test
-    @Ignore
+    @Deactivate
   public void testSetRTS() throws Exception {
         System.out.println("setRTS");
         boolean value = false;
@@ -307,7 +311,7 @@ public class Ser2NetProviderTest {
      * Test of setDTR method, of class Ser2NetProvider.
      */
     @Test
-    @Ignore
+    @Deactivate
  public void testSetDTR() throws Exception {
         System.out.println("setDTR");
         boolean value = false;
@@ -321,7 +325,7 @@ public class Ser2NetProviderTest {
      * Test of setXONChar method, of class Ser2NetProvider.
      */
     @Test
-    @Ignore
+    @Deactivate
  public void testSetXONChar() throws Exception {
         System.out.println("setXONChar");
         char c = ' ';
@@ -335,7 +339,7 @@ public class Ser2NetProviderTest {
      * Test of setXOFFChar method, of class Ser2NetProvider.
      */
     @Test
-    @Ignore
+    @Deactivate
  public void testSetXOFFChar() throws Exception {
         System.out.println("setXOFFChar");
         char c = ' ';
@@ -349,7 +353,7 @@ public class Ser2NetProviderTest {
      * Test of getXONChar method, of class Ser2NetProvider.
      */
     @Test
-    @Ignore
+    @Deactivate
   public void testGetXONChar() throws Exception {
         System.out.println("getXONChar");
         Ser2NetProvider instance = null;
@@ -364,7 +368,7 @@ public class Ser2NetProviderTest {
      * Test of getXOFFChar method, of class Ser2NetProvider.
      */
     @Test
-    @Ignore
+    @Deactivate
  public void testGetXOFFChar() throws Exception {
         System.out.println("getXOFFChar");
         Ser2NetProvider instance = null;
@@ -379,7 +383,7 @@ public class Ser2NetProviderTest {
      * Test of sendBreak method, of class Ser2NetProvider.
      */
     @Test
-    @Ignore
+    @Deactivate
  public void testSendBreak() throws Exception {
         System.out.println("sendBreak");
         int duration = 0;
@@ -393,7 +397,7 @@ public class Ser2NetProviderTest {
      * Test of sendXON method, of class Ser2NetProvider.
      */
     @Test
-    @Ignore
+    @Deactivate
  public void testSendXON() throws Exception {
         System.out.println("sendXON");
         Ser2NetProvider instance = null;
@@ -406,7 +410,7 @@ public class Ser2NetProviderTest {
      * Test of sendXOFF method, of class Ser2NetProvider.
      */
     @Test
-    @Ignore
+    @Deactivate
   public void testSendXOFF() throws Exception {
         System.out.println("sendXOFF");
         Ser2NetProvider instance = null;
@@ -419,7 +423,7 @@ public class Ser2NetProviderTest {
      * Test of getInBufferBytesCount method, of class Ser2NetProvider.
      */
     @Test
-    @Ignore
+    @Deactivate
   public void testGetInBufferBytesCount() throws Exception {
         System.out.println("getInBufferBytesCount");
         Ser2NetProvider instance = null;
@@ -434,7 +438,7 @@ public class Ser2NetProviderTest {
      * Test of getOutBufferBytesCount method, of class Ser2NetProvider.
      */
     @Test
-    @Ignore
+    @Deactivate
   public void testGetOutBufferBytesCount() throws Exception {
         System.out.println("getOutBufferBytesCount");
         Ser2NetProvider instance = null;
@@ -449,7 +453,7 @@ public class Ser2NetProviderTest {
      * Test of setBreak method, of class Ser2NetProvider.
      */
     @Test
-    @Ignore
+    @Deactivate
  public void testSetBreak() throws Exception {
         System.out.println("setBreak");
         boolean value = false;
@@ -463,7 +467,7 @@ public class Ser2NetProviderTest {
      * Test of setFlowControl method, of class Ser2NetProvider.
      */
     @Test
-    @Ignore
+    @Deactivate
   public void testSetFlowControl() throws Exception {
         System.out.println("setFlowControl");
         Set<FlowControl> flowControls = null;
@@ -477,7 +481,7 @@ public class Ser2NetProviderTest {
      * Test of setBaudrate method, of class Ser2NetProvider.
      */
     @Test
-    @Ignore
+    @Deactivate
  public void testSetBaudrate() throws Exception {
         System.out.println("setBaudrate");
         Baudrate baudrate = null;
@@ -491,7 +495,7 @@ public class Ser2NetProviderTest {
      * Test of setDataBits method, of class Ser2NetProvider.
      */
     @Test
-    @Ignore
+    @Deactivate
  public void testSetDataBits() throws Exception {
         System.out.println("setDataBits");
         DataBits dataBits = null;
@@ -505,7 +509,7 @@ public class Ser2NetProviderTest {
      * Test of setStopBits method, of class Ser2NetProvider.
      */
     @Test
-    @Ignore
+    @Deactivate
  public void testSetStopBits() throws Exception {
         System.out.println("setStopBits");
         StopBits stopBits = null;
@@ -519,7 +523,7 @@ public class Ser2NetProviderTest {
      * Test of setParity method, of class Ser2NetProvider.
      */
     @Test
-    @Ignore
+    @Deactivate
  public void testSetParity() throws Exception {
         System.out.println("setParity");
         Parity parity = null;
@@ -533,7 +537,7 @@ public class Ser2NetProviderTest {
      * Test of getBaudrate method, of class Ser2NetProvider.
      */
     @Test
-    @Ignore
+    @Deactivate
  public void testGetBaudrate() throws Exception {
         System.out.println("getBaudrate");
         Ser2NetProvider instance = null;
@@ -548,7 +552,7 @@ public class Ser2NetProviderTest {
      * Test of getDatatBits method, of class Ser2NetProvider.
      */
     @Test
-    @Ignore
+    @Deactivate
  public void testGetDatatBits() throws Exception {
         System.out.println("getDatatBits");
         Ser2NetProvider instance = null;
@@ -563,7 +567,7 @@ public class Ser2NetProviderTest {
      * Test of getStopBits method, of class Ser2NetProvider.
      */
     @Test
-    @Ignore
+    @Deactivate
  public void testGetStopBits() throws Exception {
         System.out.println("getStopBits");
         Ser2NetProvider instance = null;
@@ -578,7 +582,7 @@ public class Ser2NetProviderTest {
      * Test of getParity method, of class Ser2NetProvider.
      */
     @Test
-    @Ignore
+    @Deactivate
   public void testGetParity() throws Exception {
         System.out.println("getParity");
         Ser2NetProvider instance = null;
@@ -593,7 +597,7 @@ public class Ser2NetProviderTest {
      * Test of getFlowControl method, of class Ser2NetProvider.
      */
     @Test
-    @Ignore
+    @Deactivate
   public void testGetFlowControl() throws Exception {
         System.out.println("getFlowControl");
         Ser2NetProvider instance = null;
@@ -608,7 +612,7 @@ public class Ser2NetProviderTest {
      * Test of getOverallReadTimeout method, of class Ser2NetProvider.
      */
     @Test
-    @Ignore
+    @Deactivate
  public void testGetOverallReadTimeout() throws Exception {
         System.out.println("getOverallReadTimeout");
         Ser2NetProvider instance = null;
@@ -623,7 +627,7 @@ public class Ser2NetProviderTest {
      * Test of getInterByteReadTimeout method, of class Ser2NetProvider.
      */
     @Test
-    @Ignore
+    @Deactivate
  public void testGetInterByteReadTimeout() throws Exception {
         System.out.println("getInterByteReadTimeout");
         Ser2NetProvider instance = null;
@@ -638,7 +642,7 @@ public class Ser2NetProviderTest {
      * Test of setReadTimeouts method, of class Ser2NetProvider.
      */
     @Test
-    @Ignore
+    @Deactivate
   public void testSetReadTimeouts() throws Exception {
         System.out.println("setReadTimeouts");
         int interByteReadTimeout = 0;

@@ -10,7 +10,6 @@
     </parent>
   
     <artifactId>de.ibapl.spsw.api</artifactId>
-    <version>1.1.0-SNAPSHOT</version>
     <name>SPSW API</name>
     
     <properties>
@@ -31,11 +30,10 @@
             <groupId>org.apache.servicemix.bundles</groupId>
             <artifactId>org.apache.servicemix.bundles.javax-inject</artifactId>
         </dependency>
-        <dependency>
-            <groupId>junit</groupId>
-            <artifactId>junit</artifactId>
-            <scope>compile</scope>
-        </dependency>
+		<dependency>
+			<groupId>org.junit.jupiter</groupId>
+			<artifactId>junit-jupiter-api</artifactId>
+		</dependency>
         
     </dependencies>
     

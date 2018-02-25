@@ -1,5 +1,3 @@
-package de.ibapl.spsw.mock;
-
 /*
  * #%L
  * mbus4j-core
@@ -19,19 +17,20 @@ package de.ibapl.spsw.mock;
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  * #L%
  */
+package de.ibapl.spsw.mock;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.IOException;
 
-import org.junit.After;
-import org.junit.AfterClass;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import de.ibapl.spsw.api.TimeoutIOException;
 import de.ibapl.spsw.mock.MockSerialPortSocket.UnexpectedRequestError;
@@ -43,26 +42,43 @@ import de.ibapl.spsw.mock.MockSerialPortSocket.UnexpectedRequestError;
  */
 public class MockSerialPortSocketTest {
 
-    @BeforeClass
+    @BeforeAll
     public static void setUpClass() throws Exception {
     }
 
-    @AfterClass
+    @AfterAll
     public static void tearDownClass() throws Exception {
     }
+
     private MockSerialPortSocket slaves;
+
+    @BeforeEach
+    public void setUp() throws Exception {
+        slaves = new MockSerialPortSocket();
+        slaves.openRaw();
+    }
+
+    @AfterEach
+    public void tearDown() throws Exception {
+        slaves.close();
+        slaves = null;
+    }
 
     public MockSerialPortSocketTest() {
     }
 
-    @Test(expected=UnexpectedRequestError.class)
+    @Test()
     public void respondToRequest_1() throws IOException {
-   		slaves.getOutputStream().write(0x01);
+    	assertThrows(UnexpectedRequestError.class, () -> {
+    		slaves.getOutputStream().write(0x01);
+    	});
     }
 
-    @Test(expected=UnexpectedRequestError.class)
+    @Test()
     public void respondToRequest_2() throws IOException {
-        slaves.getInputStream().read();
+        assertThrows(UnexpectedRequestError.class,()-> {
+        	slaves.getInputStream().read();
+        });
     }
 
     @Test
@@ -70,12 +86,9 @@ public class MockSerialPortSocketTest {
         slaves.expectedRead("01");
         slaves.expectedRead(new TimeoutIOException("Test"));
         slaves.getInputStream().read();
-        try {
+        assertThrows(UnexpectedRequestError.class,()-> {
         	slaves.getInputStream().read();
-        	fail();
-        } catch (TimeoutIOException e) {
-        	assertTrue(true);
-        }
+        });
     }
 
     @Test
@@ -89,12 +102,9 @@ public class MockSerialPortSocketTest {
         slaves.getOutputStream().write(0x02);
         assertEquals(0x02, slaves.getInputStream().read());
         assertEquals(0x01, slaves.getInputStream().read());
-        try {
+        assertThrows(UnexpectedRequestError.class,()-> {
         	slaves.getInputStream().read();
-        	fail();
-        } catch (UnexpectedRequestError  e) {
-        	assertTrue(true);
-		}
+        });
     }
 
     @Test
@@ -160,15 +170,4 @@ public class MockSerialPortSocketTest {
         assertTrue(slaves.allRequestsHandled());
     }
 
-    @Before
-    public void setUp() throws Exception {
-        slaves = new MockSerialPortSocket();
-        slaves.openRaw();
-    }
-
-    @After
-    public void tearDown() throws Exception {
-        slaves.close();
-        slaves = null;
-    }
 }
