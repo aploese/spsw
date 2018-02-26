@@ -20,7 +20,6 @@ import de.ibapl.spsw.api.Parity;
 import de.ibapl.spsw.api.SerialPortSocket;
 import de.ibapl.spsw.api.SerialPortSocketFactory;
 import de.ibapl.spsw.api.StopBits;
-import de.ibapl.spsw.tests.AbstractTwoPortMultipleBytesTest.ReceiverThread;
 
 public abstract class AbstractPortTest {
 

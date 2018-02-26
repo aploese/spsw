@@ -364,14 +364,6 @@ public abstract class AbstractBaselineOnePortTest extends AbstractPortTest {
 		assertEquals(-1, result);
 
 		Assert.assertTrue(readSpc.isClosed());
-		// TODO commenting this out will make the next Test fail on windowx with port
-		// busy ??? I have no idea why
-		// Make sure it can be opend
-		// spc.openRaw();
-		// spc.close();
-		// Assert.assertTrue(spc.isClosed());
-		// Or 40ms will also do
-		Thread.sleep(40);
 	}
 
 	@Test(timeout = 5000)

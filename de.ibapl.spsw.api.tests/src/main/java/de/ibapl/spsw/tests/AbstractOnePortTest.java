@@ -291,8 +291,12 @@ public abstract class AbstractOnePortTest extends AbstractPortTest {
 
 		// Set a high baudrate to speed up things
 		openRaw(Baudrate.B115200, DataBits.DB_8, StopBits.SB_1, Parity.NONE, FlowControl.getFC_RTS_CTS());
+		//Disabling timeout on the reading side - so the writing side has a chance to fill the buffer...
+		readSpc.setFlowControl(FlowControl.getFC_NONE());
+		readSpc.setRTS(false);
+		Thread.sleep(100);
+		assertFalse("CTS is true; No chance to ever fill the buffer", writeSpc.isCTS());
 		setTimeouts(100, 1000, 1000);
-		assertFalse(writeSpc.isCTS());
 
 		byte[] data = new byte[1024];
 		int round = 1;
@@ -348,8 +352,12 @@ public abstract class AbstractOnePortTest extends AbstractPortTest {
 
 		// Set a high baudrate to speed up things
 		openRaw(Baudrate.B115200, DataBits.DB_8, StopBits.SB_1, Parity.NONE, FlowControl.getFC_RTS_CTS());
-		setTimeouts(100, 1000, 1000);
-		assertFalse(writeSpc.isCTS());
+		//Disabling timeout on the reading side - so the writing side has a chance to fill the buffer...
+		readSpc.setFlowControl(FlowControl.getFC_NONE());
+		readSpc.setRTS(false);
+		Thread.sleep(100);
+		assertFalse("CTS is true; No chance to ever fill the buffer", writeSpc.isCTS());
+		setTimeouts(100, 100, 100);
 
 		int round = 1;
 		int i = 0;
@@ -361,7 +369,7 @@ public abstract class AbstractOnePortTest extends AbstractPortTest {
 				for (i = 0; i < 1048576; i++) {
 					writeSpc.getOutputStream().write(0);
 				}
-				fail();
+				fail("RTS/CTS enabled so a timeout is expectd when the buffer is full!");
 			} catch (TimeoutIOException e) {
 				dataWritten = i + e.bytesTransferred;
 				LOG.log(Level.INFO, "Round: " + round + ": " + dataWritten + " bytes written; OutBuf:  "
