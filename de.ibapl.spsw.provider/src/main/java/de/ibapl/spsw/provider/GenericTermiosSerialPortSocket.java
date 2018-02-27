@@ -40,6 +40,10 @@ public class GenericTermiosSerialPortSocket extends AbstractSerialPortSocket {
      * The file descriptor or handle for this Port
      */
     private int fd = -1;
+    /**
+     * The close event file descriptor or handle proper multithreading closing for this Port
+     */
+    private int closeEventtFd = -1;
     
     /**
      * used in native code
