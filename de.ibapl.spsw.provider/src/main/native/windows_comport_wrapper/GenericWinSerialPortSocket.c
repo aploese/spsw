@@ -1126,6 +1126,25 @@ JNIEXPORT void JNICALL Java_de_ibapl_spsw_provider_GenericWinSerialPortSocket_se
 	}
 
 	dcb.ByteSize = dataBits;
+	// Fix the stopbits
+	if (dcb.StopBits != ONESTOPBIT) {
+	switch (dataBits) {
+		case 5:
+			dcb.StopBits = ONE5STOPBITS;
+			break;
+		case 6:
+			dcb.StopBits = TWOSTOPBITS;
+			break;
+		case 7:
+			dcb.StopBits = TWOSTOPBITS;
+			break;
+		case 8:
+			dcb.StopBits = TWOSTOPBITS;
+			break;
+		default:
+			return;
+	}
+	}
 
 	if (!SetCommState(hFile, &dcb)) {
 		switch (GetLastError()) {
@@ -1162,10 +1181,20 @@ JNIEXPORT void JNICALL Java_de_ibapl_spsw_provider_GenericWinSerialPortSocket_se
 		dcb.StopBits = ONESTOPBIT;
 		break;
 		case SPSW_STOP_BITS_1_5:
-		dcb.StopBits = ONE5STOPBITS;
+			if (dcb.ByteSize == 5) {
+				dcb.StopBits = ONE5STOPBITS;
+			} else {
+				throw_Illegal_Argument_Exception(env, "setStopBits to 1.5: only for 5 dataBits 1.5 stoppbits are supported");
+				return;
+			}
 		break;
 		case SPSW_STOP_BITS_2:
-		dcb.StopBits = TWOSTOPBITS;
+			if (dcb.ByteSize == 5) {
+				throw_Illegal_Argument_Exception(env, "setStopBits to 2: 5 dataBits only 1.5 stoppbits are supported");
+				return;
+			} else {
+				dcb.StopBits = TWOSTOPBITS;
+			}
 		break;
 		default:
 		throw_Illegal_Argument_Exception(env, "setStopBits Unknown stopbits");

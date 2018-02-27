@@ -246,10 +246,12 @@ public interface SerialPortSocket extends Closeable {
 	 * <B>java.net.SocketTimeoutException</B> is raised, though the Socket is still
 	 * valid. The option <B>must</B> be enabled prior to entering the blocking
 	 * operation to have effect. The timeout must be {@code > 0}. A timeout of zero
-	 * is interpreted as an infinite timeout. If a timeout value can't be set (I.E:
+	 * is interpreted as an infinite timeout. {@link SocketOptions#SO_TIMEOUT SO_TIMEOUT}
+	 * If a timeout value can't be set (I.E:
 	 * resolution is a tenth of a second for posix termios) the next smaller value
 	 * will be used an returned. Except if its to small to set. In this case the
 	 * smallest value will be used and returned.
+	 * 
 	 *
 	 * A overallReadTimeout and of zero is interpreted as an infinite read timeout.
 	 * A overallWriteTimeout and of zero is interpreted as an infinite write

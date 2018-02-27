@@ -58,6 +58,7 @@
 #include <termios.h>
 #include <unistd.h>
 #include <string.h>
+//#include <time.h>
 
 #include <errno.h>//-D_TS_ERRNO use for Solaris C++ compiler
 
@@ -73,6 +74,8 @@
 #endif
 
 #include <poll.h>
+//Linux include...
+#include <sys/eventfd.h>
 
 #include <jni.h>
 
@@ -117,6 +120,8 @@
 
 jfieldID spsw_portName; /* id for field 'portName'  */
 jfieldID spsw_fd; /* id for field 'fd'  */
+jfieldID spsw_closeEventtFd; /* id for field 'closeEventtFd'  */
+jfieldID spsw_interByteReadTimeout; // id for field interByteReadTimeout
 jfieldID spsw_pollReadTimeout; // id for field overallReadTimeout
 jfieldID spsw_pollWriteTimeout; // id for field overallWriteTimeout
 jclass genericTermiosSerialPortSocket;
@@ -132,6 +137,10 @@ JNIEXPORT jint JNICALL JNI_OnLoad(JavaVM *jvm, void *reserved) {
 			"Lde/ibapl/spsw/provider/GenericTermiosSerialPortSocket;");
 	spsw_fd = (*env)->GetFieldID(env, genericTermiosSerialPortSocket, "fd",
 			"I");
+	spsw_closeEventtFd = (*env)->GetFieldID(env,
+			genericTermiosSerialPortSocket, "closeEventtFd", "I");
+	spsw_interByteReadTimeout = (*env)->GetFieldID(env,
+			genericTermiosSerialPortSocket, "interByteReadTimeout", "I");
 	spsw_pollReadTimeout = (*env)->GetFieldID(env,
 			genericTermiosSerialPortSocket, "pollReadTimeout", "I");
 	spsw_pollWriteTimeout = (*env)->GetFieldID(env,
@@ -152,6 +161,8 @@ JNIEXPORT jint JNICALL JNI_OnLoad(JavaVM *jvm, void *reserved) {
 JNIEXPORT void JNICALL JNI_OnUnLoad(JavaVM *jvm, void *reserved) {
 	JNIEnv *env;
 	spsw_fd = 0;
+	spsw_closeEventtFd = 0;
+	spsw_interByteReadTimeout = 0;
 	spsw_pollReadTimeout = 0;
 	spsw_pollWriteTimeout = 0;
 	spsw_portName = 0;
@@ -607,18 +618,14 @@ JNIEXPORT void JNICALL Java_de_ibapl_spsw_provider_GenericTermiosSerialPortSocke
 		settings.c_iflag = 0;
 		/* Raw output */
 		settings.c_oflag = 0;
-		settings.c_cc[VMIN] = 1; // min 1 char to receive
-		settings.c_cc[VTIME] = 1;// 1/10 s inter byte timeout
+		settings.c_cc[VMIN] = 0; // If there is not anything just pass
+		settings.c_cc[VTIME] = 0;// No timeout
 		if (tcsetattr(fd, TCSANOW, &settings) != 0) {
 			close(fd);
 			(*env)->SetIntField(env, object, spsw_fd, INVALID_FD);
 			throw_SerialPortException_NativeError(env, "Can't call tcsetattr TCSANOW");
 			return;
 		}
-		//Set the overallReadTimeout to infinity
-		(*env)->SetIntField(env, object, spsw_pollReadTimeout, -1);
-		//Set the overallWriteTimeout to infinity
-		(*env)->SetIntField(env, object, spsw_pollWriteTimeout, -1);
 		break;
 		default:
 		close(fd);
@@ -635,30 +642,47 @@ JNIEXPORT void JNICALL Java_de_ibapl_spsw_provider_GenericTermiosSerialPortSocke
 		return;
 	}
 
+//on linux to avoid read/close problem maybe this helps?
+
+	int close_event_fd = eventfd(0, EFD_NONBLOCK);//counter is zero so nothing to read is available
+	if (close_event_fd == INVALID_FD) {
+		close(fd);
+		throw_SerialPortException_NativeError(env, "Can't create close_event_fd");
+		return;
+	}
+
+	(*env)->SetIntField(env, object, spsw_closeEventtFd, close_event_fd);
+
 	(*env)->SetIntField(env, object, spsw_fd, fd);
 }
 
 /* Closing the port */
 JNIEXPORT void JNICALL Java_de_ibapl_spsw_provider_GenericTermiosSerialPortSocket_close0
 (JNIEnv *env, jobject object) {
-
-	int fd = (*env)->GetIntField(env, object, spsw_fd);
+	//Mark port as closed...
+	const int fd = (*env)->GetIntField(env, object, spsw_fd);
 	(*env)->SetIntField(env, object, spsw_fd, INVALID_FD);
 
-	struct termios settings;
-	if (tcgetattr(fd, &settings) != 0) {
-		//        perror("NATIVE Error Close - tcgetattr");
-	}
+	//unlock read/write polls that wait
+	const int close_event_fd = (*env)->GetIntField(env, object, spsw_closeEventtFd);
+	jbyte evt_buff[8];
+	evt_buff[7] = 1;
+	write(close_event_fd, &evt_buff, 8);
 
-	settings.c_cc[VMIN] = 0;
-	settings.c_cc[VTIME] = 0;
-	if (tcsetattr(fd, TCSANOW, &settings) != 0) {
-		//        perror("NATIVE Error Close - tcsetattr");
-	}
+	//cleanup
+	(*env)->SetIntField(env, object, spsw_closeEventtFd, INVALID_FD);
 
 	if (tcflush(fd, TCIOFLUSH) != 0) {
 		//        perror("NATIVE Error Close - tcflush");
 	}
+
+	/*	I dont think that this is needed
+	 struct timespec rqtp;
+	 struct timespec rmtp;
+	 rqtp.tv_sec = 0;
+	 rqtp.tv_nsec = 10000000; //10ms
+	 nanosleep(&rqtp, &rmtp);
+	 */
 
 	if (close(fd) != 0) {
 		throw_SerialPortException_NativeError(env, "close0 closing port");
@@ -828,11 +852,13 @@ JNIEXPORT void JNICALL Java_de_ibapl_spsw_provider_GenericTermiosSerialPortSocke
 	}
 
 	const int pollTimeout = (*env)->GetIntField(env, object, spsw_pollWriteTimeout);
-	struct pollfd fds;
-	fds.fd = fd;
-	fds.events = POLLOUT;
+	struct pollfd fds[2];
+	fds[0].fd = fd;
+	fds[0].events = POLLOUT;
+	fds[1].fd = (*env)->GetIntField(env, object, spsw_closeEventtFd);
+	fds[1].events = POLLIN;
 
-	int poll_result = poll(&fds, 1, pollTimeout);
+	int poll_result = poll(&fds[0], 2, pollTimeout);
 
 	if (poll_result == 0) {
 		//Timeout
@@ -841,16 +867,14 @@ JNIEXPORT void JNICALL Java_de_ibapl_spsw_provider_GenericTermiosSerialPortSocke
 	} else if (poll_result < 0) {
 		throw_InterruptedIOExceptionWithError(env, written, "writeSingle poll: Error during poll");
 		return;
-	} else {
-		//Happy path just check if its the right event...
-		if (fds.revents == POLLOUT) {
+		if (fds[1].revents == POLLIN) {
+			//we can read from close_event_ds => port is closing
+			throw_SerialPortException_Closed(env);
+			return;
+		} else if (fds[0].revents == POLLOUT) {
 			//Happy path all is right...
 		} else {
-			if ((*env)->GetIntField(env, object, spsw_fd) == INVALID_FD) {
-				throw_SerialPortException_Closed(env);
-			} else {
-				throw_InterruptedIOExceptionWithError(env, written, "writeSingle error during poll");
-			}
+			throw_InterruptedIOExceptionWithError(env, written, "writeSingle error during poll");
 			return;
 		}
 	}
@@ -899,31 +923,30 @@ JNIEXPORT void JNICALL Java_de_ibapl_spsw_provider_GenericTermiosSerialPortSocke
 	}
 
 	const int pollTimeout = (*env)->GetIntField(env, object, spsw_pollWriteTimeout);
-	struct pollfd fds;
-	fds.fd = fd;
-	fds.events = POLLOUT;
+	struct pollfd fds[2];
+	fds[0].fd = fd;
+	fds[0].events = POLLOUT;
+	fds[1].fd = (*env)->GetIntField(env, object, spsw_closeEventtFd);
+	fds[1].events = POLLIN;
 
-	int poll_result = poll(&fds, 1, pollTimeout);
+	int poll_result = poll(&fds[0], 2, pollTimeout);
 
 	if (poll_result == 0) {
-		//Timeout
-		//Filehandle valid -> a timeout occured
+		//Timeout occured
 		throw_TimeoutIOException(env, written);
 		return;
 	} else if ((poll_result < 0)) {
 		throw_InterruptedIOExceptionWithError(env, written, "poll timeout with error writeBytes");
 		return;
 	} else {
-		//Happy path just check if its the right event...
-		if (fds.revents == POLLOUT) {
+		if (fds[1].revents == POLLIN) {
+			//we can read from close_event_ds => port is closing
+			throw_SerialPortException_Closed(env);
+			return;
+		} else if (fds[0].revents == POLLOUT) {
 			//Happy path all is right...
 		} else {
-			if ((*env)->GetIntField(env, object, spsw_fd) == INVALID_FD) {
-				//Filehandle not valid -> closed.
-				throw_SerialPortException_Closed(env);
-			} else {
-				throw_InterruptedIOExceptionWithError(env, written, "poll timeout with poll event writeBytes");
-			}
+			throw_InterruptedIOExceptionWithError(env, written, "poll returned with poll event writeBytes");
 			return;
 		}
 	}
@@ -958,13 +981,32 @@ JNIEXPORT void JNICALL Java_de_ibapl_spsw_provider_GenericTermiosSerialPortSocke
 JNIEXPORT jint JNICALL Java_de_ibapl_spsw_provider_GenericTermiosSerialPortSocket_readSingle(
 		JNIEnv *env, jobject object) {
 
-	struct pollfd fds;
-	fds.fd = (*env)->GetIntField(env, object, spsw_fd);
-	fds.events = POLLIN;
+	//port is nonblocking and no hardware interbyte timeout, so we try to reed one byte.
+	struct pollfd fds[2];
+	fds[0].fd = (*env)->GetIntField(env, object, spsw_fd);
+	fds[0].events = POLLIN;
+	fds[1].fd = (*env)->GetIntField(env, object, spsw_closeEventtFd);
+	fds[1].events = POLLIN;
+
+	jbyte	lpBuffer;
+	int nread = read(fds[0].fd, &lpBuffer, 1);
+	if (nread == 1) {
+		return lpBuffer & 0xFF;
+	} else if (nread < 0) {
+		if ((*env)->GetIntField(env, object, spsw_fd) == INVALID_FD) {
+			//Filehandle not valid -> closed.
+		} else {
+			throw_InterruptedIOExceptionWithError(env, 0,
+					"readSingle: read error during first invocation of read()");
+		}
+		return -1;
+	}
+
+	//Nothing was read so use poll to wait...
 	const int pollTimeout = (*env)->GetIntField(env, object,
 			spsw_pollReadTimeout);
 
-	int poll_result = poll(&fds, 1, pollTimeout);
+	int poll_result = poll(&fds[0], 2, pollTimeout);
 
 	if (poll_result == 0) {
 		//Timeout
@@ -975,24 +1017,20 @@ JNIEXPORT jint JNICALL Java_de_ibapl_spsw_provider_GenericTermiosSerialPortSocke
 				"readSingle poll: Error during poll");
 		return -1;
 	} else {
-		//Happy path just check if its the right event...
-		if (fds.revents == POLLIN) {
-			//Happy path all is right...
+		if (fds[1].revents == POLLIN) {
+			//we can read from close_event_ds => port is closing
+			return -1;
+		} else if (fds[0].revents == POLLIN) {
+			//Happy path just check if its the right event...
 		} else {
-			//Test if closed
-			if ((*env)->GetIntField(env, object, spsw_fd) == INVALID_FD) {
-				//Filehandle not valid -> closed.
-				return -1;
-			}
 			throw_InterruptedIOExceptionWithError(env, 0,
 					"readSingle poll: received poll event");
 			return -1;
 		}
 	}
 
-	//OK No timeout and no error, we should read the byte without blocking.
-	jbyte lpBuffer;
-	jint nread = (jint) read(fds.fd, &lpBuffer, 1);
+	//OK polling succeeds we should be able to read the byte.
+	nread = read(fds[0].fd, &lpBuffer, 1);
 	if (nread == 1) {
 		return lpBuffer & 0xFF;
 	}
@@ -1009,60 +1047,133 @@ JNIEXPORT jint JNICALL Java_de_ibapl_spsw_provider_GenericTermiosSerialPortSocke
 JNIEXPORT jint JNICALL Java_de_ibapl_spsw_provider_GenericTermiosSerialPortSocket_readBytes(
 		JNIEnv *env, jobject object, jbyteArray bytes, jint off, jint len) {
 
-	struct pollfd fds;
-	fds.fd = (*env)->GetIntField(env, object, spsw_fd);
-	fds.events = POLLIN;
-	const int pollTimeout = (*env)->GetIntField(env, object,
-			spsw_pollReadTimeout);
+	jbyte *lpBuffer = (jbyte*) malloc(len);
+	struct pollfd fds[2];
+	fds[0].fd = (*env)->GetIntField(env, object, spsw_fd);
+	fds[0].events = POLLIN;
+	fds[1].fd = (*env)->GetIntField(env, object, spsw_closeEventtFd);
+	fds[1].events = POLLIN;
 
-	int poll_result = poll(&fds, 1, pollTimeout);
-
-	if (poll_result == 0) {
-		//Timeout
-		throw_TimeoutIOException(env, 0);
-		return -1;
-	} else if ((poll_result < 0)) {
-		throw_InterruptedIOExceptionWithError(env, 0,
-				"readBytes poll: Error during poll");
-		return -1;
-	} else {
-		//Happy path just check if its the right event...
-		if (fds.revents == POLLIN) {
-			//Happy path all is right...
+	int nread = read(fds[0].fd, lpBuffer, len);
+	if (nread < 0) {
+		if ((*env)->GetIntField(env, object, spsw_fd) == INVALID_FD) {
+			//Filehandle not valid -> closed.
 		} else {
-			//Test if closed
-			if ((*env)->GetIntField(env, object, spsw_fd) == INVALID_FD) {
-				//Filehandle not valid -> closed.
+			throw_InterruptedIOExceptionWithError(env, 0,
+					"readBytes: read error during first invocation of read()");
+		}
+		free(lpBuffer);
+		return -1;
+	} else if (nread == 0) {
+		//Nothing read yet
+
+		const int pollTimeout = (*env)->GetIntField(env, object,
+				spsw_pollReadTimeout);
+		int poll_result = poll(&fds[0], 2, pollTimeout);
+
+		if (poll_result == 0) {
+			//Timeout
+			throw_TimeoutIOException(env, 0);
+			free(lpBuffer);
+			return -1;
+		} else if ((poll_result < 0)) {
+			throw_InterruptedIOExceptionWithError(env, 0,
+					"readBytes poll: Error during poll");
+			free(lpBuffer);
+			return -1;
+		} else {
+			if (fds[1].revents == POLLIN) {
+				//we can read from close_event_ds => port is closing
+				free(lpBuffer);
+				return -1;
+			} else if (fds[0].revents == POLLIN) {
+				//Happy path just check if its the right event...
+				nread = read(fds[0].fd, lpBuffer, len);
+				if (nread < 0) {
+					if ((*env)->GetIntField(env, object, spsw_fd) == INVALID_FD) {
+						free(lpBuffer);
+						return -1;
+					} else if (nread == 0) {
+						throw_TimeoutIOException(env, 0); //Is this right???
+						free(lpBuffer);
+						return -1;
+					} else {
+						throw_InterruptedIOExceptionWithError(env, 0,
+								"readBytes read error: Should never happen");
+						free(lpBuffer);
+						return -1;
+					}
+				}
+			} else {
+				throw_InterruptedIOExceptionWithError(env, 0,
+						"readBytes poll: received poll event");
+				free(lpBuffer);
 				return -1;
 			}
+		}
+	}
+
+	int overallRead = nread;
+
+	const int interByteTimeout = (*env)->GetIntField(env, object,
+			spsw_interByteReadTimeout);
+
+	//Loop over poll and read to aquire as much bytes as possible either
+	// a poll timeout, a full read buffer or an error
+	// breaks the loop
+	while (overallRead < len) {
+
+		int poll_result = poll(&fds[0], 2, interByteTimeout);
+
+		if (poll_result == 0) {
+			//This is the interbyte timeout - We are done
+			(*env)->SetByteArrayRegion(env, bytes, off, overallRead, lpBuffer);
+			free(lpBuffer);
+			return overallRead;
+		} else if ((poll_result < 0)) {
 			throw_InterruptedIOExceptionWithError(env, 0,
-					"readBytes poll: received poll event");
+					"readBytes poll: Error during poll");
+			free(lpBuffer);
 			return -1;
-		}
-	}
-
-	//OK No timeout and no error, we should read the byte without blocking.
-	jbyte *lpBuffer = (jbyte*) malloc(len);
-
-	jint nread = (jint) read(fds.fd, lpBuffer, len);
-	if (nread > 0) {
-		(*env)->SetByteArrayRegion(env, bytes, off, nread, lpBuffer);
-	} else {
-		if ((*env)->GetIntField(env, object, spsw_fd) == INVALID_FD) {
-			nread = -1;
-		} else if (nread == 0) {
-			throw_TimeoutIOException(env, 0); //Is this right???
 		} else {
-			throw_InterruptedIOExceptionWithError(env, 0,
-					"readBytes read error: Should never happen");
-			nread = -1;
+			if (fds[1].revents == POLLIN) {
+				//we can read from close_event_ds => port is closing
+				free(lpBuffer);
+				return -1;
+			} else if (fds[0].revents == POLLIN) {
+			//Happy path
+			} else {
+				throw_InterruptedIOExceptionWithError(env, 0,
+						"readBytes poll: received poll event");
+				free(lpBuffer);
+				return -1;
+			}
+		}
+
+		//OK No timeout and no error, we should read at least one byte without blocking.
+
+		nread = read(fds[0].fd, &lpBuffer[overallRead], len - overallRead);
+		if (nread > 0) {
+			overallRead += nread;
+		} else {
+			if ((*env)->GetIntField(env, object, spsw_fd) == INVALID_FD) {
+				free(lpBuffer);
+				return -1;
+			} else if (nread == 0) {
+				throw_InterruptedIOExceptionWithError(env, 0,
+						"readBytes: nothing to read after successful polling: Should never happen");
+			} else {
+				throw_InterruptedIOExceptionWithError(env, 0,
+						"readBytes read error: Should never happen");
+				free(lpBuffer);
+				return -1;
+			}
 		}
 	}
-	// if (nread == 1) {
-	//reread
-	//}
+	//We reached this, because the read buffer is full.
+	(*env)->SetByteArrayRegion(env, bytes, off, overallRead, lpBuffer);
 	free(lpBuffer);
-	return nread;
+	return overallRead;
 }
 
 /* OK */
@@ -1103,22 +1214,27 @@ JNIEXPORT void JNICALL Java_de_ibapl_spsw_provider_GenericTermiosSerialPortSocke
 (JNIEnv *env, jobject object) {
 
 	const int pollTimeout = (*env)->GetIntField(env, object, spsw_pollWriteTimeout);
-	struct pollfd fds;
-	fds.fd = (*env)->GetIntField(env, object, spsw_fd);
-	fds.events = POLLOUT;
+	struct pollfd fds[2];
+	fds[0].fd = (*env)->GetIntField(env, object, spsw_fd);
+	fds[0].events = POLLOUT;
+	fds[1].fd = (*env)->GetIntField(env, object, spsw_closeEventtFd);
+	fds[1].events = POLLIN;
 
-	int poll_result = poll(&fds, 1, pollTimeout);
+	int poll_result = poll(&fds[0], 2, pollTimeout);
 
 	if (poll_result == 0) {
 		//Timeout
-		//Filehandle valid -> a timeout occured
 		throw_TimeoutIOException(env, 0);
 		return;
 	} else if ((poll_result < 0)) {
 		throw_SerialPortException_NativeError(env, "drainOutputBuffer poll: Error during poll");
 		return;
 	} else {
-		if (fds.revents == POLLOUT) {
+		if (fds[1].revents == POLLIN) {
+			//we can read from close_event_ds => port is closing
+			throw_SerialPortException_Closed(env);
+			return;
+		} else  if (fds[0].revents == POLLOUT) {
 			//Happy path all is right... no-op
 		} else {
 			// closed?
@@ -1127,7 +1243,7 @@ JNIEXPORT void JNICALL Java_de_ibapl_spsw_provider_GenericTermiosSerialPortSocke
 		}
 	}
 
-	int result = tcdrain(fds.fd);
+	int result = tcdrain(fds[0].fd);
 	if (result != 0) {
 		throw_ClosedOrNativeException(env, object, "Can't drain the output buffer");
 	}
@@ -1283,20 +1399,20 @@ JNIEXPORT void JNICALL Java_de_ibapl_spsw_provider_GenericTermiosSerialPortSocke
 		settings.c_cflag &= ~CSTOPB;
 		break;
 		case SPSW_STOP_BITS_1_5:
-			if ((settings.c_cflag & CSIZE) == CS5) {
-				settings.c_cflag |= CSTOPB;
-			} else {
-				throw_Illegal_Argument_Exception(env, "setStopBits 1.5 stop bits are only valid for 5 DataBits");
-				return;
-			}
+		if ((settings.c_cflag & CSIZE) == CS5) {
+			settings.c_cflag |= CSTOPB;
+		} else {
+			throw_Illegal_Argument_Exception(env, "setStopBits 1.5 stop bits are only valid for 5 DataBits");
+			return;
+		}
 		break;
 		case SPSW_STOP_BITS_2:
-			if ((settings.c_cflag & CSIZE) == CS5) {
-				throw_Illegal_Argument_Exception(env, "setStopBits 2 stop bits are only valid for 6,7,8 DataBits");
-				return;
-			} else {
-				settings.c_cflag |= CSTOPB;
-			}
+		if ((settings.c_cflag & CSIZE) == CS5) {
+			throw_Illegal_Argument_Exception(env, "setStopBits 2 stop bits are only valid for 6,7,8 DataBits");
+			return;
+		} else {
+			settings.c_cflag |= CSTOPB;
+		}
 		break;
 		default:
 		throw_SerialPortException_NativeError(env, "Unknown stopbits");
@@ -1538,121 +1654,3 @@ JNIEXPORT jint JNICALL Java_de_ibapl_spsw_provider_GenericTermiosSerialPortSocke
 	}
 	return returnValue;
 }
-
-// Timeouts
-
-/*
- * Class:     de_ibapl_spsw_provider_GenericTermiosSerialPortSocket
- * Method:    setTimeouts
- * Signature: (JI)V
- */
-JNIEXPORT void JNICALL Java_de_ibapl_spsw_provider_GenericTermiosSerialPortSocket_setTimeouts
-(JNIEnv *env, jobject object, jint interByteReadTimeout, jint overallReadTimeout, jint overallWriteTimeout) {
-	int fd = (*env)->GetIntField(env, object, spsw_fd);
-	struct termios settings;
-
-	if (tcgetattr(fd, &settings) != 0) {
-		throw_ClosedOrNativeException(env, object, "setTimeouts tcgetattr");
-		return;
-	}
-
-	if (interByteReadTimeout == 0) {
-		settings.c_cc[VMIN] = 1; // this marks VTIME as overall timeout
-		settings.c_cc[VTIME] = 0;// and this do block infinite
-	} else if (interByteReadTimeout > 0) {
-		//But block if bytes are comming in ...
-		settings.c_cc[VMIN] = 1;// this marks VTIME as overall timeout
-		if (interByteReadTimeout > 25500) {
-			throw_Illegal_Argument_Exception(env, "setTimeouts: interByteReadTimeout must not > 2550ms");
-			return;
-		}
-		settings.c_cc[VTIME] = interByteReadTimeout / 100; // the  inter byte timeout in tenths of seconds
-		if (settings.c_cc[VTIME] == 0) {
-			// have at least a tenth of a second ...
-			settings.c_cc[VTIME] = 1;
-		}
-	} else {
-		throw_Illegal_Argument_Exception(env, "setTimeouts: interByteReadTimeout : timeout must not < 0");
-		return;
-	}
-
-	if (overallReadTimeout == 0) {
-		(*env)->SetIntField(env, object, spsw_pollReadTimeout, -1);
-	} else if (overallReadTimeout > 0) {
-		(*env)->SetIntField(env, object, spsw_pollReadTimeout, overallReadTimeout);
-	} else {
-		throw_Illegal_Argument_Exception(env, "setTimeouts: overallReadTimeout must not < 0");
-		return;
-	}
-
-	if (overallWriteTimeout == 0) {
-		(*env)->SetIntField(env, object, spsw_pollWriteTimeout, -1);
-	} else if (overallWriteTimeout > 0) {
-		(*env)->SetIntField(env, object, spsw_pollWriteTimeout, overallWriteTimeout);
-	} else {
-		throw_Illegal_Argument_Exception(env, "setTimeouts: overallWriteTimeout must not < 0");
-		return;
-	}
-
-	if (tcsetattr(fd, TCSANOW, &settings) != 0) {
-		throw_ClosedOrNativeException(env, object, "setTimeouts: setInterByteReadTimeout tcsetattr");
-	}
-}
-
-/*
- * Class:     de_ibapl_spsw_provider_GenericTermiosSerialPortSocket
- * Method:    getInterByteReadTimeout
- * Signature: (J)I
- */
-JNIEXPORT jint JNICALL Java_de_ibapl_spsw_provider_GenericTermiosSerialPortSocket_getInterByteReadTimeout(
-		JNIEnv *env, jobject object) {
-	int fd = (*env)->GetIntField(env, object, spsw_fd);
-	struct termios settings;
-	if (tcgetattr(fd, &settings) != 0) {
-		throw_ClosedOrNativeException(env, object,
-				"getInterByteReadTimeout tcgetattr");
-		return -1;
-	}
-
-	if (settings.c_cc[VMIN] != 1) {
-		throw_SerialPortException_NativeError(env,
-				"getInterByteReadTimeout Wrong Timeout settings");
-		return -1;
-
-	}
-	return settings.c_cc[VTIME] * 100;
-
-}
-
-/*
- * Class:     de_ibapl_spsw_provider_GenericTermiosSerialPortSocket
- * Method:    getOverallReadTimeout
- * Signature: (J)I
- */
-JNIEXPORT jint JNICALL Java_de_ibapl_spsw_provider_GenericTermiosSerialPortSocket_getOverallReadTimeout(
-		JNIEnv *env, jobject object) {
-	int pollReadTimeout = (*env)->GetIntField(env, object,
-			spsw_pollReadTimeout);
-	if (pollReadTimeout < 0) {
-		return 0;
-	} else {
-		return pollReadTimeout;
-	}
-}
-
-/*
- * Class:     de_ibapl_spsw_provider_GenericTermiosSerialPortSocket
- * Method:    getOverallWriteTimeout
- * Signature: (J)I
- */
-JNIEXPORT jint JNICALL Java_de_ibapl_spsw_provider_GenericTermiosSerialPortSocket_getOverallWriteTimeout(
-		JNIEnv *env, jobject object) {
-	int pollWriteTimeout = (*env)->GetIntField(env, object,
-			spsw_pollWriteTimeout);
-	if (pollWriteTimeout < 0) {
-		return 0;
-	} else {
-		return pollWriteTimeout;
-	}
-}
-
