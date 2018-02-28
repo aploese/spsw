@@ -1,10 +1,38 @@
+/*-
+ * #%L
+ * SPSW Provider
+ * %%
+ * Copyright (C) 2009 - 2017 Arne Plöse
+ * %%
+ * SPSW - Drivers for the serial port, https://github.com/aploese/spsw/
+ * Copyright (C) 2009-2018, Arne Plöse and individual contributors as indicated
+ * by the @authors tag. See the copyright.txt in the distribution for a
+ * full listing of individual contributors.
+ * 
+ * This is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU General Public License as
+ * published by the Free Software Foundation; either version 3 of
+ * the License, or (at your option) any later version.
+ * 
+ * This software is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+ * Lesser General Public License for more details.
+ * 
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with this software; if not, write to the Free
+ * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
+ * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
+ * #L%
+ */
 package de.ibapl.spsw.tests;
+
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.logging.Level;
 
-import org.junit.Assert;
-import org.junit.Assume;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import de.ibapl.spsw.api.SerialPortSocketFactory;
 import de.ibapl.spsw.provider.GenericTermiosSerialPortSocket;
@@ -15,45 +43,45 @@ import de.ibapl.spsw.provider.SerialPortSocketFactoryImpl;
  * @author aploese
  */
 public class OnePortTest extends AbstractOnePortTest {
-    
-    @Override
-    protected SerialPortSocketFactory getSerialPortSocketFactory() {
-        return SerialPortSocketFactoryImpl.singleton();
-    }
-    
-    	@Test
+
+	@Override
+	protected SerialPortSocketFactory getSerialPortSocketFactory() {
+		return SerialPortSocketFactoryImpl.singleton();
+	}
+
+	@Test
 	public void testRTS() throws Exception {
-		Assume.assumeNotNull(writeSpc);
+		assumeWTest();
 		LOG.log(Level.INFO, "run testRTS");
 		openDefault();
-		
+
 		writeSpc.setRTS(true);
 		if (writeSpc instanceof GenericTermiosSerialPortSocket) {
-			Assert.assertTrue(((GenericTermiosSerialPortSocket) writeSpc).isRTS());
+			assertTrue(((GenericTermiosSerialPortSocket) writeSpc).isRTS());
 		}
 		writeSpc.setRTS(false);
 		if (writeSpc instanceof GenericTermiosSerialPortSocket) {
-			Assert.assertFalse(((GenericTermiosSerialPortSocket) writeSpc).isRTS());
+			assertFalse(((GenericTermiosSerialPortSocket) writeSpc).isRTS());
 		}
 	}
-        
-        	@Test
+
+	@Test
 	public void testDTR() throws Exception {
-		Assume.assumeNotNull(writeSpc);
+		assumeWTest();
 		LOG.log(Level.INFO, "run testDTR");
 		openDefault();
 
 		writeSpc.setDTR(true);
 		if (writeSpc instanceof GenericTermiosSerialPortSocket) {
-			Assert.assertTrue(((GenericTermiosSerialPortSocket) writeSpc).isDTR());
+			assertTrue(((GenericTermiosSerialPortSocket) writeSpc).isDTR());
 		}
 		writeSpc.setDTR(false);
 		if (writeSpc instanceof GenericTermiosSerialPortSocket) {
-			Assert.assertFalse(((GenericTermiosSerialPortSocket) writeSpc).isDTR());
+			assertFalse(((GenericTermiosSerialPortSocket) writeSpc).isDTR());
 		}
 
 		writeSpc.close();
-		Assert.assertTrue(writeSpc.isClosed());
+		assertTrue(writeSpc.isClosed());
 	}
 
 }

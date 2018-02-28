@@ -1,5 +1,3 @@
-package de.ibapl.spsw.tests;
-
 /*-
  * #%L
  * SPSW Provider
@@ -27,52 +25,41 @@ package de.ibapl.spsw.tests;
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  * #L%
  */
+package de.ibapl.spsw.tests;
 
-import de.ibapl.spsw.provider.SerialPortSocketFactoryImpl;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import org.junit.After;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
+
+import org.junit.jupiter.api.Test;
+
+import de.ibapl.spsw.provider.SerialPortSocketFactoryImpl;
 
 /**
  * Unit test for simple App.
  */
 public class IteratePortTest {
 
-    private static final Logger LOG = Logger.getLogger("SerialTests");
+	private static final Logger LOG = Logger.getLogger("SerialTests");
 
-    @BeforeClass
-    public static void setUpClass() throws Exception {
-    }
+	@Test
+	public void testLoadNativeLib() throws Exception {
+		LOG.info("Load native Lib");
+		SerialPortSocketFactoryImpl serialPortSocketFactoryImpl = new SerialPortSocketFactoryImpl();
+		serialPortSocketFactoryImpl.loadNativeLib();
+		assertTrue(SerialPortSocketFactoryImpl.singleton().isLibLoaded());
+	}
 
-    @Before
-    public void setUp() throws Exception {
-    }
-
-    @After
-    public void tearDown() throws Exception {
-    }
-
-    @Test
-    public void testLoadNativeLib() throws Exception {
-        LOG.info("Load native Lib");
-        SerialPortSocketFactoryImpl serialPortSocketFactoryImpl = new SerialPortSocketFactoryImpl();
-        serialPortSocketFactoryImpl.loadNativeLib();
-        Assert.assertTrue(SerialPortSocketFactoryImpl.singleton().isLibLoaded());
-    }
-
-    @Test
-    public void testList() throws Exception {
-        LOG.info("Iterating serial ports");
-        Set<String> ports = SerialPortSocketFactoryImpl.singleton().getPortNames(true);
-        LOG.info(ports == null ? "null" : ports.size() + " serial ports found");
-        for (String port : ports) {
-            LOG.log(Level.INFO, "Found port: {0}", port);
-        }
-    }
+	@Test
+	public void testList() throws Exception {
+		LOG.info("Iterating serial ports");
+		Set<String> ports = SerialPortSocketFactoryImpl.singleton().getPortNames(true);
+		LOG.info(ports == null ? "null" : ports.size() + " serial ports found");
+		for (String port : ports) {
+			LOG.log(Level.INFO, "Found port: {0}", port);
+		}
+	}
 
 }
