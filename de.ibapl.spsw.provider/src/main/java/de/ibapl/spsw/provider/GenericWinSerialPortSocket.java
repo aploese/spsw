@@ -36,145 +36,153 @@ import java.io.IOException;
  */
 public class GenericWinSerialPortSocket extends AbstractSerialPortSocket {
 
-    /**
-     * The file descriptor or handle for this Port
-     */
-    private long fd = -1;
+	/**
+	 * The file descriptor or handle for this Port
+	 */
+	private long fd = -1;
 
-    public GenericWinSerialPortSocket(String portName) {
-        super(portName);
-    }
+	public GenericWinSerialPortSocket(String portName) {
+		super(portName);
+	}
 
-    static native String[] getWindowsBasedPortNames(boolean hideBusyPorts) throws IOException;
+	static native String[] getWindowsBasedPortNames(boolean hideBusyPorts) throws IOException;
 
-    @Override
-    protected native void open(String portName, int type) throws IOException;
+	@Override
+	protected native void open(String portName, int type) throws IOException;
 
-    /**
-     * Close port
-     * @throws java.io.IOException
-     */
-    @Override
-    protected native void close0() throws IOException;
+	/**
+	 * Close port
+	 * 
+	 * @throws java.io.IOException
+	 */
+	@Override
+	protected native void close0() throws IOException;
 
-    @Override
-    public native boolean isCTS();
+	@Override
+	public native boolean isCTS();
 
-    @Override
-    public native boolean isDSR();
+	@Override
+	public native boolean isDSR();
 
-    @Override
-    public native boolean isIncommingRI();
+	@Override
+	public native boolean isIncommingRI();
 
-    @Override
-    public native void setRTS(boolean value) throws IOException;
+	@Override
+	public native void setRTS(boolean value) throws IOException;
 
-    @Override
-    public native void setDTR(boolean value) throws IOException;
+	@Override
+	public native void setDTR(boolean value) throws IOException;
 
-    @Override
-    public native void sendXON() throws IOException;
+	@Override
+	public native void sendXON() throws IOException;
 
-    @Override
-    public native void sendXOFF() throws IOException;
+	@Override
+	public native void sendXOFF() throws IOException;
 
-    @Override
-    public native void setXONChar(char c) throws IOException;
+	@Override
+	public native void setXONChar(char c) throws IOException;
 
-    @Override
-    public native void setXOFFChar(char c) throws IOException;
+	@Override
+	public native void setXOFFChar(char c) throws IOException;
 
-    @Override
-    protected native int readSingle() throws IOException;
+	@Override
+	protected native int readSingle() throws IOException;
 
-    /**
-     * Read data from port
-     *
-     * @param b the data to be written
-     * @param off the start offset in the data
-     * @param len the number of bytes that are written
-     * @exception IOException If an I/O error has occurred.
-     */
-    @Override
-    protected native int readBytes(byte[] b, int off, int len) throws IOException;
+	/**
+	 * Read data from port
+	 *
+	 * @param b
+	 *            the data to be written
+	 * @param off
+	 *            the start offset in the data
+	 * @param len
+	 *            the number of bytes that are written
+	 * @exception IOException
+	 *                If an I/O error has occurred.
+	 */
+	@Override
+	protected native int readBytes(byte[] b, int off, int len) throws IOException;
 
-    @Override
-    protected native void writeSingle(int b) throws IOException;
+	@Override
+	protected native void writeSingle(int b) throws IOException;
 
-    /**
-     * Write data to port
-     *
-     * @param off the start offset in the data.
-     * @param len the number of bytes to write.
-     * @throws java.io.IOException
-     *
-     */
-    @Override
-    protected native void writeBytes(byte[] b, int off, int len) throws IOException;
+	/**
+	 * Write data to port
+	 *
+	 * @param off
+	 *            the start offset in the data.
+	 * @param len
+	 *            the number of bytes to write.
+	 * @throws java.io.IOException
+	 *
+	 */
+	@Override
+	protected native void writeBytes(byte[] b, int off, int len) throws IOException;
 
-    @Override
-    public native int getInBufferBytesCount() throws IOException;
+	@Override
+	public native int getInBufferBytesCount() throws IOException;
 
-    @Override
-    public native int getOutBufferBytesCount() throws IOException;
+	@Override
+	public native int getOutBufferBytesCount() throws IOException;
 
-    @Override
-    public void drainOutputBuffer() throws IOException {
-        //no-op on overlapped...
-    }
-    
-    @Override
-    protected native void setFlowControl(int mask) throws IOException;
+	@Override
+	public void drainOutputBuffer() throws IOException {
+		// no-op on overlapped...
+	}
 
-    @Override
-    protected native int getFlowControl0() throws IOException;
+	@Override
+	protected native void setFlowControl(int mask) throws IOException;
 
-    @Override
-    public native void setBreak(boolean value) throws IOException;
+	@Override
+	protected native int getFlowControl0() throws IOException;
 
-    @Override
-    public native void sendBreak(int duration) throws IOException;
-    
-    @Override
-    protected native void setBaudrate(int baudRate) throws IOException;
+	@Override
+	public native void setBreak(boolean value) throws IOException;
 
-    @Override
-    protected native void setDataBits(int value) throws IOException;
+	@Override
+	public native void sendBreak(int duration) throws IOException;
 
-    @Override
-    protected native void setStopBits(int value) throws IOException;
+	@Override
+	protected native void setBaudrate(int baudRate) throws IOException;
 
-    @Override
-    protected native void setParity(int parity) throws IOException;
+	@Override
+	protected native void setDataBits(int value) throws IOException;
 
-    @Override
-    protected native int getBaudrate0() throws IOException;
+	@Override
+	protected native void setStopBits(int value) throws IOException;
 
-    @Override
-    protected native int getDataBits0() throws IOException;
+	@Override
+	protected native void setParity(int parity) throws IOException;
 
-    @Override
-    protected native int getStopBits0() throws IOException;
+	@Override
+	protected native int getBaudrate0() throws IOException;
 
-    @Override
-    protected native int getParity0() throws IOException;
+	@Override
+	protected native int getDataBits0() throws IOException;
 
-    @Override
-    public native char getXONChar() throws IOException;
+	@Override
+	protected native int getStopBits0() throws IOException;
 
-    @Override
-    public native char getXOFFChar() throws IOException;
+	@Override
+	protected native int getParity0() throws IOException;
 
-    @Override
-    public native int getOverallReadTimeout() throws IOException;
+	@Override
+	public native char getXONChar() throws IOException;
 
-    @Override
-    public native int getOverallWriteTimeout() throws IOException;
+	@Override
+	public native char getXOFFChar() throws IOException;
 
-    @Override
-    public native void setTimeouts(int interbyteReadTimeout, int overallReadTimeout, int overallWriteTimeout) throws IOException;
-    
-    @Override
-    public native int getInterByteReadTimeout() throws IOException;
+	@Override
+	public native int getOverallReadTimeout() throws IOException;
+
+	@Override
+	public native int getOverallWriteTimeout() throws IOException;
+
+	@Override
+	public native void setTimeouts(int interbyteReadTimeout, int overallReadTimeout, int overallWriteTimeout)
+			throws IOException;
+
+	@Override
+	public native int getInterByteReadTimeout() throws IOException;
 
 }
