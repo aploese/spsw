@@ -62,7 +62,7 @@ import de.ibapl.spsw.provider.SerialPortSocketFactoryImpl;
  *
  * @author aploese
  */
-public class TwoPortSingleByteTest extends AbstractTwoPortSingleByteTest {
+public class ReadWriteBufferSizesTest extends AbstractReadWriteBufferSizeTest {
 
 	@Override
 	protected SerialPortSocketFactory getSerialPortSocketFactory() {

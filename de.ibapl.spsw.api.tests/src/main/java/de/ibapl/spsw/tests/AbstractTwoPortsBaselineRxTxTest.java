@@ -72,7 +72,7 @@ public abstract class AbstractTwoPortsBaselineRxTxTest {
 
 	@BeforeAll
 	public static void setUpClass() throws Exception {
-		try (InputStream is = AbstractTwoPortMultipleBytesTest.class.getClassLoader()
+		try (InputStream is = AbstractTwoPortsBaselineRxTxTest.class.getClassLoader()
 				.getResourceAsStream("junit-spsw-config.properties")) {
 			if (is == null) {
 				readSerialPortName = null;

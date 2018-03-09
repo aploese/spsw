@@ -45,7 +45,7 @@ import de.ibapl.spsw.api.StopBits;
 public abstract class AbstractPortTest {
 
 	protected static final int PORT_RECOVERY_TIME = 0;
-	protected static final boolean HARDWARE_SUPPORTS_RTS_CTS = true;
+	protected static final boolean HARDWARE_SUPPORTS_RTS_CTS = false;
 
 	protected static final Logger LOG = Logger.getLogger("SpswTests");
 	private static String readSerialPortName;
@@ -169,7 +169,7 @@ public abstract class AbstractPortTest {
 
 	@BeforeAll
 	public static void setUpClass() throws Exception {
-		try (InputStream is = AbstractTwoPortMultipleBytesTest.class.getClassLoader()
+		try (InputStream is = AbstractPortTest.class.getClassLoader()
 				.getResourceAsStream("junit-spsw-config.properties")) {
 			if (is == null) {
 				readSerialPortName = null;
@@ -221,6 +221,11 @@ public abstract class AbstractPortTest {
 		if (PORT_RECOVERY_TIME > 0) {
 			Thread.sleep(PORT_RECOVERY_TIME * 1000);
 		}
+	}
+
+	protected void openRaw(PortConfiguration pc) throws Exception {
+		openRaw(pc.getBaudrate(), pc.getDataBits(), pc.getStopBits(), pc.getParity(), pc.getFlowControl());
+		setTimeouts(pc.getInterByteReadTimeout(), pc.getOverallReadTimeout(), pc.getOverallWriteTimeout());
 	}
 
 }

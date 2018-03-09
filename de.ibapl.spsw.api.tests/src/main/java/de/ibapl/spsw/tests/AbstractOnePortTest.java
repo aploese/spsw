@@ -385,4 +385,41 @@ public abstract class AbstractOnePortTest extends AbstractPortTest {
 		LOG.log(Level.INFO, "port closed");
 	}
 
+	
+	@Test
+	public void testWrite16MBChunk() throws Exception {
+		assumeWTest();
+		LOG.log(Level.INFO, "run testWriteBytesTimeout");
+
+		// Set a high baudrate to speed up things
+		openRaw(Baudrate.B115200, DataBits.DB_8, StopBits.SB_1, Parity.NONE, FlowControl.getFC_NONE());
+		setTimeouts(100, 1000, 0);
+
+		byte[] data = new byte[1024 * 1024 * 16];
+		int dataWritten = 0;
+			try {
+				writeSpc.getOutputStream().write(data);
+				dataWritten = data.length;
+			} catch (TimeoutIOException e) {
+				dataWritten = e.bytesTransferred;
+				LOG.log(Level.SEVERE, "Timeout data written" + dataWritten + " bytes written; OutBuf:  "
+						+ writeSpc.getOutBufferBytesCount());
+				fail("imeout only " +  e.bytesTransferred + " bytes sent");
+			}
+			try {
+				writeSpc.getOutputStream().flush();
+				// TODO NOT on winfail();
+			} catch (TimeoutIOException e) {
+				LOG.log(Level.SEVERE, "Timeoutt on Flush; OutBuf:  " + writeSpc.getOutBufferBytesCount());
+				assertTrue(true);
+			}
+
+		LOG.log(Level.INFO, "Wrote: " + dataWritten + " OutBuf:  "
+				+ writeSpc.getOutBufferBytesCount());
+		LOG.log(Level.INFO, "will close port");
+		writeSpc.close();
+		assertTrue(writeSpc.isClosed());
+		LOG.log(Level.INFO, "port closed");
+	}
+
 }
