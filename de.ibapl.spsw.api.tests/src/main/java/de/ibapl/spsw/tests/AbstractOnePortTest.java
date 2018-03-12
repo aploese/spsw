@@ -26,6 +26,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 import static org.junit.jupiter.api.Assumptions.assumeTrue;
 
+import java.io.InterruptedIOException;
 import java.util.Set;
 import java.util.logging.Level;
 
@@ -35,6 +36,7 @@ import de.ibapl.spsw.api.Baudrate;
 import de.ibapl.spsw.api.DataBits;
 import de.ibapl.spsw.api.FlowControl;
 import de.ibapl.spsw.api.Parity;
+import de.ibapl.spsw.api.SerialPortSocket;
 import de.ibapl.spsw.api.StopBits;
 import de.ibapl.spsw.api.TimeoutIOException;
 
@@ -61,6 +63,7 @@ public abstract class AbstractOnePortTest extends AbstractPortTest {
 		testFlowControl(FlowControl.getFC__XON_XOFF_OUT());
 		testFlowControl(FlowControl.getFC_XON_XOFF());
 		testFlowControl(FlowControl.getFC_RTS_CTS_XON_XOFF());
+		testFlowControl(FlowControl.getFC_NONE());
 	}
 
 	@Test
@@ -99,7 +102,7 @@ public abstract class AbstractOnePortTest extends AbstractPortTest {
 	public void testIncommingRI() throws Exception {
 		assumeRTest();
 		LOG.log(Level.INFO, "run testIncommingRI");
-		readSpc.openAsIs();
+		readSpc.open();
 
 		readSpc.isIncommingRI();
 	}
@@ -275,7 +278,7 @@ public abstract class AbstractOnePortTest extends AbstractPortTest {
 		LOG.log(Level.INFO, "run testWriteBytesTimeout");
 
 		// Set a high baudrate to speed up things
-		openRaw(Baudrate.B115200, DataBits.DB_8, StopBits.SB_1, Parity.NONE, FlowControl.getFC_RTS_CTS());
+		open(Baudrate.B115200, DataBits.DB_8, StopBits.SB_1, Parity.NONE, FlowControl.getFC_RTS_CTS());
 		// Disabling timeout on the reading side - so the writing side has a chance to
 		// fill the buffer...
 		readSpc.setFlowControl(FlowControl.getFC_NONE());
@@ -337,7 +340,7 @@ public abstract class AbstractOnePortTest extends AbstractPortTest {
 		LOG.log(Level.INFO, "run testWriteSingleByteTimeout");
 
 		// Set a high baudrate to speed up things
-		openRaw(Baudrate.B115200, DataBits.DB_8, StopBits.SB_1, Parity.NONE, FlowControl.getFC_RTS_CTS());
+		open(Baudrate.B115200, DataBits.DB_8, StopBits.SB_1, Parity.NONE, FlowControl.getFC_RTS_CTS());
 		// Disabling timeout on the reading side - so the writing side has a chance to
 		// fill the buffer...
 		readSpc.setFlowControl(FlowControl.getFC_NONE());
@@ -385,37 +388,54 @@ public abstract class AbstractOnePortTest extends AbstractPortTest {
 		LOG.log(Level.INFO, "port closed");
 	}
 
-	
+	@Test
+	public void testWrite16MBChunkInfiniteWrite() throws Exception {
+		testWrite16MBChunk(0);
+	}
+
 	@Test
 	public void testWrite16MBChunk() throws Exception {
+		testWrite16MBChunk(SerialPortSocket.calculateMillisForBytes(1024 * 1024 * 16, Baudrate.B2000000, DataBits.DB_8, StopBits.SB_1, Parity.NONE));
+	}
+
+	public void testWrite16MBChunk(int writeTimeout) throws Exception {
 		assumeWTest();
 		LOG.log(Level.INFO, "run testWriteBytesTimeout");
+		if (writeTimeout == -1) {
+			LOG.log(Level.INFO, "infinite timeout");
+		} else {
+			LOG.log(Level.INFO, "timeout in ms:" + writeTimeout);
+		}
 
 		// Set a high baudrate to speed up things
-		openRaw(Baudrate.B115200, DataBits.DB_8, StopBits.SB_1, Parity.NONE, FlowControl.getFC_NONE());
-		setTimeouts(100, 1000, 0);
+		open(Baudrate.B2000000, DataBits.DB_8, StopBits.SB_1, Parity.NONE, FlowControl.getFC_NONE());
+		setTimeouts(100, 1000, writeTimeout);
 
 		byte[] data = new byte[1024 * 1024 * 16];
 		int dataWritten = 0;
-			try {
-				writeSpc.getOutputStream().write(data);
-				dataWritten = data.length;
-			} catch (TimeoutIOException e) {
-				dataWritten = e.bytesTransferred;
-				LOG.log(Level.SEVERE, "Timeout data written" + dataWritten + " bytes written; OutBuf:  "
-						+ writeSpc.getOutBufferBytesCount());
-				fail("imeout only " +  e.bytesTransferred + " bytes sent");
-			}
-			try {
-				writeSpc.getOutputStream().flush();
-				// TODO NOT on winfail();
-			} catch (TimeoutIOException e) {
-				LOG.log(Level.SEVERE, "Timeoutt on Flush; OutBuf:  " + writeSpc.getOutBufferBytesCount());
-				assertTrue(true);
-			}
+		try {
+			writeSpc.getOutputStream().write(data);
+			dataWritten = data.length;
+		} catch (TimeoutIOException e) {
+			dataWritten = e.bytesTransferred;
+			LOG.log(Level.SEVERE, "Timeout: " + dataWritten + " bytes of: " + data.length + " written; OutBuf:  "
+					+ writeSpc.getOutBufferBytesCount() + " EX: " + e);
+			fail("Timeout only " + e.bytesTransferred + " bytes sent");
+	} catch (InterruptedIOException iio) {
+		dataWritten = iio.bytesTransferred;
+		LOG.log(Level.SEVERE, "Timeout: " + dataWritten + " bytes of: " + data.length + " written; OutBuf:  "
+				+ writeSpc.getOutBufferBytesCount() + " EX: " + iio);
+		fail("Timeout only " + iio.bytesTransferred + " bytes sent");
+	}
+		try {
+			writeSpc.getOutputStream().flush();
+			// TODO NOT on winfail();
+		} catch (TimeoutIOException e) {
+			LOG.log(Level.SEVERE, "Timeoutt on Flush; OutBuf:  " + writeSpc.getOutBufferBytesCount());
+			assertTrue(true);
+		}
 
-		LOG.log(Level.INFO, "Wrote: " + dataWritten + " OutBuf:  "
-				+ writeSpc.getOutBufferBytesCount());
+		LOG.log(Level.INFO, "Wrote: " + dataWritten + " OutBuf:  " + writeSpc.getOutBufferBytesCount());
 		LOG.log(Level.INFO, "will close port");
 		writeSpc.close();
 		assertTrue(writeSpc.isClosed());

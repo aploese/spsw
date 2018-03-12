@@ -43,7 +43,7 @@ public class SendDataSingleMain {
 	public static void main(String[] args) throws Exception {
 		SerialPortSocket serialPortSocket = SerialPortSocketFactoryImpl.singleton()
 				.createSerialPortSocket("/dev/ttyUSB0");
-		serialPortSocket.openRaw(Baudrate.B300, DataBits.DB_8, StopBits.SB_1, Parity.NONE, FlowControl.getFC_NONE());
+		serialPortSocket.open(Baudrate.B300, DataBits.DB_8, StopBits.SB_1, Parity.NONE, FlowControl.getFC_NONE());
 		serialPortSocket.setTimeouts(1000, 0, 0);
 		Thread t = new Thread(() -> {
 			final DateTimeFormatter dtf = DateTimeFormatter.ISO_INSTANT;

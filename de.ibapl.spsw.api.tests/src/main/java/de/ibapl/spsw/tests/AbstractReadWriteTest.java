@@ -186,7 +186,7 @@ public abstract class AbstractReadWriteTest extends AbstractPortTest {
 	@ParameterizedTest
 	@MethodSource({"getTestPortConfigurations"})
 	public void writeBytesReadBytesTest(PortConfiguration pc) throws Exception {
-		openRaw(pc);
+		open(pc);
 		final Sender sender = new Sender(true, writeSpc.getOutputStream(), initBuffer(pc.getBufferSize()));
 		final Receiver receiver = new Receiver(false, readSpc.getInputStream(), sender.sendBuffer);
 		
@@ -203,7 +203,7 @@ public abstract class AbstractReadWriteTest extends AbstractPortTest {
 	@ParameterizedTest
 	@MethodSource({"getTestPortConfigurations"})
 	public void writeBytesReadSingleTest(PortConfiguration pc) throws Exception {
-		openRaw(pc);
+		open(pc);
 		final Sender sender = new Sender(false, writeSpc.getOutputStream(), initBuffer(pc.getBufferSize()));
 		final Receiver receiver = new Receiver(true, readSpc.getInputStream(), sender.sendBuffer);
 		
@@ -220,7 +220,7 @@ public abstract class AbstractReadWriteTest extends AbstractPortTest {
 	@ParameterizedTest
 	@MethodSource({"getTestPortConfigurations"})
 	public void writeSingleReadBytesTest(PortConfiguration pc) throws Exception {
-		openRaw(pc);
+		open(pc);
 		final Sender sender = new Sender(true, writeSpc.getOutputStream(), initBuffer(pc.getBufferSize()));
 		final Receiver receiver = new Receiver(false, readSpc.getInputStream(), sender.sendBuffer);
 		
@@ -237,7 +237,7 @@ public abstract class AbstractReadWriteTest extends AbstractPortTest {
 	@ParameterizedTest
 	@MethodSource({"getTestPortConfigurations"})
 	public void writeSingleReadSingleTest(PortConfiguration pc) throws Exception {
-		openRaw(pc);
+		open(pc);
 		final Sender sender = new Sender(true, writeSpc.getOutputStream(), initBuffer(pc.getBufferSize()));
 		final Receiver receiver = new Receiver(true, readSpc.getInputStream(), sender.sendBuffer);
 
@@ -254,7 +254,7 @@ public abstract class AbstractReadWriteTest extends AbstractPortTest {
 	@ParameterizedTest
 	@MethodSource({"getTestPortConfigurations"})
 	public void writeBytesReadBytesTestThreaded(PortConfiguration pc) throws Exception {
-		openRaw(pc);
+		open(pc);
 		final Sender sender = new Sender(false, writeSpc.getOutputStream(), initBuffer(pc.getBufferSize()));
 		final Receiver receiver = new Receiver(false, readSpc.getInputStream(), sender.sendBuffer);
 		
@@ -274,7 +274,7 @@ public abstract class AbstractReadWriteTest extends AbstractPortTest {
 	@ParameterizedTest
 	@MethodSource({"getTestPortConfigurations"})
 	public void writeBytesReadSingleTestThreaded(PortConfiguration pc) throws Exception {
-		openRaw(pc);
+		open(pc);
 		final Sender sender = new Sender(false, writeSpc.getOutputStream(), initBuffer(pc.getBufferSize()));
 		final Receiver receiver = new Receiver(true, readSpc.getInputStream(), sender.sendBuffer);
 		
@@ -294,7 +294,7 @@ public abstract class AbstractReadWriteTest extends AbstractPortTest {
 	@ParameterizedTest
 	@MethodSource({"getTestPortConfigurations"})
 	public void writeSingleReadBytesTestThreaded(PortConfiguration pc) throws Exception {
-		openRaw(pc);
+		open(pc);
 		final Sender sender = new Sender(true, writeSpc.getOutputStream(), initBuffer(pc.getBufferSize()));
 		final Receiver receiver = new Receiver(false, readSpc.getInputStream(), sender.sendBuffer);
 		
@@ -314,7 +314,7 @@ public abstract class AbstractReadWriteTest extends AbstractPortTest {
 	@ParameterizedTest
 	@MethodSource({"getTestPortConfigurations"})
 	public void writeSingleReadSingleTestThreaded(PortConfiguration pc) throws Exception {
-		openRaw(pc);
+		open(pc);
 		final Sender sender = new Sender(true, writeSpc.getOutputStream(), initBuffer(pc.getBufferSize()));
 		final Receiver receiver = new Receiver(false, readSpc.getInputStream(), sender.sendBuffer);
 		

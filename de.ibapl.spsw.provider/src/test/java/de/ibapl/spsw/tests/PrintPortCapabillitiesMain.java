@@ -55,7 +55,7 @@ public class PrintPortCapabillitiesMain {
 		}
 		SerialPortSocket serialPortSocket = SerialPortSocketFactoryImpl.singleton()
 				.createSerialPortSocket(serialPortName);
-		serialPortSocket.openRaw();
+		serialPortSocket.open();
 		System.out.println("Use device: " + serialPortSocket.getPortName());
 		System.out.println(String.format("%-20s%-20s%-20s%-20s", "Baudrate", "DataBits", "StopBits", "Parity"));
 

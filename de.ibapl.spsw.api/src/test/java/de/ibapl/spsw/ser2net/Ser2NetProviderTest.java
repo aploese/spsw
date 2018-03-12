@@ -211,53 +211,14 @@ public class Ser2NetProviderTest {
 	}
 
 	/**
-	 * Test of openAsIs method, of class Ser2NetProvider.
-	 */
-	@Test
-	@Disabled
-	public void testOpenAsIs() throws Exception {
-		System.out.println("openAsIs");
-		Ser2NetProvider instance = null;
-		instance.openAsIs();
-		// TODO review the generated test code and remove the default call to fail.
-		fail("The test case is a prototype.");
-	}
-
-	/**
 	 * Test of openRaw method, of class Ser2NetProvider.
 	 */
 	@Test
 	@Disabled
-	public void testOpenRaw_0args() throws Exception {
+	public void testOpen_0args() throws Exception {
 		System.out.println("openRaw");
 		Ser2NetProvider instance = null;
-		instance.openRaw();
-		// TODO review the generated test code and remove the default call to fail.
-		fail("The test case is a prototype.");
-	}
-
-	/**
-	 * Test of openTerminal method, of class Ser2NetProvider.
-	 */
-	@Test
-	@Disabled
-	public void testOpenTerminal() throws Exception {
-		System.out.println("openTerminal");
-		Ser2NetProvider instance = null;
-		instance.openTerminal();
-		// TODO review the generated test code and remove the default call to fail.
-		fail("The test case is a prototype.");
-	}
-
-	/**
-	 * Test of openModem method, of class Ser2NetProvider.
-	 */
-	@Test
-	@Disabled
-	public void testOpenModem() throws Exception {
-		System.out.println("openModem");
-		Ser2NetProvider instance = null;
-		instance.openModem();
+		instance.open();
 		// TODO review the generated test code and remove the default call to fail.
 		fail("The test case is a prototype.");
 	}
@@ -267,7 +228,7 @@ public class Ser2NetProviderTest {
 	 */
 	@Test
 	@Disabled
-	public void testOpenRaw_5args() throws Exception {
+	public void testOpen_5args() throws Exception {
 		System.out.println("openRaw");
 		Baudrate baudRate = null;
 		DataBits dataBits = null;
@@ -275,7 +236,7 @@ public class Ser2NetProviderTest {
 		Parity parity = null;
 		Set<FlowControl> flowControls = null;
 		Ser2NetProvider instance = null;
-		instance.openRaw(baudRate, dataBits, stopBits, parity, flowControls);
+		instance.open(baudRate, dataBits, stopBits, parity, flowControls);
 		// TODO review the generated test code and remove the default call to fail.
 		fail("The test case is a prototype.");
 	}

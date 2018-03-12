@@ -55,7 +55,7 @@ public class MockSerialPortSocketTest {
 	@BeforeEach
 	public void setUp() throws Exception {
 		slaves = new MockSerialPortSocket();
-		slaves.openRaw();
+		slaves.open();
 	}
 
 	@AfterEach

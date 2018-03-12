@@ -1,5 +1,3 @@
-package de.ibapl.spsw.provider;
-
 /*-
  * #%L
  * SPSW Provider
@@ -27,13 +25,12 @@ package de.ibapl.spsw.provider;
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  * #L%
  */
-import de.ibapl.spsw.api.SerialPortSocketFactory;
-import de.ibapl.spsw.api.SerialPortSocket;
+package de.ibapl.spsw.provider;
+
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Properties;
@@ -42,13 +39,23 @@ import java.util.TreeSet;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.regex.Pattern;
+
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 import javax.inject.Singleton;
+
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Deactivate;
 import org.osgi.service.component.annotations.ServiceScope;
+
+import de.ibapl.spsw.api.Baudrate;
+import de.ibapl.spsw.api.DataBits;
+import de.ibapl.spsw.api.FlowControl;
+import de.ibapl.spsw.api.Parity;
+import de.ibapl.spsw.api.SerialPortSocket;
+import de.ibapl.spsw.api.SerialPortSocketFactory;
+import de.ibapl.spsw.api.StopBits;
 
 /**
  *
@@ -453,7 +460,7 @@ public class SerialPortSocketFactoryImpl implements SerialPortSocketFactory {
 						String portName = searchPath + fileName;
 						if (hideBusyPorts) {
 							try (SerialPortSocket sp = createSerialPortSocket(portName)) {
-								sp.openAsIs();
+								sp.open();
 								portsTree.add(portName);
 							} catch (IOException ex) {
 								LOG.log(Level.FINEST, "find busy ports: " + portName, ex);
@@ -480,6 +487,31 @@ public class SerialPortSocketFactoryImpl implements SerialPortSocketFactory {
 	@PreDestroy
 	@Deactivate
 	public void deActivate() {
+	}
+
+	@Override
+	public SerialPortSocket open(String portName) throws IOException, IllegalStateException {
+		final SerialPortSocket result = createSerialPortSocket(portName);
+		try {
+			result.open();
+			return result;
+		} catch (Exception e) {
+			result.close();
+			throw e;
+		}
+	}
+
+	@Override
+	public SerialPortSocket open(String portName, Baudrate baudRate, DataBits dataBits, StopBits stopBits,
+			Parity parity, Set<FlowControl> flowControls) throws IOException, IllegalStateException {
+		final SerialPortSocket result = createSerialPortSocket(portName);
+		try {
+			result.open(baudRate, dataBits, stopBits, parity, flowControls);
+			return result;
+		} catch (Exception e) {
+			result.close();
+			throw e;
+		}
 	}
 
 }

@@ -183,7 +183,7 @@ public class Ser2NetProvider implements SerialPortSocket {
 	@Override
 	public synchronized InputStream getInputStream() throws IOException {
 		if (isClosed()) {
-			throw new Ser2NetException(SerialPortException.SERIAL_PORT_SOCKET_CLOSED);
+			throw new IllegalStateException(PORT_NOT_OPEN);
 		}
 		if (is == null) {
 			is = new InputStreamWrapper();
@@ -194,7 +194,7 @@ public class Ser2NetProvider implements SerialPortSocket {
 	@Override
 	public synchronized OutputStream getOutputStream() throws IOException {
 		if (isClosed()) {
-			throw new Ser2NetException(SerialPortException.SERIAL_PORT_SOCKET_CLOSED);
+			throw new IllegalStateException(PORT_NOT_OPEN);
 		}
 		if (os == null) {
 			os = new OutputStreamWrapper();
@@ -213,9 +213,9 @@ public class Ser2NetProvider implements SerialPortSocket {
 	}
 
 	@Override
-	public void openAsIs() throws IOException {
+	public void open() throws IOException {
 		if (isOpen()) {
-			throw new IOException(PORT_IS_OPEN);
+			throw new IllegalStateException(PORT_IS_OPEN);
 		}
 		dataSocket = SocketFactory.getDefault().createSocket(host, dataPort);
 		if (controlPort != -1) {
@@ -224,49 +224,20 @@ public class Ser2NetProvider implements SerialPortSocket {
 	}
 
 	@Override
-	public void openRaw() throws IOException {
-		if (isOpen()) {
-			throw new IOException(PORT_IS_OPEN);
-		}
-		dataSocket = SocketFactory.getDefault().createSocket(host, dataPort);
-		if (controlPort != -1) {
-			controlSocket = SocketFactory.getDefault().createSocket(host, controlPort);
-		}
-	}
-
-	@Override
-	public void openTerminal() throws IOException {
-		if (isOpen()) {
-			throw new IOException(PORT_IS_OPEN);
-		}
-		// TODO Auto-generated method stub
-
-	}
-
-	@Override
-	public void openModem() throws IOException {
-		if (isOpen()) {
-			throw new IOException(PORT_IS_OPEN);
-		}
-		// TODO Auto-generated method stub
-
-	}
-
-	@Override
-	public void openRaw(Baudrate baudrate, DataBits dataBits, StopBits stopBits, Parity parity,
+	public void open(Baudrate baudrate, DataBits dataBits, StopBits stopBits, Parity parity,
 			Set<FlowControl> flowControls) throws IOException {
 		this.baudrate = baudrate;
 		this.dataBits = dataBits;
 		this.stopBits = stopBits;
 		this.parity = parity;
 		this.flowControl = flowControls;
-		this.openRaw();
+		this.open();
 	}
 
 	@Override
 	public synchronized void close() throws IOException {
-		if (!isOpen()) {
-			throw new IOException(PORT_NOT_OPEN);
+		if (isClosed()) {
+			return;
 		}
 
 		final Socket s = dataSocket;

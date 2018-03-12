@@ -79,7 +79,7 @@ public abstract class AbstractPortTest {
 	}
 
 	protected void openDefault() throws Exception {
-		openRaw(Baudrate.B9600, DataBits.DB_8, StopBits.SB_1, Parity.NONE, FlowControl.getFC_NONE());
+		open(Baudrate.B9600, DataBits.DB_8, StopBits.SB_1, Parity.NONE, FlowControl.getFC_NONE());
 	}
 
 	/**
@@ -92,10 +92,10 @@ public abstract class AbstractPortTest {
 	 * @param flowControl
 	 * @throws Exception
 	 */
-	protected void openRaw(Baudrate baudrate, DataBits dataBits, StopBits stopBits, Parity parity,
+	protected void open(Baudrate baudrate, DataBits dataBits, StopBits stopBits, Parity parity,
 			Set<FlowControl> flowControl) throws Exception {
 		if (readSpc != null) {
-			readSpc.openRaw(baudrate, dataBits, stopBits, parity, flowControl);
+			readSpc.open(baudrate, dataBits, stopBits, parity, flowControl);
 			assertEquals(0, readSpc.getOutBufferBytesCount(), "Can't start test: OutBuffer is not empty");
 			while (readSpc.getInBufferBytesCount() > 0) {
 				readSpc.getInputStream().read(new byte[readSpc.getInBufferBytesCount()]);
@@ -105,7 +105,7 @@ public abstract class AbstractPortTest {
 
 		}
 		if (writeSpc != null && writeSpc != readSpc) {
-			writeSpc.openRaw(baudrate, dataBits, stopBits, parity, flowControl);
+			writeSpc.open(baudrate, dataBits, stopBits, parity, flowControl);
 			assertEquals(0, readSpc.getOutBufferBytesCount(), "Can't start test: OutBuffer is not empty");
 			while (readSpc.getInBufferBytesCount() > 0) {
 				readSpc.getInputStream().read(new byte[readSpc.getInBufferBytesCount()]);
@@ -223,8 +223,8 @@ public abstract class AbstractPortTest {
 		}
 	}
 
-	protected void openRaw(PortConfiguration pc) throws Exception {
-		openRaw(pc.getBaudrate(), pc.getDataBits(), pc.getStopBits(), pc.getParity(), pc.getFlowControl());
+	protected void open(PortConfiguration pc) throws Exception {
+		open(pc.getBaudrate(), pc.getDataBits(), pc.getStopBits(), pc.getParity(), pc.getFlowControl());
 		setTimeouts(pc.getInterByteReadTimeout(), pc.getOverallReadTimeout(), pc.getOverallWriteTimeout());
 	}
 

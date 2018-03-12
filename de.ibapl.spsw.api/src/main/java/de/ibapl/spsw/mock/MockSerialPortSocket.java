@@ -1,5 +1,3 @@
-package de.ibapl.spsw.mock;
-
 /*-
  * #%L
  * SPSW API
@@ -20,6 +18,8 @@ package de.ibapl.spsw.mock;
  * #L%
  */
 
+package de.ibapl.spsw.mock;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -31,7 +31,6 @@ import de.ibapl.spsw.api.Baudrate;
 import de.ibapl.spsw.api.DataBits;
 import de.ibapl.spsw.api.FlowControl;
 import de.ibapl.spsw.api.Parity;
-import de.ibapl.spsw.api.SerialPortException;
 import de.ibapl.spsw.api.SerialPortSocket;
 import de.ibapl.spsw.api.StopBits;
 
@@ -44,7 +43,7 @@ public class MockSerialPortSocket implements SerialPortSocket {
 	public class UnexpectedRequestError extends Error {
 
 		public UnexpectedRequestError(String message, RequestStackException stackException) {
-			super(message,stackException);
+			super(message, stackException);
 		}
 
 		public UnexpectedRequestError(String message) {
@@ -66,16 +65,16 @@ public class MockSerialPortSocket implements SerialPortSocket {
 		private static final long serialVersionUID = 1L;
 
 	}
-	
+
 	public enum RequestType {
-		READ,
-		WRITE;
+		READ, WRITE;
 	}
-	
+
 	public class Request<T> {
 		public final RequestStackException stackException;
 		public final T payload;
 		public final RequestType requestType;
+
 		/*
 		 * We manipulate the stacktrace for better debugging We now 2 method calls away
 		 * from the point we want to show first addRequest() second Data() so remove the
@@ -89,7 +88,7 @@ public class MockSerialPortSocket implements SerialPortSocket {
 			this.stackException.setStackTrace(Arrays.copyOfRange(st, 3, st.length - 3));
 		}
 	}
-	
+
 	public class DataRequest extends Request<byte[]> {
 
 		DataRequest(byte[] payload, RequestType requestType) {
@@ -102,7 +101,7 @@ public class MockSerialPortSocket implements SerialPortSocket {
 		ExceptionRequest(IOException payload, RequestType requestType) {
 			super(payload, requestType);
 		}
-		
+
 	}
 
 	private MBusTestInputStream is;
@@ -118,8 +117,6 @@ public class MockSerialPortSocket implements SerialPortSocket {
 	private int interByteReadTimeout;
 	private int overallWriteTimeout;
 
-
-
 	public class MBusTestInputStream extends InputStream {
 
 		int readPtr = 0;
@@ -130,7 +127,7 @@ public class MockSerialPortSocket implements SerialPortSocket {
 		}
 
 		@Override
-		public int read(byte[]b, int off, int len) throws IOException {
+		public int read(byte[] b, int off, int len) throws IOException {
 			if (!open) {
 				return -1;
 			}
@@ -141,12 +138,12 @@ public class MockSerialPortSocket implements SerialPortSocket {
 				throw new UnexpectedRequestError("No Read request", data.getFirst().stackException);
 			}
 			if (data.getFirst() instanceof ExceptionRequest) {
-				final ExceptionRequest exceptionRequest = (ExceptionRequest)data.getFirst();
+				final ExceptionRequest exceptionRequest = (ExceptionRequest) data.getFirst();
 				data.removeFirst();
 				throw exceptionRequest.payload;
 			}
 			if (data.getFirst() instanceof DataRequest) {
-				final DataRequest dataRequest = (DataRequest)data.getFirst();
+				final DataRequest dataRequest = (DataRequest) data.getFirst();
 				int count = dataRequest.payload.length - readPtr;
 				if (len < count) {
 					count = len;
@@ -166,7 +163,7 @@ public class MockSerialPortSocket implements SerialPortSocket {
 		@Override
 		public int read() throws IOException {
 			if (!open) {
-				return -1;
+				throw new IllegalStateException(PORT_NOT_OPEN);
 			}
 			if (data.isEmpty()) {
 				throw new UnexpectedRequestError("data is empty");
@@ -175,12 +172,12 @@ public class MockSerialPortSocket implements SerialPortSocket {
 				throw new UnexpectedRequestError("No Read request", data.getFirst().stackException);
 			}
 			if (data.getFirst() instanceof ExceptionRequest) {
-				final ExceptionRequest exceptionRequest = (ExceptionRequest)data.getFirst();
+				final ExceptionRequest exceptionRequest = (ExceptionRequest) data.getFirst();
 				data.removeFirst();
 				throw exceptionRequest.payload;
 			}
 			if (data.getFirst() instanceof DataRequest) {
-				final DataRequest dataRequest = (DataRequest)data.getFirst();
+				final DataRequest dataRequest = (DataRequest) data.getFirst();
 				int result = dataRequest.payload[readPtr++];
 				if (readPtr == dataRequest.payload.length) {
 					readPtr = 0;
@@ -207,7 +204,7 @@ public class MockSerialPortSocket implements SerialPortSocket {
 				return 0;
 			}
 			if (data.getFirst() instanceof DataRequest) {
-				final DataRequest dataRequest = (DataRequest)data.getFirst();
+				final DataRequest dataRequest = (DataRequest) data.getFirst();
 				return dataRequest.payload.length - readPtr;
 			} else {
 				throw new UnexpectedRequestError("No read data request", data.getFirst().stackException);
@@ -223,7 +220,7 @@ public class MockSerialPortSocket implements SerialPortSocket {
 		@Override
 		public void write(int b) throws IOException {
 			if (!open) {
-				throw new IOException("Closed");
+				throw new IllegalStateException(PORT_NOT_OPEN);
 			}
 			if (data.isEmpty()) {
 				throw new UnexpectedRequestError("data is empty");
@@ -232,14 +229,15 @@ public class MockSerialPortSocket implements SerialPortSocket {
 				throw new UnexpectedRequestError("No Write request", data.getFirst().stackException);
 			}
 			if (data.getFirst() instanceof ExceptionRequest) {
-				final ExceptionRequest exceptionRequest = (ExceptionRequest)data.getFirst();
+				final ExceptionRequest exceptionRequest = (ExceptionRequest) data.getFirst();
 				data.removeFirst();
 				throw exceptionRequest.payload;
 			}
 			if (data.getFirst() instanceof DataRequest) {
-				final DataRequest dataRequest = (DataRequest)data.getFirst();
+				final DataRequest dataRequest = (DataRequest) data.getFirst();
 				if (b != dataRequest.payload[writePtr++]) {
-					throw new UnexpectedRequestError("Not expected write data at " + (writePtr - 1), data.getFirst().stackException);
+					throw new UnexpectedRequestError("Not expected write data at " + (writePtr - 1),
+							data.getFirst().stackException);
 				}
 				if (writePtr == dataRequest.payload.length) {
 					writePtr = 0;
@@ -263,10 +261,18 @@ public class MockSerialPortSocket implements SerialPortSocket {
 	}
 
 	@Override
-	public final void openRaw() throws IOException {
+	public void open() throws IOException {
+		if (open) {
+			throw new IllegalStateException(PORT_IS_OPEN);
+		}
 		is = new MBusTestInputStream();
 		os = new MBusTestOutputStream();
 		open = true;
+	}
+
+	@Override
+	public void openRaw() throws IOException {
+		open();
 	}
 
 	@Override
@@ -274,7 +280,7 @@ public class MockSerialPortSocket implements SerialPortSocket {
 		if (open) {
 			return is;
 		} else {
-			throw new SerialPortException(SerialPortException.SERIAL_PORT_SOCKET_CLOSED);
+			throw new IllegalStateException(PORT_NOT_OPEN);
 		}
 	}
 
@@ -283,7 +289,7 @@ public class MockSerialPortSocket implements SerialPortSocket {
 		if (open) {
 			return os;
 		} else {
-			throw new SerialPortException(SerialPortException.SERIAL_PORT_SOCKET_CLOSED);
+			throw new IllegalStateException(PORT_NOT_OPEN);
 		}
 	}
 
@@ -293,34 +299,21 @@ public class MockSerialPortSocket implements SerialPortSocket {
 	}
 
 	@Override
-	public void openAsIs() throws IOException {
-		// TODO Auto-generated method stub
-
-	}
-
-	@Override
-	public void openModem() throws IOException {
-		// TODO Auto-generated method stub
-
-	}
-
-	@Override
-	public void openTerminal() throws IOException {
-		// TODO Auto-generated method stub
-
-	}
-
-	@Override
-	public void openRaw(Baudrate baudrate, DataBits dataBits, StopBits stopBits, Parity parity,
+	public void open(Baudrate baudrate, DataBits dataBits, StopBits stopBits, Parity parity,
 			Set<FlowControl> flowControls) throws IOException {
 		this.baudrate = baudrate;
 		this.dataBits = dataBits;
 		this.stopBits = stopBits;
 		this.parity = parity;
 		this.flowControl = flowControls;
-		this.openRaw();
+		this.open();
 	}
 
+	public void openRaw(Baudrate baudrate, DataBits dataBits, StopBits stopBits, Parity parity,
+			Set<FlowControl> flowControls) throws IOException {
+		open(baudrate, dataBits, stopBits, parity, flowControls);
+	}
+	
 	@Override
 	public boolean isClosed() {
 		return !open;
@@ -328,20 +321,26 @@ public class MockSerialPortSocket implements SerialPortSocket {
 
 	@Override
 	public boolean isCTS() throws IOException {
-		// TODO Auto-generated method stub
+		if (!open) {
+			throw new IllegalStateException(PORT_NOT_OPEN);
+		}
 		return false;
 	}
 
 	@Override
 	public boolean isDSR() throws IOException {
-		// TODO Auto-generated method stub
-		return false;
+		if (!open) {
+			throw new IllegalStateException(PORT_NOT_OPEN);
+		}
+		throw new RuntimeException("Not Implemented");
 	}
 
 	@Override
 	public boolean isIncommingRI() throws IOException {
-		// TODO Auto-generated method stub
-		return false;
+		if (!open) {
+			throw new IllegalStateException(PORT_NOT_OPEN);
+		}
+		throw new RuntimeException("Not Implemented");
 	}
 
 	@Override
@@ -351,137 +350,202 @@ public class MockSerialPortSocket implements SerialPortSocket {
 
 	@Override
 	public void setRTS(boolean value) throws IOException {
-		// TODO Auto-generated method stub
-
+		if (!open) {
+			throw new IllegalStateException(PORT_NOT_OPEN);
+		}
+		throw new RuntimeException("Not Implemented");
 	}
 
 	@Override
 	public void setDTR(boolean value) throws IOException {
-		// TODO Auto-generated method stub
-
+		if (!open) {
+			throw new IllegalStateException(PORT_NOT_OPEN);
+		}
+		throw new RuntimeException("Not Implemented");
 	}
 
 	@Override
 	public void setXONChar(char c) throws IOException {
-		// TODO Auto-generated method stub
-
+		if (!open) {
+			throw new IllegalStateException(PORT_NOT_OPEN);
+		}
+		throw new RuntimeException("Not Implemented");
 	}
 
 	@Override
 	public void setXOFFChar(char c) throws IOException {
-		// TODO Auto-generated method stub
-
+		if (!open) {
+			throw new IllegalStateException(PORT_NOT_OPEN);
+		}
+		throw new RuntimeException("Not Implemented");
 	}
 
 	@Override
 	public char getXONChar() throws IOException {
-		// TODO Auto-generated method stub
-		return 0;
+		if (!open) {
+			throw new IllegalStateException(PORT_NOT_OPEN);
+		}
+		throw new RuntimeException("Not Implemented");
 	}
 
 	@Override
 	public char getXOFFChar() throws IOException {
-		// TODO Auto-generated method stub
-		return 0;
+		if (!open) {
+			throw new IllegalStateException(PORT_NOT_OPEN);
+		}
+		throw new RuntimeException("Not Implemented");
 	}
 
 	@Override
 	public void sendBreak(int duration) throws IOException {
-		// TODO Auto-generated method stub
-
+		if (!open) {
+			throw new IllegalStateException(PORT_NOT_OPEN);
+		}
+		throw new RuntimeException("Not Implemented");
 	}
 
 	@Override
 	public void sendXON() throws IOException {
-		// TODO Auto-generated method stub
-
+		if (!open) {
+			throw new IllegalStateException(PORT_NOT_OPEN);
+		}
+		throw new RuntimeException("Not Implemented");
 	}
 
 	@Override
 	public void sendXOFF() throws IOException {
-		// TODO Auto-generated method stub
-
+		if (!open) {
+			throw new IllegalStateException(PORT_NOT_OPEN);
+		}
+		throw new RuntimeException("Not Implemented");
 	}
 
 	@Override
 	public int getInBufferBytesCount() throws IOException {
+		if (!open) {
+			throw new IllegalStateException(PORT_NOT_OPEN);
+		}
 		return is.available();
 	}
 
 	@Override
 	public int getOutBufferBytesCount() throws IOException {
-		return 0;
+		if (!open) {
+			throw new IllegalStateException(PORT_NOT_OPEN);
+		}
+		throw new RuntimeException("Not Implemented");
 	}
 
 	@Override
 	public void setBreak(boolean value) throws IOException {
-		// TODO Auto-generated method stub
-
+		if (!open) {
+			throw new IllegalStateException(PORT_NOT_OPEN);
+		}
+		throw new RuntimeException("Not Implemented");
 	}
 
 	@Override
 	public void setFlowControl(Set<FlowControl> flowControls) throws IOException {
+		if (!open) {
+			throw new IllegalStateException(PORT_NOT_OPEN);
+		}
 		this.flowControl = flowControls;
 	}
 
 	@Override
 	public void setBaudrate(Baudrate baudrate) throws IOException {
+		if (!open) {
+			throw new IllegalStateException(PORT_NOT_OPEN);
+		}
 		this.baudrate = baudrate;
 	}
 
 	@Override
 	public void setDataBits(DataBits dataBits) throws IOException {
+		if (!open) {
+			throw new IllegalStateException(PORT_NOT_OPEN);
+		}
 		this.dataBits = dataBits;
 	}
 
 	@Override
 	public void setStopBits(StopBits stopBits) throws IOException {
+		if (!open) {
+			throw new IllegalStateException(PORT_NOT_OPEN);
+		}
 		this.stopBits = stopBits;
 	}
 
 	@Override
 	public void setParity(Parity parity) throws IOException {
+		if (!open) {
+			throw new IllegalStateException(PORT_NOT_OPEN);
+		}
 		this.parity = parity;
 	}
 
 	@Override
 	public Baudrate getBaudrate() throws IOException {
+		if (!open) {
+			throw new IllegalStateException(PORT_NOT_OPEN);
+		}
 		return baudrate;
 	}
 
 	@Override
 	public DataBits getDatatBits() throws IOException {
+		if (!open) {
+			throw new IllegalStateException(PORT_NOT_OPEN);
+		}
 		return dataBits;
 	}
 
 	@Override
 	public StopBits getStopBits() throws IOException {
+		if (!open) {
+			throw new IllegalStateException(PORT_NOT_OPEN);
+		}
 		return stopBits;
 	}
 
 	@Override
 	public Parity getParity() throws IOException {
+		if (!open) {
+			throw new IllegalStateException(PORT_NOT_OPEN);
+		}
 		return parity;
 	}
 
 	@Override
 	public Set<FlowControl> getFlowControl() throws IOException {
+		if (!open) {
+			throw new IllegalStateException(PORT_NOT_OPEN);
+		}
 		return flowControl;
 	}
 
 	@Override
 	public int getOverallReadTimeout() throws IOException {
+		if (!open) {
+			throw new IllegalStateException(PORT_NOT_OPEN);
+		}
 		return overallReadTimeout;
 	}
 
 	@Override
 	public int getInterByteReadTimeout() throws IOException {
+		if (!open) {
+			throw new IllegalStateException(PORT_NOT_OPEN);
+		}
 		return interByteReadTimeout;
 	}
 
 	@Override
 	public void setTimeouts(int interByteReadTimeout, int overallReadTimeout, int overallWriteTimeout)
 			throws IOException {
+		if (!open) {
+			throw new IllegalStateException(PORT_NOT_OPEN);
+		}
 		this.interByteReadTimeout = interByteReadTimeout;
 		this.overallReadTimeout = overallReadTimeout;
 		this.overallWriteTimeout = overallWriteTimeout;
@@ -520,6 +584,9 @@ public class MockSerialPortSocket implements SerialPortSocket {
 
 	@Override
 	public int getOverallWriteTimeout() throws IOException {
+		if (!open) {
+			throw new IllegalStateException(PORT_NOT_OPEN);
+		}
 		return overallWriteTimeout;
 	}
 
@@ -536,29 +603,25 @@ public class MockSerialPortSocket implements SerialPortSocket {
 			addRequest(read);
 		}
 	}
-	
-    public static byte[] ascii2Bytes(String s) {
-        byte[] result = new byte[s.length() / 2];
 
-        for (int i = 0; i < (s.length() / 2); i++) {
-            result[i]
-                    = (byte) Integer.parseInt(s.substring(i * 2, (i * 2) + 2),
-                            16);
-        }
+	public static byte[] ascii2Bytes(String s) {
+		byte[] result = new byte[s.length() / 2];
 
-        return result;
-    }
+		for (int i = 0; i < (s.length() / 2); i++) {
+			result[i] = (byte) Integer.parseInt(s.substring(i * 2, (i * 2) + 2), 16);
+		}
 
-    public static String bytes2Ascii(byte[] byteArray) {
-        StringBuilder sb = new StringBuilder(byteArray.length);
+		return result;
+	}
 
-        for (byte b : byteArray) {
-            sb.append(String.format("%02x", b));
-        }
+	public static String bytes2Ascii(byte[] byteArray) {
+		StringBuilder sb = new StringBuilder(byteArray.length);
 
-        return sb.toString();
-    }
+		for (byte b : byteArray) {
+			sb.append(String.format("%02x", b));
+		}
 
-
+		return sb.toString();
+	}
 
 }

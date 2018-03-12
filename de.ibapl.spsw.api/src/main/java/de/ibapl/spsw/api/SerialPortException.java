@@ -1,5 +1,3 @@
-package de.ibapl.spsw.api;
-
 /*
  * #%L
  * SPSW Java
@@ -19,8 +17,9 @@ package de.ibapl.spsw.api;
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  * #L%
  */
+package de.ibapl.spsw.api;
+
 import java.io.IOException;
-import java.lang.annotation.Native;
 import org.osgi.annotation.versioning.ProviderType;
 
 /**
@@ -30,12 +29,10 @@ import org.osgi.annotation.versioning.ProviderType;
 @ProviderType
 public class SerialPortException extends IOException {
 
-    @Native
-    public static final String SERIAL_PORT_SOCKET_CLOSED = "SerialPortSocket closed";
-    private static final long serialVersionUID = -8203166218484485637L;
+	private static final long serialVersionUID = -8203166218484485637L;
 
-    public SerialPortException(String message) {
-        super(message);
-    }
+	public SerialPortException(String message) {
+		super(message);
+	}
 
 }

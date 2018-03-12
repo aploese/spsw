@@ -31,7 +31,7 @@ public abstract class AbstractReadWriteAllParitiesTest extends AbstractReadWrite
 
 	@Override
 	public Iterator<PortConfiguration> getTestPortConfigurations() {
-		return new PortConfigurationFactory().setBuffersize(64).getBaudrateIterator(Baudrate.B50, Baudrate.B4000000);
+		return new PortConfigurationFactory().setBuffersize(64).getParityIterator();
 	}
 
 }

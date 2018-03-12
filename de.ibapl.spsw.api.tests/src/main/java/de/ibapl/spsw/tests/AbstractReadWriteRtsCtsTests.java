@@ -73,7 +73,7 @@ public abstract class AbstractReadWriteRtsCtsTests extends AbstractReadWriteTest
 		assumeTrue(HARDWARE_SUPPORTS_RTS_CTS);
 		LOG.log(Level.INFO, "run testWriteSingleByteTimeout");
 		// Set a high baudrate to speed up things
-		openRaw(Baudrate.B115200, DataBits.DB_8, StopBits.SB_1, Parity.EVEN, FlowControl.getFC_RTS_CTS());
+		open(Baudrate.B115200, DataBits.DB_8, StopBits.SB_1, Parity.EVEN, FlowControl.getFC_RTS_CTS());
 		setTimeouts(100, 1000, 10000);
 
 		final byte[] b = new byte[1024 * 1024];
@@ -139,7 +139,7 @@ public abstract class AbstractReadWriteRtsCtsTests extends AbstractReadWriteTest
 		assumeTrue(HARDWARE_SUPPORTS_RTS_CTS);
 		LOG.log(Level.INFO, "run testWriteSingleByteTimeout");
 		// Set a high baudrate to speed up things
-		openRaw(Baudrate.B115200, DataBits.DB_8, StopBits.SB_1, Parity.NONE, FlowControl.getFC_RTS_CTS());
+		open(Baudrate.B115200, DataBits.DB_8, StopBits.SB_1, Parity.NONE, FlowControl.getFC_RTS_CTS());
 		setTimeouts(100, 1000, 10000);
 
 		final byte[] b = new byte[1024];
@@ -205,7 +205,7 @@ public abstract class AbstractReadWriteRtsCtsTests extends AbstractReadWriteTest
 		assumeTrue(HARDWARE_SUPPORTS_RTS_CTS);
 		assumeRWTest();
 
-		openRaw(Baudrate.B9600, DataBits.DB_8, StopBits.SB_1, Parity.EVEN, FlowControl.getFC_RTS_CTS());
+		open(Baudrate.B9600, DataBits.DB_8, StopBits.SB_1, Parity.EVEN, FlowControl.getFC_RTS_CTS());
 		setTimeouts(0, 2000, 2000);
 
 		assertEquals(0, readSpc.getInterByteReadTimeout());
@@ -268,7 +268,7 @@ public abstract class AbstractReadWriteRtsCtsTests extends AbstractReadWriteTest
 		assumeTrue(HARDWARE_SUPPORTS_RTS_CTS);
 		assumeRWTest();
 
-		openRaw(Baudrate.B9600, DataBits.DB_8, StopBits.SB_1, Parity.NONE, FlowControl.getFC_RTS_CTS());
+		open(Baudrate.B9600, DataBits.DB_8, StopBits.SB_1, Parity.NONE, FlowControl.getFC_RTS_CTS());
 		final InputStream is = readSpc.getInputStream();
 		final OutputStream os = writeSpc.getOutputStream();
 
