@@ -388,21 +388,34 @@ public abstract class AbstractOnePortTest extends AbstractPortTest {
 		LOG.log(Level.INFO, "port closed");
 	}
 
-	
 	private final static int _16MB = 1024 * 1024 * 16;
+
+	/**
+	 * Some devices namely Silicon Labs CP210x can't handle this on windows.They do
+	 * not even sent a single byte... port native win error: 87
+	 * 
+	 * @throws Exception
+	 */
 	@Test
 	public void testWrite16MBChunkInfiniteWrite() throws Exception {
 		testWrite16MBChunk(0);
 	}
 
+	/**
+	 * Some devices namely Silicon Labs CP210x can't handle this on windows. They do
+	 * not even sent a single byte... port native win error: 87
+	 * 
+	 * @throws Exception
+	 */
 	@Test
 	public void testWrite16MBChunk() throws Exception {
-		testWrite16MBChunk( 1000 + 2 * SerialPortSocket.calculateMillisForBytes(_16MB, Baudrate.B1000000, DataBits.DB_8, StopBits.SB_1, Parity.NONE));
+		testWrite16MBChunk(1000 + 2 * SerialPortSocket.calculateMillisForBytes(_16MB, Baudrate.B1000000, DataBits.DB_8,
+				StopBits.SB_1, Parity.NONE));
 	}
 
 	public void testWrite16MBChunk(int writeTimeout) throws Exception {
 		assumeWTest();
-		LOG.log(Level.INFO, "run testWriteBytesTimeout");
+		LOG.log(Level.INFO, "run testWriteBytesTimeout writeTO:" + writeTimeout);
 		if (writeTimeout == -1) {
 			LOG.log(Level.INFO, "infinite timeout");
 		} else {
@@ -420,15 +433,18 @@ public abstract class AbstractOnePortTest extends AbstractPortTest {
 			dataWritten = data.length;
 		} catch (TimeoutIOException e) {
 			dataWritten = e.bytesTransferred;
-			LOG.log(Level.SEVERE, "Timeout: " + dataWritten + " bytes of: " + data.length + " written; OutBuf:  "
-					+ writeSpc.getOutBufferBytesCount() + " EX: " + e);
-			fail("Timeout only " + e.bytesTransferred + " bytes sent");
-	} catch (InterruptedIOException iio) {
-		dataWritten = iio.bytesTransferred;
-		LOG.log(Level.SEVERE, "Timeout: " + dataWritten + " bytes of: " + data.length + " written; OutBuf:  "
-				+ writeSpc.getOutBufferBytesCount() + " EX: " + iio);
-		fail("Timeout only " + iio.bytesTransferred + " bytes sent");
-	}
+			String msg =
+			"Timeout: " + dataWritten + " bytes of: " + data.length + " written; OutBuf:  "
+					+ writeSpc.getOutBufferBytesCount() + " EX: " + e;
+			LOG.log(Level.SEVERE, msg);
+			fail(msg);
+		} catch (InterruptedIOException iio) {
+			dataWritten = iio.bytesTransferred;
+			String msg ="Interrupted: " + dataWritten + " bytes of: " + data.length + " written; OutBuf:  "
+					+ writeSpc.getOutBufferBytesCount() + " EX: " + iio;
+			LOG.log(Level.SEVERE, msg);
+			fail(msg);
+		}
 		try {
 			writeSpc.getOutputStream().flush();
 			// TODO NOT on winfail();
