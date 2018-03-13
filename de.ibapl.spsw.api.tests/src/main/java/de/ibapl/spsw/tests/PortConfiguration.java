@@ -6,10 +6,11 @@ import de.ibapl.spsw.api.Baudrate;
 import de.ibapl.spsw.api.DataBits;
 import de.ibapl.spsw.api.FlowControl;
 import de.ibapl.spsw.api.Parity;
+import de.ibapl.spsw.api.SerialPortSocket;
 import de.ibapl.spsw.api.StopBits;
 
 public interface PortConfiguration {
-	final static int TEST_TIMEOUT_OFFSET = 600000;
+	final static int TEST_TIMEOUT_OFFSET = 1000;
 
 	Baudrate getBaudrate();
 
@@ -29,13 +30,8 @@ public interface PortConfiguration {
 
 	int getBufferSize();
 
-	default int calcBitsToTransfer() {
-		return 1 + getDataBits().value + (int) Math.round(Math.ceil(getStopBits().value))
-		+ (getParity() == Parity.NONE ? 0 : 1);
+	default int calcMaxTransferTime() {
+		return TEST_TIMEOUT_OFFSET + SerialPortSocket.calculateMillisForBytes(getBufferSize(), getBaudrate(), getDataBits(), getStopBits(), getParity()) * 1000;
 	}
 
-	default int calcMaxTransferTime() {
-		return TEST_TIMEOUT_OFFSET + (getBufferSize() * calcBitsToTransfer() * 1000) / getBaudrate().value;
-	}
-	
 }

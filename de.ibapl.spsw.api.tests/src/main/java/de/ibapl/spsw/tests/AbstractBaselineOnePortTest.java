@@ -469,6 +469,8 @@ public abstract class AbstractBaselineOnePortTest extends AbstractPortTest {
 		});
 		assertEquals(-1, result);
 		assertTrue(readSpc.isClosed());
+		//Allow 50ms to recover -on win the next executed test may fail wit port buy otherwise
+		Thread.sleep(50);
 	}
 
 	@Test
@@ -495,7 +497,8 @@ public abstract class AbstractBaselineOnePortTest extends AbstractPortTest {
 		assertEquals(-1, result);
 
 		assertTrue(readSpc.isClosed());
-
+		//Allow 50ms to recover -on win the next executed test may fail wit port buy otherwise
+		Thread.sleep(50);
 	}
 
 	@Test

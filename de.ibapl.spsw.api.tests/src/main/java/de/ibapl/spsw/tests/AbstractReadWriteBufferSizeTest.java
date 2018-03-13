@@ -32,10 +32,10 @@ public abstract class AbstractReadWriteBufferSizeTest extends AbstractReadWriteT
 	@Override
 	public Iterator<PortConfiguration> getTestPortConfigurations() {
 		return new Iterator<PortConfiguration>() {
-			final PortConfigurationFactory pcf = new PortConfigurationFactory().setBaudrate(Baudrate.B115200);
+			final PortConfigurationFactory pcf = new PortConfigurationFactory().setBaudrate(Baudrate.B1152000);
 			
-        	int currentSize = 1024*1024;
-        	final int maxSize = 1024*1024 * 4; //16MB
+        	int currentSize = 1;
+        	final int maxSize = 1024*16; //16kB
         	
             @Override
             public boolean hasNext() {
@@ -50,7 +50,7 @@ public abstract class AbstractReadWriteBufferSizeTest extends AbstractReadWriteT
             	} else {
             		currentSize *= 2;
             	}
-            	return pcf.ofBuffersize(result);
+            	return pcf.ofBuffersize(result, true);
             }
         };
 	}

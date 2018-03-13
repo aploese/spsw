@@ -254,7 +254,6 @@ JNIEXPORT void JNICALL JNI_OnUnLoad(JavaVM *jvm, void *reserved) {
 	(*env)->DeleteLocalRef(env, serialPortSocketFactoryImpl);
 }
 
-
 // Helper method
 
 static void throw_SerialPortException_NativeError(JNIEnv *env, const char *msg) {
@@ -310,18 +309,47 @@ static void throw_NotASerialPortException(JNIEnv *env, jstring portName) {
 	(*env)->ReleaseStringUTFChars(env, portName, port);
 }
 
-static void throw_SerialPortException_Closed(JNIEnv *env) {
-	const jclass speClass = (*env)->FindClass(env,
-			"de/ibapl/spsw/api/SerialPortException");
-	if (speClass != NULL) {
-		const jfieldID spe_spsc = (*env)->GetStaticFieldID(env, speClass,
-				"SERIAL_PORT_SOCKET_CLOSED", "Ljava/lang/String;");
-		const jmethodID speConstructor = (*env)->GetMethodID(env, speClass,
+static void throw_IllegalStateException_Closed(JNIEnv *env) {
+	const jclass spsClass = (*env)->FindClass(env,
+			"de/ibapl/spsw/api/SerialPortSocket");
+	const jclass iseClass = (*env)->FindClass(env,
+			"java/lang/IllegalStateException");
+
+	if ((iseClass != NULL) && (spsClass != NULL)) {
+
+		const jfieldID PORT_NOT_OPEN = (*env)->GetStaticFieldID(env, spsClass,
+				"PORT_NOT_OPEN", "Ljava/lang/String;");
+		const jmethodID iseConstructor = (*env)->GetMethodID(env, iseClass,
 				"<init>", "(Ljava/lang/String;)V");
-		const jobject speEx = (*env)->NewObject(env, speClass, speConstructor,
-				(*env)->GetStaticObjectField(env, speClass, spe_spsc));
-		(*env)->Throw(env, speEx);
-		(*env)->DeleteLocalRef(env, speClass);
+		const jobject iseEx = (*env)->NewObject(env, iseClass, iseConstructor,
+				(*env)->GetStaticObjectField(env, spsClass, PORT_NOT_OPEN));
+
+		(*env)->Throw(env, iseEx);
+
+		(*env)->DeleteLocalRef(env, iseClass);
+		(*env)->DeleteLocalRef(env, spsClass);
+	}
+}
+
+static void throw_IllegalStateException_Opend(JNIEnv *env) {
+	const jclass spsClass = (*env)->FindClass(env,
+			"de/ibapl/spsw/api/SerialPortSocket");
+	const jclass iseClass = (*env)->FindClass(env,
+			"java/lang/IllegalStateException");
+
+	if (iseClass != NULL || spsClass != NULL) {
+
+		const jfieldID PORT_IS_OPEN = (*env)->GetStaticFieldID(env, spsClass,
+				"PORT_IS_OPEN", "Ljava/lang/String;");
+		const jmethodID iseConstructor = (*env)->GetMethodID(env, iseClass,
+				"<init>", "(Ljava/lang/String;)V");
+		const jobject iseEx = (*env)->NewObject(env, iseClass, iseConstructor,
+				(*env)->GetStaticObjectField(env, spsClass, PORT_IS_OPEN));
+
+		(*env)->Throw(env, iseEx);
+
+		(*env)->DeleteLocalRef(env, iseClass);
+		(*env)->DeleteLocalRef(env, spsClass);
 	}
 }
 
@@ -364,7 +392,7 @@ static void throw_TimeoutIOException(JNIEnv *env, int bytesTransferred) {
 static void throw_ClosedOrNativeException(JNIEnv *env, jobject sps,
 		const char *message) {
 	if (GET_FILEDESCRIPTOR(env, sps) == INVALID_HANDLE_VALUE) {
-		throw_SerialPortException_Closed(env);
+		throw_IllegalStateException_Closed(env);
 	} else {
 		throw_SerialPortException_NativeError(env, message);
 	}
@@ -376,14 +404,8 @@ static jboolean getCommModemStatus(JNIEnv *env, jobject sps, DWORD bitMask) {
 	HANDLE hFile = GET_FILEDESCRIPTOR(env, sps);
 
 	if (!GetCommModemStatus(hFile, &lpModemStat)) {
-		if (GET_FILEDESCRIPTOR(env, sps) == INVALID_HANDLE_VALUE) {
-			throw_SerialPortException_Closed(env);
-			return JNI_FALSE;
-		} else {
-			throw_SerialPortException_NativeError(env,
-					"Can't get GetCommModemStatus");
-			return JNI_FALSE;
-		}
+		throw_ClosedOrNativeException(env, sps, "Can't get GetCommModemStatus");
+		return JNI_FALSE;
 	}
 	if ((lpModemStat & bitMask) == bitMask) {
 		return JNI_TRUE;
@@ -614,7 +636,7 @@ static int getParams(JNIEnv *env, jobject sps, jint* paramBitSet) {
 	}
 
 	//FlowControl
-	if (*paramBitSet & SPSW_PARITY_MASK) {
+	if (*paramBitSet & SPSW_FLOW_CONTROL_MASK) {
 		result |= SPSW_FLOW_CONTROL_NONE;
 		if (dcb.fRtsControl == RTS_CONTROL_HANDSHAKE) {
 			result |= SPSW_FLOW_CONTROL_RTS_CTS_IN;
@@ -805,8 +827,39 @@ static int setParams(JNIEnv *env, jobject sps, DCB *dcb, jint paramBitSet) {
 	}
 
 	if (paramsRead != paramBitSet) {
-		throw_Illegal_Argument_Exception(env,
-				"setParams: some params where not set correctly!");
+		char buf[512];
+		if ((paramsRead & SPSW_BAUDRATE_MASK)
+				!= (paramBitSet & SPSW_BAUDRATE_MASK)) {
+			snprintf(buf, sizeof(buf),
+					"Could not set Baudrate! NATIVE: paramsRead(0x%08x) != paramBitSet(0x%08x)",
+					paramsRead, paramBitSet);
+		} else if ((paramsRead & SPSW_DATA_BITS_MASK)
+				!= (paramBitSet & SPSW_DATA_BITS_MASK)) {
+			snprintf(buf, sizeof(buf),
+					"Could not set DataBits! NATIVE: paramsRead(0x%08x) != paramBitSet(0x%08x)",
+					paramsRead, paramBitSet);
+		} else if ((paramsRead & SPSW_STOP_BITS_MASK)
+				!= (paramBitSet & SPSW_STOP_BITS_MASK)) {
+			snprintf(buf, sizeof(buf),
+					"Could not set StopBits! NATIVE: paramsRead(0x%08x) != paramBitSet(0x%08x)",
+					paramsRead, paramBitSet);
+		} else if ((paramsRead & SPSW_PARITY_MASK)
+				!= (paramBitSet & SPSW_PARITY_MASK)) {
+			snprintf(buf, sizeof(buf),
+					"Could not set Parity! NATIVE: paramsRead(0x%08x) != paramBitSet(0x%08x)",
+					paramsRead, paramBitSet);
+		} else if ((paramsRead & SPSW_FLOW_CONTROL_MASK)
+				!= (paramBitSet & SPSW_FLOW_CONTROL_MASK)) {
+			snprintf(buf, sizeof(buf),
+					"Could not set FlowControl! NATIVE: paramsRead(0x%08x) != paramBitSet(0x%08x)",
+					paramsRead, paramBitSet);
+		} else {
+			snprintf(buf, sizeof(buf),
+					"Could not set unknown parameter! NATIVE: paramsRead(0x%08x) != paramBitSet(0x%08x)",
+					paramsRead, paramBitSet);
+
+		}
+		throw_Illegal_Argument_Exception(env, buf);
 		return -1;
 	}
 	return 0;
@@ -932,8 +985,8 @@ JNIEXPORT jchar JNICALL Java_de_ibapl_spsw_provider_AbstractSerialPortSocket_get
  * Signature: ()Z
  */
 JNIEXPORT jboolean JNICALL Java_de_ibapl_spsw_provider_AbstractSerialPortSocket_isCTS(
-				JNIEnv *env, jobject sps) {
-			return getCommModemStatus(env, sps, MS_CTS_ON);
+		JNIEnv *env, jobject sps) {
+	return getCommModemStatus(env, sps, MS_CTS_ON);
 }
 
 /*
@@ -942,9 +995,9 @@ JNIEXPORT jboolean JNICALL Java_de_ibapl_spsw_provider_AbstractSerialPortSocket_
  * Signature: ()Z
  */
 JNIEXPORT jboolean JNICALL Java_de_ibapl_spsw_provider_AbstractSerialPortSocket_isDSR(
-				JNIEnv *env, jobject sps) {
-			return getCommModemStatus(env, sps, MS_DSR_ON);
-		}
+		JNIEnv *env, jobject sps) {
+	return getCommModemStatus(env, sps, MS_DSR_ON);
+}
 
 /*
  * Class:     de_ibapl_spsw_provider_AbstractSerialPortSocket
@@ -952,10 +1005,9 @@ JNIEXPORT jboolean JNICALL Java_de_ibapl_spsw_provider_AbstractSerialPortSocket_
  * Signature: ()Z
  */
 JNIEXPORT jboolean JNICALL Java_de_ibapl_spsw_provider_AbstractSerialPortSocket_isIncommingRI(
-				JNIEnv *env, jobject sps) {
-			return getCommModemStatus(env, sps, MS_RING_ON);
-		}
-
+		JNIEnv *env, jobject sps) {
+	return getCommModemStatus(env, sps, MS_RING_ON);
+}
 
 /*
  * Class:     de_ibapl_spsw_provider_AbstractSerialPortSocket
@@ -966,7 +1018,7 @@ JNIEXPORT void JNICALL Java_de_ibapl_spsw_provider_AbstractSerialPortSocket_open
 (JNIEnv *env, jobject sps, jstring portName, jint paramBitSet) {
 //Do not try to reopen port and therefore failing and overriding the file descriptor
 	if (GET_FILEDESCRIPTOR(env, sps) != INVALID_HANDLE_VALUE) {
-		throw_SerialPortException_NativeError(env, "serial port socket has valid file descriptor!");
+		throw_IllegalStateException_Opend(env);
 		return;
 	}
 
@@ -1058,86 +1110,85 @@ JNIEXPORT void JNICALL Java_de_ibapl_spsw_provider_AbstractSerialPortSocket_open
  * Signature: ([BII)I
  */
 JNIEXPORT jint JNICALL Java_de_ibapl_spsw_provider_AbstractSerialPortSocket_readBytes(
-				JNIEnv *env, jobject sps, jbyteArray bytes, jint off, jint len) {
+		JNIEnv *env, jobject sps, jbyteArray bytes, jint off, jint len) {
 
-			jbyte *lpBuffer = (jbyte*) malloc(len);
+	jbyte *lpBuffer = (jbyte*) malloc(len);
 
-			HANDLE hFile = GET_FILEDESCRIPTOR(env, sps);
+	HANDLE hFile = GET_FILEDESCRIPTOR(env, sps);
 
-			DWORD dwBytesRead;
-			OVERLAPPED overlapped;
-			overlapped.Offset = 0;
-			overlapped.OffsetHigh = 0;
-			overlapped.hEvent = CreateEventA(NULL, TRUE, FALSE, NULL);
+	DWORD dwBytesRead;
+	OVERLAPPED overlapped;
+	overlapped.Offset = 0;
+	overlapped.OffsetHigh = 0;
+	overlapped.hEvent = CreateEventA(NULL, TRUE, FALSE, NULL);
 
-			if (!ReadFile(hFile, lpBuffer, len, NULL, &overlapped)) {
+	if (!ReadFile(hFile, lpBuffer, len, NULL, &overlapped)) {
 
-				if (GetLastError() != ERROR_IO_PENDING) {
-					if (GET_FILEDESCRIPTOR(env, sps) == INVALID_HANDLE_VALUE) {
-						//closed no-op
-					} else {
-						throw_SerialPortException_NativeError(env,
-								"Error readBytes(GetLastError)");
-					}
-					free(lpBuffer);
-					CloseHandle(overlapped.hEvent);
-					return -1;
-				}
-
-				//overlapped path
-				if (WaitForSingleObject(overlapped.hEvent, INFINITE) != WAIT_OBJECT_0) {
-					if (GET_FILEDESCRIPTOR(env, sps) == INVALID_HANDLE_VALUE) {
-						//closed no-op
-					} else {
-						throw_SerialPortException_NativeError(env,
-								"Error readBytes (WaitForSingleObject)");
-					}
-					free(lpBuffer);
-					CloseHandle(overlapped.hEvent);
-					return -1;
-				}
-
-			}
-
-			if (!GetOverlappedResult(hFile, &overlapped, &dwBytesRead, FALSE)) {
-				if (GET_FILEDESCRIPTOR(env, sps) == INVALID_HANDLE_VALUE) {
-					//closed no-op
-				} else {
-					throw_InterruptedIOExceptionWithError(env, dwBytesRead,
-							"Error readBytes (GetOverlappedResult)");
-				}
-				free(lpBuffer);
-				CloseHandle(overlapped.hEvent);
-				return -1;
-			}
-
-			CloseHandle(overlapped.hEvent);
-
-			(*env)->SetByteArrayRegion(env, bytes, off, dwBytesRead, lpBuffer);
-
-			free(lpBuffer);
-
-			if (dwBytesRead > 0) {
-				//Success
-				return dwBytesRead;
-			} else if (dwBytesRead == 0) {
-				if (GET_FILEDESCRIPTOR(env, sps) == INVALID_HANDLE_VALUE) {
-					//closed no-op
-				} else {
-					throw_TimeoutIOException(env, dwBytesRead);
-				}
-				return -1;
+		if (GetLastError() != ERROR_IO_PENDING) {
+			if (GET_FILEDESCRIPTOR(env, sps) == INVALID_HANDLE_VALUE) {
+				//closed no-op
 			} else {
 				throw_SerialPortException_NativeError(env,
-						"Should never happen! readBytes dwBytes < 0");
-				return -1;
+						"Error readBytes(GetLastError)");
 			}
-
-			throw_SerialPortException_NativeError(env,
-					"Should never happen! readBytes fall trough");
+			free(lpBuffer);
+			CloseHandle(overlapped.hEvent);
 			return -1;
 		}
 
+		//overlapped path
+		if (WaitForSingleObject(overlapped.hEvent, INFINITE) != WAIT_OBJECT_0) {
+			if (GET_FILEDESCRIPTOR(env, sps) == INVALID_HANDLE_VALUE) {
+				//closed no-op
+			} else {
+				throw_SerialPortException_NativeError(env,
+						"Error readBytes (WaitForSingleObject)");
+			}
+			free(lpBuffer);
+			CloseHandle(overlapped.hEvent);
+			return -1;
+		}
+
+	}
+
+	if (!GetOverlappedResult(hFile, &overlapped, &dwBytesRead, FALSE)) {
+		if (GET_FILEDESCRIPTOR(env, sps) == INVALID_HANDLE_VALUE) {
+			//closed no-op
+		} else {
+			throw_InterruptedIOExceptionWithError(env, dwBytesRead,
+					"Error readBytes (GetOverlappedResult)");
+		}
+		free(lpBuffer);
+		CloseHandle(overlapped.hEvent);
+		return -1;
+	}
+
+	CloseHandle(overlapped.hEvent);
+
+	(*env)->SetByteArrayRegion(env, bytes, off, dwBytesRead, lpBuffer);
+
+	free(lpBuffer);
+
+	if (dwBytesRead > 0) {
+		//Success
+		return dwBytesRead;
+	} else if (dwBytesRead == 0) {
+		if (GET_FILEDESCRIPTOR(env, sps) == INVALID_HANDLE_VALUE) {
+			//closed no-op
+		} else {
+			throw_TimeoutIOException(env, dwBytesRead);
+		}
+		return -1;
+	} else {
+		throw_SerialPortException_NativeError(env,
+				"Should never happen! readBytes dwBytes < 0");
+		return -1;
+	}
+
+	throw_SerialPortException_NativeError(env,
+			"Should never happen! readBytes fall trough");
+	return -1;
+}
 
 /*
  * Class:     de_ibapl_spsw_provider_AbstractSerialPortSocket
@@ -1145,76 +1196,76 @@ JNIEXPORT jint JNICALL Java_de_ibapl_spsw_provider_AbstractSerialPortSocket_read
  * Signature: ()I
  */
 JNIEXPORT jint JNICALL Java_de_ibapl_spsw_provider_AbstractSerialPortSocket_readSingle(
-				JNIEnv *env, jobject sps) {
+		JNIEnv *env, jobject sps) {
 
-			jbyte lpBuffer;
+	jbyte lpBuffer;
 
-			HANDLE hFile = GET_FILEDESCRIPTOR(env, sps);
+	HANDLE hFile = GET_FILEDESCRIPTOR(env, sps);
 
-			DWORD dwBytesRead;
-			OVERLAPPED overlapped;
-			overlapped.Offset = 0;
-			overlapped.OffsetHigh = 0;
-			overlapped.hEvent = CreateEventA(NULL, TRUE, FALSE, NULL);
+	DWORD dwBytesRead;
+	OVERLAPPED overlapped;
+	overlapped.Offset = 0;
+	overlapped.OffsetHigh = 0;
+	overlapped.hEvent = CreateEventA(NULL, TRUE, FALSE, NULL);
 
-			if (!ReadFile(hFile, &lpBuffer, 1, NULL, &overlapped)) {
+	if (!ReadFile(hFile, &lpBuffer, 1, NULL, &overlapped)) {
 
-				if (GetLastError() != ERROR_IO_PENDING) {
-					if (GET_FILEDESCRIPTOR(env, sps) == INVALID_HANDLE_VALUE) {
-						//closed no-op
-					} else {
-						throw_SerialPortException_NativeError(env,
-								"Error readSingle (GetLastError)");
-					}
-					CloseHandle(overlapped.hEvent);
-					return -1;
-				}
-
-				if (WaitForSingleObject(overlapped.hEvent, INFINITE) != WAIT_OBJECT_0) {
-					if (GET_FILEDESCRIPTOR(env, sps) == INVALID_HANDLE_VALUE) {
-						//closed no-op
-					} else {
-						throw_SerialPortException_NativeError(env,
-								"Error readSingle (WaitForSingleObject)");
-					}
-					CloseHandle(overlapped.hEvent);
-					return -1;
-				}
-
-			}
-
-			if (!GetOverlappedResult(hFile, &overlapped, &dwBytesRead, FALSE)) {
-				if (GET_FILEDESCRIPTOR(env, sps) == INVALID_HANDLE_VALUE) {
-					//closed no-op
-				} else {
-					throw_InterruptedIOExceptionWithError(env, dwBytesRead,
-							"Error readSingle (GetOverlappedResult)");
-				}
-				CloseHandle(overlapped.hEvent);
-				return -1;
-			}
-
-			CloseHandle(overlapped.hEvent);
-			if (dwBytesRead == 1) {
-				//Success
-				return lpBuffer & 0xFF;
-			} else if (dwBytesRead == 0) {
-				if (GET_FILEDESCRIPTOR(env, sps) == INVALID_HANDLE_VALUE) {
-					//closed no-op
-				} else {
-					throw_TimeoutIOException(env, dwBytesRead);
-				}
-				return -1;
+		if (GetLastError() != ERROR_IO_PENDING) {
+			if (GET_FILEDESCRIPTOR(env, sps) == INVALID_HANDLE_VALUE) {
+				//closed no-op
 			} else {
-				throw_InterruptedIOExceptionWithError(env, dwBytesRead,
-						"Should never happen! readSingle dwBytes < 0");
-				return -1;
+				throw_SerialPortException_NativeError(env,
+						"Error readSingle (GetLastError)");
 			}
-
-			throw_SerialPortException_NativeError(env,
-					"Should never happen! readSingle fall trough");
+			CloseHandle(overlapped.hEvent);
 			return -1;
 		}
+
+		if (WaitForSingleObject(overlapped.hEvent, INFINITE) != WAIT_OBJECT_0) {
+			if (GET_FILEDESCRIPTOR(env, sps) == INVALID_HANDLE_VALUE) {
+				//closed no-op
+			} else {
+				throw_SerialPortException_NativeError(env,
+						"Error readSingle (WaitForSingleObject)");
+			}
+			CloseHandle(overlapped.hEvent);
+			return -1;
+		}
+
+	}
+
+	if (!GetOverlappedResult(hFile, &overlapped, &dwBytesRead, FALSE)) {
+		if (GET_FILEDESCRIPTOR(env, sps) == INVALID_HANDLE_VALUE) {
+			//closed no-op
+		} else {
+			throw_InterruptedIOExceptionWithError(env, dwBytesRead,
+					"Error readSingle (GetOverlappedResult)");
+		}
+		CloseHandle(overlapped.hEvent);
+		return -1;
+	}
+
+	CloseHandle(overlapped.hEvent);
+	if (dwBytesRead == 1) {
+		//Success
+		return lpBuffer & 0xFF;
+	} else if (dwBytesRead == 0) {
+		if (GET_FILEDESCRIPTOR(env, sps) == INVALID_HANDLE_VALUE) {
+			//closed no-op
+		} else {
+			throw_TimeoutIOException(env, dwBytesRead);
+		}
+		return -1;
+	} else {
+		throw_InterruptedIOExceptionWithError(env, dwBytesRead,
+				"Should never happen! readSingle dwBytes < 0");
+		return -1;
+	}
+
+	throw_SerialPortException_NativeError(env,
+			"Should never happen! readSingle fall trough");
+	return -1;
+}
 
 /*
  * Class:     de_ibapl_spsw_provider_AbstractSerialPortSocket
@@ -1400,7 +1451,7 @@ JNIEXPORT void JNICALL Java_de_ibapl_spsw_provider_AbstractSerialPortSocket_writ
 
 	HANDLE hFile = GET_FILEDESCRIPTOR(env, sps);
 
-	DWORD dwBytesWritten;
+	DWORD dwBytesWritten = 0;
 	OVERLAPPED overlapped;
 	overlapped.Offset = 0;
 	overlapped.OffsetHigh = 0;
@@ -1428,7 +1479,7 @@ JNIEXPORT void JNICALL Java_de_ibapl_spsw_provider_AbstractSerialPortSocket_writ
 		CloseHandle(overlapped.hEvent);
 		free(buf);
 		if (GET_FILEDESCRIPTOR(env, sps) == INVALID_HANDLE_VALUE) {
-			throw_SerialPortException_Closed(env);
+			throw_IllegalStateException_Closed(env);
 		} else {
 			throw_InterruptedIOExceptionWithError(env, dwBytesWritten, "Error writeBytes (GetOverlappedResult)");
 		}
@@ -1439,7 +1490,7 @@ JNIEXPORT void JNICALL Java_de_ibapl_spsw_provider_AbstractSerialPortSocket_writ
 	free(buf);
 	if (dwBytesWritten != len) {
 		if (GET_FILEDESCRIPTOR(env, sps) == INVALID_HANDLE_VALUE) {
-			throw_SerialPortException_Closed(env);
+			throw_IllegalStateException_Closed(env);
 			return;
 		} else {
 			if (GetLastError() == ERROR_IO_PENDING) {
@@ -1490,7 +1541,7 @@ JNIEXPORT void JNICALL Java_de_ibapl_spsw_provider_AbstractSerialPortSocket_writ
 	if (!GetOverlappedResult(hFile, &overlapped, &dwBytesWritten, FALSE)) {
 		CloseHandle(overlapped.hEvent);
 		if (GET_FILEDESCRIPTOR(env, sps) == INVALID_HANDLE_VALUE) {
-			throw_SerialPortException_Closed(env);
+			throw_IllegalStateException_Closed(env);
 		} else {
 			throw_InterruptedIOExceptionWithError(env, dwBytesWritten, "Error writeSingle (GetOverlappedResult)");
 		}
@@ -1500,7 +1551,7 @@ JNIEXPORT void JNICALL Java_de_ibapl_spsw_provider_AbstractSerialPortSocket_writ
 	CloseHandle(overlapped.hEvent);
 	if (dwBytesWritten != 1) {
 		if (GET_FILEDESCRIPTOR(env, sps) == INVALID_HANDLE_VALUE) {
-			throw_SerialPortException_Closed(env);
+			throw_IllegalStateException_Closed(env);
 			return;
 		} else {
 			if (GetLastError() == ERROR_IO_PENDING) {
@@ -1522,53 +1573,53 @@ JNIEXPORT void JNICALL Java_de_ibapl_spsw_provider_AbstractSerialPortSocket_writ
  * Signature: (Z)[Ljava/lang/String;
  */
 JNIEXPORT jobjectArray JNICALL Java_de_ibapl_spsw_provider_GenericWinSerialPortSocket_getWindowsBasedPortNames(
-				JNIEnv *env, jclass clazz, jboolean value) {
-			HKEY phkResult;
-			LPCSTR lpSubKey = "HARDWARE\\DEVICEMAP\\SERIALCOMM\\";
-			jobjectArray returnArray = NULL;
-			if (RegOpenKeyExA(HKEY_LOCAL_MACHINE, lpSubKey, 0, KEY_READ, &phkResult)
-					== ERROR_SUCCESS) {
-				boolean hasMoreElements = TRUE;
-				DWORD keysCount = 0;
-				char valueName[256];
-				DWORD valueNameSize;
-				DWORD enumResult;
-				while (hasMoreElements) {
-					valueNameSize = 256;
-					enumResult = RegEnumValueA(phkResult, keysCount, valueName,
-							&valueNameSize, NULL, NULL, NULL, NULL);
-					if (enumResult == ERROR_SUCCESS) {
-						keysCount++;
-					} else if (enumResult == ERROR_NO_MORE_ITEMS) {
-						hasMoreElements = FALSE;
-					} else {
-						hasMoreElements = FALSE;
-					}
-				}
-				if (keysCount > 0) {
-					jclass stringClass = (*env)->FindClass(env, "java/lang/String");
-					returnArray = (*env)->NewObjectArray(env, (jsize) keysCount,
-							stringClass, NULL);
-					char lpValueName[256];
-					DWORD lpcchValueName;
-					byte lpData[256];
-					DWORD lpcbData;
-					DWORD result;
-					for (DWORD i = 0; i < keysCount; i++) {
-						lpcchValueName = 256;
-						lpcbData = 256;
-						result = RegEnumValueA(phkResult, i, lpValueName,
-								&lpcchValueName, NULL, NULL, lpData, &lpcbData);
-						if (result == ERROR_SUCCESS) {
-							(*env)->SetObjectArrayElement(env, returnArray, i,
-									(*env)->NewStringUTF(env, (char*) lpData));
-						}
-					}
-				}
-				CloseHandle(phkResult);
+		JNIEnv *env, jclass clazz, jboolean value) {
+	HKEY phkResult;
+	LPCSTR lpSubKey = "HARDWARE\\DEVICEMAP\\SERIALCOMM\\";
+	jobjectArray returnArray = NULL;
+	if (RegOpenKeyExA(HKEY_LOCAL_MACHINE, lpSubKey, 0, KEY_READ, &phkResult)
+			== ERROR_SUCCESS) {
+		boolean hasMoreElements = TRUE;
+		DWORD keysCount = 0;
+		char valueName[256];
+		DWORD valueNameSize;
+		DWORD enumResult;
+		while (hasMoreElements) {
+			valueNameSize = 256;
+			enumResult = RegEnumValueA(phkResult, keysCount, valueName,
+					&valueNameSize, NULL, NULL, NULL, NULL);
+			if (enumResult == ERROR_SUCCESS) {
+				keysCount++;
+			} else if (enumResult == ERROR_NO_MORE_ITEMS) {
+				hasMoreElements = FALSE;
+			} else {
+				hasMoreElements = FALSE;
 			}
-			return returnArray;
 		}
+		if (keysCount > 0) {
+			jclass stringClass = (*env)->FindClass(env, "java/lang/String");
+			returnArray = (*env)->NewObjectArray(env, (jsize) keysCount,
+					stringClass, NULL);
+			char lpValueName[256];
+			DWORD lpcchValueName;
+			byte lpData[256];
+			DWORD lpcbData;
+			DWORD result;
+			for (DWORD i = 0; i < keysCount; i++) {
+				lpcchValueName = 256;
+				lpcbData = 256;
+				result = RegEnumValueA(phkResult, i, lpValueName,
+						&lpcchValueName, NULL, NULL, lpData, &lpcbData);
+				if (result == ERROR_SUCCESS) {
+					(*env)->SetObjectArrayElement(env, returnArray, i,
+							(*env)->NewStringUTF(env, (char*) lpData));
+				}
+			}
+		}
+		CloseHandle(phkResult);
+	}
+	return returnArray;
+}
 
 /*
  * Class:     de_ibapl_spsw_provider_GenericWinSerialPortSocket
@@ -1576,22 +1627,22 @@ JNIEXPORT jobjectArray JNICALL Java_de_ibapl_spsw_provider_GenericWinSerialPortS
  * Signature: ()I
  */
 JNIEXPORT jint JNICALL Java_de_ibapl_spsw_provider_GenericWinSerialPortSocket_getInterByteReadTimeout(
-				JNIEnv *env, jobject sps) {
+		JNIEnv *env, jobject sps) {
 
-			HANDLE hFile = GET_FILEDESCRIPTOR(env, sps);
+	HANDLE hFile = GET_FILEDESCRIPTOR(env, sps);
 
-			COMMTIMEOUTS lpCommTimeouts;
-			if (!GetCommTimeouts(hFile, &lpCommTimeouts)) {
-				throw_ClosedOrNativeException(env, sps, "getInterByteReadTimeout");
-				return -1;
-			}
-			if ((lpCommTimeouts.ReadIntervalTimeout == MAXDWORD)
-					&& (lpCommTimeouts.ReadTotalTimeoutMultiplier == MAXDWORD)) {
-				return 0;
-			} else {
-				return lpCommTimeouts.ReadIntervalTimeout;
-			}
-		}
+	COMMTIMEOUTS lpCommTimeouts;
+	if (!GetCommTimeouts(hFile, &lpCommTimeouts)) {
+		throw_ClosedOrNativeException(env, sps, "getInterByteReadTimeout");
+		return -1;
+	}
+	if ((lpCommTimeouts.ReadIntervalTimeout == MAXDWORD)
+			&& (lpCommTimeouts.ReadTotalTimeoutMultiplier == MAXDWORD)) {
+		return 0;
+	} else {
+		return lpCommTimeouts.ReadIntervalTimeout;
+	}
+}
 
 /*
  * Class:     de_ibapl_spsw_provider_GenericWinSerialPortSocket

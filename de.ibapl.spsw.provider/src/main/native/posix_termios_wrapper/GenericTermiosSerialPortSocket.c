@@ -924,6 +924,8 @@ static int setParams(JNIEnv *env, jobject sps, struct termios *settings,
 		return -1;
 	}
 
+	ERROR
+
 	jint paramsRead =
 	SPSW_BAUDRATE_MASK & paramBitSet ? SPSW_BAUDRATE_MASK : 0;
 	paramsRead |= SPSW_DATA_BITS_MASK & paramBitSet ? SPSW_DATA_BITS_MASK : 0;
@@ -937,8 +939,39 @@ static int setParams(JNIEnv *env, jobject sps, struct termios *settings,
 	}
 
 	if (paramsRead != paramBitSet) {
-		throw_Illegal_Argument_Exception(env,
-				"setParams: some params where not set correctly!");
+		char buf[512];
+		if ((paramsRead & SPSW_BAUDRATE_MASK)
+				!= (paramBitSet & SPSW_BAUDRATE_MASK)) {
+			snprintf(buf, sizeof(buf),
+					"Could not set Baudrate! NATIVE: paramsRead(0x%08x) != paramBitSet(0x%08x)",
+					paramsRead, paramBitSet);
+		} else if ((paramsRead & SPSW_DATA_BITS_MASK)
+				!= (paramBitSet & SPSW_DATA_BITS_MASK)) {
+			snprintf(buf, sizeof(buf),
+					"Could not set DataBits! NATIVE: paramsRead(0x%08x) != paramBitSet(0x%08x)",
+					paramsRead, paramBitSet);
+		} else if ((paramsRead & SPSW_STOP_BITS_MASK)
+				!= (paramBitSet & SPSW_STOP_BITS_MASK)) {
+			snprintf(buf, sizeof(buf),
+					"Could not set StopBits! NATIVE: paramsRead(0x%08x) != paramBitSet(0x%08x)",
+					paramsRead, paramBitSet);
+		} else if ((paramsRead & SPSW_PARITY_MASK)
+				!= (paramBitSet & SPSW_PARITY_MASK)) {
+			snprintf(buf, sizeof(buf),
+					"Could not set Parity! NATIVE: paramsRead(0x%08x) != paramBitSet(0x%08x)",
+					paramsRead, paramBitSet);
+		} else if ((paramsRead & SPSW_FLOW_CONTROL_MASK)
+				!= (paramBitSet & SPSW_FLOW_CONTROL_MASK)) {
+			snprintf(buf, sizeof(buf),
+					"Could not set FlowControl! NATIVE: paramsRead(0x%08x) != paramBitSet(0x%08x)",
+					paramsRead, paramBitSet);
+		} else {
+			snprintf(buf, sizeof(buf),
+					"Could not set unknown parameter! NATIVE: paramsRead(0x%08x) != paramBitSet(0x%08x)",
+					paramsRead, paramBitSet);
+
+		}
+		throw_Illegal_Argument_Exception(env, buf);
 		return -1;
 	}
 	return 0;

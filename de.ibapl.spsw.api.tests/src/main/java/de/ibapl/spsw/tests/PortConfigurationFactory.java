@@ -98,9 +98,11 @@ public class PortConfigurationFactory {
 		return result;
 	}
 	
-	public PortConfiguration ofBuffersize(int bufferSize) {
+	public PortConfiguration ofBuffersize(int bufferSize, boolean adjustTimeouts) {
 		PortConfigurationImpl result = portConfigurationImpl.clone();
 		result.bufferSize = bufferSize;
+		result.overallReadTimeout = result.calcMaxTransferTime();
+		result.overallWriteTimeout = result.overallReadTimeout;
 		return result;
 	}
 

@@ -388,6 +388,8 @@ public abstract class AbstractOnePortTest extends AbstractPortTest {
 		LOG.log(Level.INFO, "port closed");
 	}
 
+	
+	private final static int _16MB = 1024 * 1024 * 16;
 	@Test
 	public void testWrite16MBChunkInfiniteWrite() throws Exception {
 		testWrite16MBChunk(0);
@@ -395,7 +397,7 @@ public abstract class AbstractOnePortTest extends AbstractPortTest {
 
 	@Test
 	public void testWrite16MBChunk() throws Exception {
-		testWrite16MBChunk(SerialPortSocket.calculateMillisForBytes(1024 * 1024 * 16, Baudrate.B2000000, DataBits.DB_8, StopBits.SB_1, Parity.NONE));
+		testWrite16MBChunk( 1000 + SerialPortSocket.calculateMillisForBytes(_16MB, Baudrate.B1000000, DataBits.DB_8, StopBits.SB_1, Parity.NONE));
 	}
 
 	public void testWrite16MBChunk(int writeTimeout) throws Exception {
@@ -408,10 +410,10 @@ public abstract class AbstractOnePortTest extends AbstractPortTest {
 		}
 
 		// Set a high baudrate to speed up things
-		open(Baudrate.B2000000, DataBits.DB_8, StopBits.SB_1, Parity.NONE, FlowControl.getFC_NONE());
+		open(Baudrate.B1000000, DataBits.DB_8, StopBits.SB_1, Parity.NONE, FlowControl.getFC_NONE());
 		setTimeouts(100, 1000, writeTimeout);
 
-		byte[] data = new byte[1024 * 1024 * 16];
+		byte[] data = new byte[_16MB];
 		int dataWritten = 0;
 		try {
 			writeSpc.getOutputStream().write(data);
