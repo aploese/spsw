@@ -1,5 +1,3 @@
-package de.ibapl.spsw.logging;
-
 /*-
  * #%L
  * SPSW API
@@ -19,6 +17,8 @@ package de.ibapl.spsw.logging;
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  * #L%
  */
+package de.ibapl.spsw.logging;
+
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
@@ -347,10 +347,10 @@ public class LoggingSerialPortSocket implements SerialPortSocket {
     }
 
     @Override
-    public void openAsIs() throws IOException {
+    public void open() throws IOException {
         logWriter.beforeSpOpen(Instant.now(), serialPortSocket.getPortName(), "AsIs");
         try {
-            serialPortSocket.openAsIs();
+            serialPortSocket.open();
             logWriter.afterSpOpen(Instant.now(), "AsIs");
         } catch (IOException e) {
             logWriter.afterSpOpen(Instant.now(), "AsIs", e);
@@ -359,46 +359,10 @@ public class LoggingSerialPortSocket implements SerialPortSocket {
     }
 
     @Override
-    public void openRaw() throws IOException {
-        logWriter.beforeSpOpen(Instant.now(), serialPortSocket.getPortName(), "Raw");
-        try {
-            serialPortSocket.openRaw();
-            logWriter.afterSpOpen(Instant.now(), "Raw");
-        } catch (IOException e) {
-            logWriter.afterSpOpen(Instant.now(), "Raw", e);
-            throw e;
-        }
-    }
-
-    @Override
-    public void openTerminal() throws IOException {
-        logWriter.beforeSpOpen(Instant.now(), serialPortSocket.getPortName(), "Terminal");
-        try {
-            serialPortSocket.openTerminal();
-            logWriter.afterSpOpen(Instant.now(), "Terminal");
-        } catch (IOException e) {
-            logWriter.afterSpOpen(Instant.now(), "Terminal", e);
-            throw e;
-        }
-    }
-
-    @Override
-    public void openModem() throws IOException {
-        logWriter.beforeSpOpen(Instant.now(), serialPortSocket.getPortName(), "Modem");
-        try {
-            serialPortSocket.openModem();
-            logWriter.afterSpOpen(Instant.now(), "Modem");
-        } catch (IOException e) {
-            logWriter.afterSpOpen(Instant.now(), "Modem", e);
-            throw e;
-        }
-    }
-
-    @Override
-    public void openRaw(Baudrate baudRate, DataBits dataBits, StopBits stopBits, Parity parity, Set<FlowControl> flowControls) throws IOException {
+    public void open(Baudrate baudRate, DataBits dataBits, StopBits stopBits, Parity parity, Set<FlowControl> flowControls) throws IOException {
         logWriter.beforeSpOpen(Instant.now(), serialPortSocket.getPortName(), "Raw(dataBits=" + dataBits + ", stopBits=" + stopBits + ", partity=" + parity + ", flowControl=" + flowControls + ")");
         try {
-            serialPortSocket.openRaw(baudRate, dataBits, stopBits, parity, flowControls);
+            serialPortSocket.open(baudRate, dataBits, stopBits, parity, flowControls);
             logWriter.afterSpOpen(Instant.now(), "Raw()");
         } catch (IOException e) {
             logWriter.afterSpOpen(Instant.now(), "Raw()", e);

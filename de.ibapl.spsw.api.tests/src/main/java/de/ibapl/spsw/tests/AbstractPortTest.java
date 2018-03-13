@@ -1,4 +1,27 @@
+/*-
+ * #%L
+ * SPSW Provider
+ * %%
+ * Copyright (C) 2009 - 2017 Arne Plöse
+ * %%
+ * This program and the accompanying materials are made available under the
+ * terms of the Eclipse Public License 2.0 which is available at
+ * http://www.eclipse.org/legal/epl-2.0.
+ * 
+ * This Source Code may also be made available under the following Secondary
+ * Licenses when the conditions for such availability set forth in the Eclipse
+ * Public License, v. 2.0 are satisfied: GNU General Public License, version 2
+ * with the GNU Classpath Exception which is
+ * available at https://www.gnu.org/software/classpath/license.html.
+ * 
+ * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
+ * #L%
+ */
 package de.ibapl.spsw.tests;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assumptions.assumeTrue;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -7,11 +30,9 @@ import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import org.junit.After;
-import org.junit.Assert;
-import org.junit.Assume;
-import org.junit.Before;
-import org.junit.BeforeClass;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
 
 import de.ibapl.spsw.api.Baudrate;
 import de.ibapl.spsw.api.DataBits;
@@ -44,13 +65,21 @@ public abstract class AbstractPortTest {
 		}
 	}
 
+	protected void assumeRTest() {
+		assumeTrue(readSpc != null);
+	}
+
+	protected void assumeWTest() {
+		assumeTrue(writeSpc != null);
+	}
+
 	protected void assumeRWTest() {
-		Assume.assumeNotNull(readSpc);
-		Assume.assumeNotNull(writeSpc);
+		assumeRTest();
+		assumeWTest();
 	}
 
 	protected void openDefault() throws Exception {
-		openRaw(Baudrate.B9600, DataBits.DB_8, StopBits.SB_1, Parity.NONE, FlowControl.getFC_NONE());
+		open(Baudrate.B9600, DataBits.DB_8, StopBits.SB_1, Parity.NONE, FlowControl.getFC_NONE());
 	}
 
 	/**
@@ -63,26 +92,26 @@ public abstract class AbstractPortTest {
 	 * @param flowControl
 	 * @throws Exception
 	 */
-	protected void openRaw(Baudrate baudrate, DataBits dataBits, StopBits stopBits, Parity parity,
+	protected void open(Baudrate baudrate, DataBits dataBits, StopBits stopBits, Parity parity,
 			Set<FlowControl> flowControl) throws Exception {
 		if (readSpc != null) {
-			readSpc.openRaw(baudrate, dataBits, stopBits, parity, flowControl);
-			Assert.assertEquals(0, readSpc.getOutBufferBytesCount());
+			readSpc.open(baudrate, dataBits, stopBits, parity, flowControl);
+			assertEquals(0, readSpc.getOutBufferBytesCount(), "Can't start test: OutBuffer is not empty");
 			while (readSpc.getInBufferBytesCount() > 0) {
 				readSpc.getInputStream().read(new byte[readSpc.getInBufferBytesCount()]);
 				Thread.sleep(100);
 			}
-			Assert.assertEquals(0, readSpc.getInBufferBytesCount());
+			assertEquals(0, readSpc.getInBufferBytesCount(), "Can't start test: InBuffer is not empty");
 
 		}
 		if (writeSpc != null && writeSpc != readSpc) {
-			writeSpc.openRaw(baudrate, dataBits, stopBits, parity, flowControl);
-			Assert.assertEquals(0, readSpc.getOutBufferBytesCount());
+			writeSpc.open(baudrate, dataBits, stopBits, parity, flowControl);
+			assertEquals(0, readSpc.getOutBufferBytesCount(), "Can't start test: OutBuffer is not empty");
 			while (readSpc.getInBufferBytesCount() > 0) {
 				readSpc.getInputStream().read(new byte[readSpc.getInBufferBytesCount()]);
 				Thread.sleep(100);
 			}
-			Assert.assertEquals(0, readSpc.getInBufferBytesCount());
+			assertEquals(0, readSpc.getInBufferBytesCount(), "Can't start test: InBuffer is not empty");
 		}
 	}
 
@@ -119,6 +148,7 @@ public abstract class AbstractPortTest {
 
 			LOG.log(Level.INFO, sb.toString());
 		} else {
+			@SuppressWarnings("resource")
 			SerialPortSocket spc = readSpc != null ? readSpc : writeSpc;
 			if (spc != null) {
 				StringBuilder sb = new StringBuilder();
@@ -137,9 +167,9 @@ public abstract class AbstractPortTest {
 		}
 	}
 
-	@BeforeClass
+	@BeforeAll
 	public static void setUpClass() throws Exception {
-		try (InputStream is = AbstractTwoPortMultipleBytesTest.class.getClassLoader()
+		try (InputStream is = AbstractPortTest.class.getClassLoader()
 				.getResourceAsStream("junit-spsw-config.properties")) {
 			if (is == null) {
 				readSerialPortName = null;
@@ -153,7 +183,7 @@ public abstract class AbstractPortTest {
 		}
 	}
 
-	@Before
+	@BeforeEach
 	public void setUp() throws Exception {
 		if (readSerialPortName != null) {
 			readSpc = getSerialPortSocketFactory().createSerialPortSocket(readSerialPortName);
@@ -167,13 +197,13 @@ public abstract class AbstractPortTest {
 		}
 	}
 
-	@After
+	@AfterEach
 	public void tearDown() throws Exception {
 		if (writeSpc != null) {
 			if (writeSpc != readSpc) {
 				if (!writeSpc.isClosed()) {
 					writeSpc.close();
-					Assert.assertTrue(writeSpc.isClosed());
+					assertTrue(writeSpc.isClosed(), "Can't close write port");
 				}
 			}
 			writeSpc = null;
@@ -181,7 +211,7 @@ public abstract class AbstractPortTest {
 		if (readSpc != null) {
 			if (!readSpc.isClosed()) {
 				readSpc.close();
-				Assert.assertTrue(readSpc.isClosed());
+				assertTrue(readSpc.isClosed(), "Can't close read port");
 			}
 			readSpc = null;
 		}
@@ -191,6 +221,11 @@ public abstract class AbstractPortTest {
 		if (PORT_RECOVERY_TIME > 0) {
 			Thread.sleep(PORT_RECOVERY_TIME * 1000);
 		}
+	}
+
+	protected void open(PortConfiguration pc) throws Exception {
+		open(pc.getBaudrate(), pc.getDataBits(), pc.getStopBits(), pc.getParity(), pc.getFlowControl());
+		setTimeouts(pc.getInterByteReadTimeout(), pc.getOverallReadTimeout(), pc.getOverallWriteTimeout());
 	}
 
 }

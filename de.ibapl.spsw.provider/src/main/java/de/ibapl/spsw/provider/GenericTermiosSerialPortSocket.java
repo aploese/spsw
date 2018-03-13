@@ -34,166 +34,64 @@ import java.io.IOException;
  *
  * @author scream3r
  */
-public class GenericTermiosSerialPortSocket extends AbstractSerialPortSocket {
+public class GenericTermiosSerialPortSocket extends AbstractSerialPortSocket<GenericTermiosSerialPortSocket> {
 
-    /**
-     * The file descriptor or handle for this Port
-     */
-    private int fd = -1;
-    /**
-     * The close event file descriptor or handle proper multithreading closing for this Port
-     */
-    private int closeEventtFd = -1;
-    
-    /**
-     * used in native code
-     */
-    private int interByteReadTimeout = 100;
-    private int pollReadTimeout = -1;
-    private int pollWriteTimeout = -1;
+	/**
+	 * The file descriptor or handle for this Port
+	 */
+	private volatile  int fd = -1;
+	/**
+	 * The close event file descriptor or handle proper multi threaded closing for
+	 * this Port
+	 */
+	private int closeEventFd = -1;
 
-    public GenericTermiosSerialPortSocket(String portName) {
-        super(portName);
-    }
+	private int outByteTime = -1;	
+	/**
+	 * used in native code
+	 */
+	private int interByteReadTimeout = 100;
+	private int pollReadTimeout = -1;
+	private int pollWriteTimeout = -1;
 
-    @Override
-    protected native void open(String portName, int type) throws IOException;
+	public GenericTermiosSerialPortSocket(String portName) {
+		super(portName);
+	}
 
-    /**
-     * Close port
-     */
-    @Override
-    protected native void close0() throws IOException;
+	@Override
+	public native void drainOutputBuffer() throws IOException;
+	
+	@Override
+	public int getInterByteReadTimeout() throws IOException {
+		return interByteReadTimeout;
+	}
 
-    @Override
-    public native boolean isCTS();
+	@Override
+	public int getOverallReadTimeout() throws IOException {
+		return pollReadTimeout == -1 ? 0 : pollReadTimeout;
+	}
 
-    public native boolean isRTS();
+	@Override
+	public int getOverallWriteTimeout() throws IOException {
+		return pollWriteTimeout == -1 ? 0 : pollWriteTimeout;
+	}
 
-    @Override
-    public native boolean isDSR();
+	public native boolean isDTR() throws IOException;
 
-    public native boolean isDTR();
+	public native boolean isRTS() throws IOException;
 
-    @Override
-    public native boolean isIncommingRI();
+	@Override
+	public native void sendXOFF() throws IOException;
 
-    @Override
-    public native void setRTS(boolean value) throws IOException;
+	@Override
+	public native void sendXON() throws IOException;
 
-    @Override
-    public native void setDTR(boolean value) throws IOException;
-
-    @Override
-    public native void setXONChar(char c) throws IOException;
-
-    @Override
-    public native void setXOFFChar(char c) throws IOException;
-
-    @Override
-    protected native int readSingle() throws IOException;
-
-    /**
-     * Read data from port
-     *
-     * @param b the data to be written
-     * @param off the start offset in the data
-     * @param len the number of bytes that are written
-     * @exception IOException If an I/O error has occurred.
-     */
-    @Override
-    protected native int readBytes(byte[] b, int off, int len) throws IOException;
-
-    @Override
-    protected native void writeSingle(int b) throws IOException;
-
-    /**
-     * Write data to port
-     *
-     * @param off the start offset in the data.
-     * @param len the number of bytes to write.
-     *
-     */
-    @Override
-    protected native void writeBytes(byte[] b, int off, int len) throws IOException;
-
-    @Override
-    public native int getInBufferBytesCount() throws IOException;
-
-    @Override
-    public native int getOutBufferBytesCount() throws IOException;
-    
-    @Override
-    public native void drainOutputBuffer() throws IOException;
-    
-    @Override
-    protected native void setFlowControl(int mask) throws IOException;
-
-    @Override
-    protected native int getFlowControl0() throws IOException;
-
-    @Override
-    public native void setBreak(boolean value) throws IOException;
-
-    @Override
-    public native void sendBreak(int duration) throws IOException;
-    
-    @Override
-    protected native void setBaudrate(int baudRate) throws IOException;
-
-    @Override
-    protected native void setDataBits(int value) throws IOException;
-
-    @Override
-    protected native void setStopBits(int value) throws IOException;
-
-    @Override
-    protected native void setParity(int parity) throws IOException;
-
-    @Override
-    protected native int getBaudrate0() throws IOException;
-
-    @Override
-    protected native int getDataBits0() throws IOException;
-
-    @Override
-    protected native int getStopBits0() throws IOException;
-
-    @Override
-    protected native int getParity0() throws IOException;
-
-    @Override
-    public native char getXONChar() throws IOException;
-
-    @Override
-    public native char getXOFFChar() throws IOException;
-
-    @Override
-    public native void sendXON() throws IOException;
-
-    @Override
-    public native void sendXOFF() throws IOException;
-
-    @Override
-    public int getOverallReadTimeout() throws IOException {
-    	return pollReadTimeout == -1 ? 0 : pollReadTimeout;
-    }
-
-    @Override
-    public int getOverallWriteTimeout() throws IOException {
-    	return pollWriteTimeout == -1 ? 0 : pollWriteTimeout;
-    }
-
-    @Override
-    public void setTimeouts(int interByteReadTimeout, int overallReadTimeout, int overallWriteTimeout) throws IOException {
-    	this.interByteReadTimeout = interByteReadTimeout;
-  		this.pollReadTimeout = overallReadTimeout == 0 ? -1 : overallReadTimeout;
-    	this.pollWriteTimeout = overallWriteTimeout == 0 ? -1 : overallWriteTimeout;
-    }
-    
-    @Override
-    public int getInterByteReadTimeout() throws IOException {
-    	return interByteReadTimeout;
-    }
+	@Override
+	public void setTimeouts(int interByteReadTimeout, int overallReadTimeout, int overallWriteTimeout)
+			throws IOException {
+		this.interByteReadTimeout = interByteReadTimeout;
+		this.pollReadTimeout = overallReadTimeout == 0 ? -1 : overallReadTimeout;
+		this.pollWriteTimeout = overallWriteTimeout == 0 ? -1 : overallWriteTimeout;
+	}
 
 }

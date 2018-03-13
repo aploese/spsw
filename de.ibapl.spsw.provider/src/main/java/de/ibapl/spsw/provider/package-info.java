@@ -28,4 +28,3 @@ package de.ibapl.spsw.provider;
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  * #L%
  */
-

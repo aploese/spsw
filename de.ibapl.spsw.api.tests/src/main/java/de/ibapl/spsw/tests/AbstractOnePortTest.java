@@ -1,5 +1,3 @@
-package de.ibapl.spsw.tests;
-
 /*-
  * #%L
  * SPSW Provider
@@ -19,35 +17,28 @@ package de.ibapl.spsw.tests;
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  * #L%
  */
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.Properties;
+package de.ibapl.spsw.tests;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
+import static org.junit.jupiter.api.Assumptions.assumeTrue;
+
+import java.io.InterruptedIOException;
 import java.util.Set;
 import java.util.logging.Level;
-import java.util.logging.Logger;
+
+import org.junit.jupiter.api.Test;
+
 import de.ibapl.spsw.api.Baudrate;
 import de.ibapl.spsw.api.DataBits;
 import de.ibapl.spsw.api.FlowControl;
 import de.ibapl.spsw.api.Parity;
-import de.ibapl.spsw.api.PortBusyException;
-import de.ibapl.spsw.api.SerialPortException;
 import de.ibapl.spsw.api.SerialPortSocket;
 import de.ibapl.spsw.api.StopBits;
 import de.ibapl.spsw.api.TimeoutIOException;
-import de.ibapl.spsw.api.SerialPortSocketFactory;
-import java.lang.ref.WeakReference;
-import org.junit.After;
-import org.junit.Assert;
-import org.junit.Assume;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Ignore;
-import org.junit.Test;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
 
 /**
  * Unit test for simple App.
@@ -57,12 +48,12 @@ public abstract class AbstractOnePortTest extends AbstractPortTest {
 	private void testFlowControl(Set<FlowControl> expected) throws Exception {
 		writeSpc.setFlowControl(expected);
 		Set<FlowControl> result = writeSpc.getFlowControl();
-		Assert.assertEquals(expected, result);
+		assertEquals(expected, result);
 	}
 
 	@Test
 	public void testFlowControl() throws Exception {
-		Assume.assumeNotNull(writeSpc);
+		assumeWTest();
 		LOG.log(Level.INFO, "run testFlowControl");
 		openDefault();
 
@@ -72,11 +63,12 @@ public abstract class AbstractOnePortTest extends AbstractPortTest {
 		testFlowControl(FlowControl.getFC__XON_XOFF_OUT());
 		testFlowControl(FlowControl.getFC_XON_XOFF());
 		testFlowControl(FlowControl.getFC_RTS_CTS_XON_XOFF());
+		testFlowControl(FlowControl.getFC_NONE());
 	}
 
 	@Test
 	public void testRTS() throws Exception {
-		Assume.assumeNotNull(writeSpc);
+		assumeWTest();
 		LOG.log(Level.INFO, "run testRTS");
 		openDefault();
 
@@ -92,7 +84,7 @@ public abstract class AbstractOnePortTest extends AbstractPortTest {
 
 	@Test
 	public void testDTR() throws Exception {
-		Assume.assumeNotNull(writeSpc);
+		assumeWTest();
 		LOG.log(Level.INFO, "run testDTR");
 		openDefault();
 
@@ -108,16 +100,16 @@ public abstract class AbstractOnePortTest extends AbstractPortTest {
 
 	@Test
 	public void testIncommingRI() throws Exception {
-		Assume.assumeNotNull(readSpc);
+		assumeRTest();
 		LOG.log(Level.INFO, "run testIncommingRI");
-		readSpc.openAsIs();
+		readSpc.open();
 
 		readSpc.isIncommingRI();
 	}
 
 	@Test
 	public void testCTS() throws Exception {
-		Assume.assumeNotNull(readSpc);
+		assumeRTest();
 		LOG.log(Level.INFO, "run testDataBits");
 		openDefault();
 
@@ -126,7 +118,7 @@ public abstract class AbstractOnePortTest extends AbstractPortTest {
 
 	@Test
 	public void testDSR() throws Exception {
-		Assume.assumeNotNull(readSpc);
+		assumeRTest();
 		LOG.log(Level.INFO, "run testDSR");
 		openDefault();
 
@@ -135,116 +127,112 @@ public abstract class AbstractOnePortTest extends AbstractPortTest {
 
 	@Test
 	public void testXONChar() throws Exception {
-		Assume.assumeNotNull(writeSpc);
+		assumeWTest();
 		LOG.log(Level.INFO, "run testXONChar");
 		openDefault();
 
 		LOG.log(Level.INFO, "port: {0}", writeSpc);
 		char c = writeSpc.getXONChar();
 		writeSpc.setXONChar('a');
-		Assert.assertEquals('a', writeSpc.getXONChar());
+		assertEquals('a', writeSpc.getXONChar());
 		writeSpc.setXONChar('z');
-		Assert.assertEquals('z', writeSpc.getXONChar());
+		assertEquals('z', writeSpc.getXONChar());
 		writeSpc.setXONChar(c);
 	}
 
 	@Test
 	public void testXOFFChar() throws Exception {
-		Assume.assumeNotNull(writeSpc);
+		assumeWTest();
 		LOG.log(Level.INFO, "run testXOFFChar");
 		openDefault();
 
 		char c = writeSpc.getXOFFChar();
 		writeSpc.setXOFFChar('a');
-		Assert.assertEquals('a', writeSpc.getXOFFChar());
+		assertEquals('a', writeSpc.getXOFFChar());
 		writeSpc.setXOFFChar('z');
-		Assert.assertEquals('z', writeSpc.getXOFFChar());
+		assertEquals('z', writeSpc.getXOFFChar());
 		writeSpc.setXOFFChar(c);
 	}
 
-	@Test(expected = IllegalArgumentException.class)
+	@Test()
 	public void test_2_StopBitsAnd_5_DataBits() throws Exception {
-		Assume.assumeNotNull(readSpc);
+		assumeRTest();
 		LOG.log(Level.INFO, "run testStopBits");
 		openDefault();
 
 		readSpc.setStopBits(StopBits.SB_1);
-		Assert.assertEquals(StopBits.SB_1, readSpc.getStopBits());
+		assertEquals(StopBits.SB_1, readSpc.getStopBits());
 
 		readSpc.setDataBits(DataBits.DB_5);
-		readSpc.setStopBits(StopBits.SB_2);
-		fail("Could set 2 stopBits @5 dataBits");
+		assertThrows(IllegalArgumentException.class, () -> {
+			readSpc.setStopBits(StopBits.SB_2);
+		});
 	}
 
 	@Test()
 	public void test_1_5_StopBitsAnd_6_7_8_DataBits() throws Exception {
-		Assume.assumeNotNull(readSpc);
+		assumeRTest();
 		LOG.log(Level.INFO, "run testStopBits");
 		openDefault();
 
-		try {
-			readSpc.setStopBits(StopBits.SB_1);
-			Assert.assertEquals(StopBits.SB_1, readSpc.getStopBits());
-			readSpc.setDataBits(DataBits.DB_6);
+		readSpc.setStopBits(StopBits.SB_1);
+		assertEquals(StopBits.SB_1, readSpc.getStopBits());
+		readSpc.setDataBits(DataBits.DB_6);
+		assertThrows(IllegalArgumentException.class, () -> {
 			readSpc.setStopBits(StopBits.SB_1_5);
-			fail("Could set 1.5 stopbits @6 dataBits");
-		} catch (IllegalArgumentException iae) {
-		}
-		try {
-			readSpc.setStopBits(StopBits.SB_1);
-			Assert.assertEquals(StopBits.SB_1, readSpc.getStopBits());
-			readSpc.setDataBits(DataBits.DB_7);
+		});
+
+		readSpc.setStopBits(StopBits.SB_1);
+		assertEquals(StopBits.SB_1, readSpc.getStopBits());
+		readSpc.setDataBits(DataBits.DB_7);
+		assertThrows(IllegalArgumentException.class, () -> {
 			readSpc.setStopBits(StopBits.SB_1_5);
-			fail("Could set 1.5 stopbits @7 dataBits");
-		} catch (IllegalArgumentException iae) {
-		}
-		try {
-			readSpc.setStopBits(StopBits.SB_1);
-			Assert.assertEquals(StopBits.SB_1, readSpc.getStopBits());
-			readSpc.setDataBits(DataBits.DB_8);
+		});
+		readSpc.setStopBits(StopBits.SB_1);
+		assertEquals(StopBits.SB_1, readSpc.getStopBits());
+		readSpc.setDataBits(DataBits.DB_8);
+		assertThrows(IllegalArgumentException.class, () -> {
 			readSpc.setStopBits(StopBits.SB_1_5);
-			fail("Could set 1.5 stopbits @8 dataBits");
-		} catch (IllegalArgumentException iae) {
-		}
+		});
 	}
 
 	@Test
 	public void testStopBits() throws Exception {
-		Assume.assumeNotNull(readSpc);
+		assumeRTest();
 		LOG.log(Level.INFO, "run testStopBits");
 		openDefault();
 
 		readSpc.setStopBits(StopBits.SB_1);
-		Assert.assertEquals(StopBits.SB_1, readSpc.getStopBits());
+		assertEquals(StopBits.SB_1, readSpc.getStopBits());
 
 		readSpc.setDataBits(DataBits.DB_5);
 		readSpc.setStopBits(StopBits.SB_1_5);
-		Assert.assertEquals(StopBits.SB_1_5, readSpc.getStopBits());
+		assertEquals(StopBits.SB_1_5, readSpc.getStopBits());
 		readSpc.setStopBits(StopBits.SB_1);
-		Assert.assertEquals(StopBits.SB_1, readSpc.getStopBits());
+		assertEquals(StopBits.SB_1, readSpc.getStopBits());
 
 		readSpc.setDataBits(DataBits.DB_6);
 		readSpc.setStopBits(StopBits.SB_2);
-		Assert.assertEquals(StopBits.SB_2, readSpc.getStopBits());
+		assertEquals(StopBits.SB_2, readSpc.getStopBits());
 		readSpc.setStopBits(StopBits.SB_1);
-		Assert.assertEquals(StopBits.SB_1, readSpc.getStopBits());
+		assertEquals(StopBits.SB_1, readSpc.getStopBits());
 
 		readSpc.setDataBits(DataBits.DB_7);
 		readSpc.setStopBits(StopBits.SB_2);
-		Assert.assertEquals(StopBits.SB_2, readSpc.getStopBits());
+		assertEquals(StopBits.SB_2, readSpc.getStopBits());
 		readSpc.setStopBits(StopBits.SB_1);
-		Assert.assertEquals(StopBits.SB_1, readSpc.getStopBits());
+		assertEquals(StopBits.SB_1, readSpc.getStopBits());
 
 		readSpc.setDataBits(DataBits.DB_8);
 		readSpc.setStopBits(StopBits.SB_2);
-		Assert.assertEquals(StopBits.SB_2, readSpc.getStopBits());
+		assertEquals(StopBits.SB_2, readSpc.getStopBits());
 		readSpc.setStopBits(StopBits.SB_1);
-		Assert.assertEquals(StopBits.SB_1, readSpc.getStopBits());
+		assertEquals(StopBits.SB_1, readSpc.getStopBits());
 	}
 
 	@Test
 	public void testDataBits() throws Exception {
-		Assume.assumeNotNull(readSpc);
+		assumeRTest();
 		LOG.log(Level.INFO, "run testDataBits");
 		openDefault();
 
@@ -252,22 +240,22 @@ public abstract class AbstractOnePortTest extends AbstractPortTest {
 			try {
 				readSpc.setDataBits(db);
 			} catch (Exception e) {
-				Assert.fail(e.getMessage() + "dataBits: " + db);
+				fail(e.getMessage() + "dataBits: " + db);
 			}
-			Assert.assertEquals(db.toString() + "Failed", db, readSpc.getDatatBits());
+			assertEquals(db, readSpc.getDatatBits(), db.toString() + "Failed");
 		}
 	}
 
 	@Test
 	public void testBaudrate() throws Exception {
-		Assume.assumeNotNull(readSpc);
+		assumeRTest();
 		LOG.log(Level.INFO, "run testBaudrate");
 		openDefault();
 
 		for (Baudrate b : Baudrate.values()) {
 			try {
 				readSpc.setBaudrate(b);
-				Assert.assertEquals("testBaudrate", b, readSpc.getBaudrate());
+				assertEquals(b, readSpc.getBaudrate(), "testBaudrate");
 			} catch (IllegalArgumentException iae) {
 				// This is Hardware dependent watch for logs ...
 				LOG.log(Level.WARNING, "Error setBaudrate " + b, iae);
@@ -277,7 +265,7 @@ public abstract class AbstractOnePortTest extends AbstractPortTest {
 
 	/**
 	 * Write byte[1024] blocks with set RTS/CTS so the port will actually block The
-	 * logs give information about the actual behavior If the port does not support
+	 * logs give information about the actual behavior. If the port does not support
 	 * RTS/CTS (like MCS7820 on linux TODO BUG?)it will caught by the timeout.
 	 * 
 	 *
@@ -285,17 +273,18 @@ public abstract class AbstractOnePortTest extends AbstractPortTest {
 	 */
 	@Test
 	public void testWriteBytesTimeout() throws Exception {
-		Assume.assumeNotNull(writeSpc);
-		Assume.assumeTrue(HARDWARE_SUPPORTS_RTS_CTS);
+		assumeWTest();
+		assumeTrue(HARDWARE_SUPPORTS_RTS_CTS);
 		LOG.log(Level.INFO, "run testWriteBytesTimeout");
 
 		// Set a high baudrate to speed up things
-		openRaw(Baudrate.B115200, DataBits.DB_8, StopBits.SB_1, Parity.NONE, FlowControl.getFC_RTS_CTS());
-		//Disabling timeout on the reading side - so the writing side has a chance to fill the buffer...
+		open(Baudrate.B115200, DataBits.DB_8, StopBits.SB_1, Parity.NONE, FlowControl.getFC_RTS_CTS());
+		// Disabling timeout on the reading side - so the writing side has a chance to
+		// fill the buffer...
 		readSpc.setFlowControl(FlowControl.getFC_NONE());
 		readSpc.setRTS(false);
 		Thread.sleep(100);
-		assertFalse("CTS is true; No chance to ever fill the buffer", writeSpc.isCTS());
+		assertFalse(writeSpc.isCTS(), "CTS is true; No chance to ever fill the buffer");
 		setTimeouts(100, 1000, 1000);
 
 		byte[] data = new byte[1024];
@@ -325,7 +314,7 @@ public abstract class AbstractOnePortTest extends AbstractPortTest {
 			}
 			round++;
 			overallDataWritten += dataWritten;
-			assertTrue("Rounds exceed maximum of " + 100, 100 > round);
+			assertTrue(100 > round, "Rounds exceed maximum of " + 100);
 		} while (dataWritten > 0);
 
 		LOG.log(Level.INFO, "Wrote: " + overallDataWritten + " in " + round + " rounds; OutBuf:  "
@@ -334,7 +323,7 @@ public abstract class AbstractOnePortTest extends AbstractPortTest {
 		writeSpc.setFlowControl(FlowControl.getFC_NONE());
 		LOG.log(Level.INFO, "will close port");
 		writeSpc.close();
-		Assert.assertTrue(writeSpc.isClosed());
+		assertTrue(writeSpc.isClosed());
 		LOG.log(Level.INFO, "port closed");
 	}
 
@@ -346,17 +335,18 @@ public abstract class AbstractOnePortTest extends AbstractPortTest {
 	 */
 	@Test
 	public void testWriteSingleByteTimeout() throws Exception {
-		Assume.assumeNotNull(writeSpc);
-		Assume.assumeTrue(HARDWARE_SUPPORTS_RTS_CTS);
+		assumeWTest();
+		assumeTrue(HARDWARE_SUPPORTS_RTS_CTS);
 		LOG.log(Level.INFO, "run testWriteSingleByteTimeout");
 
 		// Set a high baudrate to speed up things
-		openRaw(Baudrate.B115200, DataBits.DB_8, StopBits.SB_1, Parity.NONE, FlowControl.getFC_RTS_CTS());
-		//Disabling timeout on the reading side - so the writing side has a chance to fill the buffer...
+		open(Baudrate.B115200, DataBits.DB_8, StopBits.SB_1, Parity.NONE, FlowControl.getFC_RTS_CTS());
+		// Disabling timeout on the reading side - so the writing side has a chance to
+		// fill the buffer...
 		readSpc.setFlowControl(FlowControl.getFC_NONE());
 		readSpc.setRTS(false);
 		Thread.sleep(100);
-		assertFalse("CTS is true; No chance to ever fill the buffer", writeSpc.isCTS());
+		assertFalse(writeSpc.isCTS(), "CTS is true; No chance to ever fill the buffer");
 		setTimeouts(100, 100, 100);
 
 		int round = 1;
@@ -394,7 +384,79 @@ public abstract class AbstractOnePortTest extends AbstractPortTest {
 		writeSpc.setFlowControl(FlowControl.getFC_NONE());
 		LOG.log(Level.INFO, "will close port");
 		writeSpc.close();
-		Assert.assertTrue(writeSpc.isClosed());
+		assertTrue(writeSpc.isClosed());
+		LOG.log(Level.INFO, "port closed");
+	}
+
+	private final static int _16MB = 1024 * 1024 * 16;
+
+	/**
+	 * Some devices namely Silicon Labs CP210x can't handle this on windows.They do
+	 * not even sent a single byte... port native win error: 87
+	 * 
+	 * @throws Exception
+	 */
+	@Test
+	public void testWrite16MBChunkInfiniteWrite() throws Exception {
+		testWrite16MBChunk(0);
+	}
+
+	/**
+	 * Some devices namely Silicon Labs CP210x can't handle this on windows. They do
+	 * not even sent a single byte... port native win error: 87
+	 * 
+	 * @throws Exception
+	 */
+	@Test
+	public void testWrite16MBChunk() throws Exception {
+		testWrite16MBChunk(1000 + 2 * SerialPortSocket.calculateMillisForBytes(_16MB, Baudrate.B1000000, DataBits.DB_8,
+				StopBits.SB_1, Parity.NONE));
+	}
+
+	public void testWrite16MBChunk(int writeTimeout) throws Exception {
+		assumeWTest();
+		LOG.log(Level.INFO, "run testWriteBytesTimeout writeTO:" + writeTimeout);
+		if (writeTimeout == -1) {
+			LOG.log(Level.INFO, "infinite timeout");
+		} else {
+			LOG.log(Level.INFO, "timeout in ms:" + writeTimeout);
+		}
+
+		// Set a high baudrate to speed up things
+		open(Baudrate.B1000000, DataBits.DB_8, StopBits.SB_1, Parity.NONE, FlowControl.getFC_NONE());
+		setTimeouts(100, 1000, writeTimeout);
+
+		byte[] data = new byte[_16MB];
+		int dataWritten = 0;
+		try {
+			writeSpc.getOutputStream().write(data);
+			dataWritten = data.length;
+		} catch (TimeoutIOException e) {
+			dataWritten = e.bytesTransferred;
+			String msg =
+			"Timeout: " + dataWritten + " bytes of: " + data.length + " written; OutBuf:  "
+					+ writeSpc.getOutBufferBytesCount() + " EX: " + e;
+			LOG.log(Level.SEVERE, msg);
+			fail(msg);
+		} catch (InterruptedIOException iio) {
+			dataWritten = iio.bytesTransferred;
+			String msg ="Interrupted: " + dataWritten + " bytes of: " + data.length + " written; OutBuf:  "
+					+ writeSpc.getOutBufferBytesCount() + " EX: " + iio;
+			LOG.log(Level.SEVERE, msg);
+			fail(msg);
+		}
+		try {
+			writeSpc.getOutputStream().flush();
+			// TODO NOT on winfail();
+		} catch (TimeoutIOException e) {
+			LOG.log(Level.SEVERE, "Timeoutt on Flush; OutBuf:  " + writeSpc.getOutBufferBytesCount());
+			assertTrue(true);
+		}
+
+		LOG.log(Level.INFO, "Wrote: " + dataWritten + " OutBuf:  " + writeSpc.getOutBufferBytesCount());
+		LOG.log(Level.INFO, "will close port");
+		writeSpc.close();
+		assertTrue(writeSpc.isClosed());
 		LOG.log(Level.INFO, "port closed");
 	}
 

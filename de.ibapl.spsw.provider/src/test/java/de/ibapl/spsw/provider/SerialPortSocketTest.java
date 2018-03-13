@@ -1,10 +1,8 @@
-package de.ibapl.spsw.tests;
-
 /*-
  * #%L
  * SPSW Provider
  * %%
- * Copyright (C) 2009 - 2018 Arne Plöse
+ * Copyright (C) 2009 - 2017 Arne Plöse
  * %%
  * SPSW - Drivers for the serial port, https://github.com/aploese/spsw/
  * Copyright (C) 2009-2018, Arne Plöse and individual contributors as indicated
@@ -28,18 +26,43 @@ package de.ibapl.spsw.tests;
  * #L%
  */
 
+/*
+* To change this license header, choose License Headers in Project Properties.
+* To change this template file, choose Tools | Templates
+* and open the template in the editor.
+*/
+package de.ibapl.spsw.provider;
+
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+
+import java.net.URL;
+
+import org.junit.jupiter.api.Test;
+
 import de.ibapl.spsw.api.SerialPortSocketFactory;
-import de.ibapl.spsw.provider.SerialPortSocketFactoryImpl;
 
 /**
  *
  * @author aploese
  */
-public class TwoPortSingleByteTest extends AbstractTwoPortSingleByteTest{
- 
-    @Override
-    protected SerialPortSocketFactory getSerialPortSocketFactory() {
-        return SerialPortSocketFactoryImpl.singleton();
-    }
-   
+public class SerialPortSocketTest {
+
+	// TODO add test methods here.
+	// The methods must be annotated with annotation @Test. For example:
+	//
+	// @Test
+	// public void hello() {}
+	@Test
+	public void testSPSWProps() {
+		URL u = AbstractSerialPortSocket.class.getClassLoader()
+				.getResource(SerialPortSocketFactoryImpl.SPSW_PROPERTIES);
+		assertNotNull(u);
+	}
+
+	@Test
+	public void testLoadLib() {
+		SerialPortSocketFactory spsf = SerialPortSocketFactoryImpl.singleton();
+		assertNotNull(spsf);
+	}
+
 }

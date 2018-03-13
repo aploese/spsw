@@ -1,5 +1,8 @@
 package de.ibapl.nativeutils;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 /*-
  * #%L
  * SPSW Provider
@@ -28,12 +31,11 @@ package de.ibapl.nativeutils;
  * #L%
  */
 
-import static org.junit.Assert.*;
 
 import java.io.IOException;
 import java.io.InputStream;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import de.ibapl.nativeutils.arm.ArmEFlags;
 import de.ibapl.nativeutils.mips.MipsEFlags;

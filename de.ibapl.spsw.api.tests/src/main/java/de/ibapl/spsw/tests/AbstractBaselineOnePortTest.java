@@ -1,5 +1,3 @@
-package de.ibapl.spsw.tests;
-
 /*-
  * #%L
  * SPSW Provider
@@ -19,14 +17,27 @@ package de.ibapl.spsw.tests;
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  * #L%
  */
+package de.ibapl.spsw.tests;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTimeoutPreemptively;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
+
 import java.io.File;
 import java.io.IOException;
+import java.io.InterruptedIOException;
 import java.lang.ref.WeakReference;
+import java.time.Duration;
 import java.util.logging.Level;
 
-import org.junit.Assert;
-import org.junit.Assume;
-import org.junit.Test;
+import javax.swing.text.html.HTMLDocument.HTMLReader.PreAction;
+
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
 
 import de.ibapl.spsw.api.Baudrate;
 import de.ibapl.spsw.api.DataBits;
@@ -38,10 +49,6 @@ import de.ibapl.spsw.api.SerialPortSocket;
 import de.ibapl.spsw.api.StopBits;
 import de.ibapl.spsw.api.TimeoutIOException;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
-
 /**
  * Unit test for simple App. No Handshake (RTS/CTS etc.) Only 1 or 2 Stoppbits
  * Baudrates from 300 up to 115200 Parity 8 Databits
@@ -51,18 +58,63 @@ public abstract class AbstractBaselineOnePortTest extends AbstractPortTest {
 
 	@Test
 	public void testOpenClose() throws Exception {
-		Assume.assumeNotNull(readSpc);
+		assumeRTest();
 		LOG.log(Level.INFO, "run testOpenClose");
 
-		readSpc.openAsIs();
-		Assert.assertTrue(readSpc.isOpen());
+		readSpc.open();
+		assertTrue(readSpc.isOpen());
 		readSpc.close();
-		Assert.assertTrue(readSpc.isClosed());
+		assertTrue(readSpc.isClosed());
 	}
 
-	@Test(timeout = 5000)
+	@Test
+	public void testOpenCloseWithParams() throws Exception {
+		assumeRTest();
+		LOG.log(Level.INFO, "run testOpenCloseParams");
+
+		readSpc.open(Baudrate.B9600, DataBits.DB_8, StopBits.SB_1, Parity.EVEN, FlowControl.getFC_NONE());
+		assertTrue(readSpc.isOpen());
+		assertEquals(Baudrate.B9600, readSpc.getBaudrate());
+		assertEquals(DataBits.DB_8, readSpc.getDatatBits());
+		assertEquals(StopBits.SB_1, readSpc.getStopBits());
+		assertEquals(Parity.EVEN, readSpc.getParity());
+		assertEquals(FlowControl.getFC_NONE(), readSpc.getFlowControl());
+		readSpc.close();
+		assertTrue(readSpc.isClosed());
+	}
+
+	@Test
+	public void testIlleagalStateExceptions() throws Exception {
+		assumeRTest();
+		IllegalStateException ise = null;
+		// Make sure port is closed
+		readSpc.close();
+
+		ise = assertThrows(IllegalStateException.class, () -> {
+			readSpc.setBaudrate(Baudrate.B9600);
+		});
+		assertEquals(ise.getMessage(), SerialPortSocket.PORT_NOT_OPEN);
+
+		ise = assertThrows(IllegalStateException.class, () -> {
+			readSpc.getBaudrate();
+		});
+		assertEquals(ise.getMessage(), SerialPortSocket.PORT_NOT_OPEN);
+
+		// ise = assertThrows(IllegalStateException.class, ()->{});
+		// assertEquals(ise.getMessage(), SerialPortSocket.PORT_NOT_OPEN);
+
+		readSpc.open();
+
+		ise = assertThrows(IllegalStateException.class, () -> {
+			readSpc.open();
+		});
+		assertEquals(ise.getMessage(), SerialPortSocket.PORT_IS_OPEN);
+
+	}
+
+	@Test
 	public void testSetTimeouts() throws Exception {
-		Assume.assumeNotNull(readSpc);
+		assumeRTest();
 		LOG.log(Level.INFO, "run testSetTimeOuts");
 
 		openDefault();
@@ -99,53 +151,58 @@ public abstract class AbstractBaselineOnePortTest extends AbstractPortTest {
 
 	}
 
-	@Test(timeout = 5000)
+	@Test
 	public void testOverallTimeoutBlocking() throws Exception {
-		Assume.assumeNotNull(readSpc);
+		assumeRTest();
 		LOG.log(Level.INFO, "run testOverallTimeoutBlocking");
 		openDefault();
 		setTimeouts(100, 1000, 2000);
 
-		long start = System.currentTimeMillis();
-		try {
-			int i = readSpc.getInputStream().read();
-			Assert.fail("No timeout Exception result of Read: " + i);
-		} catch (TimeoutIOException tioe) {
-			final long time = System.currentTimeMillis() - start;
-			LOG.log(Level.INFO, "Timeout: 1000ms and it took: " + time + "ms");
-			Assert.assertEquals(1000.0, time, 100.0); // We tolerate 5% difference
-		}
+		assertTimeoutPreemptively(Duration.ofMillis(1500), () -> {
+			final long start = System.currentTimeMillis();
+			try {
+				int i = readSpc.getInputStream().read();
+				fail("No timeout Exception result of Read: " + i);
+			} catch (TimeoutIOException tioe) {
+				final long time = System.currentTimeMillis() - start;
+				LOG.log(Level.INFO, "Timeout: 1000ms and it took: " + time + "ms");
+				assertEquals(1000.0, time, 100.0); // We tolerate 5% difference
+			}
+		});
 
 		readSpc.setTimeouts(0, readSpc.getOverallReadTimeout(), readSpc.getOverallWriteTimeout());
 
-		start = System.currentTimeMillis();
-		try {
-			int i = readSpc.getInputStream().read();
-			Assert.fail("No timeout Exception result of Read: " + i);
-		} catch (TimeoutIOException tioe) {
-			final long time = System.currentTimeMillis() - start;
-			LOG.log(Level.INFO, "Timeout: 1000ms and it took: " + time + "ms");
-			Assert.assertEquals(1000.0, time, 100.0); // We tolerate 5% difference
-		}
+		assertTimeoutPreemptively(Duration.ofMillis(1500), () -> {
+			final long start = System.currentTimeMillis();
+			try {
+				int i = readSpc.getInputStream().read();
+				fail("No timeout Exception result of Read: " + i);
+			} catch (TimeoutIOException tioe) {
+				final long time = System.currentTimeMillis() - start;
+				LOG.log(Level.INFO, "Timeout: 1000ms and it took: " + time + "ms");
+				assertEquals(1000.0, time, 100.0); // We tolerate 5% difference
+			}
+		});
 
 		readSpc.close();
-		Assert.assertTrue(readSpc.isClosed());
+		assertTrue(readSpc.isClosed());
 	}
 
-	@Test(expected = SerialPortException.class)
+	@Test
 	public void testOpenTempDir() throws Exception {
 		LOG.log(Level.INFO, "run testOpenTempDir");
 
 		File tmpFile = File.createTempFile("serial", "native");
 		tmpFile.deleteOnExit();
 		SerialPortSocket sp = getSerialPortSocketFactory().createSerialPortSocket(tmpFile.getAbsolutePath());
-		sp.openAsIs();
-		Assert.fail("No serial port opend");
+		assertThrows(SerialPortException.class, () -> {
+			sp.open();
+		});
 	}
 
 	@Test
 	public void testBreak() throws Exception {
-		Assume.assumeNotNull(writeSpc);
+		assumeWTest();
 		LOG.log(Level.INFO, "run testBreak");
 		openDefault();
 
@@ -155,26 +212,26 @@ public abstract class AbstractBaselineOnePortTest extends AbstractPortTest {
 
 	@Test
 	public void testParity() throws Exception {
-		Assume.assumeNotNull(readSpc);
+		assumeRTest();
 		LOG.log(Level.INFO, "run testParity");
 		openDefault();
 
 		for (Parity p : Parity.values()) {
 			readSpc.setParity(p);
-			Assert.assertEquals(p, readSpc.getParity());
+			assertEquals(p, readSpc.getParity());
 		}
 	}
 
 	@Test
 	public void testBaudrate() throws Exception {
-		Assume.assumeNotNull(readSpc);
+		assumeRTest();
 		LOG.log(Level.INFO, "run testBaudrate");
 		openDefault();
 
 		for (Baudrate b : Baudrate.values()) {
 			try {
 				readSpc.setBaudrate(b);
-				Assert.assertEquals("testBaudrate", b, readSpc.getBaudrate());
+				assertEquals(b, readSpc.getBaudrate(), "testBaudrate");
 			} catch (IllegalArgumentException iae) {
 				switch (b) {
 				case B0:
@@ -184,6 +241,7 @@ public abstract class AbstractBaselineOnePortTest extends AbstractPortTest {
 				case B134:
 				case B150:
 				case B200:
+				case B2000000:
 				case B2500000:
 				case B3000000:
 				case B3500000:
@@ -199,21 +257,25 @@ public abstract class AbstractBaselineOnePortTest extends AbstractPortTest {
 		}
 	}
 
-	@Test(expected = SerialPortException.class)
-	public void testOpen2() throws Exception {
-		Assume.assumeNotNull(readSpc);
+	@Test()
+	public void testOpenTwice() throws Exception {
+		assumeRTest();
 		LOG.log(Level.INFO, "run testOpen2");
 		openDefault();
 
-		try (SerialPortSocket spc1 = getSerialPortSocketFactory().createSerialPortSocket(readSpc.getPortName())) {
-			spc1.openAsIs();
-		}
-		Assert.fail();
+		SerialPortSocket spc1 = getSerialPortSocketFactory().createSerialPortSocket(readSpc.getPortName());
+		assertThrows(SerialPortException.class, () -> {
+			spc1.open();
+		});
+
+		// try to use the "first" port and if its working ... so we call
+		// getInBufferBytesCount()
+		readSpc.getInBufferBytesCount();
 	}
 
 	@Test
 	public void testWriteSingle() throws Exception {
-		Assume.assumeNotNull(writeSpc);
+		assumeWTest();
 		LOG.log(Level.INFO, "run testWrite");
 		openDefault();
 		writeSpc.setFlowControl(FlowControl.getFC_NONE());
@@ -226,7 +288,7 @@ public abstract class AbstractBaselineOnePortTest extends AbstractPortTest {
 
 	@Test
 	public void testWriteBytes() throws Exception {
-		Assume.assumeNotNull(writeSpc);
+		assumeWTest();
 		LOG.log(Level.INFO, "run testWriteBytes");
 		openDefault();
 		writeSpc.setFlowControl(FlowControl.getFC_NONE());
@@ -272,11 +334,11 @@ public abstract class AbstractBaselineOnePortTest extends AbstractPortTest {
 
 	@Test
 	public void testCloseIn() throws Exception {
-		Assume.assumeNotNull(readSpc);
+		assumeRTest();
 		LOG.log(Level.INFO, "run testCloseIn");
 
 		for (int loopIndex = 0; loopIndex < 1; loopIndex++) {
-			openRaw(Baudrate.B2400, DataBits.DB_8, StopBits.SB_1, Parity.EVEN, FlowControl.getFC_NONE());
+			open(Baudrate.B2400, DataBits.DB_8, StopBits.SB_1, Parity.EVEN, FlowControl.getFC_NONE());
 			// spc.setTimeouts(100, 1000, 1000);
 			printPorts();
 			final TestRead tr = new TestRead();
@@ -290,7 +352,7 @@ public abstract class AbstractBaselineOnePortTest extends AbstractPortTest {
 			LOG.info("Close Port");
 			Thread.sleep(100);
 			readSpc.close();
-			Assert.assertTrue(readSpc.isClosed());
+			assertTrue(readSpc.isClosed());
 			LOG.info("Port closed");
 
 			synchronized (tr.lock) {
@@ -298,7 +360,7 @@ public abstract class AbstractBaselineOnePortTest extends AbstractPortTest {
 					LOG.info("Will Wait");
 					tr.lock.wait(5000); // Allow 1s to close the port and unlock the rad/write Threads.
 					if (!tr.done) {
-						Assert.fail("Port not closed in loopIndex = " + loopIndex);
+						fail("Port not closed in loopIndex = " + loopIndex);
 					}
 				}
 
@@ -306,21 +368,37 @@ public abstract class AbstractBaselineOnePortTest extends AbstractPortTest {
 		}
 		LOG.info("OK Finish");
 
-		Assert.assertTrue(readSpc.isClosed());
+		assertTrue(readSpc.isClosed());
 	}
 
-	@Test(expected = NullPointerException.class)
+	@Test
 	public void testWriteBytesNPE() throws Exception {
-		Assume.assumeNotNull(writeSpc);
+		assumeWTest();
 		LOG.log(Level.INFO, "run testWriteBytesNPE");
 		openDefault();
-		writeSpc.getOutputStream().write(null);
+		assertThrows(NullPointerException.class, () -> {
+			writeSpc.getOutputStream().write(null);
+		});
 	}
 
-	// TODO FIX Stop bit handling 5 databis 1 and 1.5 6,7,8 db 1 and 2 db
+	@Test
+	public void testSwitchStopBits() throws Exception {
+		assumeRTest();
+		LOG.log(Level.INFO, "run testSwitchStopBits");
+		openDefault();
+
+		readSpc.setDataBits(DataBits.DB_8);
+		readSpc.setStopBits(StopBits.SB_2);
+		assertEquals(StopBits.SB_2, readSpc.getStopBits());
+		readSpc.setDataBits(DataBits.DB_5);
+		assertEquals(StopBits.SB_1_5, readSpc.getStopBits());
+		readSpc.setDataBits(DataBits.DB_8);
+		assertEquals(StopBits.SB_2, readSpc.getStopBits());
+	}
+
 	@Test
 	public void testAllSettings() throws Exception {
-		Assume.assumeNotNull(readSpc);
+		assumeRTest();
 		LOG.log(Level.INFO, "run testAllSettings");
 		openDefault();
 
@@ -336,19 +414,47 @@ public abstract class AbstractBaselineOnePortTest extends AbstractPortTest {
 				readSpc.setDataBits(db);
 				for (Parity p : Parity.values()) {
 					readSpc.setParity(p);
-					Assert.assertEquals(br, readSpc.getBaudrate());
-					Assert.assertEquals(db, readSpc.getDatatBits());
-					Assert.assertEquals(p, readSpc.getParity());
+					for (StopBits sp : StopBits.values()) {
+						switch (db) {
+						case DB_5:
+							if (sp == StopBits.SB_2) {
+								assertThrows(IllegalArgumentException.class, () -> {
+									readSpc.setStopBits(sp);
+								});
+							} else {
+								readSpc.setStopBits(sp);
+								assertEquals(sp, readSpc.getStopBits());
+							}
+							break;
+						case DB_6:
+						case DB_7:
+						case DB_8:
+							if (sp == StopBits.SB_1_5) {
+								assertThrows(IllegalArgumentException.class, () -> {
+									readSpc.setStopBits(sp);
+								});
+							} else {
+								readSpc.setStopBits(sp);
+								assertEquals(sp, readSpc.getStopBits());
+							}
+							break;
+						default:
+							throw new RuntimeException("Should never happen");
+						}
+						assertEquals(br, readSpc.getBaudrate());
+						assertEquals(db, readSpc.getDatatBits());
+						assertEquals(p, readSpc.getParity());
+					}
 				}
 			}
 		}
 	}
 
-	@Test(timeout = 5000)
+	@Test
 	public void testCloseDuringSingleRead() throws Exception {
-		Assume.assumeNotNull(readSpc);
+		assumeRTest();
 		LOG.log(Level.INFO, "run testCloseDuringSingleRead");
-		openRaw(Baudrate.B2400, DataBits.DB_8, StopBits.SB_1, Parity.EVEN, FlowControl.getFC_NONE());
+		open(Baudrate.B2400, DataBits.DB_8, StopBits.SB_1, Parity.EVEN, FlowControl.getFC_NONE());
 
 		new Thread(() -> {
 			try {
@@ -360,17 +466,21 @@ public abstract class AbstractBaselineOnePortTest extends AbstractPortTest {
 		}).start();
 
 		assertTrue(readSpc.isOpen());
-		int result = readSpc.getInputStream().read();
+		int result = assertTimeoutPreemptively(Duration.ofMillis(5000), () -> {
+			return readSpc.getInputStream().read();
+		});
 		assertEquals(-1, result);
-
-		Assert.assertTrue(readSpc.isClosed());
+		assertTrue(readSpc.isClosed());
+		// Allow 50ms to recover -on win the next executed test may fail wit port buy
+		// otherwise
+		Thread.sleep(50);
 	}
 
-	@Test(timeout = 5000)
+	@Test
 	public void testCloseDuringBytesRead() throws Exception {
-		Assume.assumeNotNull(readSpc);
+		assumeRTest();
 		LOG.log(Level.INFO, "run testCloseDuringBytesRead");
-		openRaw(Baudrate.B2400, DataBits.DB_8, StopBits.SB_1, Parity.EVEN, FlowControl.getFC_NONE());
+		open(Baudrate.B2400, DataBits.DB_8, StopBits.SB_1, Parity.EVEN, FlowControl.getFC_NONE());
 
 		new Thread(() -> {
 			try {
@@ -383,27 +493,55 @@ public abstract class AbstractBaselineOnePortTest extends AbstractPortTest {
 
 		byte b[] = new byte[255];
 		assertTrue(readSpc.isOpen());
-		int result = readSpc.getInputStream().read(b);
+
+		int result = assertTimeoutPreemptively(Duration.ofMillis(5000), () -> {
+			return readSpc.getInputStream().read(b);
+		});
 		assertEquals(-1, result);
 
-		Assert.assertTrue(readSpc.isClosed());
+		assertTrue(readSpc.isClosed());
+		// Allow 50ms to recover -on win the next executed test may fail wit port buy
+		// otherwise
+		Thread.sleep(50);
+	}
 
-		// Make sure it can be opend
-		// TODO commenting this out will make the next Test fail on windowx with port
-		// busy ??? I have no idea why
-		// spc.openRaw();
-		// spc.close();
-		// Assert.assertTrue(spc.isClosed());
-		// Or 40s will also do
-		Thread.sleep(40);
+	@Test
+	public void testCloseDuringBytesWrite() throws Exception {
+		assumeWTest();
+		LOG.log(Level.INFO, "run testCloseDuringBytesRead");
+		open(Baudrate.B2400, DataBits.DB_8, StopBits.SB_1, Parity.EVEN, FlowControl.getFC_NONE());
+
+		byte b[] = new byte[1024 * 1024];
+		assertTrue(writeSpc.isOpen());
+
+		new Thread(() -> {
+			try {
+				Thread.sleep(100);
+				writeSpc.close();
+			} catch (InterruptedException | IOException e) {
+				fail("Exception occured");
+			}
+		}).start();
+
+		assertTimeoutPreemptively(Duration.ofMillis(1000), () -> {
+			InterruptedIOException iioe = assertThrows(InterruptedIOException.class, () -> {
+				writeSpc.getOutputStream().write(b);
+			});
+			LOG.log(Level.INFO, "Bytes written before close:" + iioe.bytesTransferred + "MSG: " + iioe.getMessage());
+		});
+
+		assertTrue(readSpc.isClosed());
+		// Allow 50ms to recover -on win the next executed test may fail wit port buy
+		// otherwise
+		Thread.sleep(50);
 	}
 
 	@Test
 	public void testSendBreakBlocking() throws Exception {
-		Assume.assumeNotNull(writeSpc);
+		assumeWTest();
 		LOG.log(Level.INFO, "run testSendBreakBlocking");
 
-		openRaw(Baudrate.B2400, DataBits.DB_8, StopBits.SB_1, Parity.EVEN, FlowControl.getFC_NONE());
+		open(Baudrate.B2400, DataBits.DB_8, StopBits.SB_1, Parity.EVEN, FlowControl.getFC_NONE());
 		final long start = System.currentTimeMillis();
 		writeSpc.sendBreak(500);
 		final long end = System.currentTimeMillis();
@@ -412,7 +550,7 @@ public abstract class AbstractBaselineOnePortTest extends AbstractPortTest {
 
 	@Test
 	public void testDefaultTimeouts() throws Exception {
-		Assume.assumeNotNull(readSpc);
+		assumeRTest();
 		LOG.log(Level.INFO, "ruf testDefaultTimeouts");
 		openDefault();
 
@@ -423,32 +561,29 @@ public abstract class AbstractBaselineOnePortTest extends AbstractPortTest {
 
 	@Test
 	public void testOpen2Times() throws IOException {
-		Assume.assumeNotNull(readSpc);
+		assumeRTest();
 		LOG.log(Level.INFO, "run testDefaultTimeouts");
 
-		readSpc.openRaw();
+		readSpc.open();
 		SerialPortSocket spc2 = getSerialPortSocketFactory().createSerialPortSocket(readSpc.getPortName());
-		try {
-			spc2.openRaw();
-			fail("Port opend twice");
-		} catch (PortBusyException busyException) {
-			Assert.assertFalse(spc2.isOpen());
-		}
+		assertThrows(PortBusyException.class, () -> {
+			spc2.open();
+		});
+		assertFalse(spc2.isOpen());
 	}
 
 	@Test
 	public void testOpenSamePort2Times() throws IOException {
-		Assume.assumeNotNull(readSpc);
+		assumeRTest();
 		LOG.log(Level.INFO, "run testOpenSamePort2Times");
 
-		readSpc.openRaw();
-		try {
-			readSpc.openRaw();
-			fail("Same port opend twice");
-		} catch (IOException ioe) {
-			assertEquals(SerialPortSocket.PORT_IS_OPEN, ioe.getMessage());
-			Assert.assertTrue(readSpc.isOpen());
-		}
+		readSpc.open();
+		IllegalStateException ioe = assertThrows(IllegalStateException.class, () -> {
+			readSpc.open();
+		});
+		assertEquals(SerialPortSocket.PORT_IS_OPEN, ioe.getMessage());
+		assertTrue(readSpc.isOpen());
+
 	}
 
 	/**
@@ -459,12 +594,12 @@ public abstract class AbstractBaselineOnePortTest extends AbstractPortTest {
 	 */
 	@Test
 	public void testFinalize() throws IOException, InterruptedException {
-		Assume.assumeNotNull(readSpc);
+		assumeRTest();
 		LOG.log(Level.INFO, "run testFinalize on " + readSpc.getPortName());
 
 		final String serialPortName = readSpc.getPortName();
 
-		readSpc.openRaw();
+		readSpc.open();
 		WeakReference<SerialPortSocket> refSpc = new WeakReference<>(readSpc);
 		if (readSpc == writeSpc) {
 			writeSpc = null;
@@ -475,7 +610,12 @@ public abstract class AbstractBaselineOnePortTest extends AbstractPortTest {
 		Runtime.getRuntime().gc();
 		Runtime.getRuntime().runFinalization();
 
-		Assert.assertNull(refSpc.get());
+		assertNull(refSpc.get());
+
+		//termios has a 10ms waittime during close
+		if (System.getProperty("os.name").startsWith("Linux")) {
+			Thread.sleep(10);
+		}
 
 		// On Windows the GC needs some time - I don't know why...
 		if (System.getProperty("os.name").startsWith("Windows")) {
@@ -483,7 +623,7 @@ public abstract class AbstractBaselineOnePortTest extends AbstractPortTest {
 		}
 
 		readSpc = getSerialPortSocketFactory().createSerialPortSocket(serialPortName);
-		readSpc.openRaw();
+		readSpc.open();
 		readSpc.close();
 	}
 
