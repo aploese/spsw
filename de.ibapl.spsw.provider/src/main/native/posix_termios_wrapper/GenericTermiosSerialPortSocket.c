@@ -360,6 +360,29 @@ static void throw_NotASerialPortException(JNIEnv *env, jstring portName) {
 	(*env)->ReleaseStringUTFChars(env, portName, port);
 }
 
+static void throw_IO_ClosedException(JNIEnv *env, int bytesTransferred) {
+	const jclass spsClass = (*env)->FindClass(env,
+			"de/ibapl/spsw/api/SerialPortSocket");
+	const jclass iioeClass = (*env)->FindClass(env,
+			"java/io/InterruptedIOException");
+
+	if ((iioeClass != NULL) && (spsClass != NULL)) {
+
+		const jfieldID PORT_NOT_OPEN = (*env)->GetStaticFieldID(env, spsClass,
+				"PORT_NOT_OPEN", "Ljava/lang/String;");
+		const jmethodID iioeConstructor = (*env)->GetMethodID(env, iioeClass,
+				"<init>", "(Ljava/lang/String;)V");
+		const jobject iioeEx = (*env)->NewObject(env, iioeClass,
+				iioeConstructor,
+				(*env)->GetStaticObjectField(env, spsClass, PORT_NOT_OPEN));
+		const jfieldID bytesTransferredId = (*env)->GetFieldID(env, iioeClass,
+				"bytesTransferred", "I");
+		(*env)->SetIntField(env, iioeEx, bytesTransferredId, bytesTransferred);
+		(*env)->Throw(env, iioeEx);
+		(*env)->DeleteLocalRef(env, iioeClass);
+	}
+}
+
 static void throw_IllegalStateException_Closed(JNIEnv *env) {
 	const jclass spsClass = (*env)->FindClass(env,
 			"de/ibapl/spsw/api/SerialPortSocket");
@@ -437,6 +460,15 @@ static void throw_TimeoutIOException(JNIEnv *env, int bytesTransferred) {
 		(*env)->SetIntField(env, tioeEx, bytesTransferredId, bytesTransferred);
 		(*env)->Throw(env, tioeEx);
 		(*env)->DeleteLocalRef(env, tioeClass);
+	}
+}
+
+static void throw_IO_ClosedOrInterruptedException(JNIEnv *env, jobject sps,
+		int bytesTransferred, const char *message) {
+	if ((*env)->GetIntField(env, sps, spsw_fd) == INVALID_FD) {
+		throw_IO_ClosedException(env, bytesTransferred);
+	} else {
+		throw_InterruptedIOExceptionWithError(env, bytesTransferred, message);
 	}
 }
 
@@ -924,8 +956,6 @@ static int setParams(JNIEnv *env, jobject sps, struct termios *settings,
 		return -1;
 	}
 
-	ERROR
-
 	jint paramsRead =
 	SPSW_BAUDRATE_MASK & paramBitSet ? SPSW_BAUDRATE_MASK : 0;
 	paramsRead |= SPSW_DATA_BITS_MASK & paramBitSet ? SPSW_DATA_BITS_MASK : 0;
@@ -1023,9 +1053,12 @@ JNIEXPORT void JNICALL Java_de_ibapl_spsw_provider_AbstractSerialPortSocket_clos
 //unlock read/write polls that wait
 	const int close_event_fd = (*env)->GetIntField(env, sps, spsw_closeEventFd);
 	jbyte evt_buff[8];
+	evt_buff[5] = 1;
+	evt_buff[6] = 1;
 	evt_buff[7] = 1;
 	write(close_event_fd, &evt_buff, 8);
 
+	usleep(1000); //1ms
 //cleanup
 	(*env)->SetIntField(env, sps, spsw_closeEventFd, INVALID_FD);
 
@@ -1033,6 +1066,7 @@ JNIEXPORT void JNICALL Java_de_ibapl_spsw_provider_AbstractSerialPortSocket_clos
 		//        perror("NATIVE Error Close - tcflush");
 	}
 
+	close(close_event_fd);
 	if (close(fd) != 0) {
 		throw_SerialPortException_NativeError(env, "close0 closing port");
 	}
@@ -1065,8 +1099,7 @@ JNIEXPORT jint JNICALL Java_de_ibapl_spsw_provider_AbstractSerialPortSocket_getO
 	jint returnValue = -1;
 	int result = ioctl(fd, TIOCOUTQ, &returnValue);
 	if (result != 0) {
-		throw_ClosedOrNativeException(env, sps,
-				"Can't read out buffer size");
+		throw_ClosedOrNativeException(env, sps, "Can't read out buffer size");
 	}
 	return returnValue;
 }
@@ -1307,7 +1340,7 @@ JNIEXPORT jint JNICALL Java_de_ibapl_spsw_provider_AbstractSerialPortSocket_read
 			return -1;
 		} else {
 			if (fds[1].revents == POLLIN) {
-				//we can read from close_event_ds => port is closing
+				//we can read from close_event_fd => port is closing
 				free(lpBuffer);
 				return -1;
 			} else if (fds[0].revents == POLLIN) {
@@ -1361,7 +1394,7 @@ JNIEXPORT jint JNICALL Java_de_ibapl_spsw_provider_AbstractSerialPortSocket_read
 			return -1;
 		} else {
 			if (fds[1].revents == POLLIN) {
-				//we can read from close_event_ds => port is closing
+				//we can read from close_event_fd => port is closing
 				free(lpBuffer);
 				return -1;
 			} else if (fds[0].revents == POLLIN) {
@@ -1444,7 +1477,7 @@ JNIEXPORT jint JNICALL Java_de_ibapl_spsw_provider_AbstractSerialPortSocket_read
 		return -1;
 	} else {
 		if (fds[1].revents == POLLIN) {
-			//we can read from close_event_ds => port is closing
+			//we can read from close_event_fd => port is closing
 			return -1;
 		} else if (fds[0].revents == POLLIN) {
 			//Happy path just check if its the right event...
@@ -1618,11 +1651,7 @@ JNIEXPORT void JNICALL Java_de_ibapl_spsw_provider_AbstractSerialPortSocket_writ
 		if (EAGAIN == errno) {
 			written = 0;
 		} else {
-			if ((*env)->GetIntField(env, sps, spsw_fd) == INVALID_FD) {
-				throw_IllegalStateException_Closed(env);
-			} else {
-				throw_InterruptedIOExceptionWithError(env, 0, "unknown port error  writeBytes");
-			}
+			throw_IO_ClosedOrInterruptedException(env, sps, 0, "unknown port error  writeBytes");
 			free(buf);
 			return;
 		}
@@ -1665,8 +1694,8 @@ JNIEXPORT void JNICALL Java_de_ibapl_spsw_provider_AbstractSerialPortSocket_writ
 			return;
 		} else {
 			if (fds[1].revents == POLLIN) {
-				//we can read from close_event_ds => port is closing
-				throw_IllegalStateException_Closed(env);
+				//we can read from close_event_fd => port is closing
+				throw_IO_ClosedException(env, offset);
 				free(buf);
 				return;
 			} else if (fds[0].revents == POLLOUT) {
@@ -1681,17 +1710,11 @@ JNIEXPORT void JNICALL Java_de_ibapl_spsw_provider_AbstractSerialPortSocket_writ
 		written = write(fd, &buf[offset], len - offset);
 
 		if (written < 0) {
-			if ((*env)->GetIntField(env, sps, spsw_fd) == INVALID_FD) {
-				//Filehandle not valid -> closed.
-				throw_IllegalStateException_Closed(env);
-				free(buf);
-				return;
-			} else {
-				throw_InterruptedIOExceptionWithError(env, offset, "writeBytes after poll no bytes written");
-				free(buf);
-				return;
-			}
+			throw_IO_ClosedOrInterruptedException(env, sps, offset, "writeBytes after poll no bytes written");
+			free(buf);
+			return;
 		}
+
 		offset += written;
 
 	}while (offset < len);
@@ -1719,11 +1742,7 @@ JNIEXPORT void JNICALL Java_de_ibapl_spsw_provider_AbstractSerialPortSocket_writ
 			//No-op do poll
 			written = 0;
 		} else {
-			if ((*env)->GetIntField(env, sps, spsw_fd) == INVALID_FD) {
-				throw_IllegalStateException_Closed(env);
-			} else {
-				throw_InterruptedIOExceptionWithError(env, 0, "unknown error writeSingle");
-			}
+			throw_IO_ClosedOrInterruptedException(env, sps, 0, "unknown error writeSingle");
 			return;
 		}
 	}
@@ -1745,8 +1764,8 @@ JNIEXPORT void JNICALL Java_de_ibapl_spsw_provider_AbstractSerialPortSocket_writ
 		throw_InterruptedIOExceptionWithError(env, written, "writeSingle poll: Error during poll");
 		return;
 		if (fds[1].revents == POLLIN) {
-			//we can read from close_event_ds => port is closing
-			throw_IllegalStateException_Closed(env);
+			//we can read from close_event_fd => port is closing
+			throw_IO_ClosedException(env, written);
 			return;
 		} else if (fds[0].revents == POLLOUT) {
 			//Happy path all is right...
@@ -1760,11 +1779,7 @@ JNIEXPORT void JNICALL Java_de_ibapl_spsw_provider_AbstractSerialPortSocket_writ
 	if (written == 0) {
 		throw_TimeoutIOException(env, written);
 	} else if (written < 0) {
-		if ((*env)->GetIntField(env, sps, spsw_fd) == INVALID_FD) {
-			throw_IllegalStateException_Closed(env);
-		} else {
-			throw_InterruptedIOExceptionWithError(env, 0, "writeSingle too few bytes written");
-		}
+		throw_IO_ClosedOrInterruptedException(env, sps, 0, "writeSingle too few bytes written");
 	}
 }
 

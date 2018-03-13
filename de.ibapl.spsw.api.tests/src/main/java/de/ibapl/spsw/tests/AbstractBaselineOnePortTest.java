@@ -29,12 +29,14 @@ import static org.junit.jupiter.api.Assertions.fail;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.InterruptedIOException;
 import java.lang.ref.WeakReference;
 import java.time.Duration;
 import java.util.logging.Level;
 
 import javax.swing.text.html.HTMLDocument.HTMLReader.PreAction;
 
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 import de.ibapl.spsw.api.Baudrate;
@@ -85,7 +87,7 @@ public abstract class AbstractBaselineOnePortTest extends AbstractPortTest {
 	public void testIlleagalStateExceptions() throws Exception {
 		assumeRTest();
 		IllegalStateException ise = null;
-		//Make sure port is closed
+		// Make sure port is closed
 		readSpc.close();
 
 		ise = assertThrows(IllegalStateException.class, () -> {
@@ -469,7 +471,8 @@ public abstract class AbstractBaselineOnePortTest extends AbstractPortTest {
 		});
 		assertEquals(-1, result);
 		assertTrue(readSpc.isClosed());
-		//Allow 50ms to recover -on win the next executed test may fail wit port buy otherwise
+		// Allow 50ms to recover -on win the next executed test may fail wit port buy
+		// otherwise
 		Thread.sleep(50);
 	}
 
@@ -497,7 +500,39 @@ public abstract class AbstractBaselineOnePortTest extends AbstractPortTest {
 		assertEquals(-1, result);
 
 		assertTrue(readSpc.isClosed());
-		//Allow 50ms to recover -on win the next executed test may fail wit port buy otherwise
+		// Allow 50ms to recover -on win the next executed test may fail wit port buy
+		// otherwise
+		Thread.sleep(50);
+	}
+
+	@Test
+	public void testCloseDuringBytesWrite() throws Exception {
+		assumeWTest();
+		LOG.log(Level.INFO, "run testCloseDuringBytesRead");
+		open(Baudrate.B2400, DataBits.DB_8, StopBits.SB_1, Parity.EVEN, FlowControl.getFC_NONE());
+
+		byte b[] = new byte[1024 * 1024];
+		assertTrue(writeSpc.isOpen());
+
+		new Thread(() -> {
+			try {
+				Thread.sleep(100);
+				writeSpc.close();
+			} catch (InterruptedException | IOException e) {
+				fail("Exception occured");
+			}
+		}).start();
+
+		assertTimeoutPreemptively(Duration.ofMillis(1000), () -> {
+			InterruptedIOException iioe = assertThrows(InterruptedIOException.class, () -> {
+				writeSpc.getOutputStream().write(b);
+			});
+			LOG.log(Level.INFO, "Bytes written before close:" + iioe.bytesTransferred + "MSG: " + iioe.getMessage());
+		});
+
+		assertTrue(readSpc.isClosed());
+		// Allow 50ms to recover -on win the next executed test may fail wit port buy
+		// otherwise
 		Thread.sleep(50);
 	}
 
@@ -576,6 +611,11 @@ public abstract class AbstractBaselineOnePortTest extends AbstractPortTest {
 		Runtime.getRuntime().runFinalization();
 
 		assertNull(refSpc.get());
+
+		//termios has a 10ms waittime during close
+		if (System.getProperty("os.name").startsWith("Linux")) {
+			Thread.sleep(10);
+		}
 
 		// On Windows the GC needs some time - I don't know why...
 		if (System.getProperty("os.name").startsWith("Windows")) {

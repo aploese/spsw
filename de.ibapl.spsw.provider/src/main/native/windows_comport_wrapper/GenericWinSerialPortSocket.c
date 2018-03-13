@@ -309,6 +309,29 @@ static void throw_NotASerialPortException(JNIEnv *env, jstring portName) {
 	(*env)->ReleaseStringUTFChars(env, portName, port);
 }
 
+static void throw_IO_ClosedException(JNIEnv *env, int bytesTransferred) {
+	const jclass spsClass = (*env)->FindClass(env,
+			"de/ibapl/spsw/api/SerialPortSocket");
+	const jclass iioeClass = (*env)->FindClass(env,
+			"java/io/InterruptedIOException");
+
+	if ((iioeClass != NULL) && (spsClass != NULL)) {
+
+		const jfieldID PORT_NOT_OPEN = (*env)->GetStaticFieldID(env, spsClass,
+				"PORT_NOT_OPEN", "Ljava/lang/String;");
+		const jmethodID iioeConstructor = (*env)->GetMethodID(env, iioeClass,
+				"<init>", "(Ljava/lang/String;)V");
+		const jobject iioeEx = (*env)->NewObject(env, iioeClass,
+				iioeConstructor,
+				(*env)->GetStaticObjectField(env, spsClass, PORT_NOT_OPEN));
+		const jfieldID bytesTransferredId = (*env)->GetFieldID(env, iioeClass,
+				"bytesTransferred", "I");
+		(*env)->SetIntField(env, iioeEx, bytesTransferredId, bytesTransferred);
+		(*env)->Throw(env, iioeEx);
+		(*env)->DeleteLocalRef(env, iioeClass);
+	}
+}
+
 static void throw_IllegalStateException_Closed(JNIEnv *env) {
 	const jclass spsClass = (*env)->FindClass(env,
 			"de/ibapl/spsw/api/SerialPortSocket");
@@ -386,6 +409,15 @@ static void throw_TimeoutIOException(JNIEnv *env, int bytesTransferred) {
 		(*env)->SetIntField(env, tioeEx, bytesTransferredId, bytesTransferred);
 		(*env)->Throw(env, tioeEx);
 		(*env)->DeleteLocalRef(env, tioeClass);
+	}
+}
+
+static void throw_IO_ClosedOrInterruptedException(JNIEnv *env, jobject sps,
+		int bytesTransferred, const char *message) {
+	if (GET_FILEDESCRIPTOR(env, sps) == INVALID_HANDLE_VALUE) {
+		throw_IO_ClosedException(env, bytesTransferred);
+	} else {
+		throw_InterruptedIOExceptionWithError(env, bytesTransferred, message);
 	}
 }
 
@@ -1462,14 +1494,14 @@ JNIEXPORT void JNICALL Java_de_ibapl_spsw_provider_AbstractSerialPortSocket_writ
 		if (GetLastError() != ERROR_IO_PENDING) {
 			CloseHandle(overlapped.hEvent);
 			free(buf);
-			throw_ClosedOrNativeException(env, sps, "Error writeBytes (GetLastError)");
+			throw_IO_ClosedOrInterruptedException(env, sps, dwBytesWritten, "Error writeBytes (GetLastError)");
 			return;
 		}
 
 		if (WaitForSingleObject(overlapped.hEvent, INFINITE) != WAIT_OBJECT_0) {
 			CloseHandle(overlapped.hEvent);
 			free(buf);
-			throw_ClosedOrNativeException(env, sps, "Error writeBytes (WaitForSingleObject)");
+			throw_IO_ClosedOrInterruptedException(env, sps, dwBytesWritten, "Error writeBytes (WaitForSingleObject)");
 			return;
 		}
 
@@ -1478,11 +1510,7 @@ JNIEXPORT void JNICALL Java_de_ibapl_spsw_provider_AbstractSerialPortSocket_writ
 	if (!GetOverlappedResult(hFile, &overlapped, &dwBytesWritten, FALSE)) {
 		CloseHandle(overlapped.hEvent);
 		free(buf);
-		if (GET_FILEDESCRIPTOR(env, sps) == INVALID_HANDLE_VALUE) {
-			throw_IllegalStateException_Closed(env);
-		} else {
-			throw_InterruptedIOExceptionWithError(env, dwBytesWritten, "Error writeBytes (GetOverlappedResult)");
-		}
+		throw_IO_ClosedOrInterruptedException(env, sps, dwBytesWritten, "Error writeBytes (GetOverlappedResult)");
 		return;
 	}
 
@@ -1490,13 +1518,13 @@ JNIEXPORT void JNICALL Java_de_ibapl_spsw_provider_AbstractSerialPortSocket_writ
 	free(buf);
 	if (dwBytesWritten != len) {
 		if (GET_FILEDESCRIPTOR(env, sps) == INVALID_HANDLE_VALUE) {
-			throw_IllegalStateException_Closed(env);
+			throw_IO_ClosedException(env, dwBytesWritten);
 			return;
 		} else {
 			if (GetLastError() == ERROR_IO_PENDING) {
 				throw_TimeoutIOException(env, dwBytesWritten);
 			} else {
-				throw_SerialPortException_NativeError(env, "Error writeBytes too view written");
+				throw_InterruptedIOExceptionWithError(env, dwBytesWritten, "Error writeBytes too view written");
 			}
 			return;
 		}
@@ -1526,13 +1554,13 @@ JNIEXPORT void JNICALL Java_de_ibapl_spsw_provider_AbstractSerialPortSocket_writ
 
 		if (GetLastError() != ERROR_IO_PENDING) {
 			CloseHandle(overlapped.hEvent);
-			throw_ClosedOrNativeException(env, sps, "Error writeSingle (GetLastError)");
+			throw_IO_ClosedOrInterruptedException(env, sps, dwBytesWritten, "Error writeSingle (GetLastError)");
 			return;
 		}
 
 		if (WaitForSingleObject(overlapped.hEvent, INFINITE) != WAIT_OBJECT_0) {
 			CloseHandle(overlapped.hEvent);
-			throw_ClosedOrNativeException(env, sps, "Error writeSingle (WaitForSingleObject)");
+			throw_IO_ClosedOrInterruptedException(env, sps, dwBytesWritten, "Error writeSingle (WaitForSingleObject)");
 			return;
 		}
 
@@ -1540,24 +1568,20 @@ JNIEXPORT void JNICALL Java_de_ibapl_spsw_provider_AbstractSerialPortSocket_writ
 
 	if (!GetOverlappedResult(hFile, &overlapped, &dwBytesWritten, FALSE)) {
 		CloseHandle(overlapped.hEvent);
-		if (GET_FILEDESCRIPTOR(env, sps) == INVALID_HANDLE_VALUE) {
-			throw_IllegalStateException_Closed(env);
-		} else {
-			throw_InterruptedIOExceptionWithError(env, dwBytesWritten, "Error writeSingle (GetOverlappedResult)");
-		}
+		throw_IO_ClosedOrInterruptedException(env, sps, dwBytesWritten, "Error writeSingle (GetOverlappedResult)");
 		return;
 	}
 
 	CloseHandle(overlapped.hEvent);
 	if (dwBytesWritten != 1) {
 		if (GET_FILEDESCRIPTOR(env, sps) == INVALID_HANDLE_VALUE) {
-			throw_IllegalStateException_Closed(env);
+			throw_IO_ClosedException(env, dwBytesWritten);
 			return;
 		} else {
 			if (GetLastError() == ERROR_IO_PENDING) {
 				throw_TimeoutIOException(env, dwBytesWritten);
 			} else {
-				throw_SerialPortException_NativeError(env, "Error writeSingle");
+				throw_InterruptedIOExceptionWithError(env, dwBytesWritten, "Error writeSingle");
 			}
 			return;
 		}

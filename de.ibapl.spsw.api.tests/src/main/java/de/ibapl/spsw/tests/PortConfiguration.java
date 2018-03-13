@@ -31,7 +31,7 @@ public interface PortConfiguration {
 	int getBufferSize();
 
 	default int calcMaxTransferTime() {
-		return TEST_TIMEOUT_OFFSET + SerialPortSocket.calculateMillisForBytes(getBufferSize(), getBaudrate(), getDataBits(), getStopBits(), getParity()) * 1000;
+		return TEST_TIMEOUT_OFFSET + SerialPortSocket.calculateMillisForBytes(getBufferSize(), getBaudrate(), getDataBits(), getStopBits(), getParity());
 	}
 
 }

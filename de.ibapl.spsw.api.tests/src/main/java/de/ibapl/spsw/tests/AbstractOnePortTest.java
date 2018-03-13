@@ -397,7 +397,7 @@ public abstract class AbstractOnePortTest extends AbstractPortTest {
 
 	@Test
 	public void testWrite16MBChunk() throws Exception {
-		testWrite16MBChunk( 1000 + SerialPortSocket.calculateMillisForBytes(_16MB, Baudrate.B1000000, DataBits.DB_8, StopBits.SB_1, Parity.NONE));
+		testWrite16MBChunk( 1000 + 2 * SerialPortSocket.calculateMillisForBytes(_16MB, Baudrate.B1000000, DataBits.DB_8, StopBits.SB_1, Parity.NONE));
 	}
 
 	public void testWrite16MBChunk(int writeTimeout) throws Exception {
