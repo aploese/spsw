@@ -253,9 +253,7 @@ public abstract class AbstractReadWriteTest extends AbstractPortTest {
 
 		assertTimeoutPreemptively(Duration.ofMillis(pc.calcMaxTransferTime()), () -> {
 			new Thread(receiver).start();
-			;
 			new Thread(sender).start();
-			;
 			synchronized (receiver.LOCK) {
 				receiver.LOCK.wait();
 				assertNull(receiver.err);
@@ -312,9 +310,7 @@ public abstract class AbstractReadWriteTest extends AbstractPortTest {
 
 		assertTimeoutPreemptively(Duration.ofMillis(pc.calcMaxTransferTime()), () -> {
 			new Thread(receiver).start();
-			;
 			new Thread(sender).start();
-			;
 			synchronized (receiver.LOCK) {
 				receiver.LOCK.wait();
 				assertNull(receiver.err);

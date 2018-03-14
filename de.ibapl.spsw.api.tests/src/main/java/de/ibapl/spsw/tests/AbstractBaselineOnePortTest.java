@@ -34,17 +34,12 @@ import java.lang.ref.WeakReference;
 import java.time.Duration;
 import java.util.logging.Level;
 
-import javax.swing.text.html.HTMLDocument.HTMLReader.PreAction;
-
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 import de.ibapl.spsw.api.Baudrate;
 import de.ibapl.spsw.api.DataBits;
 import de.ibapl.spsw.api.FlowControl;
 import de.ibapl.spsw.api.Parity;
-import de.ibapl.spsw.api.PortBusyException;
-import de.ibapl.spsw.api.SerialPortException;
 import de.ibapl.spsw.api.SerialPortSocket;
 import de.ibapl.spsw.api.StopBits;
 import de.ibapl.spsw.api.TimeoutIOException;
@@ -86,29 +81,36 @@ public abstract class AbstractBaselineOnePortTest extends AbstractPortTest {
 	@Test
 	public void testIlleagalStateExceptions() throws Exception {
 		assumeRTest();
-		IllegalStateException ise = null;
+		IOException ioe = null;
 		// Make sure port is closed
 		readSpc.close();
 
-		ise = assertThrows(IllegalStateException.class, () -> {
+		ioe = assertThrows(IOException.class, () -> {
 			readSpc.setBaudrate(Baudrate.B9600);
 		});
-		assertEquals(ise.getMessage(), SerialPortSocket.PORT_NOT_OPEN);
+		assertEquals(ioe.getMessage(), SerialPortSocket.PORT_IS_CLOSED);
 
-		ise = assertThrows(IllegalStateException.class, () -> {
+		ioe = assertThrows(IOException.class, () -> {
 			readSpc.getBaudrate();
 		});
-		assertEquals(ise.getMessage(), SerialPortSocket.PORT_NOT_OPEN);
+		assertEquals(ioe.getMessage(), SerialPortSocket.PORT_IS_CLOSED);
 
-		// ise = assertThrows(IllegalStateException.class, ()->{});
-		// assertEquals(ise.getMessage(), SerialPortSocket.PORT_NOT_OPEN);
+		ioe = assertThrows(IOException.class, () -> {
+			readSpc.getInputStream();
+		});
+		assertEquals(ioe.getMessage(), SerialPortSocket.PORT_IS_CLOSED);
+
+		ioe = assertThrows(IOException.class, () -> {
+			readSpc.getOutputStream();
+		});
+		assertEquals(ioe.getMessage(), SerialPortSocket.PORT_IS_CLOSED);
 
 		readSpc.open();
 
-		ise = assertThrows(IllegalStateException.class, () -> {
+		ioe = assertThrows(IOException.class, () -> {
 			readSpc.open();
 		});
-		assertEquals(ise.getMessage(), SerialPortSocket.PORT_IS_OPEN);
+		assertEquals(ioe.getMessage(), SerialPortSocket.PORT_IS_OPEN);
 
 	}
 
@@ -195,9 +197,10 @@ public abstract class AbstractBaselineOnePortTest extends AbstractPortTest {
 		File tmpFile = File.createTempFile("serial", "native");
 		tmpFile.deleteOnExit();
 		SerialPortSocket sp = getSerialPortSocketFactory().createSerialPortSocket(tmpFile.getAbsolutePath());
-		assertThrows(SerialPortException.class, () -> {
+		IOException ioe = assertThrows(IOException.class, () -> {
 			sp.open();
 		});
+		assertEquals(String.format("Not a serial port: (%s)", sp.getPortName()), ioe.getMessage());
 	}
 
 	@Test
@@ -264,9 +267,10 @@ public abstract class AbstractBaselineOnePortTest extends AbstractPortTest {
 		openDefault();
 
 		SerialPortSocket spc1 = getSerialPortSocketFactory().createSerialPortSocket(readSpc.getPortName());
-		assertThrows(SerialPortException.class, () -> {
+		IOException ioe = assertThrows(IOException.class, () -> {
 			spc1.open();
 		});
+		assertEquals(String.format("Port is busy: (%s)", spc1.getPortName()), ioe.getMessage());
 
 		// try to use the "first" port and if its working ... so we call
 		// getInBufferBytesCount()
@@ -378,6 +382,50 @@ public abstract class AbstractBaselineOnePortTest extends AbstractPortTest {
 		openDefault();
 		assertThrows(NullPointerException.class, () -> {
 			writeSpc.getOutputStream().write(null);
+		});
+	}
+
+	@Test
+	public void testWriteBytesWrongLengthAndOrOffset() throws Exception {
+		assumeWTest();
+		LOG.log(Level.INFO, "run testWriteBytesWrongLengthAndOrOffset");
+		openDefault();
+		byte[] b = new byte[16];
+		assertThrows(IndexOutOfBoundsException.class, () -> {
+			writeSpc.getOutputStream().write(b, 0, b.length * 2);
+		});
+		assertThrows(IndexOutOfBoundsException.class, () -> {
+			writeSpc.getOutputStream().write(b, b.length * 2, b.length * 4);
+		});
+		assertThrows(IndexOutOfBoundsException.class, () -> {
+			writeSpc.getOutputStream().write(b, b.length * 4, b.length * 2);
+		});
+	}
+
+	@Test
+	public void testReadBytesNPE() throws Exception {
+		assumeRTest();
+		LOG.log(Level.INFO, "run testReadBytesNPE");
+		openDefault();
+		assertThrows(NullPointerException.class, () -> {
+			readSpc.getInputStream().read(null);
+		});
+	}
+
+	@Test
+	public void testReadBytesWrongLengthAndOrOffset() throws Exception {
+		assumeWTest();
+		LOG.log(Level.INFO, "run testReadBytesWrongLengthAndOrOffset");
+		openDefault();
+		byte[] b = new byte[16];
+		assertThrows(IndexOutOfBoundsException.class, () -> {
+			readSpc.getInputStream().read(b, 0, b.length * 2);
+		});
+		assertThrows(IndexOutOfBoundsException.class, () -> {
+			readSpc.getInputStream().read(b, b.length * 2, b.length * 4);
+		});
+		assertThrows(IndexOutOfBoundsException.class, () -> {
+			readSpc.getInputStream().read(b, b.length * 4, b.length * 2);
 		});
 	}
 
@@ -500,18 +548,27 @@ public abstract class AbstractBaselineOnePortTest extends AbstractPortTest {
 		assertEquals(-1, result);
 
 		assertTrue(readSpc.isClosed());
-		// Allow 50ms to recover -on win the next executed test may fail wit port buy
+		// Allow 50ms to recover -on win the next executed test may fail with port busy
 		// otherwise
 		Thread.sleep(50);
 	}
 
+	/**
+	 * If these test fails, make sure the outputbuffer is really full and must be
+	 * written out before more bytes can be wriiten into it. The test relays onto
+	 * the fact that all data can't be written in one go.
+	 * 
+	 * @throws Exception
+	 */
 	@Test
 	public void testCloseDuringBytesWrite() throws Exception {
 		assumeWTest();
 		LOG.log(Level.INFO, "run testCloseDuringBytesRead");
-		open(Baudrate.B2400, DataBits.DB_8, StopBits.SB_1, Parity.EVEN, FlowControl.getFC_NONE());
+		open(Baudrate.B1000000, DataBits.DB_8, StopBits.SB_1, Parity.EVEN, FlowControl.getFC_NONE());
+		int len = (int) Math.ceil(1000.0 / readSpc.calculateMillisPerByte());
+		LOG.log(Level.INFO, "Bytes: " + len);
 
-		byte b[] = new byte[1024 * 1024];
+		byte b[] = new byte[len];
 		assertTrue(writeSpc.isOpen());
 
 		new Thread(() -> {
@@ -527,11 +584,12 @@ public abstract class AbstractBaselineOnePortTest extends AbstractPortTest {
 			InterruptedIOException iioe = assertThrows(InterruptedIOException.class, () -> {
 				writeSpc.getOutputStream().write(b);
 			});
-			LOG.log(Level.INFO, "Bytes written before close:" + iioe.bytesTransferred + "MSG: " + iioe.getMessage());
+			LOG.log(Level.INFO,
+					"Bytes: " + iioe.bytesTransferred + " of: " + len + " written MSG: " + iioe.getMessage());
 		});
 
 		assertTrue(readSpc.isClosed());
-		// Allow 50ms to recover -on win the next executed test may fail wit port buy
+		// Allow 50ms to recover -on win the next executed test may fail with port busy
 		// otherwise
 		Thread.sleep(50);
 	}
@@ -566,9 +624,10 @@ public abstract class AbstractBaselineOnePortTest extends AbstractPortTest {
 
 		readSpc.open();
 		SerialPortSocket spc2 = getSerialPortSocketFactory().createSerialPortSocket(readSpc.getPortName());
-		assertThrows(PortBusyException.class, () -> {
+		IOException ioe = assertThrows(IOException.class, () -> {
 			spc2.open();
 		});
+		assertEquals(String.format("Port is busy: (%s)",spc2.getPortName()), ioe.getMessage());
 		assertFalse(spc2.isOpen());
 	}
 
@@ -578,7 +637,7 @@ public abstract class AbstractBaselineOnePortTest extends AbstractPortTest {
 		LOG.log(Level.INFO, "run testOpenSamePort2Times");
 
 		readSpc.open();
-		IllegalStateException ioe = assertThrows(IllegalStateException.class, () -> {
+		IOException ioe = assertThrows(IOException.class, () -> {
 			readSpc.open();
 		});
 		assertEquals(SerialPortSocket.PORT_IS_OPEN, ioe.getMessage());
@@ -612,7 +671,7 @@ public abstract class AbstractBaselineOnePortTest extends AbstractPortTest {
 
 		assertNull(refSpc.get());
 
-		//termios has a 10ms waittime during close
+		// termios has a 10ms waittime during close
 		if (System.getProperty("os.name").startsWith("Linux")) {
 			Thread.sleep(10);
 		}

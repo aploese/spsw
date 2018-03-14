@@ -39,7 +39,7 @@ public interface SerialPortSocket extends AutoCloseable {
 	@Native
 	public final static String PORT_IS_OPEN = "Port is open";
 	@Native
-	public final static String PORT_NOT_OPEN = "Port not open";
+	public final static String PORT_IS_CLOSED = "Port is closed";
 
 	boolean isClosed();
 
@@ -354,6 +354,14 @@ public interface SerialPortSocket extends AutoCloseable {
 		return (int)Math.ceil((len * (1 + dataBits.value + (parity == Parity.NONE ? 0 : 1) + stopBits.value) * 1000.0) / baudrate.value); 
 	}
 
+	default double calculateMillisPerByte() throws IOException {
+		return calculateMillisPerByte(getBaudrate(), getDatatBits(), getStopBits(), getParity()); 
+	}
+
+	default int calculateMillisForBytes(int len) throws IOException {
+		return calculateMillisForBytes(len, getBaudrate(), getDatatBits(), getStopBits(), getParity()); 
+	}
+	
 	/**
 	 * Enable/disable the timeout, in milliseconds. With this option set to a
 	 * non-zero timeout, a read() call on the InputStream associated with this

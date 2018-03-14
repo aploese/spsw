@@ -163,7 +163,7 @@ public class MockSerialPortSocket implements SerialPortSocket {
 		@Override
 		public int read() throws IOException {
 			if (!open) {
-				throw new IllegalStateException(PORT_NOT_OPEN);
+				throw new IOException(PORT_IS_CLOSED);
 			}
 			if (data.isEmpty()) {
 				throw new UnexpectedRequestError("data is empty");
@@ -220,7 +220,7 @@ public class MockSerialPortSocket implements SerialPortSocket {
 		@Override
 		public void write(int b) throws IOException {
 			if (!open) {
-				throw new IllegalStateException(PORT_NOT_OPEN);
+				throw new IOException(PORT_IS_CLOSED);
 			}
 			if (data.isEmpty()) {
 				throw new UnexpectedRequestError("data is empty");
@@ -263,7 +263,7 @@ public class MockSerialPortSocket implements SerialPortSocket {
 	@Override
 	public void open() throws IOException {
 		if (open) {
-			throw new IllegalStateException(PORT_IS_OPEN);
+			throw new IOException(PORT_IS_OPEN);
 		}
 		is = new MBusTestInputStream();
 		os = new MBusTestOutputStream();
@@ -280,7 +280,7 @@ public class MockSerialPortSocket implements SerialPortSocket {
 		if (open) {
 			return is;
 		} else {
-			throw new IllegalStateException(PORT_NOT_OPEN);
+			throw new IOException(PORT_IS_CLOSED);
 		}
 	}
 
@@ -289,7 +289,7 @@ public class MockSerialPortSocket implements SerialPortSocket {
 		if (open) {
 			return os;
 		} else {
-			throw new IllegalStateException(PORT_NOT_OPEN);
+			throw new IOException(PORT_IS_CLOSED);
 		}
 	}
 
@@ -322,7 +322,7 @@ public class MockSerialPortSocket implements SerialPortSocket {
 	@Override
 	public boolean isCTS() throws IOException {
 		if (!open) {
-			throw new IllegalStateException(PORT_NOT_OPEN);
+			throw new IOException(PORT_IS_CLOSED);
 		}
 		return false;
 	}
@@ -330,7 +330,7 @@ public class MockSerialPortSocket implements SerialPortSocket {
 	@Override
 	public boolean isDSR() throws IOException {
 		if (!open) {
-			throw new IllegalStateException(PORT_NOT_OPEN);
+			throw new IOException(PORT_IS_CLOSED);
 		}
 		throw new RuntimeException("Not Implemented");
 	}
@@ -338,7 +338,7 @@ public class MockSerialPortSocket implements SerialPortSocket {
 	@Override
 	public boolean isIncommingRI() throws IOException {
 		if (!open) {
-			throw new IllegalStateException(PORT_NOT_OPEN);
+			throw new IOException(PORT_IS_CLOSED);
 		}
 		throw new RuntimeException("Not Implemented");
 	}
@@ -351,7 +351,7 @@ public class MockSerialPortSocket implements SerialPortSocket {
 	@Override
 	public void setRTS(boolean value) throws IOException {
 		if (!open) {
-			throw new IllegalStateException(PORT_NOT_OPEN);
+			throw new IOException(PORT_IS_CLOSED);
 		}
 		throw new RuntimeException("Not Implemented");
 	}
@@ -359,7 +359,7 @@ public class MockSerialPortSocket implements SerialPortSocket {
 	@Override
 	public void setDTR(boolean value) throws IOException {
 		if (!open) {
-			throw new IllegalStateException(PORT_NOT_OPEN);
+			throw new IOException(PORT_IS_CLOSED);
 		}
 		throw new RuntimeException("Not Implemented");
 	}
@@ -367,7 +367,7 @@ public class MockSerialPortSocket implements SerialPortSocket {
 	@Override
 	public void setXONChar(char c) throws IOException {
 		if (!open) {
-			throw new IllegalStateException(PORT_NOT_OPEN);
+			throw new IOException(PORT_IS_CLOSED);
 		}
 		throw new RuntimeException("Not Implemented");
 	}
@@ -375,7 +375,7 @@ public class MockSerialPortSocket implements SerialPortSocket {
 	@Override
 	public void setXOFFChar(char c) throws IOException {
 		if (!open) {
-			throw new IllegalStateException(PORT_NOT_OPEN);
+			throw new IOException(PORT_IS_CLOSED);
 		}
 		throw new RuntimeException("Not Implemented");
 	}
@@ -383,7 +383,7 @@ public class MockSerialPortSocket implements SerialPortSocket {
 	@Override
 	public char getXONChar() throws IOException {
 		if (!open) {
-			throw new IllegalStateException(PORT_NOT_OPEN);
+			throw new IOException(PORT_IS_CLOSED);
 		}
 		throw new RuntimeException("Not Implemented");
 	}
@@ -391,7 +391,7 @@ public class MockSerialPortSocket implements SerialPortSocket {
 	@Override
 	public char getXOFFChar() throws IOException {
 		if (!open) {
-			throw new IllegalStateException(PORT_NOT_OPEN);
+			throw new IOException(PORT_IS_CLOSED);
 		}
 		throw new RuntimeException("Not Implemented");
 	}
@@ -399,7 +399,7 @@ public class MockSerialPortSocket implements SerialPortSocket {
 	@Override
 	public void sendBreak(int duration) throws IOException {
 		if (!open) {
-			throw new IllegalStateException(PORT_NOT_OPEN);
+			throw new IOException(PORT_IS_CLOSED);
 		}
 		throw new RuntimeException("Not Implemented");
 	}
@@ -407,7 +407,7 @@ public class MockSerialPortSocket implements SerialPortSocket {
 	@Override
 	public void sendXON() throws IOException {
 		if (!open) {
-			throw new IllegalStateException(PORT_NOT_OPEN);
+			throw new IOException(PORT_IS_CLOSED);
 		}
 		throw new RuntimeException("Not Implemented");
 	}
@@ -415,7 +415,7 @@ public class MockSerialPortSocket implements SerialPortSocket {
 	@Override
 	public void sendXOFF() throws IOException {
 		if (!open) {
-			throw new IllegalStateException(PORT_NOT_OPEN);
+			throw new IOException(PORT_IS_CLOSED);
 		}
 		throw new RuntimeException("Not Implemented");
 	}
@@ -423,7 +423,7 @@ public class MockSerialPortSocket implements SerialPortSocket {
 	@Override
 	public int getInBufferBytesCount() throws IOException {
 		if (!open) {
-			throw new IllegalStateException(PORT_NOT_OPEN);
+			throw new IOException(PORT_IS_CLOSED);
 		}
 		return is.available();
 	}
@@ -431,7 +431,7 @@ public class MockSerialPortSocket implements SerialPortSocket {
 	@Override
 	public int getOutBufferBytesCount() throws IOException {
 		if (!open) {
-			throw new IllegalStateException(PORT_NOT_OPEN);
+			throw new IOException(PORT_IS_CLOSED);
 		}
 		throw new RuntimeException("Not Implemented");
 	}
@@ -439,7 +439,7 @@ public class MockSerialPortSocket implements SerialPortSocket {
 	@Override
 	public void setBreak(boolean value) throws IOException {
 		if (!open) {
-			throw new IllegalStateException(PORT_NOT_OPEN);
+			throw new IOException(PORT_IS_CLOSED);
 		}
 		throw new RuntimeException("Not Implemented");
 	}
@@ -447,7 +447,7 @@ public class MockSerialPortSocket implements SerialPortSocket {
 	@Override
 	public void setFlowControl(Set<FlowControl> flowControls) throws IOException {
 		if (!open) {
-			throw new IllegalStateException(PORT_NOT_OPEN);
+			throw new IOException(PORT_IS_CLOSED);
 		}
 		this.flowControl = flowControls;
 	}
@@ -455,7 +455,7 @@ public class MockSerialPortSocket implements SerialPortSocket {
 	@Override
 	public void setBaudrate(Baudrate baudrate) throws IOException {
 		if (!open) {
-			throw new IllegalStateException(PORT_NOT_OPEN);
+			throw new IOException(PORT_IS_CLOSED);
 		}
 		this.baudrate = baudrate;
 	}
@@ -463,7 +463,7 @@ public class MockSerialPortSocket implements SerialPortSocket {
 	@Override
 	public void setDataBits(DataBits dataBits) throws IOException {
 		if (!open) {
-			throw new IllegalStateException(PORT_NOT_OPEN);
+			throw new IOException(PORT_IS_CLOSED);
 		}
 		this.dataBits = dataBits;
 	}
@@ -471,7 +471,7 @@ public class MockSerialPortSocket implements SerialPortSocket {
 	@Override
 	public void setStopBits(StopBits stopBits) throws IOException {
 		if (!open) {
-			throw new IllegalStateException(PORT_NOT_OPEN);
+			throw new IOException(PORT_IS_CLOSED);
 		}
 		this.stopBits = stopBits;
 	}
@@ -479,7 +479,7 @@ public class MockSerialPortSocket implements SerialPortSocket {
 	@Override
 	public void setParity(Parity parity) throws IOException {
 		if (!open) {
-			throw new IllegalStateException(PORT_NOT_OPEN);
+			throw new IOException(PORT_IS_CLOSED);
 		}
 		this.parity = parity;
 	}
@@ -487,7 +487,7 @@ public class MockSerialPortSocket implements SerialPortSocket {
 	@Override
 	public Baudrate getBaudrate() throws IOException {
 		if (!open) {
-			throw new IllegalStateException(PORT_NOT_OPEN);
+			throw new IOException(PORT_IS_CLOSED);
 		}
 		return baudrate;
 	}
@@ -495,7 +495,7 @@ public class MockSerialPortSocket implements SerialPortSocket {
 	@Override
 	public DataBits getDatatBits() throws IOException {
 		if (!open) {
-			throw new IllegalStateException(PORT_NOT_OPEN);
+			throw new IOException(PORT_IS_CLOSED);
 		}
 		return dataBits;
 	}
@@ -503,7 +503,7 @@ public class MockSerialPortSocket implements SerialPortSocket {
 	@Override
 	public StopBits getStopBits() throws IOException {
 		if (!open) {
-			throw new IllegalStateException(PORT_NOT_OPEN);
+			throw new IOException(PORT_IS_CLOSED);
 		}
 		return stopBits;
 	}
@@ -511,7 +511,7 @@ public class MockSerialPortSocket implements SerialPortSocket {
 	@Override
 	public Parity getParity() throws IOException {
 		if (!open) {
-			throw new IllegalStateException(PORT_NOT_OPEN);
+			throw new IOException(PORT_IS_CLOSED);
 		}
 		return parity;
 	}
@@ -519,7 +519,7 @@ public class MockSerialPortSocket implements SerialPortSocket {
 	@Override
 	public Set<FlowControl> getFlowControl() throws IOException {
 		if (!open) {
-			throw new IllegalStateException(PORT_NOT_OPEN);
+			throw new IOException(PORT_IS_CLOSED);
 		}
 		return flowControl;
 	}
@@ -527,7 +527,7 @@ public class MockSerialPortSocket implements SerialPortSocket {
 	@Override
 	public int getOverallReadTimeout() throws IOException {
 		if (!open) {
-			throw new IllegalStateException(PORT_NOT_OPEN);
+			throw new IOException(PORT_IS_CLOSED);
 		}
 		return overallReadTimeout;
 	}
@@ -535,7 +535,7 @@ public class MockSerialPortSocket implements SerialPortSocket {
 	@Override
 	public int getInterByteReadTimeout() throws IOException {
 		if (!open) {
-			throw new IllegalStateException(PORT_NOT_OPEN);
+			throw new IOException(PORT_IS_CLOSED);
 		}
 		return interByteReadTimeout;
 	}
@@ -544,7 +544,7 @@ public class MockSerialPortSocket implements SerialPortSocket {
 	public void setTimeouts(int interByteReadTimeout, int overallReadTimeout, int overallWriteTimeout)
 			throws IOException {
 		if (!open) {
-			throw new IllegalStateException(PORT_NOT_OPEN);
+			throw new IOException(PORT_IS_CLOSED);
 		}
 		this.interByteReadTimeout = interByteReadTimeout;
 		this.overallReadTimeout = overallReadTimeout;
@@ -585,7 +585,7 @@ public class MockSerialPortSocket implements SerialPortSocket {
 	@Override
 	public int getOverallWriteTimeout() throws IOException {
 		if (!open) {
-			throw new IllegalStateException(PORT_NOT_OPEN);
+			throw new IOException(PORT_IS_CLOSED);
 		}
 		return overallWriteTimeout;
 	}

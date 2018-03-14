@@ -22,11 +22,13 @@ package de.ibapl.spsw.tests;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTimeoutPreemptively;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 import static org.junit.jupiter.api.Assumptions.assumeTrue;
 
 import java.io.InterruptedIOException;
+import java.time.Duration;
 import java.util.Set;
 import java.util.logging.Level;
 
@@ -429,18 +431,19 @@ public abstract class AbstractOnePortTest extends AbstractPortTest {
 		byte[] data = new byte[_16MB];
 		int dataWritten = 0;
 		try {
-			writeSpc.getOutputStream().write(data);
+			assertTimeoutPreemptively(Duration.ofMillis(writeSpc.calculateMillisForBytes(data.length * 2)), () -> {
+				writeSpc.getOutputStream().write(data);
+			});
 			dataWritten = data.length;
 		} catch (TimeoutIOException e) {
 			dataWritten = e.bytesTransferred;
-			String msg =
-			"Timeout: " + dataWritten + " bytes of: " + data.length + " written; OutBuf:  "
+			String msg = "Timeout: " + dataWritten + " bytes of: " + data.length + " written; OutBuf:  "
 					+ writeSpc.getOutBufferBytesCount() + " EX: " + e;
 			LOG.log(Level.SEVERE, msg);
 			fail(msg);
 		} catch (InterruptedIOException iio) {
 			dataWritten = iio.bytesTransferred;
-			String msg ="Interrupted: " + dataWritten + " bytes of: " + data.length + " written; OutBuf:  "
+			String msg = "Interrupted: " + dataWritten + " bytes of: " + data.length + " written; OutBuf:  "
 					+ writeSpc.getOutBufferBytesCount() + " EX: " + iio;
 			LOG.log(Level.SEVERE, msg);
 			fail(msg);

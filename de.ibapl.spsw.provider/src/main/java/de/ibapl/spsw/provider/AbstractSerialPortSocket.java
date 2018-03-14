@@ -602,7 +602,7 @@ public abstract class AbstractSerialPortSocket<T extends AbstractSerialPortSocke
 	@Override
 	public synchronized InputStream getInputStream() throws IOException {
 		if (!open) {
-			throw new IllegalStateException(PORT_NOT_OPEN);
+			throw new IOException(PORT_IS_CLOSED);
 		}
 		if (is == null) {
 			is = new SerialInputStream();
@@ -616,7 +616,7 @@ public abstract class AbstractSerialPortSocket<T extends AbstractSerialPortSocke
 	@Override
 	public synchronized OutputStream getOutputStream() throws IOException {
 		if (!open) {
-			throw new IllegalStateException(PORT_NOT_OPEN);
+			throw new IOException(PORT_IS_CLOSED);
 		}
 		if (os == null) {
 			os = new SerialOutputStream();
@@ -674,7 +674,7 @@ public abstract class AbstractSerialPortSocket<T extends AbstractSerialPortSocke
 	@Override
 	public synchronized void open() throws IOException {
 		if (open) {
-			throw new IllegalStateException(PORT_IS_OPEN);
+			throw new IOException(PORT_IS_OPEN);
 		}
 		open(portName, NO_PARAMS_TO_SET);
 		open = true;
@@ -684,7 +684,7 @@ public abstract class AbstractSerialPortSocket<T extends AbstractSerialPortSocke
 	public synchronized void open(Baudrate baudrate, DataBits dataBits, StopBits stopBits, Parity parity,
 			Set<FlowControl> flowControls) throws IOException {
 		if (open) {
-			throw new IllegalStateException(PORT_IS_OPEN);
+			throw new IOException(PORT_IS_OPEN);
 		}
 		int bitset = toBitSet(baudrate);
 		bitset |= toBitSet(dataBits);

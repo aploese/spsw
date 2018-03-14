@@ -35,7 +35,6 @@ import de.ibapl.spsw.api.Baudrate;
 import de.ibapl.spsw.api.DataBits;
 import de.ibapl.spsw.api.FlowControl;
 import de.ibapl.spsw.api.Parity;
-import de.ibapl.spsw.api.SerialPortException;
 import de.ibapl.spsw.api.SerialPortSocket;
 import de.ibapl.spsw.api.StopBits;
 import de.ibapl.spsw.api.TimeoutIOException;
@@ -183,7 +182,7 @@ public class Ser2NetProvider implements SerialPortSocket {
 	@Override
 	public synchronized InputStream getInputStream() throws IOException {
 		if (isClosed()) {
-			throw new IllegalStateException(PORT_NOT_OPEN);
+			throw new IOException(PORT_IS_CLOSED);
 		}
 		if (is == null) {
 			is = new InputStreamWrapper();
@@ -194,7 +193,7 @@ public class Ser2NetProvider implements SerialPortSocket {
 	@Override
 	public synchronized OutputStream getOutputStream() throws IOException {
 		if (isClosed()) {
-			throw new IllegalStateException(PORT_NOT_OPEN);
+			throw new IOException(PORT_IS_CLOSED);
 		}
 		if (os == null) {
 			os = new OutputStreamWrapper();
@@ -215,7 +214,7 @@ public class Ser2NetProvider implements SerialPortSocket {
 	@Override
 	public void open() throws IOException {
 		if (isOpen()) {
-			throw new IllegalStateException(PORT_IS_OPEN);
+			throw new IOException(PORT_IS_OPEN);
 		}
 		dataSocket = SocketFactory.getDefault().createSocket(host, dataPort);
 		if (controlPort != -1) {

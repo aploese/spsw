@@ -256,57 +256,94 @@ JNIEXPORT void JNICALL JNI_OnUnLoad(JavaVM *jvm, void *reserved) {
 
 // Helper method
 
-static void throw_SerialPortException_NativeError(JNIEnv *env, const char *msg) {
+static void throw_IOException_NativeError(JNIEnv *env, const char *msg) {
 	char buf[2048];
 	snprintf(buf, 2048, "%s: Unknown port error %d", msg, (int) GetLastError());
-	const jclass speClass = (*env)->FindClass(env,
-			"de/ibapl/spsw/api/SerialPortException");
-	if (speClass != NULL) {
-		(*env)->ThrowNew(env, speClass, buf);
-		(*env)->DeleteLocalRef(env, speClass);
+	const jclass ioeClass = (*env)->FindClass(env,
+			"java/io/IOException");
+	if (ioeClass != NULL) {
+		(*env)->ThrowNew(env, ioeClass, buf);
+		(*env)->DeleteLocalRef(env, ioeClass);
 	}
 }
 
 static void throw_Illegal_Argument_Exception(JNIEnv *env, const char *msg) {
-	const jclass cls = (*env)->FindClass(env,
+	const jclass iaeClass = (*env)->FindClass(env,
 			"java/lang/IllegalArgumentException");
-	if (cls != NULL) {
-		(*env)->ThrowNew(env, cls, msg);
-		(*env)->DeleteLocalRef(env, cls);
+	if (iaeClass != NULL) {
+		(*env)->ThrowNew(env, iaeClass, msg);
+		(*env)->DeleteLocalRef(env, iaeClass);
+	}
+}
+
+static void throw_IOException(JNIEnv *env, const char* msg, jstring portName) {
+	const char* port = (*env)->GetStringUTFChars(env, portName, JNI_FALSE);
+	char buf[2048];
+	snprintf(buf, sizeof(buf), msg, port);
+	(*env)->ReleaseStringUTFChars(env, portName, port);
+
+	const jclass ioeClass = (*env)->FindClass(env,
+			"java/io/IOException");
+	if (ioeClass != NULL) {
+		(*env)->ThrowNew(env, ioeClass, buf);
+		(*env)->DeleteLocalRef(env, ioeClass);
 	}
 }
 
 static void throw_PortBusyException(JNIEnv *env, jstring portName) {
-	const char* port = (*env)->GetStringUTFChars(env, portName, JNI_FALSE);
-	const jclass cls = (*env)->FindClass(env,
-			"de/ibapl/spsw/api/PortBusyException");
-	if (cls != NULL) {
-		(*env)->ThrowNew(env, cls, port);
-		(*env)->DeleteLocalRef(env, cls);
-	}
-	(*env)->ReleaseStringUTFChars(env, portName, port);
+	throw_IOException(env, "Port is busy: (%s)", portName);
 }
 
 static void throw_PortNotFoundException(JNIEnv *env, jstring portName) {
-	const char* port = (*env)->GetStringUTFChars(env, portName, JNI_FALSE);
-	const jclass cls = (*env)->FindClass(env,
-			"de/ibapl/spsw/api/PortNotFoundException");
-	if (cls != NULL) {
-		(*env)->ThrowNew(env, cls, port);
-		(*env)->DeleteLocalRef(env, cls);
-	}
-	(*env)->ReleaseStringUTFChars(env, portName, port);
+	throw_IOException(env, "Port not found: (%s)", portName);
 }
 
 static void throw_NotASerialPortException(JNIEnv *env, jstring portName) {
-	const char* port = (*env)->GetStringUTFChars(env, portName, JNI_FALSE);
-	const jclass cls = (*env)->FindClass(env,
-			"de/ibapl/spsw/api/NotASerialPortException");
-	if (cls != NULL) {
-		(*env)->ThrowNew(env, cls, port);
-		(*env)->DeleteLocalRef(env, cls);
+	throw_IOException(env, "Not a serial port: (%s)", portName);
+}
+
+static void throw_IOException_Opend(JNIEnv *env) {
+	const jclass spsClass = (*env)->FindClass(env,
+			"de/ibapl/spsw/api/SerialPortSocket");
+	const jclass ioeClass = (*env)->FindClass(env,
+			"java/io/IOException");
+
+	if ((ioeClass != NULL) || (spsClass != NULL)) {
+
+		const jfieldID PORT_IS_OPEN = (*env)->GetStaticFieldID(env, spsClass,
+				"PORT_IS_OPEN", "Ljava/lang/String;");
+		const jmethodID ioeConstructor = (*env)->GetMethodID(env, ioeClass,
+				"<init>", "(Ljava/lang/String;)V");
+		const jobject ioeEx = (*env)->NewObject(env, ioeClass, ioeConstructor,
+				(*env)->GetStaticObjectField(env, spsClass, PORT_IS_OPEN));
+
+		(*env)->Throw(env, ioeEx);
+
+		(*env)->DeleteLocalRef(env, ioeClass);
+		(*env)->DeleteLocalRef(env, spsClass);
 	}
-	(*env)->ReleaseStringUTFChars(env, portName, port);
+}
+
+static void throw_IOException_Closed(JNIEnv *env) {
+	const jclass spsClass = (*env)->FindClass(env,
+			"de/ibapl/spsw/api/SerialPortSocket");
+	const jclass ioeClass = (*env)->FindClass(env,
+			"java/io/IOException");
+
+	if ((ioeClass != NULL) || (spsClass != NULL)) {
+
+		const jfieldID PORT_IS_CLOSED = (*env)->GetStaticFieldID(env, spsClass,
+				"PORT_IS_CLOSED", "Ljava/lang/String;");
+		const jmethodID ioeConstructor = (*env)->GetMethodID(env, ioeClass,
+				"<init>", "(Ljava/lang/String;)V");
+		const jobject ioeEx = (*env)->NewObject(env, ioeClass, ioeConstructor,
+				(*env)->GetStaticObjectField(env, spsClass, PORT_IS_CLOSED));
+
+		(*env)->Throw(env, ioeEx);
+
+		(*env)->DeleteLocalRef(env, ioeClass);
+		(*env)->DeleteLocalRef(env, spsClass);
+	}
 }
 
 static void throw_IO_ClosedException(JNIEnv *env, int bytesTransferred) {
@@ -329,50 +366,6 @@ static void throw_IO_ClosedException(JNIEnv *env, int bytesTransferred) {
 		(*env)->SetIntField(env, iioeEx, bytesTransferredId, bytesTransferred);
 		(*env)->Throw(env, iioeEx);
 		(*env)->DeleteLocalRef(env, iioeClass);
-	}
-}
-
-static void throw_IllegalStateException_Closed(JNIEnv *env) {
-	const jclass spsClass = (*env)->FindClass(env,
-			"de/ibapl/spsw/api/SerialPortSocket");
-	const jclass iseClass = (*env)->FindClass(env,
-			"java/lang/IllegalStateException");
-
-	if ((iseClass != NULL) && (spsClass != NULL)) {
-
-		const jfieldID PORT_NOT_OPEN = (*env)->GetStaticFieldID(env, spsClass,
-				"PORT_NOT_OPEN", "Ljava/lang/String;");
-		const jmethodID iseConstructor = (*env)->GetMethodID(env, iseClass,
-				"<init>", "(Ljava/lang/String;)V");
-		const jobject iseEx = (*env)->NewObject(env, iseClass, iseConstructor,
-				(*env)->GetStaticObjectField(env, spsClass, PORT_NOT_OPEN));
-
-		(*env)->Throw(env, iseEx);
-
-		(*env)->DeleteLocalRef(env, iseClass);
-		(*env)->DeleteLocalRef(env, spsClass);
-	}
-}
-
-static void throw_IllegalStateException_Opend(JNIEnv *env) {
-	const jclass spsClass = (*env)->FindClass(env,
-			"de/ibapl/spsw/api/SerialPortSocket");
-	const jclass iseClass = (*env)->FindClass(env,
-			"java/lang/IllegalStateException");
-
-	if (iseClass != NULL || spsClass != NULL) {
-
-		const jfieldID PORT_IS_OPEN = (*env)->GetStaticFieldID(env, spsClass,
-				"PORT_IS_OPEN", "Ljava/lang/String;");
-		const jmethodID iseConstructor = (*env)->GetMethodID(env, iseClass,
-				"<init>", "(Ljava/lang/String;)V");
-		const jobject iseEx = (*env)->NewObject(env, iseClass, iseConstructor,
-				(*env)->GetStaticObjectField(env, spsClass, PORT_IS_OPEN));
-
-		(*env)->Throw(env, iseEx);
-
-		(*env)->DeleteLocalRef(env, iseClass);
-		(*env)->DeleteLocalRef(env, spsClass);
 	}
 }
 
@@ -424,9 +417,9 @@ static void throw_IO_ClosedOrInterruptedException(JNIEnv *env, jobject sps,
 static void throw_ClosedOrNativeException(JNIEnv *env, jobject sps,
 		const char *message) {
 	if (GET_FILEDESCRIPTOR(env, sps) == INVALID_HANDLE_VALUE) {
-		throw_IllegalStateException_Closed(env);
+		throw_IOException_Closed(env);
 	} else {
-		throw_SerialPortException_NativeError(env, message);
+		throw_IOException_NativeError(env, message);
 	}
 }
 
@@ -795,7 +788,7 @@ static int setParams(JNIEnv *env, jobject sps, DCB *dcb, jint paramBitSet) {
 			dcb->Parity = SPACEPARITY;
 			break;
 		default:
-			throw_SerialPortException_NativeError(env,
+			throw_IOException_NativeError(env,
 					"setParams Wrong Parity");
 			return -1;
 		}
@@ -863,31 +856,31 @@ static int setParams(JNIEnv *env, jobject sps, DCB *dcb, jint paramBitSet) {
 		if ((paramsRead & SPSW_BAUDRATE_MASK)
 				!= (paramBitSet & SPSW_BAUDRATE_MASK)) {
 			snprintf(buf, sizeof(buf),
-					"Could not set Baudrate! NATIVE: paramsRead(0x%08x) != paramBitSet(0x%08x)",
+					"Could not set Baudrate! NATIVE: paramsRead(0x%08lx) != paramBitSet(0x%08lx)",
 					paramsRead, paramBitSet);
 		} else if ((paramsRead & SPSW_DATA_BITS_MASK)
 				!= (paramBitSet & SPSW_DATA_BITS_MASK)) {
 			snprintf(buf, sizeof(buf),
-					"Could not set DataBits! NATIVE: paramsRead(0x%08x) != paramBitSet(0x%08x)",
+					"Could not set DataBits! NATIVE: paramsRead(0x%08lx) != paramBitSet(0x%08lx)",
 					paramsRead, paramBitSet);
 		} else if ((paramsRead & SPSW_STOP_BITS_MASK)
 				!= (paramBitSet & SPSW_STOP_BITS_MASK)) {
 			snprintf(buf, sizeof(buf),
-					"Could not set StopBits! NATIVE: paramsRead(0x%08x) != paramBitSet(0x%08x)",
+					"Could not set StopBits! NATIVE: paramsRead(0x%08lx) != paramBitSet(0x%08lx)",
 					paramsRead, paramBitSet);
 		} else if ((paramsRead & SPSW_PARITY_MASK)
 				!= (paramBitSet & SPSW_PARITY_MASK)) {
 			snprintf(buf, sizeof(buf),
-					"Could not set Parity! NATIVE: paramsRead(0x%08x) != paramBitSet(0x%08x)",
+					"Could not set Parity! NATIVE: paramsRead(0x%08lx) != paramBitSet(0x%08lx)",
 					paramsRead, paramBitSet);
 		} else if ((paramsRead & SPSW_FLOW_CONTROL_MASK)
 				!= (paramBitSet & SPSW_FLOW_CONTROL_MASK)) {
 			snprintf(buf, sizeof(buf),
-					"Could not set FlowControl! NATIVE: paramsRead(0x%08x) != paramBitSet(0x%08x)",
+					"Could not set FlowControl! NATIVE: paramsRead(0x%08lx) != paramBitSet(0x%08lx)",
 					paramsRead, paramBitSet);
 		} else {
 			snprintf(buf, sizeof(buf),
-					"Could not set unknown parameter! NATIVE: paramsRead(0x%08x) != paramBitSet(0x%08x)",
+					"Could not set unknown parameter! NATIVE: paramsRead(0x%08lx) != paramBitSet(0x%08lx)",
 					paramsRead, paramBitSet);
 
 		}
@@ -916,7 +909,7 @@ JNIEXPORT void JNICALL Java_de_ibapl_spsw_provider_AbstractSerialPortSocket_clos
 	}
 
 	if (!CloseHandle(hFile)) {
-		throw_SerialPortException_NativeError(env, "Can't close port");
+		throw_IOException_NativeError(env, "Can't close port");
 	}
 }
 
@@ -1050,7 +1043,7 @@ JNIEXPORT void JNICALL Java_de_ibapl_spsw_provider_AbstractSerialPortSocket_open
 (JNIEnv *env, jobject sps, jstring portName, jint paramBitSet) {
 //Do not try to reopen port and therefore failing and overriding the file descriptor
 	if (GET_FILEDESCRIPTOR(env, sps) != INVALID_HANDLE_VALUE) {
-		throw_IllegalStateException_Opend(env);
+		throw_IOException_Opend(env);
 		return;
 	}
 
@@ -1083,7 +1076,7 @@ JNIEXPORT void JNICALL Java_de_ibapl_spsw_provider_AbstractSerialPortSocket_open
 			throw_PortNotFoundException(env, portName);
 			break;
 			default:
-			throw_SerialPortException_NativeError(env, "Open");
+			throw_IOException_NativeError(env, "Open");
 		}
 		return;
 	}
@@ -1115,7 +1108,7 @@ JNIEXPORT void JNICALL Java_de_ibapl_spsw_provider_AbstractSerialPortSocket_open
 
 		SET_FILEDESCRIPTOR(env, sps, INVALID_HANDLE_VALUE);
 
-		throw_SerialPortException_NativeError(env, "Open GetCommTimeouts");
+		throw_IOException_NativeError(env, "Open GetCommTimeouts");
 		return;
 	}
 
@@ -1130,7 +1123,7 @@ JNIEXPORT void JNICALL Java_de_ibapl_spsw_provider_AbstractSerialPortSocket_open
 
 		SET_FILEDESCRIPTOR(env, sps, INVALID_HANDLE_VALUE);
 
-		throw_SerialPortException_NativeError(env, "Open SetCommTimeouts");
+		throw_IOException_NativeError(env, "Open SetCommTimeouts");
 		return;
 	}
 
@@ -1160,7 +1153,7 @@ JNIEXPORT jint JNICALL Java_de_ibapl_spsw_provider_AbstractSerialPortSocket_read
 			if (GET_FILEDESCRIPTOR(env, sps) == INVALID_HANDLE_VALUE) {
 				//closed no-op
 			} else {
-				throw_SerialPortException_NativeError(env,
+				throw_IOException_NativeError(env,
 						"Error readBytes(GetLastError)");
 			}
 			free(lpBuffer);
@@ -1173,7 +1166,7 @@ JNIEXPORT jint JNICALL Java_de_ibapl_spsw_provider_AbstractSerialPortSocket_read
 			if (GET_FILEDESCRIPTOR(env, sps) == INVALID_HANDLE_VALUE) {
 				//closed no-op
 			} else {
-				throw_SerialPortException_NativeError(env,
+				throw_IOException_NativeError(env,
 						"Error readBytes (WaitForSingleObject)");
 			}
 			free(lpBuffer);
@@ -1212,12 +1205,12 @@ JNIEXPORT jint JNICALL Java_de_ibapl_spsw_provider_AbstractSerialPortSocket_read
 		}
 		return -1;
 	} else {
-		throw_SerialPortException_NativeError(env,
+		throw_IOException_NativeError(env,
 				"Should never happen! readBytes dwBytes < 0");
 		return -1;
 	}
 
-	throw_SerialPortException_NativeError(env,
+	throw_IOException_NativeError(env,
 			"Should never happen! readBytes fall trough");
 	return -1;
 }
@@ -1246,7 +1239,7 @@ JNIEXPORT jint JNICALL Java_de_ibapl_spsw_provider_AbstractSerialPortSocket_read
 			if (GET_FILEDESCRIPTOR(env, sps) == INVALID_HANDLE_VALUE) {
 				//closed no-op
 			} else {
-				throw_SerialPortException_NativeError(env,
+				throw_IOException_NativeError(env,
 						"Error readSingle (GetLastError)");
 			}
 			CloseHandle(overlapped.hEvent);
@@ -1257,7 +1250,7 @@ JNIEXPORT jint JNICALL Java_de_ibapl_spsw_provider_AbstractSerialPortSocket_read
 			if (GET_FILEDESCRIPTOR(env, sps) == INVALID_HANDLE_VALUE) {
 				//closed no-op
 			} else {
-				throw_SerialPortException_NativeError(env,
+				throw_IOException_NativeError(env,
 						"Error readSingle (WaitForSingleObject)");
 			}
 			CloseHandle(overlapped.hEvent);
@@ -1294,7 +1287,7 @@ JNIEXPORT jint JNICALL Java_de_ibapl_spsw_provider_AbstractSerialPortSocket_read
 		return -1;
 	}
 
-	throw_SerialPortException_NativeError(env,
+	throw_IOException_NativeError(env,
 			"Should never happen! readSingle fall trough");
 	return -1;
 }
@@ -1309,7 +1302,7 @@ JNIEXPORT void JNICALL Java_de_ibapl_spsw_provider_AbstractSerialPortSocket_send
 	HANDLE hFile = GET_FILEDESCRIPTOR(env, sps);
 
 	if (duration < 0) {
-		throw_SerialPortException_NativeError(env, "sendBreak duration must be grater than 0");
+		throw_IOException_NativeError(env, "sendBreak duration must be grater than 0");
 		return;
 	}
 
@@ -1710,7 +1703,7 @@ JNIEXPORT jint JNICALL Java_de_ibapl_spsw_provider_GenericWinSerialPortSocket_ge
  */
 JNIEXPORT void JNICALL Java_de_ibapl_spsw_provider_GenericWinSerialPortSocket_sendXOFF
 (JNIEnv *env, jobject sps) {
-	throw_SerialPortException_NativeError(env, "setXOFF not implemented yet");
+	throw_IOException_NativeError(env, "setXOFF not implemented yet");
 }
 
 /*
@@ -1720,7 +1713,7 @@ JNIEXPORT void JNICALL Java_de_ibapl_spsw_provider_GenericWinSerialPortSocket_se
  */
 JNIEXPORT void JNICALL Java_de_ibapl_spsw_provider_GenericWinSerialPortSocket_sendXON
 (JNIEnv *env, jobject sps) {
-	throw_SerialPortException_NativeError(env, "setXON not implemented yet");
+	throw_IOException_NativeError(env, "setXON not implemented yet");
 }
 
 /*
