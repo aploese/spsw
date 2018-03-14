@@ -354,13 +354,13 @@ static void throw_IO_ClosedException(JNIEnv *env, int bytesTransferred) {
 
 	if ((iioeClass != NULL) && (spsClass != NULL)) {
 
-		const jfieldID PORT_NOT_OPEN = (*env)->GetStaticFieldID(env, spsClass,
-				"PORT_NOT_OPEN", "Ljava/lang/String;");
+		const jfieldID PORT_IS_CLOSED = (*env)->GetStaticFieldID(env, spsClass,
+				"PORT_IS_CLOSED", "Ljava/lang/String;");
 		const jmethodID iioeConstructor = (*env)->GetMethodID(env, iioeClass,
 				"<init>", "(Ljava/lang/String;)V");
 		const jobject iioeEx = (*env)->NewObject(env, iioeClass,
 				iioeConstructor,
-				(*env)->GetStaticObjectField(env, spsClass, PORT_NOT_OPEN));
+				(*env)->GetStaticObjectField(env, spsClass, PORT_IS_CLOSED));
 		const jfieldID bytesTransferredId = (*env)->GetFieldID(env, iioeClass,
 				"bytesTransferred", "I");
 		(*env)->SetIntField(env, iioeEx, bytesTransferredId, bytesTransferred);
@@ -1481,7 +1481,6 @@ JNIEXPORT void JNICALL Java_de_ibapl_spsw_provider_AbstractSerialPortSocket_writ
 	overlapped.Offset = 0;
 	overlapped.OffsetHigh = 0;
 	overlapped.hEvent = CreateEventA(NULL, TRUE, FALSE, NULL);
-
 	if (!WriteFile(hFile, buf, len, NULL, &overlapped)) {
 
 		if (GetLastError() != ERROR_IO_PENDING) {
