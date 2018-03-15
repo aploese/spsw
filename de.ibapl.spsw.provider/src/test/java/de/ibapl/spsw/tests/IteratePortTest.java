@@ -29,8 +29,6 @@ package de.ibapl.spsw.tests;
 
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import java.util.Set;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import org.junit.jupiter.api.Test;
@@ -50,16 +48,6 @@ public class IteratePortTest {
 		SerialPortSocketFactoryImpl serialPortSocketFactoryImpl = new SerialPortSocketFactoryImpl();
 		serialPortSocketFactoryImpl.loadNativeLib();
 		assertTrue(SerialPortSocketFactoryImpl.singleton().isLibLoaded());
-	}
-
-	@Test
-	public void testList() throws Exception {
-		LOG.info("Iterating serial ports");
-		Set<String> ports = SerialPortSocketFactoryImpl.singleton().getPortNames(true);
-		LOG.info(ports == null ? "null" : ports.size() + " serial ports found");
-		for (String port : ports) {
-			LOG.log(Level.INFO, "Found port: {0}", port);
-		}
 	}
 
 }

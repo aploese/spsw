@@ -36,7 +36,7 @@ import java.io.IOException;
  */
 public class GenericWinSerialPortSocket extends AbstractSerialPortSocket<GenericWinSerialPortSocket> {
 
-	static native String[] getWindowsBasedPortNames(boolean hideBusyPorts) throws IOException;
+	static native String[] getWindowsBasedPortNames();
 
 	/**
 	 * The file descriptor or handle for this Port

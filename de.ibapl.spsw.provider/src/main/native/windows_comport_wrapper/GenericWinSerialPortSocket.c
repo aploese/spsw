@@ -1586,10 +1586,10 @@ JNIEXPORT void JNICALL Java_de_ibapl_spsw_provider_AbstractSerialPortSocket_writ
 /*
  * Class:     de_ibapl_spsw_provider_GenericWinSerialPortSocket
  * Method:    getWindowsBasedPortNames
- * Signature: (Z)[Ljava/lang/String;
+ * Signature: ()[Ljava/lang/String;
  */
 JNIEXPORT jobjectArray JNICALL Java_de_ibapl_spsw_provider_GenericWinSerialPortSocket_getWindowsBasedPortNames(
-		JNIEnv *env, jclass clazz, jboolean value) {
+		JNIEnv *env, jclass clazz) {
 	HKEY phkResult;
 	LPCSTR lpSubKey = "HARDWARE\\DEVICEMAP\\SERIALCOMM\\";
 	jobjectArray returnArray = NULL;

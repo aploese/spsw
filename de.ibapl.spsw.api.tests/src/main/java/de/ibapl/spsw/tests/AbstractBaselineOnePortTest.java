@@ -21,6 +21,8 @@ package de.ibapl.spsw.tests;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTimeoutPreemptively;
@@ -32,6 +34,7 @@ import java.io.IOException;
 import java.io.InterruptedIOException;
 import java.lang.ref.WeakReference;
 import java.time.Duration;
+import java.util.List;
 import java.util.logging.Level;
 
 import org.junit.jupiter.api.Test;
@@ -685,5 +688,39 @@ public abstract class AbstractBaselineOnePortTest extends AbstractPortTest {
 		readSpc.open();
 		readSpc.close();
 	}
+	
+	/**
+	 * Test SerialPortSocketFactory's getPortNames() methods.
+	 * @throws Exception
+	 */
+	@Test
+	public void testSerialPortSocketFactory_getPortNames() throws Exception {
+		assumeRTest();
+		LOG.info("Iterating serial ports");
+		readSpc.open();
+		final List<String> ports = getSerialPortSocketFactory().getPortNames(true);
+		final List<String> allPorts = getSerialPortSocketFactory().getPortNames(false);
+		final List<String> portsincludingReadScp = getSerialPortSocketFactory().getPortNames(readSpc.getPortName(), true);
+		
+		assertFalse(ports.contains(readSpc.getPortName()), "Open port in filtered portnames found");
+		assertTrue(allPorts.contains(readSpc.getPortName()), "Open port not in unfiltered portnames found");
+		assertTrue(portsincludingReadScp.contains(readSpc.getPortName()), "Open port not found");
+
+		assertTrue(allPorts.size() > 1, "No ports found, but at least one exists readSpc");
+		LOG.info(ports == null ? "null" : ports.size() + " serial ports found");
+		for (String port : ports) {
+			LOG.log(Level.INFO, "Found port: {0}", port);
+		}
+		getSerialPortSocketFactory().getPortNames((portname, busy) ->{
+			if (busy) {
+				assertTrue(allPorts.contains(portname));
+				assertFalse(ports.contains(portname));
+			} else {
+				assertTrue(ports.contains(portname));
+				assertTrue(allPorts.contains(portname));
+			}
+		});
+	}
+
 
 }

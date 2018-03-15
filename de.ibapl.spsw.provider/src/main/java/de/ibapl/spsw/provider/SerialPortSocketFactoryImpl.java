@@ -29,13 +29,15 @@ package de.ibapl.spsw.provider;
 
 import java.io.File;
 import java.io.FileOutputStream;
+import java.io.FilenameFilter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Collections;
-import java.util.Comparator;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Properties;
 import java.util.Set;
-import java.util.TreeSet;
+import java.util.function.BiConsumer;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.regex.Pattern;
@@ -53,6 +55,7 @@ import de.ibapl.spsw.api.Baudrate;
 import de.ibapl.spsw.api.DataBits;
 import de.ibapl.spsw.api.FlowControl;
 import de.ibapl.spsw.api.Parity;
+import de.ibapl.spsw.api.PortnamesComparator;
 import de.ibapl.spsw.api.SerialPortSocket;
 import de.ibapl.spsw.api.SerialPortSocketFactory;
 import de.ibapl.spsw.api.StopBits;
@@ -72,10 +75,11 @@ public class SerialPortSocketFactoryImpl implements SerialPortSocketFactory {
 	/**
 	 * Creates and activates @see #activate a singleton instance for use in non
 	 * framework environments
-	 *	@deprecated Use {@link java.util.ServiceLoader} to get an instance
+	 * 
+	 * @deprecated Use {@link java.util.ServiceLoader} to get an instance
 	 * @return
 	 */
-	@Deprecated 
+	@Deprecated
 	public synchronized static SerialPortSocketFactoryImpl singleton() {
 		if (singleton == null) {
 			singleton = new SerialPortSocketFactoryImpl();
@@ -85,11 +89,12 @@ public class SerialPortSocketFactoryImpl implements SerialPortSocketFactory {
 	}
 
 	/**
-	 * Do not load the native library here on failure it may thow up the running framework (OSGi, JEE, Spring...)
+	 * Do not load the native library here on failure it may thow up the running
+	 * framework (OSGi, JEE, Spring...)
 	 */
 	public SerialPortSocketFactoryImpl() {
 	}
-	
+
 	private static boolean libLoaded;
 	private static String libName;
 	public final static String SPSW_PROPERTIES = "de/ibapl/spsw/provider/spsw.properties";
@@ -201,19 +206,18 @@ public class SerialPortSocketFactoryImpl implements SerialPortSocketFactory {
 		throw new RuntimeException("Can't load spsw native lib, giving up! See logs for details!");
 	}
 
-	protected String[] getWindowsBasedPortNames(boolean hideBusyPorts) throws IOException {
+	protected String[] getWindowsBasedPortNames() {
 		if (!isLibLoaded()) {
 			// Make sure lib is loaded to avoid Link error
 			loadNativeLib();
 		}
-
-		return GenericWinSerialPortSocket.getWindowsBasedPortNames(hideBusyPorts);
+		return GenericWinSerialPortSocket.getWindowsBasedPortNames();
 	}
 
 	@Override
 	public SerialPortSocket createSerialPortSocket(String portName) {
-            //ServiceLoader instatiates this lazy so this is the last chance to do so
-            if (!libLoaded) {
+		// ServiceLoader instatiates this lazy so this is the last chance to do so
+		if (!libLoaded) {
 			loadNativeLib();
 		}
 
@@ -237,17 +241,17 @@ public class SerialPortSocketFactoryImpl implements SerialPortSocketFactory {
 	protected String getPortnamesPath() {
 		switch (MULTIARCH_TUPEL_BUILDER.getSimpleOsName()) {
 		case "linux": {
-			return "/dev/";
+			return DEFAULT_LINUX_DEVICE_PATH;
 		}
 		case "SunOS": {
-			return "/dev/term/";
+			return DEFAULT_SUNOS_DEVICE_PATH;
 		}
 		case "Mac OS X":
 		case "Darwin": {
-			return "/dev/";
+			return DEFAULT_MACOS_DEVICE_PATH;
 		}
 		case "windows": {
-			return "";
+			return DEFAULT_WINDOWS_DEVICE_PATH;
 		}
 		default: {
 			LOG.log(Level.SEVERE, "Unknown OS, os.name: {0} mapped to: {1}",
@@ -260,17 +264,17 @@ public class SerialPortSocketFactoryImpl implements SerialPortSocketFactory {
 	protected Pattern getPortnamesRegExp() {
 		switch (MULTIARCH_TUPEL_BUILDER.getSimpleOsName()) {
 		case "linux": {
-			return Pattern.compile("(ttyS|ttyUSB|ttyACM|ttyAMA|rfcomm|ttyO)[0-9]{1,3}");
+			return Pattern.compile(DEFAULT_LINUX_PORTNAME_PATTERN);
 		}
 		case "SunOS": {
-			return Pattern.compile("[0-9]*|[a-z]*");
+			return Pattern.compile(DEFAULT_SUNOS_PORTNAME_PATTERN);
 		}
 		case "Mac OS X":
 		case "Darwin": {
-			return Pattern.compile("tty.(serial|usbserial|usbmodem).*");
+			return Pattern.compile(DEFAULT_MACOS_PORTNAME_PATTERN);
 		}
 		case "windows": {
-			return Pattern.compile("");
+			return Pattern.compile(DEFAULT_WINDOWS_PORTNAME_PATTERN);
 		}
 		default: {
 			LOG.log(Level.SEVERE, "Unknown OS, os.name: {0} mapped to: {1}",
@@ -280,216 +284,106 @@ public class SerialPortSocketFactoryImpl implements SerialPortSocketFactory {
 		}
 	}
 
-	// since 2.1.0 -> Fully rewrited port name comparator
-	protected class PortnamesComparator implements Comparator<String> {
-
-		@Override
-		public int compare(String valueA, String valueB) {
-
-			if (valueA.equalsIgnoreCase(valueB)) {
-				return valueA.compareTo(valueB);
-			}
-
-			int minLength = Math.min(valueA.length(), valueB.length());
-
-			int shiftA = 0;
-			int shiftB = 0;
-
-			for (int i = 0; i < minLength; i++) {
-				char charA = valueA.charAt(i - shiftA);
-				char charB = valueB.charAt(i - shiftB);
-				if (charA != charB) {
-					if (Character.isDigit(charA) && Character.isDigit(charB)) {
-						int[] resultsA = getNumberAndLastIndex(valueA, i - shiftA);
-						int[] resultsB = getNumberAndLastIndex(valueB, i - shiftB);
-
-						if (resultsA[0] != resultsB[0]) {
-							return resultsA[0] - resultsB[0];
-						}
-
-						if (valueA.length() < valueB.length()) {
-							i = resultsA[1];
-							shiftB = resultsA[1] - resultsB[1];
-						} else {
-							i = resultsB[1];
-							shiftA = resultsB[1] - resultsA[1];
-						}
-					} else {
-						if (Character.toLowerCase(charA) - Character.toLowerCase(charB) != 0) {
-							return Character.toLowerCase(charA) - Character.toLowerCase(charB);
-						}
-					}
-				}
-			}
-			return valueA.compareToIgnoreCase(valueB);
-		}
-
-		/**
-		 * Evaluate port <b>index/number</b> from <b>startIndex</b> to the number end.
-		 * For example: for port name <b>serial-123-FF</b> you should invoke this method
-		 * with <b>startIndex = 7</b>
-		 *
-		 * @return If port <b>index/number</b> correctly evaluated it value will be
-		 *         returned<br>
-		 *         <b>returnArray[0] = index/number</b><br>
-		 *         <b>returnArray[1] = stopIndex</b><br>
-		 *
-		 *         If incorrect:<br>
-		 *         <b>returnArray[0] = -1</b><br>
-		 *         <b>returnArray[1] = startIndex</b><br>
-		 *
-		 *         For this name <b>serial-123-FF</b> result is: <b>returnArray[0] =
-		 *         123</b><br>
-		 *         <b>returnArray[1] = 10</b><br>
-		 */
-		private int[] getNumberAndLastIndex(String str, int startIndex) {
-			String numberValue = "";
-			int[] returnValues = { -1, startIndex };
-			for (int i = startIndex; i < str.length(); i++) {
-				returnValues[1] = i;
-				char c = str.charAt(i);
-				if (Character.isDigit(c)) {
-					numberValue += c;
-				} else {
-					break;
-				}
-			}
-			try {
-				returnValues[0] = Integer.valueOf(numberValue);
-			} catch (Exception ex) {
-				// Do nothing
-			}
-			return returnValues;
-		}
-	};
-	// <-since 2.1.0
-
 	/**
-	 * Get sorted array of serial ports in the system using default settings:<br>
+	 * Get sorted List of serial ports in the system using default settings:<br>
 	 *
-	 * <b>Search path</b><br>
-	 * Windows - ""(always ignored)<br>
-	 * Linux - "/dev/"<br>
-	 * Solaris - "/dev/term/"<br>
-	 * MacOSX - "/dev/"<br>
-	 *
-	 * <b>RegExp</b><br>
-	 * Windows - ""<br>
-	 * Linux - "(ttyS|ttyUSB|ttyACM|ttyAMA|rfcomm)[0-9]{1,3}"<br>
-	 * Solaris - "[0-9]*|[a-z]*"<br>
-	 * MacOSX - "tty.(serial|usbserial|usbmodem).*"<br>
-	 *
-	 * @return String array. If there is no ports in the system String[] with
-	 *         <b>zero</b> length will be returned (since jSSC-0.8 in previous
-	 *         versions null will be returned)
 	 */
 	@Override
-	public Set<String> getPortNames(boolean hideBusyPorts) {
-		return getPortNames(getPortnamesPath(), getPortnamesRegExp(), new PortnamesComparator(), hideBusyPorts);
-	}
-
-	@Override
-	public Set<String> getPortNames(String searchPath, boolean hideBusyPorts) {
-		return getPortNames(searchPath, getPortnamesRegExp(), new PortnamesComparator(), hideBusyPorts);
-	}
-
-	@Override
-	public Set<String> getPortNames(Pattern pattern, boolean hideBusyPorts) {
-		return getPortNames(getPortnamesPath(), pattern, new PortnamesComparator(), hideBusyPorts);
-	}
-
-	@Override
-	public Set<String> getPortNames(Comparator<String> comparator, boolean hideBusyPorts) {
-		return getPortNames(getPortnamesPath(), getPortnamesRegExp(), comparator, hideBusyPorts);
-	}
-
-	@Override
-	public Set<String> getPortNames(String searchPath, Pattern pattern, boolean hideBusyPorts) {
-		return getPortNames(searchPath, pattern, new PortnamesComparator(), hideBusyPorts);
-	}
-
-	@Override
-	public Set<String> getPortNames(String searchPath, Comparator<String> comparator, boolean hideBusyPorts) {
-		return getPortNames(searchPath, getPortnamesRegExp(), comparator, hideBusyPorts);
-	}
-
-	@Override
-	public Set<String> getPortNames(Pattern pattern, Comparator<String> comparator, boolean hideBusyPorts) {
-		return getPortNames(getPortnamesPath(), pattern, comparator, hideBusyPorts);
-	}
-
-	@Override
-	public Set<String> getPortNames(String searchPath, Pattern pattern, Comparator<String> comparator,
-			boolean hideBusyPorts) {
-		if (searchPath == null || pattern == null || comparator == null) {
-			return Collections.emptySet();
-		}
-		switch (MULTIARCH_TUPEL_BUILDER.getSimpleOsName()) {
-		case "windows":
-			return getWindowsPortNames(pattern, comparator, hideBusyPorts);
-		default:
-			return getUnixBasedPortNames(searchPath, pattern, comparator, hideBusyPorts);
+	public List<String> getPortNames(boolean hideBusyPorts) {
+		if("windows".equals(MULTIARCH_TUPEL_BUILDER.getSimpleOsName())) {
+			return getWindowsPortNames("", hideBusyPorts);
+		} else {
+			return getUnixBasedPortNames("", hideBusyPorts);
 		}
 	}
 
+	@Override
+	public List<String> getPortNames(String portToInclude, boolean hideBusyPorts) {
+		if (portToInclude == null || portToInclude.isEmpty()) {
+			throw new IllegalArgumentException("portToInclude is null or empty");
+		}
+		if("windows".equals(MULTIARCH_TUPEL_BUILDER.getSimpleOsName())) {
+			return getWindowsPortNames(portToInclude, hideBusyPorts);
+		} else {
+			return getUnixBasedPortNames(portToInclude, hideBusyPorts);
+		}
+	}
 	/**
 	 * Get serial port names in Windows
 	 *
 	 * @since 2.3.0
 	 */
-	protected Set<String> getWindowsPortNames(Pattern pattern, Comparator<String> comparator, boolean hideBusyPorts) {
-		try {
-			String[] portNames = getWindowsBasedPortNames(hideBusyPorts);
-			if (portNames == null) {
-				return Collections.emptySet();
-			}
-			TreeSet<String> ports = new TreeSet<>(comparator);
-			for (String portName : portNames) {
-				if (pattern.matcher(portName).find()) {
-					ports.add(portName);
+	protected List<String> getWindowsPortNames(String portToInclude, boolean hideBusyPorts) {
+		String[] portNames = getWindowsBasedPortNames();
+		if (portNames == null) {
+			return Collections.emptyList();
+		}
+		final Pattern pattern = getPortnamesRegExp();
+		List<String> result = new LinkedList<>();
+		for (String portName : portNames) {
+			if (pattern.matcher(portName).find()) {
+				if (hideBusyPorts) {
+					try (SerialPortSocket sp = createSerialPortSocket(portName)) {
+						sp.open();
+						result.add(portName);
+					} catch (IOException ex) {
+						if (!portToInclude.isEmpty() && portToInclude.equals(portName)) {
+							result.add(portName);
+						} else {
+							LOG.log(Level.FINEST, "found busy port: " + portName, ex);
+						}
+					}
+				} else {
+					result.add(portName);
 				}
 			}
-			return ports;
-		} catch (IOException ex) {
-			throw new RuntimeException(ex);
 		}
+		result.sort(new PortnamesComparator());
+		return result;
 	}
 
 	/**
 	 * Universal method for getting port names of _nix based systems
 	 */
-	protected Set<String> getUnixBasedPortNames(String searchPath, Pattern pattern, Comparator<String> comparator,
-			boolean hideBusyPorts) {
-		searchPath = (searchPath.equals("") ? searchPath : (searchPath.endsWith("/") ? searchPath : searchPath + "/"));
-		File dir = new File(searchPath);
-		if (dir.exists() && dir.isDirectory()) {
-			File[] files = dir.listFiles();
-			if (files.length > 0) {
-				TreeSet<String> portsTree = new TreeSet<>(comparator);
-				for (File file : files) {
-					String fileName = file.getName();
-					if (!file.isDirectory() && !file.isFile() && pattern.matcher(fileName).find()) {
-						String portName = searchPath + fileName;
+	protected List<String> getUnixBasedPortNames(String portToInclude, boolean hideBusyPorts) {
+		File dir = new File(getPortnamesPath());
+		final Pattern pattern = getPortnamesRegExp();
+		final List<String> result = new LinkedList<>();
+
+		dir.listFiles(new FilenameFilter() {
+			@Override
+			public boolean accept(File dir, String name) {
+				if (pattern.matcher(name).find()) {
+					final File deviceFile = new File(dir, name);
+					final String deviceName = deviceFile.getAbsolutePath();
+					if (!deviceFile.isDirectory() && !deviceFile.isFile()) {
 						if (hideBusyPorts) {
-							try (SerialPortSocket sp = createSerialPortSocket(portName)) {
+							try (SerialPortSocket sp = createSerialPortSocket(deviceName)) {
 								sp.open();
-								portsTree.add(portName);
+								result.add(deviceName);
 							} catch (IOException ex) {
-								LOG.log(Level.FINEST, "find busy ports: " + portName, ex);
+								if (!portToInclude.isEmpty() && portToInclude.equals(deviceName)) {
+									result.add(deviceName);
+								} else {
+									LOG.log(Level.FINEST, "found busy port: " + deviceName, ex);
+								}
 							}
 						} else {
-							portsTree.add(portName);
+							result.add(deviceName);
 						}
 					}
 				}
-				return portsTree;
+				return false;
 			}
-		}
-		return Collections.emptySet();
+		});
+
+		result.sort(new PortnamesComparator());
+		return result;
 	}
 
 	/**
-	 * Load the native library in the right lifecycle for the running framework (OSGi, JEE, Spring).
+	 * Load the native library in the right lifecycle for the running framework
+	 * (OSGi, JEE, Spring).
 	 */
 	@PostConstruct
 	@Activate
@@ -528,4 +422,48 @@ public class SerialPortSocketFactoryImpl implements SerialPortSocketFactory {
 			throw e;
 		}
 	}
+
+	@Override
+	public void getPortNames(BiConsumer<String, Boolean> portNameConsumer) {
+		switch (MULTIARCH_TUPEL_BUILDER.getSimpleOsName()) {
+		case "windows":
+			String[] portNames = getWindowsBasedPortNames();
+			if (portNames == null) {
+				return;
+			}
+			for (String portName : portNames) {
+				boolean busy = true;
+				try (SerialPortSocket sp = createSerialPortSocket(portName)) {
+					sp.open();
+					busy = false;
+				} catch (IOException ex) {
+				}
+				portNameConsumer.accept(portName, Boolean.valueOf(busy));
+			}
+		default:
+			File dir = new File(getPortnamesPath());
+			final Pattern pattern = getPortnamesRegExp();
+
+			dir.listFiles(new FilenameFilter() {
+				@Override
+				public boolean accept(File dir, String name) {
+					if (pattern.matcher(name).find()) {
+						final File deviceFile = new File(dir, name);
+						final String deviceName = deviceFile.getAbsolutePath();
+						if (!deviceFile.isDirectory() && !deviceFile.isFile()) {
+							boolean busy = true;
+							try (SerialPortSocket sp = createSerialPortSocket(deviceName)) {
+								sp.open();
+								busy = false;
+							} catch (IOException ex) {
+							}
+							portNameConsumer.accept(deviceName, Boolean.valueOf(busy));
+						}
+					}
+					return false;
+				}
+			});
+		}
+	}
+
 }

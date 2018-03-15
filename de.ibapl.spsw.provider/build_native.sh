@@ -10,4 +10,4 @@ mvn clean compile -P mips64-linux-gnuabi64-gcc && \
 mvn clean compile -P mips64el-linux-gnuabi64-gcc && \
 mvn clean compile -P i686-w64-mingw32-gcc && \
 mvn clean compile -P x86_64-w64-mingw32-gcc && \
-mvn clean install
+mvn clean install -DskipTests

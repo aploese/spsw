@@ -21,9 +21,9 @@ package de.ibapl.spsw.api;
 
 import java.io.IOException;
 
-import java.util.Comparator;
+import java.util.List;
 import java.util.Set;
-import java.util.regex.Pattern;
+import java.util.function.BiConsumer;
 import javax.inject.Named;
 import org.osgi.annotation.versioning.ProviderType;
 
@@ -34,6 +34,17 @@ import org.osgi.annotation.versioning.ProviderType;
 @Named
 @ProviderType()
 public interface SerialPortSocketFactory {
+	
+	public final String DEFAULT_LINUX_DEVICE_PATH = "/dev/";
+	public final String DEFAULT_LINUX_PORTNAME_PATTERN = "(ttyS|ttyUSB|ttyACM|ttyAMA|rfcomm|ttyO)[0-9]{1,3}";
+	public final String DEFAULT_SUNOS_DEVICE_PATH = "/dev/term/";
+	public final String DEFAULT_SUNOS_PORTNAME_PATTERN = "[0-9]*|[a-z]*";
+	public final String DEFAULT_MACOS_DEVICE_PATH = "/dev/";
+	public final String DEFAULT_MACOS_PORTNAME_PATTERN = "tty.(serial|usbserial|usbmodem).*";
+	public final String DEFAULT_WINDOWS_DEVICE_PATH = "";
+	public final String DEFAULT_WINDOWS_PORTNAME_PATTERN = "(COM)[0-9]{1,3}";
+	
+	
 
 	SerialPortSocket createSerialPortSocket(String portName);
 
@@ -42,140 +53,19 @@ public interface SerialPortSocketFactory {
 	SerialPortSocket open(String portName, Baudrate baudRate, DataBits dataBits, StopBits stopBits, Parity parity,
 			Set<FlowControl> flowControls) throws IOException, IllegalStateException;
 
-	/**
-	 * Get sorted array of serial ports in the system using default settings:<br>
-	 *
-	 * <b>Search path</b><br>
-	 * Windows - ""(always ignored)<br>
-	 * Linux - "/dev/"<br>
-	 * Solaris - "/dev/term/"<br>
-	 * MacOSX - "/dev/"<br>
-	 *
-	 * <b>RegExp</b><br>
-	 * Windows - ""<br>
-	 * Linux - "(ttyS|ttyUSB|ttyACM|ttyAMA|rfcomm)[0-9]{1,3}"<br>
-	 * Solaris - "[0-9]*|[a-z]*"<br>
-	 * MacOSX - "tty.(serial|usbserial|usbmodem).*"<br>
-	 *
-	 * @return String array. If there is no ports in the system String[] with
-	 *         <b>zero</b> length will be returned (since jSSC-0.8 in previous
-	 *         versions null will be returned)
-	 */
-	Set<String> getPortNames(boolean hideBusyPorts);
+	void getPortNames(BiConsumer<String, Boolean> portNameConsumer);
 
 	/**
-	 * Get sorted array of serial ports in the system located on searchPath
+	 * Get sorted List of serial ports in the system using default settings:<br>
 	 *
-	 * @param searchPath
-	 *            Path for searching serial ports <b>(not null)</b><br>
-	 *            The default search paths:<br>
-	 *            Linux, MacOSX: <b>/dev/</b><br>
-	 *            Solaris: <b>/dev/term/</b><br>
-	 *            Windows: <b>this parameter ingored</b>
-	 *
-	 * @return String array. If there is no ports in the system String[]
-	 *
-	 * @since 2.3.0
 	 */
-	Set<String> getPortNames(String searchPath, boolean hideBusyPorts);
-
+	List<String> getPortNames(boolean hideBusyPorts);
+	
 	/**
-	 * Get sorted array of serial ports in the system matched pattern
+	 * Get sorted List of serial ports in the system using default settings:<br>
+	 * include portToInclude if it exists and don't care if its busy.
 	 *
-	 * @param pattern
-	 *            RegExp pattern for matching port names <b>(not null)</b>
-	 *
-	 * @return String array. If there is no ports in the system String[]
-	 *
-	 * @since 2.3.0
 	 */
-	Set<String> getPortNames(Pattern pattern, boolean hideBusyPorts);
-
-	/**
-	 * Get sorted array of serial ports in the system matched pattern
-	 *
-	 * @param comparator
-	 *            Comparator for sotring port names <b>(not null)</b>
-	 *
-	 * @return String array. If there is no ports in the system String[]
-	 *
-	 * @since 2.3.0
-	 */
-	Set<String> getPortNames(Comparator<String> comparator, boolean hideBusyPorts);
-
-	/**
-	 * Get sorted array of serial ports in the system located on searchPath, matched
-	 * pattern
-	 *
-	 * @param searchPath
-	 *            Path for searching serial ports <b>(not null)</b><br>
-	 *            The default search paths:<br>
-	 *            Linux, MacOSX: <b>/dev/</b><br>
-	 *            Solaris: <b>/dev/term/</b><br>
-	 *            Windows: <b>this parameter ingored</b>
-	 * @param pattern
-	 *            RegExp pattern for matching port names <b>(not null)</b>
-	 *
-	 * @return String array. If there is no ports in the system String[]
-	 *
-	 * @since 2.3.0
-	 */
-	Set<String> getPortNames(String searchPath, Pattern pattern, boolean hideBusyPorts);
-
-	/**
-	 * Get sorted array of serial ports in the system located on searchPath and
-	 * sorted by comparator
-	 *
-	 * @param searchPath
-	 *            Path for searching serial ports <b>(not null)</b><br>
-	 *            The default search paths:<br>
-	 *            Linux, MacOSX: <b>/dev/</b><br>
-	 *            Solaris: <b>/dev/term/</b><br>
-	 *            Windows: <b>this parameter ingored</b>
-	 * @param comparator
-	 *            Comparator for sotring port names <b>(not null)</b>
-	 *
-	 * @return String array. If there is no ports in the system String[]
-	 *
-	 * @since 2.3.0
-	 */
-	Set<String> getPortNames(String searchPath, Comparator<String> comparator, boolean hideBusyPorts);
-
-	/**
-	 * Get sorted array of serial ports in the system matched pattern and sorted by
-	 * comparator
-	 *
-	 * @param pattern
-	 *            RegExp pattern for matching port names <b>(not null)</b>
-	 * @param comparator
-	 *            Comparator for sotring port names <b>(not null)</b>
-	 *
-	 * @return String array. If there is no ports in the system String[]
-	 *
-	 * @since 2.3.0
-	 */
-	Set<String> getPortNames(Pattern pattern, Comparator<String> comparator, boolean hideBusyPorts);
-
-	/**
-	 * Get sorted array of serial ports in the system located on searchPath, matched
-	 * pattern and sorted by comparator
-	 *
-	 * @param searchPath
-	 *            Path for searching serial ports <b>(not null)</b><br>
-	 *            The default search paths:<br>
-	 *            Linux, MacOSX: <b>/dev/</b><br>
-	 *            Solaris: <b>/dev/term/</b><br>
-	 *            Windows: <b>this parameter ingored</b>
-	 * @param pattern
-	 *            RegExp pattern for matching port names <b>(not null)</b>
-	 * @param comparator
-	 *            Comparator for sotring port names <b>(not null)</b>
-	 * @param hideBusyPorts
-	 *
-	 * @return String array. If there is no ports in the system String[]
-	 *
-	 * @since 2.3.0
-	 */
-	Set<String> getPortNames(String searchPath, Pattern pattern, Comparator<String> comparator, boolean hideBusyPorts);
+	List<String> getPortNames(String portToInclude, boolean hideBusyPorts);
 
 }

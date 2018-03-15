@@ -23,7 +23,10 @@ package de.ibapl.spsw.api;
 import org.osgi.annotation.versioning.ProviderType;
 
 /**
- *
+ * The number of stopbits to use.
+ * Valid combinations are one stopbit for any number of databits.
+ * One and a halve stopbit for 5 databits.
+ * And two stopbits for 6,7 and 8 databits.
  * @author aploese
  */
 @ProviderType
