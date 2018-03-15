@@ -24,8 +24,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.lang.annotation.Native;
-import java.time.LocalDate;
-import java.util.Date;
 import java.util.Set;
 import org.osgi.annotation.versioning.ProviderType;
 

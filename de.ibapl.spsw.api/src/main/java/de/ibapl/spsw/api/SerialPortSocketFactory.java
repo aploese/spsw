@@ -1,7 +1,3 @@
-package de.ibapl.spsw.api;
-
-import java.io.IOException;
-
 /*-
  * #%L
  * SPSW API
@@ -21,6 +17,9 @@ import java.io.IOException;
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  * #L%
  */
+package de.ibapl.spsw.api;
+
+import java.io.IOException;
 
 import java.util.Comparator;
 import java.util.Set;

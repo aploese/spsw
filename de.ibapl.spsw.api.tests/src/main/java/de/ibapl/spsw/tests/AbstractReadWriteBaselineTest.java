@@ -19,7 +19,18 @@
  */
 package de.ibapl.spsw.tests;
 
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTimeout;
+import static org.junit.jupiter.api.Assertions.assertTimeoutPreemptively;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
+
+import java.time.Duration;
 import java.util.Iterator;
+
+import org.junit.jupiter.api.Test;
 
 import de.ibapl.spsw.api.Baudrate;
 
@@ -34,4 +45,39 @@ public abstract class AbstractReadWriteBaselineTest extends AbstractReadWriteTes
 		return new PortConfigurationFactory().getBaudrateIterator(Baudrate.B2400, Baudrate.B115200);
 	}
 
+	/**
+	 * Send two bytes with half the InterbyteReadTimeout and expect a return from read within OverallReadTimeout - InterbyteReadTimeout
+	 * @throws Exception
+	 */
+	@Test
+	public void testInterbyteReadTimeout() throws Exception {
+		openDefault();
+		final byte[] sendData = new byte[] { 12, 15 };
+		final Object LOCK = new Object();
+		readSpc.setTimeouts(200, 1000, 2000);
+		new Thread(() -> {
+			final byte[] data = new byte[3];
+			try {
+				assertTimeoutPreemptively(
+						Duration.ofMillis(readSpc.getOverallReadTimeout() - readSpc.getInterByteReadTimeout()), () -> {
+							final int len = readSpc.getInputStream().read(data);
+							assertEquals(2, len);
+						});
+				assertEquals(sendData[0], data[0]);
+				assertEquals(sendData[1], data[1]);
+				synchronized (LOCK) {
+					LOCK.notifyAll();
+				}
+			} catch (Exception e) {
+				fail(e.getMessage());
+			}
+		}).start();
+		Thread.sleep(100);
+		writeSpc.getOutputStream().write(sendData[0]);
+		Thread.sleep(readSpc.getInterByteReadTimeout() / 2);
+		writeSpc.getOutputStream().write(sendData[1]);
+		synchronized (LOCK) {
+			LOCK.wait(readSpc.getOverallReadTimeout());
+		}
+	}
 }

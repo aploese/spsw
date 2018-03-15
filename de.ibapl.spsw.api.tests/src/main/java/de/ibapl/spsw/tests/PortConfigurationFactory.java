@@ -81,6 +81,11 @@ public class PortConfigurationFactory {
 			return String.format("Port Configuration %s, %s, %s, %s, fC: %s, iBTO: %d, oRTO: %d, oWTO: %d, bS: %d", baudrate, dataBits, stopBits, parity, flowControl, interByteReadTimeout, overallReadTimeout, overallWriteTimeout, bufferSize);
 		}
 
+		public void adjustTimeouts() {
+			overallReadTimeout = calcMaxTransferTime();
+			overallWriteTimeout = overallReadTimeout;
+		}
+
 	}
 	
 	//TODO change this to first|current|last|values of each enum ...
@@ -89,20 +94,21 @@ public class PortConfigurationFactory {
 	public PortConfiguration of(Baudrate b) {
 		PortConfigurationImpl result = portConfigurationImpl.clone();
 		result.baudrate = b;
+		result.adjustTimeouts();
 		return result;
 	}
 	
 	public PortConfiguration of(Parity parity) {
 		PortConfigurationImpl result = portConfigurationImpl.clone();
 		result.parity = parity;
+		result.adjustTimeouts();
 		return result;
 	}
 	
-	public PortConfiguration ofBuffersize(int bufferSize, boolean adjustTimeouts) {
+	public PortConfiguration ofBuffersize(int bufferSize) {
 		PortConfigurationImpl result = portConfigurationImpl.clone();
 		result.bufferSize = bufferSize;
-		result.overallReadTimeout = result.calcMaxTransferTime();
-		result.overallWriteTimeout = result.overallReadTimeout;
+		result.adjustTimeouts();
 		return result;
 	}
 

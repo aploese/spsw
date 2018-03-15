@@ -50,7 +50,7 @@ public abstract class AbstractReadWriteBufferSizeTest extends AbstractReadWriteT
             	} else {
             		currentSize *= 2;
             	}
-            	return pcf.ofBuffersize(result, true);
+            	return pcf.ofBuffersize(result);
             }
         };
 	}

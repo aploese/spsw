@@ -6,12 +6,17 @@
 package de.ibapl.spsw.provider;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.Collection;
 import java.util.Iterator;
+import java.util.ServiceLoader;
 
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
+
+import de.ibapl.spsw.api.SerialPortSocket;
+import de.ibapl.spsw.api.SerialPortSocketFactory;
 
 /**
  *
@@ -60,8 +65,9 @@ public class MultiarchTupelBuilderTest {
 				"32", "little", "");
 		Collection<String> result = instance.getMultiarchTupels();
 		assertEquals(2, result.size());
-		Iterator iter = result.iterator();
+		Iterator<String> iter = result.iterator();
 		assertEquals("arm-linux-gnueabihf", iter.next());
 		assertEquals("arm-linux-gnueabi", iter.next());
 	}
+	
 }

@@ -33,9 +33,13 @@
 */
 package de.ibapl.spsw.provider;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.net.URL;
+import java.util.ServiceLoader;
 
 import org.junit.jupiter.api.Test;
 
@@ -64,5 +68,15 @@ public class SerialPortSocketTest {
 		SerialPortSocketFactory spsf = SerialPortSocketFactoryImpl.singleton();
 		assertNotNull(spsf);
 	}
+	
+	@Test
+	public void testServiceLoader() throws Exception {
+		ServiceLoader<SerialPortSocketFactory> spsFactory = ServiceLoader.load(SerialPortSocketFactory.class);
+		assertTrue(spsFactory.iterator().hasNext());
+		assertEquals(SerialPortSocketFactoryImpl.class, spsFactory.iterator().next().getClass());
+		//We excpect to have ony one implementation hanging around...
+		assertFalse(spsFactory.iterator().hasNext());
+	}
+
 
 }

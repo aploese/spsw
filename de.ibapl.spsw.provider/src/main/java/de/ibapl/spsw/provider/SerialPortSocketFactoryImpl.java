@@ -72,9 +72,10 @@ public class SerialPortSocketFactoryImpl implements SerialPortSocketFactory {
 	/**
 	 * Creates and activates @see #activate a singleton instance for use in non
 	 * framework environments
-	 *
+	 *	@deprecated Use {@link java.util.ServiceLoader} to get an instance
 	 * @return
 	 */
+	@Deprecated 
 	public synchronized static SerialPortSocketFactoryImpl singleton() {
 		if (singleton == null) {
 			singleton = new SerialPortSocketFactoryImpl();
@@ -83,6 +84,12 @@ public class SerialPortSocketFactoryImpl implements SerialPortSocketFactory {
 		return singleton;
 	}
 
+	/**
+	 * Do not load the native library here on failure it may thow up the running framework (OSGi, JEE, Spring...)
+	 */
+	public SerialPortSocketFactoryImpl() {
+	}
+	
 	private static boolean libLoaded;
 	private static String libName;
 	public final static String SPSW_PROPERTIES = "de/ibapl/spsw/provider/spsw.properties";
@@ -205,6 +212,11 @@ public class SerialPortSocketFactoryImpl implements SerialPortSocketFactory {
 
 	@Override
 	public SerialPortSocket createSerialPortSocket(String portName) {
+            //ServiceLoader instatiates this lazy so this is the last chance to do so
+            if (!libLoaded) {
+			loadNativeLib();
+		}
+
 		switch (MULTIARCH_TUPEL_BUILDER.getSimpleOsName()) {
 		case "linux":
 			return new GenericTermiosSerialPortSocket(portName);
@@ -476,6 +488,9 @@ public class SerialPortSocketFactoryImpl implements SerialPortSocketFactory {
 		return Collections.emptySet();
 	}
 
+	/**
+	 * Load the native library in the right lifecycle for the running framework (OSGi, JEE, Spring).
+	 */
 	@PostConstruct
 	@Activate
 	public void activate() {
@@ -513,5 +528,4 @@ public class SerialPortSocketFactoryImpl implements SerialPortSocketFactory {
 			throw e;
 		}
 	}
-
 }

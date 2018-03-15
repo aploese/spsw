@@ -1,15 +1,20 @@
 package de.ibapl.spsw.tests;
 
+import static org.junit.jupiter.api.Assertions.assertAll;
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTimeoutPreemptively;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 
-import java.io.IOException;
 import java.io.InputStream;
+import java.io.InterruptedIOException;
 import java.io.OutputStream;
 import java.text.MessageFormat;
 import java.time.Duration;
+import java.time.OffsetDateTime;
+import java.util.Arrays;
 import java.util.Iterator;
 import java.util.logging.Level;
 
@@ -20,6 +25,8 @@ import org.junit.jupiter.api.TestInstance.Lifecycle;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
 
+import de.ibapl.spsw.api.TimeoutIOException;
+
 @TestInstance(Lifecycle.PER_CLASS)
 public abstract class AbstractReadWriteTest extends AbstractPortTest {
 
@@ -29,8 +36,9 @@ public abstract class AbstractReadWriteTest extends AbstractPortTest {
 		final InputStream is;
 		boolean done;
 		final Object LOCK = new Object();
-		final byte[] recBuffer;
+		byte[] recBuffer;
 		final byte[] sendBuffer;
+		int currentRecOffset;
 
 		Exception ex;
 		Error err;
@@ -39,19 +47,22 @@ public abstract class AbstractReadWriteTest extends AbstractPortTest {
 			this.readSingle = readSingle;
 			this.is = is;
 			this.sendBuffer = sendBuffer;
-			this.recBuffer = new byte[sendBuffer.length];
 		}
 
 		@Override
 		public void run() {
+			this.recBuffer = new byte[sendBuffer.length];
+			currentRecOffset = 0;
+			ex = null;
+			err = null;
+			done = false;
 			try {
-				int offset = 0;
 				while (true) {
 					if (readSingle) {
 						final int data = is.read();
 						if (data >= 0) {
-							final int pos = offset;
-							offset++;
+							final int pos = currentRecOffset;
+							currentRecOffset++;
 							recBuffer[pos] = (byte) data;
 							assertEquals(sendBuffer[pos], recBuffer[pos], () -> {
 								return String.format("Arrays differ @%d expected but was %02x", pos, sendBuffer[pos],
@@ -60,35 +71,35 @@ public abstract class AbstractReadWriteTest extends AbstractPortTest {
 						} else {
 							throw new RuntimeException("TODO implement me");
 						}
-						if (offset == recBuffer.length) {
+						if (currentRecOffset == recBuffer.length) {
 							break;
 						}
 					} else {
-						final int count = is.read(recBuffer, offset, recBuffer.length - offset);
+						final int count = is.read(recBuffer, currentRecOffset, recBuffer.length - currentRecOffset);
 						if (count > 0) {
 							for (int i = 0; i < count; i++) {
-								final int pos = offset + i;
-								assertEquals(sendBuffer[offset], recBuffer[offset], () -> {
+								final int pos = currentRecOffset + i;
+								assertEquals(sendBuffer[currentRecOffset], recBuffer[currentRecOffset], () -> {
 									return String.format("Arrays differ @%d expected but was %02x", pos,
 											sendBuffer[pos], recBuffer[pos]);
 								});
 							}
-							offset += count;
-							if (offset == recBuffer.length) {
+							currentRecOffset += count;
+							if (currentRecOffset == recBuffer.length) {
 								break;
 							}
 						}
 						LOG.log(Level.FINEST, "Bytes read: {0}", count);
 						if (count <= 0) {
-							if (offset < recBuffer.length) {
-								LOG.log(Level.SEVERE, "Bytes missing: {0}", recBuffer.length - offset);
+							if (currentRecOffset < recBuffer.length) {
+								LOG.log(Level.SEVERE, "Bytes missing: {0}", recBuffer.length - currentRecOffset);
 								// TODO printArrays("Too short");
 							}
 							break;
 						}
 					}
 				}
-				LOG.log(Level.INFO, "Byte total read: {0}", offset);
+				LOG.log(Level.INFO, "Byte total read: {0}", currentRecOffset);
 				synchronized (LOCK) {
 					done = true;
 					LOCK.notifyAll();
@@ -98,7 +109,7 @@ public abstract class AbstractReadWriteTest extends AbstractPortTest {
 				synchronized (LOCK) {
 					done = true;
 					this.ex = ex;
-					LOG.log(Level.SEVERE, "Send Thread Exception", ex);
+					LOG.log(Level.SEVERE, "Send Thread Exception offset: " + currentRecOffset, ex);
 					LOCK.notifyAll();
 				}
 			} catch (Error err) {
@@ -106,10 +117,41 @@ public abstract class AbstractReadWriteTest extends AbstractPortTest {
 					done = true;
 					this.err = err;
 					// TODO printArrays("Error");
-					LOG.log(Level.SEVERE, "Send Thread Error", err);
+					LOG.log(Level.SEVERE, "Send Thread Error offset: " + currentRecOffset, err);
 					LOCK.notifyAll();
 				}
 			}
+		}
+
+		/**
+		 * Try to figure out what exactly hit us...
+		 * 
+		 * At high speeds sometime a byte gets "lost" and therefore its running in an
+		 * timeout... The first "missing" byte is where the array differ...? The amount
+		 * of "missing" bytes is the difference of sendBuffer.length and
+		 * currentRecOffset.
+		 * 
+		 */
+		public void assertExceptions() {
+			assertAll("Receive Exception", () -> {
+				//Where is the missing byte
+				assertArrayEquals(sendBuffer, recBuffer);
+			}, () -> {
+				//How much bytes are missing
+				assertEquals(sendBuffer.length, currentRecOffset, "Received not enough");
+			}, () -> {
+				if (ex instanceof TimeoutIOException) {
+					//if bytesTransferred == 0 then in the second attempt nothing was read.
+					fail("TimeoutIOException bytes transferred: " + ((TimeoutIOException) ex).bytesTransferred
+							+ " MSG: " + ex.getMessage());
+				} else if (ex instanceof InterruptedIOException) {
+					fail("InterruptedIOException bytes transferred: " + ((TimeoutIOException) ex).bytesTransferred
+							+ " MSG: " + ex.getMessage());
+				} else if (ex != null) {
+					fail(ex.getClass().getSimpleName() + " MSG: " + ex.getMessage());
+
+				}
+			});
 		}
 
 	}
@@ -131,6 +173,9 @@ public abstract class AbstractReadWriteTest extends AbstractPortTest {
 
 		@Override
 		public void run() {
+			done = false;
+			ex = null;
+			err = null;
 			try {
 				if (writeSingle) {
 					for (int i = 0; i < sendBuffer.length; i++) {
@@ -187,11 +232,11 @@ public abstract class AbstractReadWriteTest extends AbstractPortTest {
 		final Sender sender = new Sender(true, writeSpc.getOutputStream(), initBuffer(pc.getBufferSize()));
 		final Receiver receiver = new Receiver(false, readSpc.getInputStream(), sender.sendBuffer);
 
-		assertTimeoutPreemptively(Duration.ofMillis(pc.calcMaxTransferTime()), () -> {
+		assertTimeoutPreemptively(Duration.ofMillis(pc.getOverallReadTimeout() * 2), () -> {
 			sender.run();
 			receiver.run();
 			assertNull(receiver.err);
-			assertNull(receiver.ex);
+			receiver.assertExceptions();
 			assertTrue(receiver.done);
 		});
 	}
@@ -203,11 +248,11 @@ public abstract class AbstractReadWriteTest extends AbstractPortTest {
 		final Sender sender = new Sender(false, writeSpc.getOutputStream(), initBuffer(pc.getBufferSize()));
 		final Receiver receiver = new Receiver(true, readSpc.getInputStream(), sender.sendBuffer);
 
-		assertTimeoutPreemptively(Duration.ofMillis(pc.calcMaxTransferTime()), () -> {
+		assertTimeoutPreemptively(Duration.ofMillis(pc.getOverallReadTimeout() * 2), () -> {
 			sender.run();
 			receiver.run();
 			assertNull(receiver.err);
-			assertNull(receiver.ex);
+			receiver.assertExceptions();
 			assertTrue(receiver.done);
 		});
 	}
@@ -219,11 +264,11 @@ public abstract class AbstractReadWriteTest extends AbstractPortTest {
 		final Sender sender = new Sender(true, writeSpc.getOutputStream(), initBuffer(pc.getBufferSize()));
 		final Receiver receiver = new Receiver(false, readSpc.getInputStream(), sender.sendBuffer);
 
-		assertTimeoutPreemptively(Duration.ofMillis(pc.calcMaxTransferTime()), () -> {
+		assertTimeoutPreemptively(Duration.ofMillis(pc.getOverallReadTimeout() * 2), () -> {
 			sender.run();
 			receiver.run();
 			assertNull(receiver.err);
-			assertNull(receiver.ex);
+			receiver.assertExceptions();
 			assertTrue(receiver.done);
 		});
 	}
@@ -235,11 +280,11 @@ public abstract class AbstractReadWriteTest extends AbstractPortTest {
 		final Sender sender = new Sender(true, writeSpc.getOutputStream(), initBuffer(pc.getBufferSize()));
 		final Receiver receiver = new Receiver(true, readSpc.getInputStream(), sender.sendBuffer);
 
-		assertTimeoutPreemptively(Duration.ofMillis(pc.calcMaxTransferTime()), () -> {
+		assertTimeoutPreemptively(Duration.ofMillis(pc.getOverallReadTimeout() * 2), () -> {
 			sender.run();
 			receiver.run();
 			assertNull(receiver.err);
-			assertNull(receiver.ex);
+			receiver.assertExceptions();
 			assertTrue(receiver.done);
 		});
 	}
@@ -251,13 +296,13 @@ public abstract class AbstractReadWriteTest extends AbstractPortTest {
 		final Sender sender = new Sender(false, writeSpc.getOutputStream(), initBuffer(pc.getBufferSize()));
 		final Receiver receiver = new Receiver(false, readSpc.getInputStream(), sender.sendBuffer);
 
-		assertTimeoutPreemptively(Duration.ofMillis(pc.calcMaxTransferTime()), () -> {
+		assertTimeoutPreemptively(Duration.ofMillis(pc.getOverallReadTimeout() * 2), () -> {
 			new Thread(receiver).start();
 			new Thread(sender).start();
 			synchronized (receiver.LOCK) {
 				receiver.LOCK.wait();
 				assertNull(receiver.err);
-				assertNull(receiver.ex);
+				receiver.assertExceptions();
 				assertTrue(receiver.done);
 			}
 		});
@@ -270,13 +315,13 @@ public abstract class AbstractReadWriteTest extends AbstractPortTest {
 		final Sender sender = new Sender(false, writeSpc.getOutputStream(), initBuffer(pc.getBufferSize()));
 		final Receiver receiver = new Receiver(true, readSpc.getInputStream(), sender.sendBuffer);
 
-		assertTimeoutPreemptively(Duration.ofMillis(pc.calcMaxTransferTime()), () -> {
+		assertTimeoutPreemptively(Duration.ofMillis(pc.getOverallReadTimeout() * 2), () -> {
 			new Thread(receiver).start();
 			new Thread(sender).start();
 			synchronized (receiver.LOCK) {
 				receiver.LOCK.wait();
 				assertNull(receiver.err);
-				assertNull(receiver.ex);
+				receiver.assertExceptions();
 				assertTrue(receiver.done);
 			}
 		});
@@ -289,13 +334,13 @@ public abstract class AbstractReadWriteTest extends AbstractPortTest {
 		final Sender sender = new Sender(true, writeSpc.getOutputStream(), initBuffer(pc.getBufferSize()));
 		final Receiver receiver = new Receiver(false, readSpc.getInputStream(), sender.sendBuffer);
 
-		assertTimeoutPreemptively(Duration.ofMillis(pc.calcMaxTransferTime()), () -> {
+		assertTimeoutPreemptively(Duration.ofMillis(pc.getOverallReadTimeout() * 2), () -> {
 			new Thread(receiver).start();
 			new Thread(sender).start();
 			synchronized (receiver.LOCK) {
 				receiver.LOCK.wait();
 				assertNull(receiver.err);
-				assertNull(receiver.ex);
+				receiver.assertExceptions();
 				assertTrue(receiver.done);
 			}
 		});
@@ -308,13 +353,13 @@ public abstract class AbstractReadWriteTest extends AbstractPortTest {
 		final Sender sender = new Sender(true, writeSpc.getOutputStream(), initBuffer(pc.getBufferSize()));
 		final Receiver receiver = new Receiver(false, readSpc.getInputStream(), sender.sendBuffer);
 
-		assertTimeoutPreemptively(Duration.ofMillis(pc.calcMaxTransferTime()), () -> {
+		assertTimeoutPreemptively(Duration.ofMillis(pc.getOverallReadTimeout() * 2), () -> {
 			new Thread(receiver).start();
 			new Thread(sender).start();
 			synchronized (receiver.LOCK) {
 				receiver.LOCK.wait();
 				assertNull(receiver.err);
-				assertNull(receiver.ex);
+				receiver.assertExceptions();
 				assertTrue(receiver.done);
 			}
 		});
