@@ -39,6 +39,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.net.URL;
+import java.util.Iterator;
 import java.util.ServiceLoader;
 
 import org.junit.jupiter.api.Test;
@@ -71,11 +72,12 @@ public class SerialPortSocketTest {
 	
 	@Test
 	public void testServiceLoader() throws Exception {
-		ServiceLoader<SerialPortSocketFactory> spsFactory = ServiceLoader.load(SerialPortSocketFactory.class);
-		assertTrue(spsFactory.iterator().hasNext());
-		assertEquals(SerialPortSocketFactoryImpl.class, spsFactory.iterator().next().getClass());
+		ServiceLoader<SerialPortSocketFactory> spsFactoryLoader = ServiceLoader.load(SerialPortSocketFactory.class);
+		Iterator<SerialPortSocketFactory> spsFactoryIterator = spsFactoryLoader.iterator();
+		assertTrue(spsFactoryIterator.hasNext());
+		assertEquals(SerialPortSocketFactoryImpl.class, spsFactoryIterator.next().getClass());
 		//We excpect to have ony one implementation hanging around...
-		assertFalse(spsFactory.iterator().hasNext());
+		assertFalse(spsFactoryIterator.hasNext());
 	}
 
 
