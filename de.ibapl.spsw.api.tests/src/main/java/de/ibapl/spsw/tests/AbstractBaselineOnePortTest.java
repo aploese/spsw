@@ -706,12 +706,8 @@ public abstract class AbstractBaselineOnePortTest extends AbstractPortTest {
 		assertTrue(allPorts.contains(readSpc.getPortName()), "Open port not in unfiltered portnames found");
 		assertTrue(portsincludingReadScp.contains(readSpc.getPortName()), "Open port not found");
 
-		assertTrue(allPorts.size() > 1, "No ports found, but at least one exists readSpc");
-		LOG.info(ports == null ? "null" : ports.size() + " serial ports found");
-		for (String port : ports) {
-			LOG.log(Level.INFO, "Found port: {0}", port);
-		}
 		getSerialPortSocketFactory().getPortNames((portname, busy) ->{
+			LOG.log(Level.INFO, "Found port: {0} busy: {1}", new Object[] {portname, busy});
 			if (busy) {
 				assertTrue(allPorts.contains(portname));
 				assertFalse(ports.contains(portname));
