@@ -38,6 +38,9 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.AfterTestExecutionCallback;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.api.extension.ExtensionContext;
 
 import gnu.io.CommPortIdentifier;
 import gnu.io.RXTXPort;
@@ -47,9 +50,10 @@ import gnu.io.SerialPort;
  * Unit test for simple App. Timeout is computed 8 data bits + 2 stop bits +
  * parity bit + start bit == 12 This is only for regression tests
  */
-public abstract class AbstractTwoPortsBaselineRxTxTest {
+@ExtendWith(AbstractTwoPortsBaselineRxTxTest.AfterTestExecution.class)
+public abstract class AbstractTwoPortsBaselineRxTxTest  {
 
-	protected static final int PORT_RECOVERY_TIME = AbstractPortTest.PORT_RECOVERY_TIME;
+	protected static final int PORT_RECOVERY_TIME_MS = AbstractPortTest.PORT_RECOVERY_TIME_MS;
 	protected static final boolean HARDWARE_SUPPORTS_RTS_CTS = AbstractPortTest.HARDWARE_SUPPORTS_RTS_CTS;
 
 	private static final Logger LOG = Logger.getLogger(AbstractTwoPortsBaselineRxTxTest.class.getName());
@@ -69,6 +73,13 @@ public abstract class AbstractTwoPortsBaselineRxTxTest {
 	protected int parity = SerialPort.PARITY_NONE;
 	protected int stopBits = SerialPort.STOPBITS_1;
 	protected int dataBits = SerialPort.DATABITS_8;
+	protected boolean currentTestFailed;
+
+	public static class AfterTestExecution implements AfterTestExecutionCallback {
+	public void afterTestExecution(ExtensionContext context) throws Exception {
+			((AbstractTwoPortsBaselineRxTxTest)context.getRequiredTestInstance()).currentTestFailed = context.getExecutionException().isPresent();
+	}
+	}
 
 	@BeforeAll
 	public static void setUpClass() throws Exception {
@@ -117,8 +128,8 @@ public abstract class AbstractTwoPortsBaselineRxTxTest {
 
 		Runtime.getRuntime().gc();
 		Runtime.getRuntime().runFinalization();
-		if (PORT_RECOVERY_TIME > 0) {
-			Thread.sleep(PORT_RECOVERY_TIME * 1000);
+		if (currentTestFailed) {
+			Thread.sleep(PORT_RECOVERY_TIME_MS);
 		}
 	}
 

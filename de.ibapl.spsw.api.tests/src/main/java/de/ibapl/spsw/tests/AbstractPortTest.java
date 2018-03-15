@@ -33,6 +33,9 @@ import java.util.logging.Logger;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.extension.AfterTestExecutionCallback;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.api.extension.ExtensionContext;
 
 import de.ibapl.spsw.api.Baudrate;
 import de.ibapl.spsw.api.DataBits;
@@ -42,9 +45,12 @@ import de.ibapl.spsw.api.SerialPortSocket;
 import de.ibapl.spsw.api.SerialPortSocketFactory;
 import de.ibapl.spsw.api.StopBits;
 
+@ExtendWith(AbstractPortTest.AfterTestExecution.class)
 public abstract class AbstractPortTest {
 
-	protected static final int PORT_RECOVERY_TIME = 0;
+	
+	
+	protected static final int PORT_RECOVERY_TIME_MS =2000;
 	protected static final boolean HARDWARE_SUPPORTS_RTS_CTS = false;
 
 	protected static final Logger LOG = Logger.getLogger("SpswTests");
@@ -53,9 +59,16 @@ public abstract class AbstractPortTest {
 
 	protected SerialPortSocket readSpc;
 	protected SerialPortSocket writeSpc;
+	protected boolean currentTestFailed;
 
 	protected abstract SerialPortSocketFactory getSerialPortSocketFactory();
 
+	public static class AfterTestExecution implements AfterTestExecutionCallback {
+	public void afterTestExecution(ExtensionContext context) throws Exception {
+			((AbstractPortTest)context.getRequiredTestInstance()).currentTestFailed = context.getExecutionException().isPresent();
+	}
+	}
+	
 	protected void setBaudrate(Baudrate baudrate) throws IOException {
 		if (readSpc != null) {
 			readSpc.setBaudrate(baudrate);
@@ -203,7 +216,7 @@ public abstract class AbstractPortTest {
 			if (writeSpc != readSpc) {
 				if (!writeSpc.isClosed()) {
 					writeSpc.close();
-					assertTrue(writeSpc.isClosed(), "Can't close write port");
+					assert(writeSpc.isClosed());
 				}
 			}
 			writeSpc = null;
@@ -211,15 +224,17 @@ public abstract class AbstractPortTest {
 		if (readSpc != null) {
 			if (!readSpc.isClosed()) {
 				readSpc.close();
-				assertTrue(readSpc.isClosed(), "Can't close read port");
+				assert(readSpc.isClosed());
 			}
 			readSpc = null;
 		}
 
 		Runtime.getRuntime().gc();
 		Runtime.getRuntime().runFinalization();
-		if (PORT_RECOVERY_TIME > 0) {
-			Thread.sleep(PORT_RECOVERY_TIME * 1000);
+		if (currentTestFailed) {
+			Thread.sleep(PORT_RECOVERY_TIME_MS);
+			Runtime.getRuntime().gc();
+			Runtime.getRuntime().runFinalization();
 		}
 	}
 

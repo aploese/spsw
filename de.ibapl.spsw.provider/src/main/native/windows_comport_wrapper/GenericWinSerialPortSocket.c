@@ -837,6 +837,7 @@ static int setParams(JNIEnv *env, jobject sps, DCB *dcb, jint paramBitSet) {
 		default:
 			throw_ClosedOrNativeException(env, sps, "setParams SetCommState");
 		}
+		return -1;
 	}
 
 	jint paramsRead =
