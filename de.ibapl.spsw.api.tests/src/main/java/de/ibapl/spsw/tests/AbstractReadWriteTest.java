@@ -134,14 +134,14 @@ public abstract class AbstractReadWriteTest extends AbstractPortTest {
 		 */
 		public void assertExceptions() {
 			assertAll("Receive Exception", () -> {
-				//Where is the missing byte
+				// Where is the missing byte
 				assertArrayEquals(sendBuffer, recBuffer);
 			}, () -> {
-				//How much bytes are missing
+				// How much bytes are missing
 				assertEquals(sendBuffer.length, currentRecOffset, "Received not enough");
 			}, () -> {
 				if (ex instanceof TimeoutIOException) {
-					//if bytesTransferred == 0 then in the second attempt nothing was read.
+					// if bytesTransferred == 0 then in the second attempt nothing was read.
 					fail("TimeoutIOException bytes transferred: " + ((TimeoutIOException) ex).bytesTransferred
 							+ " MSG: " + ex.getMessage());
 				} else if (ex instanceof InterruptedIOException) {
@@ -333,16 +333,21 @@ public abstract class AbstractReadWriteTest extends AbstractPortTest {
 		open(pc);
 		final Sender sender = new Sender(true, writeSpc.getOutputStream(), initBuffer(pc.getBufferSize()));
 		final Receiver receiver = new Receiver(false, readSpc.getInputStream(), sender.sendBuffer);
-
-		assertTimeoutPreemptively(Duration.ofMillis(pc.getOverallReadTimeout() * 2), () -> {
-			new Thread(receiver).start();
-			new Thread(sender).start();
-			synchronized (receiver.LOCK) {
-				receiver.LOCK.wait();
-				assertNull(receiver.err);
-				receiver.assertExceptions();
-				assertTrue(receiver.done);
-			}
+		assertAll("After ", () -> {
+			assertTimeoutPreemptively(Duration.ofMillis(pc.getOverallReadTimeout() * 20), () -> {
+				new Thread(receiver).start();
+				new Thread(sender).start();
+				synchronized (receiver.LOCK) {
+					receiver.LOCK.wait();
+					assertNull(receiver.err);
+					receiver.assertExceptions();
+					assertTrue(receiver.done);
+				}
+			});
+		}, () -> {
+			assertNull(receiver.err);
+			receiver.assertExceptions();
+			assertTrue(receiver.done);
 		});
 	}
 
