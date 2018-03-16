@@ -11,6 +11,7 @@ import de.ibapl.spsw.api.StopBits;
 
 public interface PortConfiguration {
 	final static int TEST_TIMEOUT_OFFSET = 1000;
+	final static int TEST_TIMEOUT_MULTIPLYER = 20;
 
 	Baudrate getBaudrate();
 
@@ -32,6 +33,10 @@ public interface PortConfiguration {
 
 	default int calcMaxTransferTime() {
 		return TEST_TIMEOUT_OFFSET + SerialPortSocket.calculateMillisForBytes(getBufferSize(), getBaudrate(), getDataBits(), getStopBits(), getParity());
+	}
+
+	default long getTestTimeout() { 
+		return calcMaxTransferTime() * TEST_TIMEOUT_MULTIPLYER;
 	}
 
 }

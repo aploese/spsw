@@ -34,10 +34,14 @@ import java.io.IOException;
 import java.io.InterruptedIOException;
 import java.lang.ref.WeakReference;
 import java.time.Duration;
+import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.logging.Level;
 
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.MethodSource;
 
 import de.ibapl.spsw.api.Baudrate;
 import de.ibapl.spsw.api.DataBits;
@@ -501,6 +505,52 @@ public abstract class AbstractBaselineOnePortTest extends AbstractPortTest {
 		}
 	}
 
+	public Iterator<PortConfiguration> getTestAllSettings() {
+		LinkedList<PortConfiguration> result = new LinkedList<>();
+		PortConfigurationFactory portConfigurationFactory = new PortConfigurationFactory();
+		for (Baudrate br : Baudrate.values()) {
+			portConfigurationFactory.setBaudrate(br);
+			for (DataBits db : DataBits.values()) {
+				portConfigurationFactory.setDataBits(db);
+				for (Parity p : Parity.values()) {
+					portConfigurationFactory.setParity(p);
+					for (StopBits sp : StopBits.values()) {
+						switch (db) {
+						case DB_5:
+							if (sp == StopBits.SB_2) {
+								continue;
+							} else {
+								portConfigurationFactory.setStopBits(sp);
+							}
+							break;
+						case DB_6:
+						case DB_7:
+						case DB_8:
+							if (sp == StopBits.SB_1_5) {
+								continue;
+							} else {
+								portConfigurationFactory.setStopBits(sp);
+							}
+							break;
+						default:
+							throw new RuntimeException("Should never happen");
+						}
+						result.add(portConfigurationFactory.ofCurrent());
+					}
+				}
+			}
+		}
+		return result.iterator();
+	}
+
+	@ParameterizedTest
+	@MethodSource({ "getTestAllSettings" })
+	public void testAllSettingsOnOpening(PortConfiguration portConfiguration) throws Exception {
+		assumeRTest();
+		LOG.log(Level.INFO, "run testAllSettingsOnOpening");
+		open(portConfiguration);
+	}
+
 	@Test
 	public void testCloseDuringSingleRead() throws Exception {
 		assumeRTest();
@@ -630,7 +680,7 @@ public abstract class AbstractBaselineOnePortTest extends AbstractPortTest {
 		IOException ioe = assertThrows(IOException.class, () -> {
 			spc2.open();
 		});
-		assertEquals(String.format("Port is busy: (%s)",spc2.getPortName()), ioe.getMessage());
+		assertEquals(String.format("Port is busy: (%s)", spc2.getPortName()), ioe.getMessage());
 		assertFalse(spc2.isOpen());
 	}
 
@@ -688,9 +738,10 @@ public abstract class AbstractBaselineOnePortTest extends AbstractPortTest {
 		readSpc.open();
 		readSpc.close();
 	}
-	
+
 	/**
 	 * Test SerialPortSocketFactory's getPortNames() methods.
+	 * 
 	 * @throws Exception
 	 */
 	@Test
@@ -700,14 +751,15 @@ public abstract class AbstractBaselineOnePortTest extends AbstractPortTest {
 		readSpc.open();
 		final List<String> ports = getSerialPortSocketFactory().getPortNames(true);
 		final List<String> allPorts = getSerialPortSocketFactory().getPortNames(false);
-		final List<String> portsincludingReadScp = getSerialPortSocketFactory().getPortNames(readSpc.getPortName(), true);
-		
+		final List<String> portsincludingReadScp = getSerialPortSocketFactory().getPortNames(readSpc.getPortName(),
+				true);
+
 		assertFalse(ports.contains(readSpc.getPortName()), "Open port in filtered portnames found");
 		assertTrue(allPorts.contains(readSpc.getPortName()), "Open port not in unfiltered portnames found");
 		assertTrue(portsincludingReadScp.contains(readSpc.getPortName()), "Open port not found");
 
-		getSerialPortSocketFactory().getPortNames((portname, busy) ->{
-			LOG.log(Level.INFO, "Found port: {0} busy: {1}", new Object[] {portname, busy});
+		getSerialPortSocketFactory().getPortNames((portname, busy) -> {
+			LOG.log(Level.INFO, "Found port: {0} busy: {1}", new Object[] { portname, busy });
 			if (busy) {
 				assertTrue(allPorts.contains(portname));
 				assertFalse(ports.contains(portname));
@@ -717,6 +769,5 @@ public abstract class AbstractBaselineOnePortTest extends AbstractPortTest {
 			}
 		});
 	}
-
 
 }

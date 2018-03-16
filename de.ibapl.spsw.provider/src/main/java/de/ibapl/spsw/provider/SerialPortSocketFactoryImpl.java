@@ -290,7 +290,7 @@ public class SerialPortSocketFactoryImpl implements SerialPortSocketFactory {
 	 */
 	@Override
 	public List<String> getPortNames(boolean hideBusyPorts) {
-		if("windows".equals(MULTIARCH_TUPEL_BUILDER.getSimpleOsName())) {
+		if ("windows".equals(MULTIARCH_TUPEL_BUILDER.getSimpleOsName())) {
 			return getWindowsPortNames("", hideBusyPorts);
 		} else {
 			return getUnixBasedPortNames("", hideBusyPorts);
@@ -302,12 +302,13 @@ public class SerialPortSocketFactoryImpl implements SerialPortSocketFactory {
 		if (portToInclude == null || portToInclude.isEmpty()) {
 			throw new IllegalArgumentException("portToInclude is null or empty");
 		}
-		if("windows".equals(MULTIARCH_TUPEL_BUILDER.getSimpleOsName())) {
+		if ("windows".equals(MULTIARCH_TUPEL_BUILDER.getSimpleOsName())) {
 			return getWindowsPortNames(portToInclude, hideBusyPorts);
 		} else {
 			return getUnixBasedPortNames(portToInclude, hideBusyPorts);
 		}
 	}
+
 	/**
 	 * Get serial port names in Windows
 	 *
@@ -350,31 +351,28 @@ public class SerialPortSocketFactoryImpl implements SerialPortSocketFactory {
 		final Pattern pattern = getPortnamesRegExp();
 		final List<String> result = new LinkedList<>();
 
-		dir.listFiles(new FilenameFilter() {
-			@Override
-			public boolean accept(File dir, String name) {
-				if (pattern.matcher(name).find()) {
-					final File deviceFile = new File(dir, name);
-					final String deviceName = deviceFile.getAbsolutePath();
-					if (!deviceFile.isDirectory() && !deviceFile.isFile()) {
-						if (hideBusyPorts) {
-							try (SerialPortSocket sp = createSerialPortSocket(deviceName)) {
-								sp.open();
-								result.add(deviceName);
-							} catch (IOException ex) {
-								if (!portToInclude.isEmpty() && portToInclude.equals(deviceName)) {
-									result.add(deviceName);
-								} else {
-									LOG.log(Level.FINEST, "found busy port: " + deviceName, ex);
-								}
-							}
-						} else {
+		dir.listFiles((File parentDir, String name) -> {
+			if (pattern.matcher(name).find()) {
+				final File deviceFile = new File(parentDir, name);
+				final String deviceName = deviceFile.getAbsolutePath();
+				if (!deviceFile.isDirectory() && !deviceFile.isFile()) {
+					if (hideBusyPorts) {
+						try (SerialPortSocket sp = createSerialPortSocket(deviceName)) {
+							sp.open();
 							result.add(deviceName);
+						} catch (IOException ex) {
+							if (!portToInclude.isEmpty() && portToInclude.equals(deviceName)) {
+								result.add(deviceName);
+							} else {
+								LOG.log(Level.FINEST, "found busy port: " + deviceName, ex);
+							}
 						}
+					} else {
+						result.add(deviceName);
 					}
 				}
-				return false;
 			}
+			return false;
 		});
 
 		result.sort(new PortnamesComparator());
@@ -444,24 +442,21 @@ public class SerialPortSocketFactoryImpl implements SerialPortSocketFactory {
 			File dir = new File(getPortnamesPath());
 			final Pattern pattern = getPortnamesRegExp();
 
-			dir.listFiles(new FilenameFilter() {
-				@Override
-				public boolean accept(File dir, String name) {
-					if (pattern.matcher(name).find()) {
-						final File deviceFile = new File(dir, name);
-						final String deviceName = deviceFile.getAbsolutePath();
-						if (!deviceFile.isDirectory() && !deviceFile.isFile()) {
-							boolean busy = true;
-							try (SerialPortSocket sp = createSerialPortSocket(deviceName)) {
-								sp.open();
-								busy = false;
-							} catch (IOException ex) {
-							}
-							portNameConsumer.accept(deviceName, Boolean.valueOf(busy));
+			dir.listFiles((File parentDir, String name) -> {
+				if (pattern.matcher(name).find()) {
+					final File deviceFile = new File(parentDir, name);
+					final String deviceName = deviceFile.getAbsolutePath();
+					if (!deviceFile.isDirectory() && !deviceFile.isFile()) {
+						boolean busy = true;
+						try (SerialPortSocket sp = createSerialPortSocket(deviceName)) {
+							sp.open();
+							busy = false;
+						} catch (IOException ex) {
 						}
+						portNameConsumer.accept(deviceName, Boolean.valueOf(busy));
 					}
-					return false;
 				}
+				return false;
 			});
 		}
 	}

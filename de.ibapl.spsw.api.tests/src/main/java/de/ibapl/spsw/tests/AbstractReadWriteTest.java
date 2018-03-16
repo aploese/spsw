@@ -13,21 +13,16 @@ import java.io.InterruptedIOException;
 import java.io.OutputStream;
 import java.text.MessageFormat;
 import java.time.Duration;
-import java.time.OffsetDateTime;
-import java.util.Arrays;
 import java.util.Iterator;
 import java.util.logging.Level;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.TestInfo;
-import org.junit.jupiter.api.TestInstance;
-import org.junit.jupiter.api.TestInstance.Lifecycle;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
 
 import de.ibapl.spsw.api.TimeoutIOException;
 
-@TestInstance(Lifecycle.PER_CLASS)
 public abstract class AbstractReadWriteTest extends AbstractPortTest {
 
 	public class Receiver implements Runnable {
@@ -132,7 +127,8 @@ public abstract class AbstractReadWriteTest extends AbstractPortTest {
 		 * currentRecOffset.
 		 * 
 		 */
-		public void assertExceptions() {
+		public void assertStateAfterExecution() {
+			assertNull(err);
 			assertAll("Receive Exception", () -> {
 				// Where is the missing byte
 				assertArrayEquals(sendBuffer, recBuffer);
@@ -151,6 +147,8 @@ public abstract class AbstractReadWriteTest extends AbstractPortTest {
 					fail(ex.getClass().getSimpleName() + " MSG: " + ex.getMessage());
 
 				}
+			}, () -> {
+				assertTrue(done, "Receiver has not finished");
 			});
 		}
 
@@ -232,12 +230,13 @@ public abstract class AbstractReadWriteTest extends AbstractPortTest {
 		final Sender sender = new Sender(true, writeSpc.getOutputStream(), initBuffer(pc.getBufferSize()));
 		final Receiver receiver = new Receiver(false, readSpc.getInputStream(), sender.sendBuffer);
 
-		assertTimeoutPreemptively(Duration.ofMillis(pc.getOverallReadTimeout() * 2), () -> {
-			sender.run();
-			receiver.run();
-			assertNull(receiver.err);
-			receiver.assertExceptions();
-			assertTrue(receiver.done);
+		assertAll("After ", () -> {
+			assertTimeoutPreemptively(Duration.ofMillis(pc.getTestTimeout()), () -> {
+				sender.run();
+				receiver.run();
+			});
+		}, () -> {
+			receiver.assertStateAfterExecution();
 		});
 	}
 
@@ -248,12 +247,13 @@ public abstract class AbstractReadWriteTest extends AbstractPortTest {
 		final Sender sender = new Sender(false, writeSpc.getOutputStream(), initBuffer(pc.getBufferSize()));
 		final Receiver receiver = new Receiver(true, readSpc.getInputStream(), sender.sendBuffer);
 
-		assertTimeoutPreemptively(Duration.ofMillis(pc.getOverallReadTimeout() * 2), () -> {
-			sender.run();
-			receiver.run();
-			assertNull(receiver.err);
-			receiver.assertExceptions();
-			assertTrue(receiver.done);
+		assertAll("After ", () -> {
+			assertTimeoutPreemptively(Duration.ofMillis(pc.getTestTimeout()), () -> {
+				sender.run();
+				receiver.run();
+			});
+		}, () -> {
+			receiver.assertStateAfterExecution();
 		});
 	}
 
@@ -264,12 +264,13 @@ public abstract class AbstractReadWriteTest extends AbstractPortTest {
 		final Sender sender = new Sender(true, writeSpc.getOutputStream(), initBuffer(pc.getBufferSize()));
 		final Receiver receiver = new Receiver(false, readSpc.getInputStream(), sender.sendBuffer);
 
-		assertTimeoutPreemptively(Duration.ofMillis(pc.getOverallReadTimeout() * 2), () -> {
-			sender.run();
-			receiver.run();
-			assertNull(receiver.err);
-			receiver.assertExceptions();
-			assertTrue(receiver.done);
+		assertAll("After ", () -> {
+			assertTimeoutPreemptively(Duration.ofMillis(pc.getTestTimeout()), () -> {
+				sender.run();
+				receiver.run();
+			});
+		}, () -> {
+			receiver.assertStateAfterExecution();
 		});
 	}
 
@@ -280,12 +281,13 @@ public abstract class AbstractReadWriteTest extends AbstractPortTest {
 		final Sender sender = new Sender(true, writeSpc.getOutputStream(), initBuffer(pc.getBufferSize()));
 		final Receiver receiver = new Receiver(true, readSpc.getInputStream(), sender.sendBuffer);
 
-		assertTimeoutPreemptively(Duration.ofMillis(pc.getOverallReadTimeout() * 2), () -> {
-			sender.run();
-			receiver.run();
-			assertNull(receiver.err);
-			receiver.assertExceptions();
-			assertTrue(receiver.done);
+		assertAll("After ", () -> {
+			assertTimeoutPreemptively(Duration.ofMillis(pc.getTestTimeout()), () -> {
+				sender.run();
+				receiver.run();
+			});
+		}, () -> {
+			receiver.assertStateAfterExecution();
 		});
 	}
 
@@ -296,15 +298,16 @@ public abstract class AbstractReadWriteTest extends AbstractPortTest {
 		final Sender sender = new Sender(false, writeSpc.getOutputStream(), initBuffer(pc.getBufferSize()));
 		final Receiver receiver = new Receiver(false, readSpc.getInputStream(), sender.sendBuffer);
 
-		assertTimeoutPreemptively(Duration.ofMillis(pc.getOverallReadTimeout() * 2), () -> {
-			new Thread(receiver).start();
-			new Thread(sender).start();
-			synchronized (receiver.LOCK) {
-				receiver.LOCK.wait();
-				assertNull(receiver.err);
-				receiver.assertExceptions();
-				assertTrue(receiver.done);
-			}
+		assertAll("After ", () -> {
+			assertTimeoutPreemptively(Duration.ofMillis(pc.getTestTimeout()), () -> {
+				new Thread(receiver).start();
+				new Thread(sender).start();
+				synchronized (receiver.LOCK) {
+					receiver.LOCK.wait();
+				}
+			});
+		}, () -> {
+			receiver.assertStateAfterExecution();
 		});
 	}
 
@@ -315,15 +318,16 @@ public abstract class AbstractReadWriteTest extends AbstractPortTest {
 		final Sender sender = new Sender(false, writeSpc.getOutputStream(), initBuffer(pc.getBufferSize()));
 		final Receiver receiver = new Receiver(true, readSpc.getInputStream(), sender.sendBuffer);
 
-		assertTimeoutPreemptively(Duration.ofMillis(pc.getOverallReadTimeout() * 2), () -> {
-			new Thread(receiver).start();
-			new Thread(sender).start();
-			synchronized (receiver.LOCK) {
-				receiver.LOCK.wait();
-				assertNull(receiver.err);
-				receiver.assertExceptions();
-				assertTrue(receiver.done);
-			}
+		assertAll("After ", () -> {
+			assertTimeoutPreemptively(Duration.ofMillis(pc.getTestTimeout()), () -> {
+				new Thread(receiver).start();
+				new Thread(sender).start();
+				synchronized (receiver.LOCK) {
+					receiver.LOCK.wait();
+				}
+			});
+		}, () -> {
+			receiver.assertStateAfterExecution();
 		});
 	}
 
@@ -334,20 +338,15 @@ public abstract class AbstractReadWriteTest extends AbstractPortTest {
 		final Sender sender = new Sender(true, writeSpc.getOutputStream(), initBuffer(pc.getBufferSize()));
 		final Receiver receiver = new Receiver(false, readSpc.getInputStream(), sender.sendBuffer);
 		assertAll("After ", () -> {
-			assertTimeoutPreemptively(Duration.ofMillis(pc.getOverallReadTimeout() * 20), () -> {
+			assertTimeoutPreemptively(Duration.ofMillis(pc.getTestTimeout()), () -> {
 				new Thread(receiver).start();
 				new Thread(sender).start();
 				synchronized (receiver.LOCK) {
 					receiver.LOCK.wait();
-					assertNull(receiver.err);
-					receiver.assertExceptions();
-					assertTrue(receiver.done);
 				}
 			});
 		}, () -> {
-			assertNull(receiver.err);
-			receiver.assertExceptions();
-			assertTrue(receiver.done);
+			receiver.assertStateAfterExecution();
 		});
 	}
 
@@ -358,15 +357,16 @@ public abstract class AbstractReadWriteTest extends AbstractPortTest {
 		final Sender sender = new Sender(true, writeSpc.getOutputStream(), initBuffer(pc.getBufferSize()));
 		final Receiver receiver = new Receiver(false, readSpc.getInputStream(), sender.sendBuffer);
 
-		assertTimeoutPreemptively(Duration.ofMillis(pc.getOverallReadTimeout() * 2), () -> {
-			new Thread(receiver).start();
-			new Thread(sender).start();
-			synchronized (receiver.LOCK) {
-				receiver.LOCK.wait();
-				assertNull(receiver.err);
-				receiver.assertExceptions();
-				assertTrue(receiver.done);
-			}
+		assertAll("After ", () -> {
+			assertTimeoutPreemptively(Duration.ofMillis(pc.getTestTimeout()), () -> {
+				new Thread(receiver).start();
+				new Thread(sender).start();
+				synchronized (receiver.LOCK) {
+					receiver.LOCK.wait();
+				}
+			});
+		}, () -> {
+			receiver.assertStateAfterExecution();
 		});
 	}
 

@@ -105,6 +105,12 @@ public class PortConfigurationFactory {
 		return result;
 	}
 	
+	public PortConfiguration ofCurrent() {
+		PortConfigurationImpl result = portConfigurationImpl.clone();
+		result.adjustTimeouts();
+		return result;
+	}
+
 	public PortConfiguration ofBuffersize(int bufferSize) {
 		PortConfigurationImpl result = portConfigurationImpl.clone();
 		result.bufferSize = bufferSize;
@@ -142,6 +148,21 @@ public class PortConfigurationFactory {
 
 	public PortConfigurationFactory setBaudrate(Baudrate baudrate) {
 		portConfigurationImpl.baudrate = baudrate;
+		return this;
+	}
+
+	public PortConfigurationFactory setDataBits(DataBits dataBits) {
+		portConfigurationImpl.dataBits = dataBits;
+		return this;
+	}
+
+	public PortConfigurationFactory setStopBits(StopBits stopBits) {
+		portConfigurationImpl.stopBits = stopBits;
+		return this;
+	}
+
+	public PortConfigurationFactory setParity(Parity parity) {
+		portConfigurationImpl.parity = parity;
 		return this;
 	}
 

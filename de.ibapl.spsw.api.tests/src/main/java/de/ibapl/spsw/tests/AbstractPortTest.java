@@ -33,6 +33,8 @@ import java.util.logging.Logger;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.TestInstance;
+import org.junit.jupiter.api.TestInstance.Lifecycle;
 import org.junit.jupiter.api.extension.AfterTestExecutionCallback;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.api.extension.ExtensionContext;
@@ -46,11 +48,12 @@ import de.ibapl.spsw.api.SerialPortSocketFactory;
 import de.ibapl.spsw.api.StopBits;
 
 @ExtendWith(AbstractPortTest.AfterTestExecution.class)
+@TestInstance(Lifecycle.PER_CLASS)
 public abstract class AbstractPortTest {
 
 	
 	
-	protected static final int PORT_RECOVERY_TIME_MS =2000;
+	protected static final int PORT_RECOVERY_TIME_MS = 200;
 	protected static final boolean HARDWARE_SUPPORTS_RTS_CTS = false;
 
 	protected static final Logger LOG = Logger.getLogger("SpswTests");
