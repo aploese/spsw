@@ -929,6 +929,7 @@ static int setParams(JNIEnv *env, jobject sps, struct termios *settings,
 					settings->c_cflag |= CRTSCTS;
 				} else {
 					throw_Illegal_Argument_Exception(env, "Can only set RTS/CTS for both in and out");
+					return -1;
 				}
 			}
 			if ((mask & SPSW_FLOW_CONTROL_XON_XOFF_IN)
