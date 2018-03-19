@@ -2,84 +2,108 @@ package de.ibapl.spsw.api;
 
 import java.util.Comparator;
 
+/**
+ * "ttyUSB09".compareTo("ttyUSB19") == PortnamesComparator.compare("ttyUSB9",
+ * "ttyUSB19")
+ * 
+ * @author aploese
+ *
+ */
 public class PortnamesComparator implements Comparator<String> {
+
+	class Iterator {
+		final String value;
+		final int length;
+		int pos;
+		int stuffedZeros;
+		int zerosToFeed;
+
+		public Iterator(String value) {
+			this.value = value;
+			this.length = value.length();
+		}
+
+		/**
+		 * 
+		 * @return the number of digits from this pos
+		 */
+		public int getNumberOfDigits() {
+			int result = 0;
+			while (Character.isDigit(value.charAt(pos + result))) {
+				result++;
+				if (pos + result == length) {
+					break;
+				}
+			}
+			;
+			return result;
+		}
+
+		public void addZeros(int zerosToFeed) {
+			this.zerosToFeed = zerosToFeed;
+			this.stuffedZeros += zerosToFeed;
+		}
+
+		public char getChar() {
+			if (zerosToFeed > 0) {
+				return '0';
+			} else {
+				return value.charAt(pos);
+			}
+		}
+
+		public boolean next() {
+			if (zerosToFeed > 0) {
+				zerosToFeed--;
+			} else {
+				pos++;
+			}
+			return pos < length;
+		}
+
+		public int overallLength() {
+			return length + stuffedZeros;
+		}
+
+	}
 
 	@Override
 	public int compare(String valueA, String valueB) {
-
-		if (valueA.equalsIgnoreCase(valueB)) {
-			return valueA.compareTo(valueB);
-		}
-
-		int minLength = Math.min(valueA.length(), valueB.length());
-
-		int shiftA = 0;
-		int shiftB = 0;
-
-		for (int i = 0; i < minLength; i++) {
-			char charA = valueA.charAt(i - shiftA);
-			char charB = valueB.charAt(i - shiftB);
-			if (charA != charB) {
-				if (Character.isDigit(charA) && Character.isDigit(charB)) {
-					int[] resultsA = getNumberAndLastIndex(valueA, i - shiftA);
-					int[] resultsB = getNumberAndLastIndex(valueB, i - shiftB);
-
-					if (resultsA[0] != resultsB[0]) {
-						return resultsA[0] - resultsB[0];
-					}
-
-					if (valueA.length() < valueB.length()) {
-						i = resultsA[1];
-						shiftB = resultsA[1] - resultsB[1];
-					} else {
-						i = resultsB[1];
-						shiftA = resultsB[1] - resultsA[1];
-					}
+		Iterator iterA = new Iterator(valueA);
+		Iterator iterB = new Iterator(valueB);
+		int fisttStuffedAt = 0;
+		int digitsFound = 0;
+		while (iterA.next() && iterB.next()) {
+			if (digitsFound == 0) {
+				int digitsA = iterA.getNumberOfDigits();
+				int digitsB = iterB.getNumberOfDigits();
+				if (digitsA == digitsB) {
+					
 				} else {
-					if (Character.toLowerCase(charA) - Character.toLowerCase(charB) != 0) {
-						return Character.toLowerCase(charA) - Character.toLowerCase(charB);
+					if (fisttStuffedAt == 0) {
+						fisttStuffedAt = digitsA - digitsB;
 					}
+				if (digitsA > digitsB) {
+					iterB.addZeros(digitsA - digitsB);
+					digitsFound = digitsA;
+				} else if (digitsA < digitsB) {
+					iterA.addZeros(digitsB - digitsA);
+					digitsFound = digitsB;
 				}
-			}
-		}
-		return valueA.compareToIgnoreCase(valueB);
-	}
-
-	/**
-	 * Evaluate port <b>index/number</b> from <b>startIndex</b> to the number end.
-	 * For example: for port name <b>serial-123-FF</b> you should invoke this method
-	 * with <b>startIndex = 7</b>
-	 *
-	 * @return If port <b>index/number</b> correctly evaluated it value will be
-	 *         returned<br>
-	 *         <b>returnArray[0] = index/number</b><br>
-	 *         <b>returnArray[1] = stopIndex</b><br>
-	 *
-	 *         If incorrect:<br>
-	 *         <b>returnArray[0] = -1</b><br>
-	 *         <b>returnArray[1] = startIndex</b><br>
-	 *
-	 *         For this name <b>serial-123-FF</b> result is: <b>returnArray[0] =
-	 *         123</b><br>
-	 *         <b>returnArray[1] = 10</b><br>
-	 */
-	private int[] getNumberAndLastIndex(String str, int startIndex) {
-		String numberValue = "";
-		int[] returnValues = { -1, startIndex };
-		for (int i = startIndex; i < str.length(); i++) {
-			returnValues[1] = i;
-			char c = str.charAt(i);
-			if (Character.isDigit(c)) {
-				numberValue += c;
+				}
 			} else {
-				break;
+				digitsFound--;
+			}
+
+			if (iterA.getChar() != iterB.getChar()) {
+				return iterA.getChar() - iterB.getChar();
 			}
 		}
-		try {
-			returnValues[0] = Integer.valueOf(numberValue);
-		} catch (Exception ex) {
-			// Do nothing
+		int lengthDifference = iterA.overallLength() - iterB.overallLength();
+		if (lengthDifference == 0) {
+			return fisttStuffedAt;
+		} else {
+		return lengthDifference;
 		}
-		return returnValues;
 	}
 }
