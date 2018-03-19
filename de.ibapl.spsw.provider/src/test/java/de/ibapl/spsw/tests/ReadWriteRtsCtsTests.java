@@ -27,8 +27,6 @@
  */
 package de.ibapl.spsw.tests;
 
-import java.util.Iterator;
-
 /*-
  * #%L
  * SPSW Provider

@@ -54,7 +54,7 @@ public abstract class AbstractPortTest {
 	
 	
 	protected static final int PORT_RECOVERY_TIME_MS = 200;
-	protected static final boolean HARDWARE_SUPPORTS_RTS_CTS = false;
+	protected static final boolean HARDWARE_SUPPORTS_RTS_CTS = true;
 
 	protected static final Logger LOG = Logger.getLogger("SpswTests");
 	private static String readSerialPortName;

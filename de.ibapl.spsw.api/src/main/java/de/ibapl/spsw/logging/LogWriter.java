@@ -413,24 +413,46 @@ public class LogWriter {
 		log.flush();
 	}
 
-	void beforeIsIncommingRI(Instant ts) {
+	void beforeIsDCD(Instant ts) {
 		if (!verbose) {
 			return;
 		}
-		log.append(formatTs(ts)).append("SP").append(ACION_CALL).println(" isIncommingRI");
+		log.append(formatTs(ts)).append("SP").append(ACION_CALL).println(" isDCD");
 		log.flush();
 	}
 
-	void afterIsIncommingRI(Instant ts, boolean result) {
+	void afterIsDCD(Instant ts, boolean result) {
 		if (!verbose) {
 			return;
 		}
-		log.append(formatTs(ts)).append("SP").append(ACION_RETURN).append(" isIncommingRI:\t").println(result);
+		log.append(formatTs(ts)).append("SP").append(ACION_RETURN).append(" isDCD:\t").println(result);
 		log.flush();
 	}
 
-	void afterIsIncommingRI(Instant ts, IOException e) {
-		log.append(formatTs(ts)).append("SP").append(ACION_RETURN).append(" isIncommingRI:\t").println(e.toString());
+	void afterIsDCD(Instant ts, IOException e) {
+		log.append(formatTs(ts)).append("SP").append(ACION_RETURN).append(" isDCD:\t").println(e.toString());
+		e.printStackTrace(log);
+		log.flush();
+	}
+
+	void beforeIsRI(Instant ts) {
+		if (!verbose) {
+			return;
+		}
+		log.append(formatTs(ts)).append("SP").append(ACION_CALL).println(" isRI");
+		log.flush();
+	}
+
+	void afterIsRI(Instant ts, boolean result) {
+		if (!verbose) {
+			return;
+		}
+		log.append(formatTs(ts)).append("SP").append(ACION_RETURN).append(" isRI:\t").println(result);
+		log.flush();
+	}
+
+	void afterIsRI(Instant ts, IOException e) {
+		log.append(formatTs(ts)).append("SP").append(ACION_RETURN).append(" isRI:\t").println(e.toString());
 		e.printStackTrace(log);
 		log.flush();
 	}

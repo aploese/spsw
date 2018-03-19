@@ -20,8 +20,10 @@
 package de.ibapl.spsw.tests;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTimeoutPreemptively;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 import static org.junit.jupiter.api.Assumptions.assumeTrue;
 
@@ -52,12 +54,6 @@ import de.ibapl.spsw.api.TimeoutIOException;
  */
 public abstract class AbstractReadWriteRtsCtsTests extends AbstractReadWriteTest {
 
-	
-	@BeforeEach
-	public void setUp() throws Exception {
-		assumeTrue(HARDWARE_SUPPORTS_RTS_CTS);
-		super.setUp();
-	}
 	
 	@Override
 	public Iterator<PortConfiguration> getTestPortConfigurations() {
@@ -293,6 +289,47 @@ public abstract class AbstractReadWriteRtsCtsTests extends AbstractReadWriteTest
 		}
 
 	}
+	final static int WAIT_TIME = 1;
+	
+	@Test
+	public void testManualRTS_CTS() throws Exception {
+		assumeRWTest();
+		open(Baudrate.B9600, DataBits.DB_8, StopBits.SB_1, Parity.NONE, FlowControl.getFC_NONE());
+		
+		readSpc.setRTS(false);
+		Thread.sleep(WAIT_TIME);
+		assertFalse(writeSpc.isCTS());
+		readSpc.setRTS(true);
+		Thread.sleep(WAIT_TIME);
+		assertTrue(writeSpc.isCTS());
 
+		writeSpc.setRTS(false);
+		Thread.sleep(WAIT_TIME);
+		assertFalse(readSpc.isCTS());
+		writeSpc.setRTS(true);
+		Thread.sleep(WAIT_TIME);
+		assertTrue(readSpc.isCTS());
+	}
+
+	@Test
+	public void testManualDTR_DSR() throws Exception {
+		assumeTrue(HARDWARE_SUPPORTS_RTS_CTS);
+		assumeRWTest();
+		open(Baudrate.B9600, DataBits.DB_8, StopBits.SB_1, Parity.NONE, FlowControl.getFC_NONE());
+		
+		readSpc.setDTR(false);
+		Thread.sleep(WAIT_TIME);
+		assertFalse(writeSpc.isDSR());
+		readSpc.setDTR(true);
+		Thread.sleep(WAIT_TIME);
+		assertTrue(writeSpc.isDSR());
+
+		writeSpc.setDTR(false);
+		Thread.sleep(WAIT_TIME);
+		assertFalse(readSpc.isDSR());
+		writeSpc.setDTR(true);
+		Thread.sleep(WAIT_TIME);
+		assertTrue(readSpc.isDSR());
+	}
 
 }

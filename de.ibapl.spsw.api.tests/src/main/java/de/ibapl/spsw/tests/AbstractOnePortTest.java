@@ -29,6 +29,7 @@ import static org.junit.jupiter.api.Assumptions.assumeTrue;
 
 import java.io.InterruptedIOException;
 import java.time.Duration;
+import java.util.EnumSet;
 import java.util.Set;
 import java.util.logging.Level;
 
@@ -66,6 +67,11 @@ public abstract class AbstractOnePortTest extends AbstractPortTest {
 		testFlowControl(FlowControl.getFC_XON_XOFF());
 		testFlowControl(FlowControl.getFC_RTS_CTS_XON_XOFF());
 		testFlowControl(FlowControl.getFC_NONE());
+		
+//TODO not on termios		testFlowControl(EnumSet.of(FlowControl.RTS_CTS_IN));
+		//TODO not on termios		testFlowControl(EnumSet.of(FlowControl.RTS_CTS_OUT));
+		testFlowControl(EnumSet.of(FlowControl.XON_XOFF_IN));
+		testFlowControl(EnumSet.of(FlowControl.XON_XOFF_OUT));
 	}
 
 	@Test
@@ -101,12 +107,12 @@ public abstract class AbstractOnePortTest extends AbstractPortTest {
 	}
 
 	@Test
-	public void testIncommingRI() throws Exception {
+	public void testRI() throws Exception {
 		assumeRTest();
 		LOG.log(Level.INFO, "run testIncommingRI");
 		readSpc.open();
 
-		readSpc.isIncommingRI();
+		readSpc.isRI();
 	}
 
 	@Test
@@ -125,6 +131,15 @@ public abstract class AbstractOnePortTest extends AbstractPortTest {
 		openDefault();
 
 		readSpc.isDSR();
+	}
+
+	@Test
+	public void testDCD() throws Exception {
+		assumeRTest();
+		LOG.log(Level.INFO, "run testDCD");
+		openDefault();
+
+		readSpc.isDCD();
 	}
 
 	@Test
@@ -276,6 +291,8 @@ public abstract class AbstractOnePortTest extends AbstractPortTest {
 	@Test
 	public void testWriteBytesTimeout() throws Exception {
 		assumeWTest();
+		//We set FlowControl on the reading end ant RTS false so the writing end can't send at some point 
+		assumeTrue(readSpc != writeSpc);
 		assumeTrue(HARDWARE_SUPPORTS_RTS_CTS);
 		LOG.log(Level.INFO, "run testWriteBytesTimeout");
 
@@ -338,6 +355,8 @@ public abstract class AbstractOnePortTest extends AbstractPortTest {
 	@Test
 	public void testWriteSingleByteTimeout() throws Exception {
 		assumeWTest();
+		//We set FlowControl on the reading end ant RTS false so the writing end can't send at some point 
+		assumeTrue(readSpc != writeSpc);
 		assumeTrue(HARDWARE_SUPPORTS_RTS_CTS);
 		LOG.log(Level.INFO, "run testWriteSingleByteTimeout");
 
@@ -347,7 +366,7 @@ public abstract class AbstractOnePortTest extends AbstractPortTest {
 		// fill the buffer...
 		readSpc.setFlowControl(FlowControl.getFC_NONE());
 		readSpc.setRTS(false);
-		Thread.sleep(100);
+		Thread.sleep(10);
 		assertFalse(writeSpc.isCTS(), "CTS is true; No chance to ever fill the buffer");
 		setTimeouts(100, 100, 100);
 

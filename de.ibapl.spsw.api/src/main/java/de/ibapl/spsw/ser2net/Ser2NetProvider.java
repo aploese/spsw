@@ -174,7 +174,13 @@ public class Ser2NetProvider implements SerialPortSocket {
 	}
 
 	@Override
-	public boolean isIncommingRI() throws IOException {
+	public boolean isDCD() throws IOException {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+	@Override
+	public boolean isRI() throws IOException {
 		// TODO Auto-generated method stub
 		return false;
 	}

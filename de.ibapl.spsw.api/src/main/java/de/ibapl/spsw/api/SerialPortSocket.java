@@ -19,7 +19,6 @@
  */
 package de.ibapl.spsw.api;
 
-
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -28,8 +27,14 @@ import java.util.Set;
 import org.osgi.annotation.versioning.ProviderType;
 
 /**
- *
- * @author scream3r
+ * There are two general cable configurations used with the RS-232C
+ * Communications Standard:
+ * <li>
+ * Data Terminal Equipment (DTE): IBM PC's, printers, plotters, etc <br>
+ * </li>
+ * <li>
+ * Data Communication Equipment (DCE): modems, multiplexors, etc
+ * </li>
  */
 @ProviderType
 public interface SerialPortSocket extends AutoCloseable {
@@ -42,16 +47,33 @@ public interface SerialPortSocket extends AutoCloseable {
 	boolean isClosed();
 
 	/**
+	 * Clear To Send (CTS) DTE input, DCE is ready to transmit
+	 * 
 	 * @return
 	 * @throws IOException
-	 * @throws IllegalStateException if port is closed
+	 * @throws IllegalStateException
+	 *             if port is closed
 	 */
 	boolean isCTS() throws IOException;
 
 	/**
-	 * @return
+	 * Data Carrier Detect (DCD) DTE input, data link established, also known as
+	 * Receive Line Signal Detect (RLSD)
+	 * 
+	 * @return DCD
 	 * @throws IOException
-	 * @throws IllegalStateException if port is closed
+	 * @throws IllegalStateException
+	 *             if port is closed
+	 */
+	boolean isDCD() throws IOException;
+
+	/**
+	 * Data Set Ready (DSR) DTE input, DCE is ready to communicate
+	 * 
+	 * @return DSR
+	 * @throws IOException
+	 * @throws IllegalStateException
+	 *             if port is closed
 	 */
 	boolean isDSR() throws IOException;
 
@@ -60,23 +82,28 @@ public interface SerialPortSocket extends AutoCloseable {
 	// Not supported under Win boolean isDTR() throws IOException;
 
 	/**
+	 * Ring Indicator (RI) DTE input, announces incoming call
+	 * 
 	 * @return
 	 * @throws IOException
-	 * @throws IllegalStateException if port is closed
+	 * @throws IllegalStateException
+	 *             if port is closed
 	 */
-	boolean isIncommingRI() throws IOException;
+	boolean isRI() throws IOException;
 
 	/**
 	 * @return
 	 * @throws IOException
-	 * @throws IllegalStateException if port is closed
+	 * @throws IllegalStateException
+	 *             if port is closed
 	 */
 	InputStream getInputStream() throws IOException;
 
 	/**
 	 * @return
 	 * @throws IOException
-	 * @throws IllegalStateException if port is closed
+	 * @throws IllegalStateException
+	 *             if port is closed
 	 */
 	OutputStream getOutputStream() throws IOException;
 
@@ -104,10 +131,11 @@ public interface SerialPortSocket extends AutoCloseable {
 	 * order) Runtime.getRuntime().gc(); Runtime.getRuntime().runFinalization();
 	 * 
 	 * @throws SerialPortException
-	 * @throws IllegalStateException if port is closed
+	 * @throws IllegalStateException
+	 *             if port is closed
 	 */
 	void open() throws IOException;
-	
+
 	@Deprecated
 	default void openRaw() throws IOException {
 		open();
@@ -129,14 +157,15 @@ public interface SerialPortSocket extends AutoCloseable {
 	 *            parity
 	 * @param flowControls
 	 * @throws java.io.IOException
-	 * @throws IllegalStateException if port is closed
+	 * @throws IllegalStateException
+	 *             if port is closed
 	 */
 	void open(Baudrate baudRate, DataBits dataBits, StopBits stopBits, Parity parity, Set<FlowControl> flowControls)
 			throws IOException;
-	
+
 	@Deprecated
-	default void openRaw(Baudrate baudRate, DataBits dataBits, StopBits stopBits, Parity parity, Set<FlowControl> flowControls)
-			throws IOException {
+	default void openRaw(Baudrate baudRate, DataBits dataBits, StopBits stopBits, Parity parity,
+			Set<FlowControl> flowControls) throws IOException {
 		open(baudRate, dataBits, stopBits, parity, flowControls);
 	}
 
@@ -149,7 +178,8 @@ public interface SerialPortSocket extends AutoCloseable {
 	void close() throws IOException;
 
 	/**
-	 * Change RTS line state
+	 * Request To Send (RTS) DTE output, DTE would like to transmit Change RTS line
+	 * state
 	 *
 	 * @param value
 	 *            <b>true - ON</b>, <b>false - OFF</b>
@@ -159,7 +189,7 @@ public interface SerialPortSocket extends AutoCloseable {
 	void setRTS(boolean value) throws IOException;
 
 	/**
-	 * Change DTR line state
+	 * Data Terminal Ready (DTR) DTE output, device ready Change DTR line state
 	 *
 	 * @param value
 	 *            <b>true - ON</b>, <b>false - OFF</b>
@@ -171,28 +201,32 @@ public interface SerialPortSocket extends AutoCloseable {
 	/**
 	 * @return
 	 * @throws IOException
-	 * @throws IllegalStateException if port is closed
+	 * @throws IllegalStateException
+	 *             if port is closed
 	 */
 	void setXONChar(char c) throws IOException;
 
 	/**
 	 * @return
 	 * @throws IOException
-	 * @throws IllegalStateException if port is closed
+	 * @throws IllegalStateException
+	 *             if port is closed
 	 */
 	void setXOFFChar(char c) throws IOException;
 
 	/**
 	 * @return
 	 * @throws IOException
-	 * @throws IllegalStateException if port is closed
+	 * @throws IllegalStateException
+	 *             if port is closed
 	 */
 	char getXONChar() throws IOException;
 
 	/**
 	 * @return
 	 * @throws IOException
-	 * @throws IllegalStateException if port is closed
+	 * @throws IllegalStateException
+	 *             if port is closed
 	 */
 	char getXOFFChar() throws IOException;
 
@@ -207,14 +241,16 @@ public interface SerialPortSocket extends AutoCloseable {
 	/**
 	 * @return
 	 * @throws IOException
-	 * @throws IllegalStateException if port is closed
+	 * @throws IllegalStateException
+	 *             if port is closed
 	 */
 	void sendXON() throws IOException;
 
 	/**
 	 * @return
 	 * @throws IOException
-	 * @throws IllegalStateException if port is closed
+	 * @throws IllegalStateException
+	 *             if port is closed
 	 */
 	void sendXOFF() throws IOException;
 
@@ -250,21 +286,24 @@ public interface SerialPortSocket extends AutoCloseable {
 	/**
 	 * @return
 	 * @throws IOException
-	 * @throws IllegalStateException if port is closed
+	 * @throws IllegalStateException
+	 *             if port is closed
 	 */
 	void setFlowControl(Set<FlowControl> flowControls) throws IOException;
 
 	/**
 	 * @return
 	 * @throws IOException
-	 * @throws IllegalStateException if port is closed
+	 * @throws IllegalStateException
+	 *             if port is closed
 	 */
 	void setBaudrate(Baudrate baudrate) throws IOException;
 
 	/**
 	 * @return
 	 * @throws IOException
-	 * @throws IllegalStateException if port is closed
+	 * @throws IllegalStateException
+	 *             if port is closed
 	 */
 	void setDataBits(DataBits dataBits) throws IOException;
 
@@ -281,42 +320,48 @@ public interface SerialPortSocket extends AutoCloseable {
 	/**
 	 * @return
 	 * @throws IOException
-	 * @throws IllegalStateException if port is closed
+	 * @throws IllegalStateException
+	 *             if port is closed
 	 */
 	void setParity(Parity parity) throws IOException;
 
 	/**
 	 * @return
 	 * @throws IOException
-	 * @throws IllegalStateException if port is closed
+	 * @throws IllegalStateException
+	 *             if port is closed
 	 */
 	Baudrate getBaudrate() throws IOException;
 
 	/**
 	 * @return
 	 * @throws IOException
-	 * @throws IllegalStateException if port is closed
+	 * @throws IllegalStateException
+	 *             if port is closed
 	 */
 	DataBits getDatatBits() throws IOException;
 
 	/**
 	 * @return
 	 * @throws IOException
-	 * @throws IllegalStateException if port is closed
+	 * @throws IllegalStateException
+	 *             if port is closed
 	 */
 	StopBits getStopBits() throws IOException;
 
 	/**
 	 * @return
 	 * @throws IOException
-	 * @throws IllegalStateException if port is closed
+	 * @throws IllegalStateException
+	 *             if port is closed
 	 */
 	Parity getParity() throws IOException;
 
 	/**
 	 * @return
 	 * @throws IOException
-	 * @throws IllegalStateException if port is closed
+	 * @throws IllegalStateException
+	 *             if port is closed
 	 */
 	Set<FlowControl> getFlowControl() throws IOException;
 
@@ -333,33 +378,38 @@ public interface SerialPortSocket extends AutoCloseable {
 	/**
 	 * @return
 	 * @throws IOException
-	 * @throws IllegalStateException if port is closed
+	 * @throws IllegalStateException
+	 *             if port is closed
 	 */
 	int getInterByteReadTimeout() throws IOException;
 
 	/**
 	 * @return
 	 * @throws IOException
-	 * @throws IllegalStateException if port is closed
+	 * @throws IllegalStateException
+	 *             if port is closed
 	 */
 	int getOverallWriteTimeout() throws IOException;
 
 	static double calculateMillisPerByte(Baudrate baudrate, DataBits dataBits, StopBits stopBits, Parity parity) {
-		return ((1 + dataBits.value + (parity == Parity.NONE ? 0 : 1) + stopBits.value) * 1000.0) / (double)baudrate.value; 
+		return ((1 + dataBits.value + (parity == Parity.NONE ? 0 : 1) + stopBits.value) * 1000.0)
+				/ (double) baudrate.value;
 	}
 
-	static int calculateMillisForBytes(int len, Baudrate baudrate, DataBits dataBits, StopBits stopBits, Parity parity) {
-		return (int)Math.ceil((len * (1 + dataBits.value + (parity == Parity.NONE ? 0 : 1) + stopBits.value) * 1000.0) / baudrate.value); 
+	static int calculateMillisForBytes(int len, Baudrate baudrate, DataBits dataBits, StopBits stopBits,
+			Parity parity) {
+		return (int) Math.ceil((len * (1 + dataBits.value + (parity == Parity.NONE ? 0 : 1) + stopBits.value) * 1000.0)
+				/ baudrate.value);
 	}
 
 	default double calculateMillisPerByte() throws IOException {
-		return calculateMillisPerByte(getBaudrate(), getDatatBits(), getStopBits(), getParity()); 
+		return calculateMillisPerByte(getBaudrate(), getDatatBits(), getStopBits(), getParity());
 	}
 
 	default int calculateMillisForBytes(int len) throws IOException {
-		return calculateMillisForBytes(len, getBaudrate(), getDatatBits(), getStopBits(), getParity()); 
+		return calculateMillisForBytes(len, getBaudrate(), getDatatBits(), getStopBits(), getParity());
 	}
-	
+
 	/**
 	 * Enable/disable the timeout, in milliseconds. With this option set to a
 	 * non-zero timeout, a read() call on the InputStream associated with this
@@ -367,11 +417,11 @@ public interface SerialPortSocket extends AutoCloseable {
 	 * <B>java.net.SocketTimeoutException</B> is raised, though the Socket is still
 	 * valid. The option <B>must</B> be enabled prior to entering the blocking
 	 * operation to have effect. The timeout must be {@code > 0}. A timeout of zero
-	 * is interpreted as an infinite timeout. {@link SocketOptions#SO_TIMEOUT SO_TIMEOUT}
-	 * If a timeout value can't be set (I.E:
-	 * resolution is a tenth of a second for posix termios) the next smaller value
-	 * will be used an returned. Except if its to small to set. In this case the
-	 * smallest value will be used and returned.
+	 * is interpreted as an infinite timeout. {@link SocketOptions#SO_TIMEOUT
+	 * SO_TIMEOUT} If a timeout value can't be set (I.E: resolution is a tenth of a
+	 * second for posix termios) the next smaller value will be used an returned.
+	 * Except if its to small to set. In this case the smallest value will be used
+	 * and returned.
 	 * 
 	 *
 	 * A overallReadTimeout and of zero is interpreted as an infinite read timeout.
@@ -384,7 +434,8 @@ public interface SerialPortSocket extends AutoCloseable {
 	 *                if there is an error in the underlying protocol, such as a TCP
 	 *                error.
 	 * @see #getOverallTimeout()
-	 * @throws IllegalStateException if port is closed
+	 * @throws IllegalStateException
+	 *             if port is closed
 	 */
 	void setTimeouts(int interByteReadTimeout, int overallReadTimeout, int overallWriteTimeout) throws IOException;
 

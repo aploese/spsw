@@ -298,14 +298,27 @@ public class LoggingSerialPortSocket implements SerialPortSocket {
     }
 
     @Override
-    public boolean isIncommingRI() throws IOException {
-        logWriter.beforeIsIncommingRI(Instant.now());
+    public boolean isDCD() throws IOException {
+        logWriter.beforeIsDCD(Instant.now());
         try {
-            final boolean result = serialPortSocket.isIncommingRI();
-            logWriter.afterIsIncommingRI(Instant.now(), result);
+            final boolean result = serialPortSocket.isDCD();
+            logWriter.afterIsDCD(Instant.now(), result);
             return result;
         } catch (IOException e) {
-            logWriter.afterIsIncommingRI(Instant.now(), e);
+            logWriter.afterIsDCD(Instant.now(), e);
+            throw e;
+        }
+    }
+
+    @Override
+    public boolean isRI() throws IOException {
+        logWriter.beforeIsRI(Instant.now());
+        try {
+            final boolean result = serialPortSocket.isRI();
+            logWriter.afterIsRI(Instant.now(), result);
+            return result;
+        } catch (IOException e) {
+            logWriter.afterIsRI(Instant.now(), e);
             throw e;
         }
     }

@@ -136,6 +136,21 @@ public class Ser2NetProviderTest {
 	}
 
 	/**
+	 * Test of isDCD method, of class Ser2NetProvider.
+	 */
+	@Test
+	@Disabled
+	public void testIsDCD() throws Exception {
+		System.out.println("isDCD");
+		Ser2NetProvider instance = null;
+		boolean expResult = false;
+		boolean result = instance.isDCD();
+		assertEquals(expResult, result);
+		// TODO review the generated test code and remove the default call to fail.
+		fail("The test case is a prototype.");
+	}
+
+	/**
 	 * Test of isIncommingRI method, of class Ser2NetProvider.
 	 */
 	@Test
@@ -144,7 +159,7 @@ public class Ser2NetProviderTest {
 		System.out.println("isIncommingRI");
 		Ser2NetProvider instance = null;
 		boolean expResult = false;
-		boolean result = instance.isIncommingRI();
+		boolean result = instance.isRI();
 		assertEquals(expResult, result);
 		// TODO review the generated test code and remove the default call to fail.
 		fail("The test case is a prototype.");

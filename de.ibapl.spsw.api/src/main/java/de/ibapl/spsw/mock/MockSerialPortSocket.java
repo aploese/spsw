@@ -336,7 +336,15 @@ public class MockSerialPortSocket implements SerialPortSocket {
 	}
 
 	@Override
-	public boolean isIncommingRI() throws IOException {
+	public boolean isDCD() throws IOException {
+		if (!open) {
+			throw new IOException(PORT_IS_CLOSED);
+		}
+		throw new RuntimeException("Not Implemented");
+	}
+
+	@Override
+	public boolean isRI() throws IOException {
 		if (!open) {
 			throw new IOException(PORT_IS_CLOSED);
 		}

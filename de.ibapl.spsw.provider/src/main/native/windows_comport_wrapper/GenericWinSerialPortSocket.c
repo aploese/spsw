@@ -1027,10 +1027,20 @@ JNIEXPORT jboolean JNICALL Java_de_ibapl_spsw_provider_AbstractSerialPortSocket_
 
 /*
  * Class:     de_ibapl_spsw_provider_AbstractSerialPortSocket
+ * Method:    isDCD
+ * Signature: ()Z
+ */
+JNIEXPORT jboolean JNICALL Java_de_ibapl_spsw_provider_AbstractSerialPortSocket_isDCD(
+		JNIEnv *env, jobject sps) {
+	return getCommModemStatus(env, sps, MS_RLSD_ON);
+}
+
+/*
+ * Class:     de_ibapl_spsw_provider_AbstractSerialPortSocket
  * Method:    isIncommingRI
  * Signature: ()Z
  */
-JNIEXPORT jboolean JNICALL Java_de_ibapl_spsw_provider_AbstractSerialPortSocket_isIncommingRI(
+JNIEXPORT jboolean JNICALL Java_de_ibapl_spsw_provider_AbstractSerialPortSocket_isRI(
 		JNIEnv *env, jobject sps) {
 	return getCommModemStatus(env, sps, MS_RING_ON);
 }

@@ -668,7 +668,10 @@ public abstract class AbstractSerialPortSocket<T extends AbstractSerialPortSocke
 	public native boolean isDSR() throws IOException;
 
 	@Override
-	public native boolean isIncommingRI() throws IOException;
+	public native boolean isDCD() throws IOException;
+
+	@Override
+	public native boolean isRI() throws IOException;
 
 	@Override
 	public boolean isOpen() {

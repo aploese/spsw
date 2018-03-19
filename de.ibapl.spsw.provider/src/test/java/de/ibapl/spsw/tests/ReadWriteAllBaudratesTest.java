@@ -27,8 +27,6 @@
  */
 package de.ibapl.spsw.tests;
 
-import org.junit.jupiter.api.extension.AfterTestExecutionCallback;
-
 /*-
  * #%L
  * SPSW Provider

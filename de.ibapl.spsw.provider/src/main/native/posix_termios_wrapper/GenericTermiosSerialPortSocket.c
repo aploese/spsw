@@ -1161,10 +1161,20 @@ JNIEXPORT jboolean JNICALL Java_de_ibapl_spsw_provider_AbstractSerialPortSocket_
 
 /*
  * Class:     de_ibapl_spsw_provider_AbstractSerialPortSocket
- * Method:    isIncommingRI
+ * Method:    isDCD
  * Signature: ()Z
  */
-JNIEXPORT jboolean JNICALL Java_de_ibapl_spsw_provider_AbstractSerialPortSocket_isIncommingRI(
+JNIEXPORT jboolean JNICALL Java_de_ibapl_spsw_provider_AbstractSerialPortSocket_isDCD(
+		JNIEnv *env, jobject sps) {
+	return getLineStatus(env, sps, TIOCM_CAR);
+}
+
+/*
+ * Class:     de_ibapl_spsw_provider_AbstractSerialPortSocket
+ * Method:    isRI
+ * Signature: ()Z
+ */
+JNIEXPORT jboolean JNICALL Java_de_ibapl_spsw_provider_AbstractSerialPortSocket_isRI(
 		JNIEnv *env, jobject sps) {
 	return getLineStatus(env, sps, TIOCM_RNG);
 }
