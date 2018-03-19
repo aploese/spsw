@@ -922,7 +922,14 @@ static int setParams(JNIEnv *env, jobject sps, struct termios *settings,
 					== SPSW_FLOW_CONTROL_RTS_CTS_IN)
 					|| ((mask & SPSW_FLOW_CONTROL_RTS_CTS_OUT)
 							== SPSW_FLOW_CONTROL_RTS_CTS_OUT)) {
-				settings->c_cflag |= CRTSCTS;
+				if (((mask & SPSW_FLOW_CONTROL_RTS_CTS_IN)
+					== SPSW_FLOW_CONTROL_RTS_CTS_IN)
+					&& ((mask & SPSW_FLOW_CONTROL_RTS_CTS_OUT)
+							== SPSW_FLOW_CONTROL_RTS_CTS_OUT)) {
+					settings->c_cflag |= CRTSCTS;
+				} else {
+					throw_Illegal_Argument_Exception(env, "Can only set RTS/CTS for both in and out");
+				}
 			}
 			if ((mask & SPSW_FLOW_CONTROL_XON_XOFF_IN)
 					== SPSW_FLOW_CONTROL_XON_XOFF_IN) {
