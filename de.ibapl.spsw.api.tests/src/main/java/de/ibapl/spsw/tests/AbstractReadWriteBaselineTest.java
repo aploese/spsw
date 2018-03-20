@@ -19,20 +19,19 @@
  */
 package de.ibapl.spsw.tests;
 
-import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNull;
-import static org.junit.jupiter.api.Assertions.assertTimeout;
 import static org.junit.jupiter.api.Assertions.assertTimeoutPreemptively;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 
 import java.time.Duration;
 import java.util.Iterator;
 
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.MethodSource;
 
 import de.ibapl.spsw.api.Baudrate;
+import de.ibapl.spsw.tests.tags.BaselineTest;
 
 /**
  * Unit test for simple App. Timeout is computed 8 data bits + 2 stop bits +
@@ -40,15 +39,11 @@ import de.ibapl.spsw.api.Baudrate;
  */
 public abstract class AbstractReadWriteBaselineTest extends AbstractReadWriteTest {
 
-	@Override
-	public Iterator<PortConfiguration> getTestPortConfigurations() {
-		return new PortConfigurationFactory().getBaudrateIterator(Baudrate.B2400, Baudrate.B115200);
-	}
-
 	/**
 	 * Send two bytes with half the InterbyteReadTimeout and expect a return from read within OverallReadTimeout - InterbyteReadTimeout
 	 * @throws Exception
 	 */
+	@BaselineTest
 	@Test
 	public void testInterbyteReadTimeout() throws Exception {
 		openDefault();

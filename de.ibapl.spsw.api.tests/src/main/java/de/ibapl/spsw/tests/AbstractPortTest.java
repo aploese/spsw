@@ -19,12 +19,21 @@
  */
 package de.ibapl.spsw.tests;
 
+import static org.junit.jupiter.api.Assertions.assertAll;
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTimeoutPreemptively;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 import static org.junit.jupiter.api.Assumptions.assumeTrue;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InterruptedIOException;
+import java.io.OutputStream;
+import java.text.MessageFormat;
+import java.time.Duration;
 import java.util.Properties;
 import java.util.Set;
 import java.util.logging.Level;
@@ -33,6 +42,7 @@ import java.util.logging.Logger;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.TestInfo;
 import org.junit.jupiter.api.TestInstance;
 import org.junit.jupiter.api.TestInstance.Lifecycle;
 import org.junit.jupiter.api.extension.AfterTestExecutionCallback;
@@ -46,15 +56,223 @@ import de.ibapl.spsw.api.Parity;
 import de.ibapl.spsw.api.SerialPortSocket;
 import de.ibapl.spsw.api.SerialPortSocketFactory;
 import de.ibapl.spsw.api.StopBits;
+import de.ibapl.spsw.api.TimeoutIOException;
+import de.ibapl.spsw.tests.AbstractPortTest.Receiver;
+import de.ibapl.spsw.tests.AbstractPortTest.Sender;
 
 @ExtendWith(AbstractPortTest.AfterTestExecution.class)
 @TestInstance(Lifecycle.PER_CLASS)
 public abstract class AbstractPortTest {
 
-	
+	public class Receiver implements Runnable {
+
+		final boolean readSingle;
+		final InputStream is;
+		boolean done;
+		final Object LOCK = new Object();
+		byte[] recBuffer;
+		final byte[] sendBuffer;
+		int currentRecOffset;
+
+		Exception ex;
+		Error err;
+
+		public Receiver(boolean readSingle, InputStream is, byte[] sendBuffer) {
+			this.readSingle = readSingle;
+			this.is = is;
+			this.sendBuffer = sendBuffer;
+		}
+
+		@Override
+		public void run() {
+			this.recBuffer = new byte[sendBuffer.length];
+			currentRecOffset = 0;
+			ex = null;
+			err = null;
+			done = false;
+			try {
+				while (true) {
+					if (readSingle) {
+						final int data = is.read();
+						if (data >= 0) {
+							final int pos = currentRecOffset;
+							currentRecOffset++;
+							recBuffer[pos] = (byte) data;
+							assertEquals(sendBuffer[pos], recBuffer[pos], () -> {
+								return String.format("Arrays differ @%d expected but was %02x", pos, sendBuffer[pos],
+										recBuffer[pos]);
+							});
+						} else {
+							throw new RuntimeException("TODO implement me");
+						}
+						if (currentRecOffset == recBuffer.length) {
+							break;
+						}
+					} else {
+						final int count = is.read(recBuffer, currentRecOffset, recBuffer.length - currentRecOffset);
+						if (count > 0) {
+							for (int i = 0; i < count; i++) {
+								final int pos = currentRecOffset + i;
+								assertEquals(sendBuffer[currentRecOffset], recBuffer[currentRecOffset], () -> {
+									return String.format("Arrays differ @%d expected but was %02x", pos,
+											sendBuffer[pos], recBuffer[pos]);
+								});
+							}
+							currentRecOffset += count;
+							if (currentRecOffset == recBuffer.length) {
+								break;
+							}
+						}
+						LOG.log(Level.FINEST, "Bytes read: {0}", count);
+						if (count <= 0) {
+							if (currentRecOffset < recBuffer.length) {
+								LOG.log(Level.SEVERE, "Bytes missing: {0}", recBuffer.length - currentRecOffset);
+								// TODO printArrays("Too short");
+							}
+							break;
+						}
+					}
+				}
+				LOG.log(Level.INFO, "Byte total read: {0}", currentRecOffset);
+				synchronized (LOCK) {
+					done = true;
+					LOCK.notifyAll();
+					LOG.log(Level.INFO, "Send Thread finished");
+				}
+			} catch (Exception ex) {
+				synchronized (LOCK) {
+					done = true;
+					this.ex = ex;
+					LOG.log(Level.SEVERE, "Send Thread Exception offset: " + currentRecOffset, ex);
+					LOCK.notifyAll();
+				}
+			} catch (Error err) {
+				synchronized (LOCK) {
+					done = true;
+					this.err = err;
+					// TODO printArrays("Error");
+					LOG.log(Level.SEVERE, "Send Thread Error offset: " + currentRecOffset, err);
+					LOCK.notifyAll();
+				}
+			}
+		}
+
+		/**
+		 * Try to figure out what exactly hit us...
+		 * 
+		 * At high speeds sometime a byte gets "lost" and therefore its running in an
+		 * timeout... The first "missing" byte is where the array differ...? The amount
+		 * of "missing" bytes is the difference of sendBuffer.length and
+		 * currentRecOffset.
+		 * 
+		 */
+		public void assertStateAfterExecution() {
+			assertNull(err);
+			assertAll("Receive Exception", () -> {
+				// Where is the missing byte
+				assertArrayEquals(sendBuffer, recBuffer);
+			}, () -> {
+				// How much bytes are missing
+				assertEquals(sendBuffer.length, currentRecOffset, "Received not enough");
+			}, () -> {
+				if (ex instanceof TimeoutIOException) {
+					// if bytesTransferred == 0 then in the second attempt nothing was read.
+					fail("TimeoutIOException bytes transferred: " + ((TimeoutIOException) ex).bytesTransferred
+							+ " MSG: " + ex.getMessage());
+				} else if (ex instanceof InterruptedIOException) {
+					fail("InterruptedIOException bytes transferred: " + ((TimeoutIOException) ex).bytesTransferred
+							+ " MSG: " + ex.getMessage());
+				} else if (ex != null) {
+					fail(ex.getClass().getSimpleName() + " MSG: " + ex.getMessage());
+
+				}
+			}, () -> {
+				assertTrue(done, "Receiver has not finished");
+			});
+		}
+
+	}
+
+	public class Sender implements Runnable {
+		final boolean writeSingle;
+		boolean done;
+		final Object LOCK = new Object();
+		final byte[] sendBuffer;
+		Exception ex;
+		Error err;
+		final OutputStream os;
+
+		public Sender(boolean writeSingle, OutputStream os, byte[] sendBuffer) {
+			this.writeSingle = writeSingle;
+			this.os = os;
+			this.sendBuffer = sendBuffer;
+		}
+
+		@Override
+		public void run() {
+			done = false;
+			ex = null;
+			err = null;
+			try {
+				if (writeSingle) {
+					for (int i = 0; i < sendBuffer.length; i++) {
+						os.write(sendBuffer[i]);
+					}
+				} else {
+					os.write(sendBuffer);
+				}
+				LOG.log(Level.INFO, "Bytes written: {0}", sendBuffer.length);
+				synchronized (LOCK) {
+					done = true;
+					LOCK.notifyAll();
+					LOG.log(Level.INFO, "Send Thread finished");
+				}
+			} catch (Exception ex) {
+				synchronized (LOCK) {
+					done = true;
+					this.ex = ex;
+					LOG.log(Level.SEVERE, "Send Thread Exception", ex);
+					LOCK.notifyAll();
+				}
+			} catch (Error err) {
+				synchronized (LOCK) {
+					done = true;
+					this.err = err;
+					LOG.log(Level.SEVERE, "Send Thread Error", err);
+					LOCK.notifyAll();
+				}
+			}
+		}
+
+		public void assertStateAfterExecution() {
+			assertNull(err);
+			assertAll("Sender Exception", () -> {
+				assertTrue(done, "Not all data was sent");
+			}, () -> {
+				if (ex instanceof TimeoutIOException) {
+					// if bytesTransferred == 0 then in the second attempt nothing was read.
+					fail("TimeoutIOException bytes transferred: " + ((TimeoutIOException) ex).bytesTransferred
+							+ " MSG: " + ex.getMessage());
+				} else if (ex instanceof InterruptedIOException) {
+					fail("InterruptedIOException bytes transferred: " + ((TimeoutIOException) ex).bytesTransferred
+							+ " MSG: " + ex.getMessage());
+				} else if (ex != null) {
+					fail(ex.getClass().getSimpleName() + " MSG: " + ex.getMessage());
+				}});
+		}
+	}
+
+	protected byte[] initBuffer(final int size) {
+		final byte[] result = new byte[size];
+		for (int i = 0; i < size; i++) {
+			result[i] = (byte) i;
+		}
+		return result;
+	}
+
+
 	
 	protected static final int PORT_RECOVERY_TIME_MS = 200;
-	protected static final boolean HARDWARE_SUPPORTS_RTS_CTS = true;
 
 	protected static final Logger LOG = Logger.getLogger("SpswTests");
 	private static String readSerialPortName;
@@ -122,12 +340,12 @@ public abstract class AbstractPortTest {
 		}
 		if (writeSpc != null && writeSpc != readSpc) {
 			writeSpc.open(baudrate, dataBits, stopBits, parity, flowControl);
-			assertEquals(0, readSpc.getOutBufferBytesCount(), "Can't start test: OutBuffer is not empty");
-			while (readSpc.getInBufferBytesCount() > 0) {
-				readSpc.getInputStream().read(new byte[readSpc.getInBufferBytesCount()]);
+			assertEquals(0, writeSpc.getOutBufferBytesCount(), "Can't start test: OutBuffer is not empty");
+			while (writeSpc.getInBufferBytesCount() > 0) {
+				writeSpc.getInputStream().read(new byte[writeSpc.getInBufferBytesCount()]);
 				Thread.sleep(100);
 			}
-			assertEquals(0, readSpc.getInBufferBytesCount(), "Can't start test: InBuffer is not empty");
+			assertEquals(0, writeSpc.getInBufferBytesCount(), "Can't start test: InBuffer is not empty");
 		}
 	}
 
@@ -200,7 +418,8 @@ public abstract class AbstractPortTest {
 	}
 
 	@BeforeEach
-	public void setUp() throws Exception {
+	public void setUp(TestInfo testInfo) throws Exception {
+		LOG.info(MessageFormat.format("do run test : {0}", testInfo.getDisplayName()));
 		if (readSerialPortName != null) {
 			readSpc = getSerialPortSocketFactory().createSerialPortSocket(readSerialPortName);
 		}
@@ -245,5 +464,154 @@ public abstract class AbstractPortTest {
 		open(pc.getBaudrate(), pc.getDataBits(), pc.getStopBits(), pc.getParity(), pc.getFlowControl());
 		setTimeouts(pc.getInterByteReadTimeout(), pc.getOverallReadTimeout(), pc.getOverallWriteTimeout());
 	}
+	
+	public void writeBytes_ReadBytes(PortConfiguration pc) throws Exception {
+		open(pc);
+		final Sender sender = new Sender(true, writeSpc.getOutputStream(), initBuffer(pc.getBufferSize()));
+		final Receiver receiver = new Receiver(false, readSpc.getInputStream(), sender.sendBuffer);
+
+		assertAll("After ", () -> {
+			assertTimeoutPreemptively(Duration.ofMillis(pc.getTestTimeout()), () -> {
+				sender.run();
+				receiver.run();
+			});
+		}, () -> {
+			sender.assertStateAfterExecution();
+		}, () -> {
+			receiver.assertStateAfterExecution();
+		});
+	}
+
+	public void writeBytes_ReadSingle(PortConfiguration pc) throws Exception {
+		open(pc);
+		final Sender sender = new Sender(false, writeSpc.getOutputStream(), initBuffer(pc.getBufferSize()));
+		final Receiver receiver = new Receiver(true, readSpc.getInputStream(), sender.sendBuffer);
+
+		assertAll("After ", () -> {
+			assertTimeoutPreemptively(Duration.ofMillis(pc.getTestTimeout()), () -> {
+				sender.run();
+				receiver.run();
+			});
+		}, () -> {
+			sender.assertStateAfterExecution();
+		}, () -> {
+			receiver.assertStateAfterExecution();
+		});
+	}
+
+	public void writeSingle_ReadBytes(PortConfiguration pc) throws Exception {
+		open(pc);
+		final Sender sender = new Sender(true, writeSpc.getOutputStream(), initBuffer(pc.getBufferSize()));
+		final Receiver receiver = new Receiver(false, readSpc.getInputStream(), sender.sendBuffer);
+
+		assertAll("After ", () -> {
+			assertTimeoutPreemptively(Duration.ofMillis(pc.getTestTimeout()), () -> {
+				sender.run();
+				receiver.run();
+			});
+		}, () -> {
+			sender.assertStateAfterExecution();
+		}, () -> {
+			receiver.assertStateAfterExecution();
+		});
+	}
+
+	public void writeSingle_ReadSingle(PortConfiguration pc) throws Exception {
+		open(pc);
+		final Sender sender = new Sender(true, writeSpc.getOutputStream(), initBuffer(pc.getBufferSize()));
+		final Receiver receiver = new Receiver(true, readSpc.getInputStream(), sender.sendBuffer);
+
+		assertAll("After ", () -> {
+			assertTimeoutPreemptively(Duration.ofMillis(pc.getTestTimeout()), () -> {
+				sender.run();
+				receiver.run();
+			});
+		}, () -> {
+			sender.assertStateAfterExecution();
+		}, () -> {
+			receiver.assertStateAfterExecution();
+		});
+	}
+
+	public void writeBytes_ReadBytes_Threaded(PortConfiguration pc) throws Exception {
+		open(pc);
+		final Sender sender = new Sender(false, writeSpc.getOutputStream(), initBuffer(pc.getBufferSize()));
+		final Receiver receiver = new Receiver(false, readSpc.getInputStream(), sender.sendBuffer);
+
+		assertAll("After ", () -> {
+			assertTimeoutPreemptively(Duration.ofMillis(pc.getTestTimeout()), () -> {
+				new Thread(receiver).start();
+				new Thread(sender).start();
+				synchronized (receiver.LOCK) {
+					receiver.LOCK.wait();
+				}
+			});
+		}, () -> {
+			sender.assertStateAfterExecution();
+		}, () -> {
+			receiver.assertStateAfterExecution();
+		});
+	}
+
+	public void writeBytes_ReadSingle_Threaded(PortConfiguration pc) throws Exception {
+		open(pc);
+		final Sender sender = new Sender(false, writeSpc.getOutputStream(), initBuffer(pc.getBufferSize()));
+		final Receiver receiver = new Receiver(true, readSpc.getInputStream(), sender.sendBuffer);
+
+		assertAll("After ", () -> {
+			assertTimeoutPreemptively(Duration.ofMillis(pc.getTestTimeout()), () -> {
+				new Thread(receiver).start();
+				new Thread(sender).start();
+				synchronized (receiver.LOCK) {
+					receiver.LOCK.wait();
+				}
+			});
+		}, () -> {
+			sender.assertStateAfterExecution();
+		}, () -> {
+			receiver.assertStateAfterExecution();
+		});
+	}
+
+	public void writeSingle_ReadBytes_Threaded(PortConfiguration pc) throws Exception {
+		open(pc);
+		final Sender sender = new Sender(true, writeSpc.getOutputStream(), initBuffer(pc.getBufferSize()));
+		final Receiver receiver = new Receiver(false, readSpc.getInputStream(), sender.sendBuffer);
+		assertAll("After ", () -> {
+			assertTimeoutPreemptively(Duration.ofMillis(pc.getTestTimeout()), () -> {
+				new Thread(receiver).start();
+				new Thread(sender).start();
+				synchronized (receiver.LOCK) {
+					receiver.LOCK.wait();
+				}
+			});
+		}, () -> {
+			sender.assertStateAfterExecution();
+		}, () -> {
+			receiver.assertStateAfterExecution();
+		});
+	}
+
+	public void writeSingle_ReadSingle_Threaded(PortConfiguration pc) throws Exception {
+		open(pc);
+		final Sender sender = new Sender(true, writeSpc.getOutputStream(), initBuffer(pc.getBufferSize()));
+		final Receiver receiver = new Receiver(false, readSpc.getInputStream(), sender.sendBuffer);
+
+		assertAll("After ", () -> {
+			assertTimeoutPreemptively(Duration.ofMillis(pc.getTestTimeout()), () -> {
+				new Thread(receiver).start();
+				new Thread(sender).start();
+				synchronized (receiver.LOCK) {
+					receiver.LOCK.wait();
+				}
+			});
+		}, () -> {
+			sender.assertStateAfterExecution();
+		}, () -> {
+			receiver.assertStateAfterExecution();
+		});
+	}
+
+
 
 }

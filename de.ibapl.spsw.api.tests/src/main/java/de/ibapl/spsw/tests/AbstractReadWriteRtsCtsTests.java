@@ -25,7 +25,6 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTimeoutPreemptively;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
-import static org.junit.jupiter.api.Assumptions.assumeTrue;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -36,9 +35,13 @@ import java.util.Arrays;
 import java.util.Iterator;
 import java.util.logging.Level;
 
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInfo;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.MethodSource;
 
 import de.ibapl.spsw.api.Baudrate;
 import de.ibapl.spsw.api.DataBits;
@@ -46,6 +49,8 @@ import de.ibapl.spsw.api.FlowControl;
 import de.ibapl.spsw.api.Parity;
 import de.ibapl.spsw.api.StopBits;
 import de.ibapl.spsw.api.TimeoutIOException;
+import de.ibapl.spsw.tests.tags.BaselineTest;
+import de.ibapl.spsw.tests.tags.RtsCtsTest;
 
 /**
  * Unit test for simple App. Use @Ignore if your hardware can't handle higer
@@ -54,19 +59,71 @@ import de.ibapl.spsw.api.TimeoutIOException;
  */
 public abstract class AbstractReadWriteRtsCtsTests extends AbstractReadWriteTest {
 
-	
-	@Override
-	public Iterator<PortConfiguration> getTestPortConfigurations() {
-		return new PortConfigurationFactory().setFlowControl(FlowControl.getFC_RTS_CTS()).getBaudrateIterator(Baudrate.B300, Baudrate.B4000000);
+	public Iterator<PortConfiguration> getBaselinePortConfigurations() {
+		return new PortConfigurationFactory().setFlowControl(FlowControl.getFC_RTS_CTS()).getBaudrateIterator(Baudrate.B1200, Baudrate.B115200);
 	}
 
+	@RtsCtsTest
+	@ParameterizedTest
+	@MethodSource({ "getBaselinePortConfigurations" })
+	public void test_WriteBytes_ReadBytes(PortConfiguration pc) throws Exception {
+		writeBytes_ReadBytes(pc);
+	}
+	
+	@RtsCtsTest
+	@ParameterizedTest
+	@MethodSource({ "getBaselinePortConfigurations" })
+	public void test_WriteBytes_ReadSingle(PortConfiguration pc) throws Exception {
+		writeBytes_ReadSingle(pc);
+	}
+	
+	@RtsCtsTest
+	@ParameterizedTest
+	@MethodSource({ "getBaselinePortConfigurations" })
+	public void test_WriteSingle_ReadBytes(PortConfiguration pc) throws Exception {
+		writeSingle_ReadBytes(pc);
+	}
+
+	@RtsCtsTest
+	@ParameterizedTest
+	@MethodSource({ "getBaselinePortConfigurations" })
+	public void test_WriteSingle_ReadSingle(PortConfiguration pc) throws Exception {
+		writeSingle_ReadSingle(pc);
+	}
+
+	@RtsCtsTest
+	@ParameterizedTest
+	@MethodSource({ "getBaselinePortConfigurations" })
+	public void test_WriteBytes_ReadBytes_Threaded(PortConfiguration pc) throws Exception {
+		writeBytes_ReadBytes_Threaded(pc);
+	}
+
+	@RtsCtsTest
+	@ParameterizedTest
+	@MethodSource({ "getBaselinePortConfigurations" })
+	public void test_WriteBytes_ReadSingle_Threaded(PortConfiguration pc) throws Exception {
+		writeBytes_ReadSingle_Threaded(pc);
+	}
+
+	@RtsCtsTest
+	@ParameterizedTest
+	@MethodSource({ "getBaselinePortConfigurations" })
+	public void test_WriteSingle_ReadBytes_Threaded(PortConfiguration pc) throws Exception {
+		writeSingle_ReadBytes_Threaded(pc);
+	}
+
+	@RtsCtsTest
+	@ParameterizedTest
+	@MethodSource({ "getBaselinePortConfigurations" })
+	public void test_WriteSingle_ReadSingle_Threaded(PortConfiguration pc) throws Exception {
+		writeSingle_ReadSingle_Threaded(pc);
+	}
 	
 	// TODO does not work as expected Linux Kernel fills in buffer size?
 	@Disabled
 	@Test
 	public void testWriteBufferFull() throws Exception {
 		assumeRWTest();
-		assumeTrue(HARDWARE_SUPPORTS_RTS_CTS);
 		LOG.log(Level.INFO, "run testWriteSingleByteTimeout");
 		// Set a high baudrate to speed up things
 		open(Baudrate.B115200, DataBits.DB_8, StopBits.SB_1, Parity.EVEN, FlowControl.getFC_RTS_CTS());
@@ -132,7 +189,6 @@ public abstract class AbstractReadWriteRtsCtsTests extends AbstractReadWriteTest
 	@Test
 	public void testFillInbuffer() throws Exception {
 		assumeRWTest();
-		assumeTrue(HARDWARE_SUPPORTS_RTS_CTS);
 		LOG.log(Level.INFO, "run testWriteSingleByteTimeout");
 		// Set a high baudrate to speed up things
 		open(Baudrate.B115200, DataBits.DB_8, StopBits.SB_1, Parity.NONE, FlowControl.getFC_RTS_CTS());
@@ -198,7 +254,6 @@ public abstract class AbstractReadWriteRtsCtsTests extends AbstractReadWriteTest
 	@Disabled
 	@Test
 	public void testTimeout() throws Exception {
-		assumeTrue(HARDWARE_SUPPORTS_RTS_CTS);
 		assumeRWTest();
 
 		open(Baudrate.B9600, DataBits.DB_8, StopBits.SB_1, Parity.EVEN, FlowControl.getFC_RTS_CTS());
@@ -259,9 +314,9 @@ public abstract class AbstractReadWriteRtsCtsTests extends AbstractReadWriteTest
 
 	}
 
+	@RtsCtsTest
 	@Test
 	public void testInfiniteTimeout() throws Exception {
-		assumeTrue(HARDWARE_SUPPORTS_RTS_CTS);
 		assumeRWTest();
 
 		open(Baudrate.B9600, DataBits.DB_8, StopBits.SB_1, Parity.NONE, FlowControl.getFC_RTS_CTS());
@@ -291,6 +346,7 @@ public abstract class AbstractReadWriteRtsCtsTests extends AbstractReadWriteTest
 	}
 	final static int WAIT_TIME = 1;
 	
+	@RtsCtsTest
 	@Test
 	public void testManualRTS_CTS() throws Exception {
 		assumeRWTest();
@@ -311,9 +367,9 @@ public abstract class AbstractReadWriteRtsCtsTests extends AbstractReadWriteTest
 		assertTrue(readSpc.isCTS());
 	}
 
+	@RtsCtsTest
 	@Test
 	public void testManualDTR_DSR() throws Exception {
-		assumeTrue(HARDWARE_SUPPORTS_RTS_CTS);
 		assumeRWTest();
 		open(Baudrate.B9600, DataBits.DB_8, StopBits.SB_1, Parity.NONE, FlowControl.getFC_NONE());
 		
@@ -327,9 +383,13 @@ public abstract class AbstractReadWriteRtsCtsTests extends AbstractReadWriteTest
 		writeSpc.setDTR(false);
 		Thread.sleep(WAIT_TIME);
 		assertFalse(readSpc.isDSR());
+		//If this fails maybe DSR and DCD are not shortend?
+		assertFalse(readSpc.isDCD());
 		writeSpc.setDTR(true);
 		Thread.sleep(WAIT_TIME);
 		assertTrue(readSpc.isDSR());
+		//If this fails maybe DSR and DCD are not shortend?
+		assertTrue(readSpc.isDCD());
 	}
 
 }

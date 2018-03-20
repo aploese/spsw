@@ -54,7 +54,7 @@ import gnu.io.SerialPort;
 public abstract class AbstractTwoPortsBaselineRxTxTest  {
 
 	protected static final int PORT_RECOVERY_TIME_MS = AbstractPortTest.PORT_RECOVERY_TIME_MS;
-	protected static final boolean HARDWARE_SUPPORTS_RTS_CTS = AbstractPortTest.HARDWARE_SUPPORTS_RTS_CTS;
+	protected static final boolean HARDWARE_SUPPORTS_RTS_CTS = false;
 
 	private static final Logger LOG = Logger.getLogger(AbstractTwoPortsBaselineRxTxTest.class.getName());
 	private final static int DEFAULT_TEST_BUFFER_SIZE = 128;

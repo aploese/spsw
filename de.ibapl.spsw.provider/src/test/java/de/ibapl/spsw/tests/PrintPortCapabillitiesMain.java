@@ -42,7 +42,7 @@ public class PrintPortCapabillitiesMain {
 
 	public static void main(String[] args) throws Exception {
 		String serialPortName;
-		try (InputStream is = AbstractBaselineOnePortTest.class.getClassLoader()
+		try (InputStream is = PrintPortCapabillitiesMain.class.getClassLoader()
 				.getResourceAsStream("junit-spsw-config.properties")) {
 			if (is == null) {
 				serialPortName = null;

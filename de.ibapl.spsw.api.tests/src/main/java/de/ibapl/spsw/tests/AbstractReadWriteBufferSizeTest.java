@@ -21,7 +21,11 @@ package de.ibapl.spsw.tests;
 
 import java.util.Iterator;
 
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.MethodSource;
+
 import de.ibapl.spsw.api.Baudrate;
+import de.ibapl.spsw.tests.tags.BaselineTest;
 
 /**
  * Unit test for simple App. Timeout is computed 8 data bits + 2 stop bits +
@@ -29,13 +33,12 @@ import de.ibapl.spsw.api.Baudrate;
  */
 public abstract class AbstractReadWriteBufferSizeTest extends AbstractReadWriteTest {
 
-	@Override
-	public Iterator<PortConfiguration> getTestPortConfigurations() {
+	public Iterator<PortConfiguration> getBaselinePortConfigurations() {
 		return new Iterator<PortConfiguration>() {
-			final PortConfigurationFactory pcf = new PortConfigurationFactory().setBaudrate(Baudrate.B1152000);
+			final PortConfigurationFactory pcf = new PortConfigurationFactory().setBaudrate(Baudrate.B230400);
 			
         	int currentSize = 1;
-        	final int maxSize = 1024*16; //16kB
+        	final int maxSize = 1024*8; //8kB seems the size of the inputbuffer for some devices (FTDI 232) whereas others can handle 16k...
         	
             @Override
             public boolean hasNext() {
@@ -53,6 +56,62 @@ public abstract class AbstractReadWriteBufferSizeTest extends AbstractReadWriteT
             	return pcf.ofBuffersize(result);
             }
         };
+	}
+	
+	@BaselineTest
+	@ParameterizedTest
+	@MethodSource({ "getBaselinePortConfigurations" })
+	public void test_WriteBytes_ReadBytes(PortConfiguration pc) throws Exception {
+		writeBytes_ReadBytes(pc);
+	}
+	
+	@BaselineTest
+	@ParameterizedTest
+	@MethodSource({ "getBaselinePortConfigurations" })
+	public void test_WriteBytes_ReadSingle(PortConfiguration pc) throws Exception {
+		writeBytes_ReadSingle(pc);
+	}
+	
+	@BaselineTest
+	@ParameterizedTest
+	@MethodSource({ "getBaselinePortConfigurations" })
+	public void test_WriteSingle_ReadBytes(PortConfiguration pc) throws Exception {
+		writeSingle_ReadBytes(pc);
+	}
+
+	@BaselineTest
+	@ParameterizedTest
+	@MethodSource({ "getBaselinePortConfigurations" })
+	public void test_WriteSingle_ReadSingle(PortConfiguration pc) throws Exception {
+		writeSingle_ReadSingle(pc);
+	}
+
+	@BaselineTest
+	@ParameterizedTest
+	@MethodSource({ "getBaselinePortConfigurations" })
+	public void test_WriteBytes_ReadBytes_Threaded(PortConfiguration pc) throws Exception {
+		writeBytes_ReadBytes_Threaded(pc);
+	}
+
+	@BaselineTest
+	@ParameterizedTest
+	@MethodSource({ "getBaselinePortConfigurations" })
+	public void test_WriteBytes_ReadSingle_Threaded(PortConfiguration pc) throws Exception {
+		writeBytes_ReadSingle_Threaded(pc);
+	}
+
+	@BaselineTest
+	@ParameterizedTest
+	@MethodSource({ "getBaselinePortConfigurations" })
+	public void test_WriteSingle_ReadBytes_Threaded(PortConfiguration pc) throws Exception {
+		writeSingle_ReadBytes_Threaded(pc);
+	}
+
+	@BaselineTest
+	@ParameterizedTest
+	@MethodSource({ "getBaselinePortConfigurations" })
+	public void test_WriteSingle_ReadSingle_Threaded(PortConfiguration pc) throws Exception {
+		writeSingle_ReadSingle_Threaded(pc);
 	}
 
 }

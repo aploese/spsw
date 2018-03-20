@@ -21,7 +21,10 @@ package de.ibapl.spsw.tests;
 
 import java.util.Iterator;
 
-import de.ibapl.spsw.api.Baudrate;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.MethodSource;
+
+import de.ibapl.spsw.tests.tags.BaselineTest;
 
 /**
  * Unit test for simple App. Timeout is computed 8 data bits + 2 stop bits +
@@ -29,9 +32,64 @@ import de.ibapl.spsw.api.Baudrate;
  */
 public abstract class AbstractReadWriteAllParitiesTest extends AbstractReadWriteTest {
 
-	@Override
-	public Iterator<PortConfiguration> getTestPortConfigurations() {
+	public Iterator<PortConfiguration> getBaselinePortConfigurations() {
 		return new PortConfigurationFactory().setBuffersize(64).getParityIterator();
+	}
+
+	@BaselineTest
+	@ParameterizedTest
+	@MethodSource({ "getBaselinePortConfigurations" })
+	public void test_WriteBytes_ReadBytes(PortConfiguration pc) throws Exception {
+		writeBytes_ReadBytes(pc);
+	}
+	
+	@BaselineTest
+	@ParameterizedTest
+	@MethodSource({ "getBaselinePortConfigurations" })
+	public void test_WriteBytes_ReadSingle(PortConfiguration pc) throws Exception {
+		writeBytes_ReadSingle(pc);
+	}
+	
+	@BaselineTest
+	@ParameterizedTest
+	@MethodSource({ "getBaselinePortConfigurations" })
+	public void test_WriteSingle_ReadBytes(PortConfiguration pc) throws Exception {
+		writeSingle_ReadBytes(pc);
+	}
+
+	@BaselineTest
+	@ParameterizedTest
+	@MethodSource({ "getBaselinePortConfigurations" })
+	public void test_WriteSingle_ReadSingle(PortConfiguration pc) throws Exception {
+		writeSingle_ReadSingle(pc);
+	}
+
+	@BaselineTest
+	@ParameterizedTest
+	@MethodSource({ "getBaselinePortConfigurations" })
+	public void test_WriteBytes_ReadBytes_Threaded(PortConfiguration pc) throws Exception {
+		writeBytes_ReadBytes_Threaded(pc);
+	}
+
+	@BaselineTest
+	@ParameterizedTest
+	@MethodSource({ "getBaselinePortConfigurations" })
+	public void test_WriteBytes_ReadSingle_Threaded(PortConfiguration pc) throws Exception {
+		writeBytes_ReadSingle_Threaded(pc);
+	}
+
+	@BaselineTest
+	@ParameterizedTest
+	@MethodSource({ "getBaselinePortConfigurations" })
+	public void test_WriteSingle_ReadBytes_Threaded(PortConfiguration pc) throws Exception {
+		writeSingle_ReadBytes_Threaded(pc);
+	}
+
+	@BaselineTest
+	@ParameterizedTest
+	@MethodSource({ "getBaselinePortConfigurations" })
+	public void test_WriteSingle_ReadSingle_Threaded(PortConfiguration pc) throws Exception {
+		writeSingle_ReadSingle_Threaded(pc);
 	}
 
 }

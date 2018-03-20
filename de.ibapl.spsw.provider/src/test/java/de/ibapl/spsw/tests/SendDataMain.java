@@ -45,14 +45,14 @@ public class SendDataMain {
 	public static void main(String[] args) throws Exception {
 		final Object printLock = new Object();
 		final SerialPortSocketFactory spsf = SerialPortSocketFactoryImpl.singleton();
-		try (SerialPortSocket serialPortSocket = spsf.open("/dev/ttyUSB0", Baudrate.B1200, DataBits.DB_8, StopBits.SB_1,
+		try (SerialPortSocket serialPortSocket = spsf.open("/dev/ttyUSB0", Baudrate.B230400, DataBits.DB_8, StopBits.SB_1,
 				Parity.NONE, FlowControl.getFC_NONE())) {
 			serialPortSocket.setTimeouts(200, 1000, 1000);
 			Thread t = new Thread(() -> {
 				final DateTimeFormatter dtf = DateTimeFormatter.ISO_INSTANT;
 				byte data[] = new byte[256];
-				try {
-					while (true) {
+				while (true) {
+					try {
 						int received = serialPortSocket.getInputStream().read(data);
 						if (received > 0) {
 							char chars[] = new char[received];
@@ -64,10 +64,10 @@ public class SendDataMain {
 										+ String.copyValueOf(chars).replace("\"", "\\\"") + "\n<<<");
 							}
 						}
-					}
-				} catch (Exception e) {
-					synchronized (printLock) {
-						System.err.println(e.getMessage());
+					} catch (Exception e) {
+						synchronized (printLock) {
+							System.err.println(e.getMessage());
+						}
 					}
 				}
 			});
