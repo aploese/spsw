@@ -1304,9 +1304,9 @@ public abstract class AbstractOnePortTest extends AbstractPortTest {
 			Thread.sleep(10);
 		}
 
-		// On Windows the GC needs some time - I don't know why...
+		// On Windows the GC needs some time - I don't know why... (FTDI on win64 needs the most...)
 		if (System.getProperty("os.name").startsWith("Windows")) {
-			Thread.sleep(100);
+			Thread.sleep(200);
 		}
 
 		readSpc = getSerialPortSocketFactory().createSerialPortSocket(serialPortName);
