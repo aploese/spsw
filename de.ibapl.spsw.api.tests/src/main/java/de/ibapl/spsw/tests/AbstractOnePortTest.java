@@ -518,21 +518,35 @@ public abstract class AbstractOnePortTest extends AbstractPortTest {
 	}
 
 	private final static int _16MB = 1024 * 1024 * 16;
-	private final static int _1MB = 1024 * 1024;
+	private final static int _1MB = 1024 * 1024; //Too much for FTDI on Windows there is nothing sent...
+	private final static int _256kB = 1024 * 256;
 
 	@BaselineTest
+	@Test
+	public void testWrite256kBChunkInfiniteWrite() throws Exception {
+		writeMBChunk(_256kB, 0);
+	}
+
+	@BaselineTest
+	@Test
+	public void Write256kBChunk() throws Exception {
+		writeMBChunk(_256kB, 1000 + 2 * SerialPortSocket.calculateMillisForBytes(_256kB, Baudrate.B1000000, DataBits.DB_8,
+				StopBits.SB_1, Parity.NONE));
+	}
+
+	
+	@NotSupportedByAllDevices
 	@Test
 	public void testWrite1MBChunkInfiniteWrite() throws Exception {
 		writeMBChunk(_1MB, 0);
 	}
 
-	@BaselineTest
+	@NotSupportedByAllDevices
 	@Test
 	public void Write1MBChunk() throws Exception {
 		writeMBChunk(_1MB, 1000 + 2 * SerialPortSocket.calculateMillisForBytes(_1MB, Baudrate.B1000000, DataBits.DB_8,
 				StopBits.SB_1, Parity.NONE));
 	}
-
 	/**
 	 * Some devices namely Silicon Labs CP210x can't handle this on windows.They do
 	 * not even sent a single byte... port native win error: 87

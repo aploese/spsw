@@ -38,7 +38,7 @@ public abstract class AbstractReadWriteBufferSizeTest extends AbstractReadWriteT
 			final PortConfigurationFactory pcf = new PortConfigurationFactory().setBaudrate(Baudrate.B230400);
 			
         	int currentSize = 1;
-        	final int maxSize = 1024*8; //8kB seems the size of the inputbuffer for some devices (FTDI 232) whereas others can handle 16k...
+        	final int maxSize = 1024*4; //4kB seems the size of the inputbuffer for some devices FTDI 232 on Windows(8k FTDI 232 on linux) whereas others can handle 16k...
         	
             @Override
             public boolean hasNext() {
