@@ -50,6 +50,7 @@ import de.ibapl.spsw.api.Parity;
 import de.ibapl.spsw.api.StopBits;
 import de.ibapl.spsw.api.TimeoutIOException;
 import de.ibapl.spsw.tests.tags.BaselineTest;
+import de.ibapl.spsw.tests.tags.DtrDsrTest;
 import de.ibapl.spsw.tests.tags.RtsCtsTest;
 
 /**
@@ -367,7 +368,7 @@ public abstract class AbstractReadWriteRtsCtsTests extends AbstractReadWriteTest
 		assertTrue(readSpc.isCTS());
 	}
 
-	@RtsCtsTest
+	@DtrDsrTest
 	@Test
 	public void testManualDTR_DSR() throws Exception {
 		assumeRWTest();
