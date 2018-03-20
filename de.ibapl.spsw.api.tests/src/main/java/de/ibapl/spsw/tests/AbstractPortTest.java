@@ -258,7 +258,8 @@ public abstract class AbstractPortTest {
 							+ " MSG: " + ex.getMessage());
 				} else if (ex != null) {
 					fail(ex.getClass().getSimpleName() + " MSG: " + ex.getMessage());
-				}});
+				}
+			});
 		}
 	}
 
@@ -270,8 +271,6 @@ public abstract class AbstractPortTest {
 		return result;
 	}
 
-
-	
 	protected static final int PORT_RECOVERY_TIME_MS = 200;
 
 	protected static final Logger LOG = Logger.getLogger("SpswTests");
@@ -285,11 +284,12 @@ public abstract class AbstractPortTest {
 	protected abstract SerialPortSocketFactory getSerialPortSocketFactory();
 
 	public static class AfterTestExecution implements AfterTestExecutionCallback {
-	public void afterTestExecution(ExtensionContext context) throws Exception {
-			((AbstractPortTest)context.getRequiredTestInstance()).currentTestFailed = context.getExecutionException().isPresent();
+		public void afterTestExecution(ExtensionContext context) throws Exception {
+			((AbstractPortTest) context.getRequiredTestInstance()).currentTestFailed = context.getExecutionException()
+					.isPresent();
+		}
 	}
-	}
-	
+
 	protected void setBaudrate(Baudrate baudrate) throws IOException {
 		if (readSpc != null) {
 			readSpc.setBaudrate(baudrate);
@@ -438,7 +438,7 @@ public abstract class AbstractPortTest {
 			if (writeSpc != readSpc) {
 				if (!writeSpc.isClosed()) {
 					writeSpc.close();
-					assert(writeSpc.isClosed());
+					assert (writeSpc.isClosed());
 				}
 			}
 			writeSpc = null;
@@ -446,7 +446,7 @@ public abstract class AbstractPortTest {
 		if (readSpc != null) {
 			if (!readSpc.isClosed()) {
 				readSpc.close();
-				assert(readSpc.isClosed());
+				assert (readSpc.isClosed());
 			}
 			readSpc = null;
 		}
@@ -464,14 +464,10 @@ public abstract class AbstractPortTest {
 		open(pc.getBaudrate(), pc.getDataBits(), pc.getStopBits(), pc.getParity(), pc.getFlowControl());
 		setTimeouts(pc.getInterByteReadTimeout(), pc.getOverallReadTimeout(), pc.getOverallWriteTimeout());
 	}
-	
-	public void writeBytes_ReadBytes(PortConfiguration pc) throws Exception {
-		open(pc);
-		final Sender sender = new Sender(true, writeSpc.getOutputStream(), initBuffer(pc.getBufferSize()));
-		final Receiver receiver = new Receiver(false, readSpc.getInputStream(), sender.sendBuffer);
 
+	public void runNonThreaded(Sender sender, Receiver receiver, long timeout) throws Exception {
 		assertAll("After ", () -> {
-			assertTimeoutPreemptively(Duration.ofMillis(pc.getTestTimeout()), () -> {
+			assertTimeoutPreemptively(Duration.ofMillis(timeout), () -> {
 				sender.run();
 				receiver.run();
 			});
@@ -480,6 +476,14 @@ public abstract class AbstractPortTest {
 		}, () -> {
 			receiver.assertStateAfterExecution();
 		});
+	}
+
+	public void writeBytes_ReadBytes(PortConfiguration pc) throws Exception {
+		open(pc);
+		final Sender sender = new Sender(true, writeSpc.getOutputStream(), initBuffer(pc.getBufferSize()));
+		final Receiver receiver = new Receiver(false, readSpc.getInputStream(), sender.sendBuffer);
+
+		runNonThreaded(sender, receiver, pc.getTestTimeout());
 	}
 
 	public void writeBytes_ReadSingle(PortConfiguration pc) throws Exception {
@@ -487,16 +491,7 @@ public abstract class AbstractPortTest {
 		final Sender sender = new Sender(false, writeSpc.getOutputStream(), initBuffer(pc.getBufferSize()));
 		final Receiver receiver = new Receiver(true, readSpc.getInputStream(), sender.sendBuffer);
 
-		assertAll("After ", () -> {
-			assertTimeoutPreemptively(Duration.ofMillis(pc.getTestTimeout()), () -> {
-				sender.run();
-				receiver.run();
-			});
-		}, () -> {
-			sender.assertStateAfterExecution();
-		}, () -> {
-			receiver.assertStateAfterExecution();
-		});
+		runNonThreaded(sender, receiver, pc.getTestTimeout());
 	}
 
 	public void writeSingle_ReadBytes(PortConfiguration pc) throws Exception {
@@ -504,16 +499,7 @@ public abstract class AbstractPortTest {
 		final Sender sender = new Sender(true, writeSpc.getOutputStream(), initBuffer(pc.getBufferSize()));
 		final Receiver receiver = new Receiver(false, readSpc.getInputStream(), sender.sendBuffer);
 
-		assertAll("After ", () -> {
-			assertTimeoutPreemptively(Duration.ofMillis(pc.getTestTimeout()), () -> {
-				sender.run();
-				receiver.run();
-			});
-		}, () -> {
-			sender.assertStateAfterExecution();
-		}, () -> {
-			receiver.assertStateAfterExecution();
-		});
+		runNonThreaded(sender, receiver, pc.getTestTimeout());
 	}
 
 	public void writeSingle_ReadSingle(PortConfiguration pc) throws Exception {
@@ -521,16 +507,36 @@ public abstract class AbstractPortTest {
 		final Sender sender = new Sender(true, writeSpc.getOutputStream(), initBuffer(pc.getBufferSize()));
 		final Receiver receiver = new Receiver(true, readSpc.getInputStream(), sender.sendBuffer);
 
-		assertAll("After ", () -> {
-			assertTimeoutPreemptively(Duration.ofMillis(pc.getTestTimeout()), () -> {
-				sender.run();
-				receiver.run();
-			});
+		runNonThreaded(sender, receiver, pc.getTestTimeout());
+	}
+
+	public void runThreaded(Sender sender, Receiver receiver, long timeout) throws Exception {
+		new Thread(receiver).start();
+		new Thread(sender).start();
+		assertAll("Treaded Test Run ", () -> {
+			assertTimeoutPreemptively(Duration.ofMillis(timeout), () -> {
+				// Make sure all was sent
+				synchronized (sender.LOCK) {
+					while (!sender.done) {
+						sender.LOCK.wait(timeout / 10);
+					}
+				}
+			}, "Send Timeout");
+		}, () -> {
+			assertTimeoutPreemptively(Duration.ofMillis(timeout), () -> {
+				// Make sure all was received
+				synchronized (receiver.LOCK) {
+					while (!receiver.done) {
+						receiver.LOCK.wait(timeout / 10);
+					}
+				}
+			}, "Reveive Timeout");
 		}, () -> {
 			sender.assertStateAfterExecution();
 		}, () -> {
 			receiver.assertStateAfterExecution();
 		});
+
 	}
 
 	public void writeBytes_ReadBytes_Threaded(PortConfiguration pc) throws Exception {
@@ -538,19 +544,7 @@ public abstract class AbstractPortTest {
 		final Sender sender = new Sender(false, writeSpc.getOutputStream(), initBuffer(pc.getBufferSize()));
 		final Receiver receiver = new Receiver(false, readSpc.getInputStream(), sender.sendBuffer);
 
-		assertAll("After ", () -> {
-			assertTimeoutPreemptively(Duration.ofMillis(pc.getTestTimeout()), () -> {
-				new Thread(receiver).start();
-				new Thread(sender).start();
-				synchronized (receiver.LOCK) {
-					receiver.LOCK.wait();
-				}
-			});
-		}, () -> {
-			sender.assertStateAfterExecution();
-		}, () -> {
-			receiver.assertStateAfterExecution();
-		});
+		runThreaded(sender, receiver, pc.getTestTimeout());
 	}
 
 	public void writeBytes_ReadSingle_Threaded(PortConfiguration pc) throws Exception {
@@ -558,38 +552,15 @@ public abstract class AbstractPortTest {
 		final Sender sender = new Sender(false, writeSpc.getOutputStream(), initBuffer(pc.getBufferSize()));
 		final Receiver receiver = new Receiver(true, readSpc.getInputStream(), sender.sendBuffer);
 
-		assertAll("After ", () -> {
-			assertTimeoutPreemptively(Duration.ofMillis(pc.getTestTimeout()), () -> {
-				new Thread(receiver).start();
-				new Thread(sender).start();
-				synchronized (receiver.LOCK) {
-					receiver.LOCK.wait();
-				}
-			});
-		}, () -> {
-			sender.assertStateAfterExecution();
-		}, () -> {
-			receiver.assertStateAfterExecution();
-		});
+		runThreaded(sender, receiver, pc.getTestTimeout());
 	}
 
 	public void writeSingle_ReadBytes_Threaded(PortConfiguration pc) throws Exception {
 		open(pc);
 		final Sender sender = new Sender(true, writeSpc.getOutputStream(), initBuffer(pc.getBufferSize()));
 		final Receiver receiver = new Receiver(false, readSpc.getInputStream(), sender.sendBuffer);
-		assertAll("After ", () -> {
-			assertTimeoutPreemptively(Duration.ofMillis(pc.getTestTimeout()), () -> {
-				new Thread(receiver).start();
-				new Thread(sender).start();
-				synchronized (receiver.LOCK) {
-					receiver.LOCK.wait();
-				}
-			});
-		}, () -> {
-			sender.assertStateAfterExecution();
-		}, () -> {
-			receiver.assertStateAfterExecution();
-		});
+
+		runThreaded(sender, receiver, pc.getTestTimeout());
 	}
 
 	public void writeSingle_ReadSingle_Threaded(PortConfiguration pc) throws Exception {
@@ -597,21 +568,7 @@ public abstract class AbstractPortTest {
 		final Sender sender = new Sender(true, writeSpc.getOutputStream(), initBuffer(pc.getBufferSize()));
 		final Receiver receiver = new Receiver(false, readSpc.getInputStream(), sender.sendBuffer);
 
-		assertAll("After ", () -> {
-			assertTimeoutPreemptively(Duration.ofMillis(pc.getTestTimeout()), () -> {
-				new Thread(receiver).start();
-				new Thread(sender).start();
-				synchronized (receiver.LOCK) {
-					receiver.LOCK.wait();
-				}
-			});
-		}, () -> {
-			sender.assertStateAfterExecution();
-		}, () -> {
-			receiver.assertStateAfterExecution();
-		});
+		runThreaded(sender, receiver, pc.getTestTimeout());
 	}
-
-
 
 }

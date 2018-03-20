@@ -84,14 +84,14 @@ public abstract class AbstractOnePortTest extends AbstractPortTest {
 		testFlowControl(FlowControl.getFC_XON_XOFF());
 		testFlowControl(FlowControl.getFC_RTS_CTS_XON_XOFF());
 		testFlowControl(FlowControl.getFC_NONE());
-		
+
 		testFlowControl(EnumSet.of(FlowControl.XON_XOFF_IN));
 		testFlowControl(EnumSet.of(FlowControl.XON_XOFF_OUT));
 	}
 
 	@BaselineTest
 	@Test
-	@EnabledOnOs({OS.LINUX})
+	@EnabledOnOs({ OS.LINUX })
 	public void testFlowControl_LINUX() throws Exception {
 		assumeWTest();
 		LOG.log(Level.INFO, "run testFlowControl");
@@ -109,7 +109,7 @@ public abstract class AbstractOnePortTest extends AbstractPortTest {
 
 	@BaselineTest
 	@Test
-	@EnabledOnOs({OS.WINDOWS})
+	@EnabledOnOs({ OS.WINDOWS })
 	public void testFlowControl_WINDOWS() throws Exception {
 		assumeWTest();
 		LOG.log(Level.INFO, "run testFlowControl");
@@ -224,7 +224,12 @@ public abstract class AbstractOnePortTest extends AbstractPortTest {
 		writeSpc.setXOFFChar(c);
 	}
 
-	@BaselineTest
+	/**
+	 * The FTDI driver fails to set 5 data bits ...
+	 * 
+	 * @throws Exception
+	 */
+	@NotSupportedByAllDevices
 	@Test()
 	public void test_StopBits_5_DataBits() throws Exception {
 		assumeRTest();
@@ -238,12 +243,12 @@ public abstract class AbstractOnePortTest extends AbstractPortTest {
 
 		readSpc.setStopBits(StopBits.SB_1_5);
 		assertEquals(StopBits.SB_1_5, readSpc.getStopBits());
-		
+
 		assertThrows(IllegalArgumentException.class, () -> {
 			readSpc.setStopBits(StopBits.SB_2);
 		});
-		
-		//Now test set 8 data bits with 2 stop bits and switching to 5 data bits
+
+		// Now test set 8 data bits with 2 stop bits and switching to 5 data bits
 		readSpc.setDataBits(DataBits.DB_8);
 		readSpc.setStopBits(StopBits.SB_2);
 		assertEquals(StopBits.SB_2, readSpc.getStopBits());
@@ -256,8 +261,7 @@ public abstract class AbstractOnePortTest extends AbstractPortTest {
 	 * 
 	 * @throws Exception
 	 */
-	@NotSupportedByAllDevices()
-	@BaselineTest
+	@NotSupportedByAllDevices
 	@Test()
 	public void test_StopBits_6_DataBits() throws Exception {
 		assumeRTest();
@@ -266,19 +270,29 @@ public abstract class AbstractOnePortTest extends AbstractPortTest {
 
 		readSpc.setStopBits(StopBits.SB_1);
 		assertEquals(StopBits.SB_1, readSpc.getStopBits());
-		
+
 		readSpc.setDataBits(DataBits.DB_6);
 
 		readSpc.setStopBits(StopBits.SB_2);
 		assertEquals(StopBits.SB_2, readSpc.getStopBits());
-		
+
 		assertThrows(IllegalArgumentException.class, () -> {
 			readSpc.setStopBits(StopBits.SB_1_5);
 		});
+	}
 
-		//Now test set 5 data bits with 1.5 stop bits and switching to 6 data bits
+	@NotSupportedByAllDevices
+	@Test()
+	public void test_switch_5_To_6_DataBits() throws Exception {
+		assumeRTest();
+		LOG.log(Level.INFO, "run testStopBits");
+		openDefault();
+
+		readSpc.setDataBits(DataBits.DB_6);
+		assertEquals(StopBits.SB_2, readSpc.getStopBits());
+
+		// Now test set 5 data bits with 1.5 stop bits and switching to 6 data bits
 		readSpc.setDataBits(DataBits.DB_5);
-		readSpc.setStopBits(StopBits.SB_1_5);
 		assertEquals(StopBits.SB_1_5, readSpc.getStopBits());
 		readSpc.setDataBits(DataBits.DB_6);
 		assertEquals(StopBits.SB_2, readSpc.getStopBits());
@@ -293,19 +307,29 @@ public abstract class AbstractOnePortTest extends AbstractPortTest {
 
 		readSpc.setStopBits(StopBits.SB_1);
 		assertEquals(StopBits.SB_1, readSpc.getStopBits());
-		
+
 		readSpc.setDataBits(DataBits.DB_7);
-		
+
 		readSpc.setStopBits(StopBits.SB_2);
 		assertEquals(StopBits.SB_2, readSpc.getStopBits());
 
 		assertThrows(IllegalArgumentException.class, () -> {
 			readSpc.setStopBits(StopBits.SB_1_5);
 		});
+	}
 
-		//Now test set 5 data bits with 1.5 stop bits and switching to 7 data bits
+	@NotSupportedByAllDevices
+	@Test()
+	public void test_switch_5_To_7_DataBits() throws Exception {
+		assumeRTest();
+		LOG.log(Level.INFO, "run testStopBits");
+		openDefault();
+
+		readSpc.setDataBits(DataBits.DB_7);
+		assertEquals(StopBits.SB_2, readSpc.getStopBits());
+
+		// Now test set 5 data bits with 1.5 stop bits and switching to 7 data bits
 		readSpc.setDataBits(DataBits.DB_5);
-		readSpc.setStopBits(StopBits.SB_1_5);
 		assertEquals(StopBits.SB_1_5, readSpc.getStopBits());
 		readSpc.setDataBits(DataBits.DB_7);
 		assertEquals(StopBits.SB_2, readSpc.getStopBits());
@@ -320,19 +344,27 @@ public abstract class AbstractOnePortTest extends AbstractPortTest {
 
 		readSpc.setStopBits(StopBits.SB_1);
 		assertEquals(StopBits.SB_1, readSpc.getStopBits());
-		
+
 		readSpc.setDataBits(DataBits.DB_8);
 
 		readSpc.setStopBits(StopBits.SB_2);
 		assertEquals(StopBits.SB_2, readSpc.getStopBits());
-		
+
 		assertThrows(IllegalArgumentException.class, () -> {
 			readSpc.setStopBits(StopBits.SB_1_5);
 		});
+	}
 
-		//Now test set 5 data bits with 1.5 stop bits and switching to 8 data bits
+	@NotSupportedByAllDevices
+	@Test()
+	public void test_switch_5_To_8_DataBits() throws Exception {
+		assumeRTest();
+		LOG.log(Level.INFO, "run testStopBits");
+		openDefault();
+		assertEquals(StopBits.SB_2, readSpc.getStopBits());
+
+		// Now test set 5 data bits with 1.5 stop bits and switching to 8 data bits
 		readSpc.setDataBits(DataBits.DB_5);
-		readSpc.setStopBits(StopBits.SB_1_5);
 		assertEquals(StopBits.SB_1_5, readSpc.getStopBits());
 		readSpc.setDataBits(DataBits.DB_8);
 		assertEquals(StopBits.SB_2, readSpc.getStopBits());
@@ -366,7 +398,8 @@ public abstract class AbstractOnePortTest extends AbstractPortTest {
 	@Test
 	public void testWriteBytesTimeout() throws Exception {
 		assumeWTest();
-		//We set FlowControl on the reading end ant RTS false so the writing end can't send at some point 
+		// We set FlowControl on the reading end ant RTS false so the writing end can't
+		// send at some point
 		assumeTrue(readSpc != writeSpc);
 		LOG.log(Level.INFO, "run testWriteBytesTimeout");
 
@@ -430,7 +463,8 @@ public abstract class AbstractOnePortTest extends AbstractPortTest {
 	@Test
 	public void testWriteSingleByteTimeout() throws Exception {
 		assumeWTest();
-		//We set FlowControl on the reading end ant RTS false so the writing end can't send at some point 
+		// We set FlowControl on the reading end ant RTS false so the writing end can't
+		// send at some point
 		assumeTrue(readSpc != writeSpc);
 		LOG.log(Level.INFO, "run testWriteSingleByteTimeout");
 
@@ -505,6 +539,7 @@ public abstract class AbstractOnePortTest extends AbstractPortTest {
 	 * 
 	 * @throws Exception
 	 */
+	@NotSupportedByAllDevices
 	@Test
 	public void testWrite16MBChunkInfiniteWrite() throws Exception {
 		writeMBChunk(_16MB, 0);
@@ -516,13 +551,14 @@ public abstract class AbstractOnePortTest extends AbstractPortTest {
 	 * 
 	 * @throws Exception
 	 */
+	@NotSupportedByAllDevices
 	@Test
 	public void Write16MBChunk() throws Exception {
 		writeMBChunk(_16MB, 1000 + 2 * SerialPortSocket.calculateMillisForBytes(_16MB, Baudrate.B1000000, DataBits.DB_8,
 				StopBits.SB_1, Parity.NONE));
 	}
 
-	public void writeMBChunk(int chunksize,  int writeTimeout) throws Exception {
+	public void writeMBChunk(int chunksize, int writeTimeout) throws Exception {
 		assumeWTest();
 		LOG.log(Level.INFO, "run testWriteBytesTimeout writeTO:" + writeTimeout);
 		if (writeTimeout == -1) {
@@ -557,7 +593,7 @@ public abstract class AbstractOnePortTest extends AbstractPortTest {
 		}
 		try {
 			writeSpc.getOutputStream().flush();
-			// TODO NOT on winfail();
+			// TODO NOT on win fail();
 		} catch (TimeoutIOException e) {
 			LOG.log(Level.SEVERE, "Timeoutt on Flush; OutBuf:  " + writeSpc.getOutBufferBytesCount());
 			assertTrue(true);
@@ -830,7 +866,7 @@ public abstract class AbstractOnePortTest extends AbstractPortTest {
 		writeSpc.getOutputStream().write("abcdefghijklmnopqrstuvwxyz ABCDEFGHIJKLMNOPQRSTUVWXYZ\n\r".getBytes());
 	}
 
-	//TODO replace with Sender
+	// TODO replace with Sender
 	class TestRead implements Runnable {
 
 		boolean done = false;
@@ -1092,7 +1128,7 @@ public abstract class AbstractOnePortTest extends AbstractPortTest {
 		assertTrue(readSpc.isClosed());
 		// Allow 50ms to recover -on win the next executed test may fail wit port buy
 		// otherwise
-		Thread.sleep(50);
+		Thread.sleep(100);
 	}
 
 	@BaselineTest
@@ -1120,9 +1156,9 @@ public abstract class AbstractOnePortTest extends AbstractPortTest {
 		assertEquals(-1, result);
 
 		assertTrue(readSpc.isClosed());
-		// Allow 50ms to recover -on win the next executed test may fail with port busy
-		// otherwise
-		Thread.sleep(50);
+		// Allow 200ms to recover -on win the next executed test may fail with port busy
+		// otherwise (FTDI on win)
+		Thread.sleep(200);
 	}
 
 	/**
@@ -1162,9 +1198,9 @@ public abstract class AbstractOnePortTest extends AbstractPortTest {
 		});
 
 		assertTrue(readSpc.isClosed());
-		// Allow 50ms to recover -on win the next executed test may fail with port busy
-		// otherwise
-		Thread.sleep(50);
+		// Allow 200ms to recover -on win the next executed test may fail with port busy
+		// otherwise (FTDI on win)
+		Thread.sleep(200);
 	}
 
 	@BaselineTest
