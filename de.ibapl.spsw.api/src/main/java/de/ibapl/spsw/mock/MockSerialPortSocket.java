@@ -271,11 +271,6 @@ public class MockSerialPortSocket implements SerialPortSocket {
 	}
 
 	@Override
-	public void openRaw() throws IOException {
-		open();
-	}
-
-	@Override
 	public InputStream getInputStream() throws IOException {
 		if (open) {
 			return is;

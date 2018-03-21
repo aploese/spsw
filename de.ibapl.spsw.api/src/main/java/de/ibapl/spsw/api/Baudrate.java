@@ -1,5 +1,3 @@
-package de.ibapl.spsw.api;
-
 /*-
  * #%L
  * SPSW API
@@ -20,11 +18,17 @@ package de.ibapl.spsw.api;
  * #L%
  */
 
+package de.ibapl.spsw.api;
+
+
 import org.osgi.annotation.versioning.ProviderType;
 
 /**
- * The Baudrate to set. 
- * Here Baudrate means Bit/s to transfer a byte(5,6,7,8 bit) with one startbit, one or none parity bit one or two stopbits.
+ * The Baudrate to set.
+ * 
+ * Here Baudrate means Bit/s to transfer a byte(5,6,7,8<nb>bit) with one
+ * startbit, one or none parity bit one or two stopbits.
+ * 
  * @author aploese
  */
 @ProviderType

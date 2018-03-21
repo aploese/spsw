@@ -1,5 +1,3 @@
-package de.ibapl.spsw.api;
-
 /*-
  * #%L
  * SPSW API
@@ -19,11 +17,23 @@ package de.ibapl.spsw.api;
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  * #L%
  */
+package de.ibapl.spsw.api;
+
 
 import java.io.InterruptedIOException;
 
 public class TimeoutIOException extends InterruptedIOException {
 
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
+
+	/**
+	 * A timeout happend during a read/write operation without any bytes transferred.
+	 * 
+	 * @param message
+	 */
 	public TimeoutIOException(String message) {
 		super(message);
 	}

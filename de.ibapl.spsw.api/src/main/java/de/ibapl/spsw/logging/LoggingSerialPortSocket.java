@@ -34,7 +34,8 @@ import java.time.Instant;
 import org.osgi.annotation.versioning.ProviderType;
 
 /**
- *
+ * A wrapper around another SerialPortSocket to log its acticity.
+ * 
  * @author aploese
  */
 @ProviderType

@@ -37,22 +37,24 @@ public interface SerialPortSocketFactory {
 	
 	public final String DEFAULT_LINUX_DEVICE_PATH = "/dev/";
 	public final String DEFAULT_LINUX_PORTNAME_PATTERN = "(ttyS|ttyUSB|ttyACM|ttyAMA|rfcomm|ttyO)[0-9]{1,3}";
-	public final String DEFAULT_SUNOS_DEVICE_PATH = "/dev/term/";
-	public final String DEFAULT_SUNOS_PORTNAME_PATTERN = "[0-9]*|[a-z]*";
 	public final String DEFAULT_MACOS_DEVICE_PATH = "/dev/";
 	public final String DEFAULT_MACOS_PORTNAME_PATTERN = "tty.(serial|usbserial|usbmodem).*";
+	public final String DEFAULT_SUNOS_DEVICE_PATH = "/dev/term/";
+	public final String DEFAULT_SUNOS_PORTNAME_PATTERN = "[0-9]*|[a-z]*";
 	public final String DEFAULT_WINDOWS_DEVICE_PATH = "";
 	public final String DEFAULT_WINDOWS_PORTNAME_PATTERN = "(COM)[0-9]{1,3}";
 	
-	
-
+	/**
+	 * 
+	 * @param portName
+	 * @return
+	 */
 	SerialPortSocket createSerialPortSocket(String portName);
 
-	SerialPortSocket open(String portName) throws IOException, IllegalStateException;
-
-	SerialPortSocket open(String portName, Baudrate baudRate, DataBits dataBits, StopBits stopBits, Parity parity,
-			Set<FlowControl> flowControls) throws IOException, IllegalStateException;
-
+	/**
+	 * 
+	 * @param portNameConsumer
+	 */
 	void getPortNames(BiConsumer<String, Boolean> portNameConsumer);
 
 	/**
@@ -60,12 +62,38 @@ public interface SerialPortSocketFactory {
 	 *
 	 */
 	List<String> getPortNames(boolean hideBusyPorts);
-	
+
 	/**
 	 * Get sorted List of serial ports in the system using default settings:<br>
 	 * include portToInclude if it exists and don't care if its busy.
-	 *
+	 * 	 
+	 * @param portToInclude
+	 * @param hideBusyPorts
+	 * @return
 	 */
+	
 	List<String> getPortNames(String portToInclude, boolean hideBusyPorts);
+
+	/**
+	 * 
+	 * @param portName
+	 * @return
+	 * @throws IOException
+	 */
+	SerialPortSocket open(String portName) throws IOException, IllegalStateException;
+	
+	/**
+	 * 
+	 * @param portName
+	 * @param baudRate
+	 * @param dataBits
+	 * @param stopBits
+	 * @param parity
+	 * @param flowControls
+	 * @return
+	 * @throws IOException
+	 */
+	SerialPortSocket open(String portName, Baudrate baudRate, DataBits dataBits, StopBits stopBits, Parity parity,
+			Set<FlowControl> flowControls) throws IOException, IllegalStateException;
 
 }

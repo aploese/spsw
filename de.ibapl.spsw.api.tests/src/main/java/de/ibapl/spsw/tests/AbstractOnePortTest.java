@@ -224,12 +224,7 @@ public abstract class AbstractOnePortTest extends AbstractPortTest {
 		writeSpc.setXOFFChar(c);
 	}
 
-	/**
-	 * The FTDI driver fails to set 5 data bits ...
-	 * 
-	 * @throws Exception
-	 */
-	@NotSupportedByAllDevices
+	@BaselineTest
 	@Test()
 	public void test_StopBits_5_DataBits() throws Exception {
 		assumeRTest();
@@ -289,6 +284,7 @@ public abstract class AbstractOnePortTest extends AbstractPortTest {
 		openDefault();
 
 		readSpc.setDataBits(DataBits.DB_6);
+		readSpc.setStopBits(StopBits.SB_2);
 		assertEquals(StopBits.SB_2, readSpc.getStopBits());
 
 		// Now test set 5 data bits with 1.5 stop bits and switching to 6 data bits
@@ -318,7 +314,7 @@ public abstract class AbstractOnePortTest extends AbstractPortTest {
 		});
 	}
 
-	@NotSupportedByAllDevices
+	@BaselineTest
 	@Test()
 	public void test_switch_5_To_7_DataBits() throws Exception {
 		assumeRTest();
@@ -326,6 +322,7 @@ public abstract class AbstractOnePortTest extends AbstractPortTest {
 		openDefault();
 
 		readSpc.setDataBits(DataBits.DB_7);
+		readSpc.setStopBits(StopBits.SB_2);
 		assertEquals(StopBits.SB_2, readSpc.getStopBits());
 
 		// Now test set 5 data bits with 1.5 stop bits and switching to 7 data bits
@@ -355,12 +352,13 @@ public abstract class AbstractOnePortTest extends AbstractPortTest {
 		});
 	}
 
-	@NotSupportedByAllDevices
+	@BaselineTest
 	@Test()
 	public void test_switch_5_To_8_DataBits() throws Exception {
 		assumeRTest();
 		LOG.log(Level.INFO, "run testStopBits");
 		openDefault();
+		readSpc.setStopBits(StopBits.SB_2);
 		assertEquals(StopBits.SB_2, readSpc.getStopBits());
 
 		// Now test set 5 data bits with 1.5 stop bits and switching to 8 data bits
@@ -379,8 +377,10 @@ public abstract class AbstractOnePortTest extends AbstractPortTest {
 		for (DataBits db : DataBits.values()) {
 			try {
 				readSpc.setDataBits(db);
+			} catch (IllegalArgumentException iae) {
+				fail(iae.getMessage());
 			} catch (Exception e) {
-				fail(e.getMessage() + "dataBits: " + db);
+				fail(e.getMessage() + " dataBits: " + db);
 			}
 			assertEquals(db, readSpc.getDatatBits(), db.toString() + "Failed");
 		}
@@ -518,7 +518,7 @@ public abstract class AbstractOnePortTest extends AbstractPortTest {
 	}
 
 	private final static int _16MB = 1024 * 1024 * 16;
-	private final static int _1MB = 1024 * 1024; //Too much for FTDI on Windows there is nothing sent...
+	private final static int _1MB = 1024 * 1024; // Too much for FTDI on Windows there is nothing sent...
 	private final static int _256kB = 1024 * 256;
 
 	@BaselineTest
@@ -530,11 +530,10 @@ public abstract class AbstractOnePortTest extends AbstractPortTest {
 	@BaselineTest
 	@Test
 	public void Write256kBChunk() throws Exception {
-		writeMBChunk(_256kB, 1000 + 2 * SerialPortSocket.calculateMillisForBytes(_256kB, Baudrate.B1000000, DataBits.DB_8,
-				StopBits.SB_1, Parity.NONE));
+		writeMBChunk(_256kB, 1000 + 2 * SerialPortSocket.calculateMillisForBytes(_256kB, Baudrate.B1000000,
+				DataBits.DB_8, StopBits.SB_1, Parity.NONE));
 	}
 
-	
 	@NotSupportedByAllDevices
 	@Test
 	public void testWrite1MBChunkInfiniteWrite() throws Exception {
@@ -547,6 +546,7 @@ public abstract class AbstractOnePortTest extends AbstractPortTest {
 		writeMBChunk(_1MB, 1000 + 2 * SerialPortSocket.calculateMillisForBytes(_1MB, Baudrate.B1000000, DataBits.DB_8,
 				StopBits.SB_1, Parity.NONE));
 	}
+
 	/**
 	 * Some devices namely Silicon Labs CP210x can't handle this on windows.They do
 	 * not even sent a single byte... port native win error: 87
@@ -1189,7 +1189,6 @@ public abstract class AbstractOnePortTest extends AbstractPortTest {
 		LOG.log(Level.INFO, "run testCloseDuringBytesRead");
 		open(Baudrate.B1000000, DataBits.DB_8, StopBits.SB_1, Parity.EVEN, FlowControl.getFC_NONE());
 		int len = (int) Math.ceil(1000.0 / readSpc.calculateMillisPerByte());
-		LOG.log(Level.INFO, "Bytes: " + len);
 
 		byte b[] = new byte[len];
 		assertTrue(writeSpc.isOpen());
@@ -1197,19 +1196,21 @@ public abstract class AbstractOnePortTest extends AbstractPortTest {
 		new Thread(() -> {
 			try {
 				Thread.sleep(100);
+				LOG.log(Level.INFO, "Will now close the port");
 				writeSpc.close();
+				LOG.log(Level.INFO, "Port is closed");
 			} catch (InterruptedException | IOException e) {
 				fail("Exception occured");
 			}
 		}).start();
 
-		assertTimeoutPreemptively(Duration.ofMillis(1000), () -> {
-			InterruptedIOException iioe = assertThrows(InterruptedIOException.class, () -> {
+		InterruptedIOException iioe = assertThrows(InterruptedIOException.class, () -> {
+			assertTimeoutPreemptively(Duration.ofMillis(1000), () -> {
+				LOG.log(Level.INFO, "Will write " + len + " bytes in one second to fill the output buffer");
 				writeSpc.getOutputStream().write(b);
 			});
-			LOG.log(Level.INFO,
-					"Bytes: " + iioe.bytesTransferred + " of: " + len + " written MSG: " + iioe.getMessage());
 		});
+		LOG.log(Level.INFO, "Bytes: " + iioe.bytesTransferred + " of: " + len + " written MSG: " + iioe.getMessage());
 
 		assertTrue(readSpc.isClosed());
 		// Allow 200ms to recover -on win the next executed test may fail with port busy
@@ -1304,7 +1305,8 @@ public abstract class AbstractOnePortTest extends AbstractPortTest {
 			Thread.sleep(10);
 		}
 
-		// On Windows the GC needs some time - I don't know why... (FTDI on win64 needs the most...)
+		// On Windows the GC needs some time - I don't know why... (FTDI on win64 needs
+		// the most...)
 		if (System.getProperty("os.name").startsWith("Windows")) {
 			Thread.sleep(200);
 		}
@@ -1337,11 +1339,11 @@ public abstract class AbstractOnePortTest extends AbstractPortTest {
 		getSerialPortSocketFactory().getPortNames((portname, busy) -> {
 			LOG.log(Level.INFO, "Found port: {0} busy: {1}", new Object[] { portname, busy });
 			if (busy) {
-				assertTrue(allPorts.contains(portname));
-				assertFalse(ports.contains(portname));
+				assertTrue(allPorts.contains(portname), () -> {return String.format("Expected to find %s in allPorts", portname);});
+				assertFalse(ports.contains(portname), () -> {return String.format("Expected not to find %s in ports", portname);});
 			} else {
-				assertTrue(ports.contains(portname));
-				assertTrue(allPorts.contains(portname));
+				assertTrue(ports.contains(portname), () -> {return String.format("Expected to find %s in ports", portname);});
+				assertTrue(allPorts.contains(portname), () -> {return String.format("Expected to find %s in allPorts", portname);});
 			}
 		});
 	}

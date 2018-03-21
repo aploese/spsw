@@ -6,7 +6,7 @@
 	<parent>
 		<groupId>de.ibapl.spsw</groupId>
 		<artifactId>spsw-project</artifactId>
-		<version>1.1.0-SNAPSHOT</version>
+		<version>2.0.0-SNAPSHOT</version>
 	</parent>
 
 	<artifactId>de.ibapl.spsw.provider</artifactId>
@@ -17,20 +17,20 @@
 		<termios.dir>${project.basedir}/src/main/native/posix_termios_wrapper</termios.dir>
 				<win_comport.dir>src/main/native/windows_comport_wrapper</win_comport.dir>
 
-		<version.x86_64-windows-pe32PLUS>1.1.0</version.x86_64-windows-pe32PLUS>
-		<version.x86-windows-pe32>1.1.0</version.x86-windows-pe32>
+		<version.x86_64-windows-pe32PLUS>2.0.0</version.x86_64-windows-pe32PLUS>
+		<version.x86-windows-pe32>2.0.0</version.x86-windows-pe32>
 
-		<version.arm-linux-gnueabi>1.1.0</version.arm-linux-gnueabi>
-		<version.arm-linux-gnueabihf>1.1.0</version.arm-linux-gnueabihf>
-		<version.aarch64-linux-gnu>1.1.0</version.aarch64-linux-gnu>
+		<version.arm-linux-gnueabi>2.0.0</version.arm-linux-gnueabi>
+		<version.arm-linux-gnueabihf>2.0.0</version.arm-linux-gnueabihf>
+		<version.aarch64-linux-gnu>2.0.0</version.aarch64-linux-gnu>
 
-		<version.mips-linux-gnu>1.1.0</version.mips-linux-gnu>
-		<version.mipsel-linux-gnu>1.1.0</version.mipsel-linux-gnu>
-		<version.mips64-linux-gnuabi64>1.1.0</version.mips64-linux-gnuabi64>
-		<version.mips64el-linux-gnuabi64>1.1.0</version.mips64el-linux-gnuabi64>
+		<version.mips-linux-gnu>2.0.0</version.mips-linux-gnu>
+		<version.mipsel-linux-gnu>2.0.0</version.mipsel-linux-gnu>
+		<version.mips64-linux-gnuabi64>2.0.0</version.mips64-linux-gnuabi64>
+		<version.mips64el-linux-gnuabi64>2.0.0</version.mips64el-linux-gnuabi64>
 
-		<version.x86_64-linux-gnu>1.1.0</version.x86_64-linux-gnu>
-		<version.i386-linux-gnu>1.1.0</version.i386-linux-gnu>
+		<version.x86_64-linux-gnu>2.0.0</version.x86_64-linux-gnu>
+		<version.i386-linux-gnu>2.0.0</version.i386-linux-gnu>
 
 		<license.licenseResolver>${project.baseUri}/../src/licenses</license.licenseResolver>
 		<license.licenseName>${license.licenseName.lgpl}</license.licenseName>
@@ -45,12 +45,12 @@
 		<dependency>
 			<groupId>de.ibapl.spsw</groupId>
 			<artifactId>de.ibapl.spsw.api</artifactId>
-			<version>1.1.0-SNAPSHOT</version>
+			<version>2.0.0-SNAPSHOT</version>
 		</dependency>
 		<dependency>
 			<groupId>de.ibapl.spsw</groupId>
 			<artifactId>de.ibapl.spsw.api.test</artifactId>
-			<version>1.1.0-SNAPSHOT</version>
+			<version>2.0.0-SNAPSHOT</version>
 			<scope>test</scope>
 		</dependency>
 		<dependency>

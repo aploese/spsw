@@ -1,6 +1,3 @@
-@org.osgi.annotation.versioning.Version("1.1.0")
-package de.ibapl.spsw.ser2net;
-
 /*-
  * #%L
  * SPSW API
@@ -21,3 +18,5 @@ package de.ibapl.spsw.ser2net;
  * #L%
  */
 
+@org.osgi.annotation.versioning.Version("2.0.0")
+package de.ibapl.spsw.ser2net;

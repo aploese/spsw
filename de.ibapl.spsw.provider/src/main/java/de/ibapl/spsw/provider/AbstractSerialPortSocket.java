@@ -751,7 +751,7 @@ public abstract class AbstractSerialPortSocket<T extends AbstractSerialPortSocke
 			setParameters(toBitSet(dataBits));
 		} catch (IllegalArgumentException ex) {
 			throw new IllegalArgumentException(
-					"Can't set dataBits " + dataBits + " on port: " + getPortName() + "value is:" + getDatatBits(), ex);
+					"Can't set dataBits " + dataBits + " on port: " + getPortName() + " value is:" + getDatatBits(), ex);
 		}
 	}
 
