@@ -368,6 +368,7 @@ public abstract class AbstractOnePortTest extends AbstractPortTest {
 		assertEquals(StopBits.SB_2, readSpc.getStopBits());
 	}
 
+	@NotSupportedByAllDevices
 	@Test
 	public void testDataBits() throws Exception {
 		assumeRTest();
@@ -524,26 +525,26 @@ public abstract class AbstractOnePortTest extends AbstractPortTest {
 	@BaselineTest
 	@Test
 	public void testWrite256kBChunkInfiniteWrite() throws Exception {
-		writeMBChunk(_256kB, 0);
+		writeChunk(_256kB, 0);
 	}
 
 	@BaselineTest
 	@Test
 	public void Write256kBChunk() throws Exception {
-		writeMBChunk(_256kB, 1000 + 2 * SerialPortSocket.calculateMillisForBytes(_256kB, Baudrate.B1000000,
+		writeChunk(_256kB, 1000 + 2 * SerialPortSocket.calculateMillisForBytes(_256kB, Baudrate.B1000000,
 				DataBits.DB_8, StopBits.SB_1, Parity.NONE));
 	}
 
 	@NotSupportedByAllDevices
 	@Test
 	public void testWrite1MBChunkInfiniteWrite() throws Exception {
-		writeMBChunk(_1MB, 0);
+		writeChunk(_1MB, 0);
 	}
 
 	@NotSupportedByAllDevices
 	@Test
 	public void Write1MBChunk() throws Exception {
-		writeMBChunk(_1MB, 1000 + 2 * SerialPortSocket.calculateMillisForBytes(_1MB, Baudrate.B1000000, DataBits.DB_8,
+		writeChunk(_1MB, 1000 + 2 * SerialPortSocket.calculateMillisForBytes(_1MB, Baudrate.B1000000, DataBits.DB_8,
 				StopBits.SB_1, Parity.NONE));
 	}
 
@@ -556,7 +557,7 @@ public abstract class AbstractOnePortTest extends AbstractPortTest {
 	@NotSupportedByAllDevices
 	@Test
 	public void testWrite16MBChunkInfiniteWrite() throws Exception {
-		writeMBChunk(_16MB, 0);
+		writeChunk(_16MB, 0);
 	}
 
 	/**
@@ -568,11 +569,11 @@ public abstract class AbstractOnePortTest extends AbstractPortTest {
 	@NotSupportedByAllDevices
 	@Test
 	public void Write16MBChunk() throws Exception {
-		writeMBChunk(_16MB, 1000 + 2 * SerialPortSocket.calculateMillisForBytes(_16MB, Baudrate.B1000000, DataBits.DB_8,
+		writeChunk(_16MB, 1000 + 2 * SerialPortSocket.calculateMillisForBytes(_16MB, Baudrate.B1000000, DataBits.DB_8,
 				StopBits.SB_1, Parity.NONE));
 	}
 
-	public void writeMBChunk(int chunksize, int writeTimeout) throws Exception {
+	public void writeChunk(int chunksize, int writeTimeout) throws Exception {
 		assumeWTest();
 		LOG.log(Level.INFO, "run testWriteBytesTimeout writeTO:" + writeTimeout);
 		if (writeTimeout == -1) {
@@ -1016,6 +1017,7 @@ public abstract class AbstractOnePortTest extends AbstractPortTest {
 		});
 	}
 
+	@NotSupportedByAllDevices
 	@SlowTest
 	@Test
 	public void testAllSettings() throws Exception {

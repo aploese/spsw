@@ -15,7 +15,7 @@
 	<properties>
 		<native.incude.dir>${project.build.directory}/generated-sources/main/native/include</native.incude.dir>
 		<termios.dir>${project.basedir}/src/main/native/posix_termios_wrapper</termios.dir>
-				<win_comport.dir>src/main/native/windows_comport_wrapper</win_comport.dir>
+		<win_comport.dir>src/main/native/windows_comport_wrapper</win_comport.dir>
 
 		<version.x86_64-windows-pe32PLUS>2.0.0</version.x86_64-windows-pe32PLUS>
 		<version.x86-windows-pe32>2.0.0</version.x86-windows-pe32>
@@ -68,6 +68,21 @@
 	</dependencies>
 
 	<profiles>
+		<profile>
+			<id>BaselineTests</id>
+			<properties>
+				<excludeJunit5Tags></excludeJunit5Tags>
+				<includeJunit5Tags>Baseline</includeJunit5Tags>
+			</properties>
+		</profile>
+		<profile>
+			<id>RtsCtsTests</id>
+			<properties>
+				<excludeJunit5Tags></excludeJunit5Tags>
+				<includeJunit5Tags>RtsCts</includeJunit5Tags>
+			</properties>
+		</profile>
+
 		<profile>
 			<id>x86_64-linux-gnu-gcc</id>
 			<properties>
@@ -408,9 +423,18 @@ Bundle-NativeCode: \
 					</compilerArgs>
 				</configuration>
 			</plugin>
-
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-surefire-plugin</artifactId>
+				<configuration>
+					<properties>
+						<includeTags>${includeJunit5Tags}</includeTags>
+						<excludeTags>${excludeJunit5Tags}</excludeTags>
+					</properties>
+				</configuration>
+			</plugin>
 		</plugins>
-		
+
 		<pluginManagement>
 			<plugins>
 				<plugin>
