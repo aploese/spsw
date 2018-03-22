@@ -26,8 +26,10 @@ import org.osgi.annotation.versioning.ProviderType;
 /**
  * The Baudrate to set.
  * 
- * Here Baudrate means Bit/s to transfer a byte(5,6,7,8<nb>bit) with one
- * startbit, one or none parity bit one or two stopbits.
+ * Here Baudrate means Bit/s to transfer a byte(5,6,7,8<nb>data<nb>bits) with one
+ * startbit, one or none parity bit and one or two stopbits.
+ * 
+ * This enum holds the "well known" values.
  * 
  * @author aploese
  */

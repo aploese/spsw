@@ -398,7 +398,7 @@ public abstract class AbstractOnePortTest extends AbstractPortTest {
 	@RtsCtsTest
 	@Test
 	public void testWriteBytesTimeout() throws Exception {
-		assumeWTest();
+		assumeRWTest();
 		// We set FlowControl on the reading end ant RTS false so the writing end can't
 		// send at some point
 		assumeTrue(readSpc != writeSpc);
@@ -463,7 +463,7 @@ public abstract class AbstractOnePortTest extends AbstractPortTest {
 	@RtsCtsTest
 	@Test
 	public void testWriteSingleByteTimeout() throws Exception {
-		assumeWTest();
+		assumeRWTest();
 		// We set FlowControl on the reading end ant RTS false so the writing end can't
 		// send at some point
 		assumeTrue(readSpc != writeSpc);
@@ -1200,9 +1200,10 @@ public abstract class AbstractOnePortTest extends AbstractPortTest {
 				Thread.sleep(100);
 				LOG.log(Level.INFO, "Will now close the port");
 				writeSpc.close();
+				assertTrue(readSpc.isClosed(), "Port was not closed!");
 				LOG.log(Level.INFO, "Port is closed");
-			} catch (InterruptedException | IOException e) {
-				fail("Exception occured");
+			} catch (Exception e) {
+				fail("Exception occured: " + e);
 			}
 		}).start();
 
@@ -1214,7 +1215,7 @@ public abstract class AbstractOnePortTest extends AbstractPortTest {
 		});
 		LOG.log(Level.INFO, "Bytes: " + iioe.bytesTransferred + " of: " + len + " written MSG: " + iioe.getMessage());
 
-		assertTrue(readSpc.isClosed());
+		assertTrue(readSpc.isClosed(), "Port was not closed!");
 		// Allow 200ms to recover -on win the next executed test may fail with port busy
 		// otherwise (FTDI on win)
 		Thread.sleep(200);
@@ -1340,12 +1341,11 @@ public abstract class AbstractOnePortTest extends AbstractPortTest {
 
 		getSerialPortSocketFactory().getPortNames((portname, busy) -> {
 			LOG.log(Level.INFO, "Found port: {0} busy: {1}", new Object[] { portname, busy });
+			assertTrue(allPorts.contains(portname), () -> {return String.format("Expected to find %s in allPorts", portname);});
 			if (busy) {
-				assertTrue(allPorts.contains(portname), () -> {return String.format("Expected to find %s in allPorts", portname);});
 				assertFalse(ports.contains(portname), () -> {return String.format("Expected not to find %s in ports", portname);});
 			} else {
 				assertTrue(ports.contains(portname), () -> {return String.format("Expected to find %s in ports", portname);});
-				assertTrue(allPorts.contains(portname), () -> {return String.format("Expected to find %s in allPorts", portname);});
 			}
 		});
 	}

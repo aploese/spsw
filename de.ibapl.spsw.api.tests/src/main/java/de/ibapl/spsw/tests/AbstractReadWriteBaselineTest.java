@@ -24,13 +24,9 @@ import static org.junit.jupiter.api.Assertions.assertTimeoutPreemptively;
 import static org.junit.jupiter.api.Assertions.fail;
 
 import java.time.Duration;
-import java.util.Iterator;
 
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.params.ParameterizedTest;
-import org.junit.jupiter.params.provider.MethodSource;
 
-import de.ibapl.spsw.api.Baudrate;
 import de.ibapl.spsw.tests.tags.BaselineTest;
 
 /**
