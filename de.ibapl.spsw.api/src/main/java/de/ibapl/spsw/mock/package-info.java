@@ -17,6 +17,8 @@
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  * #L%
  */
-
+/**
+ * Provides classes to mock the behavior of a {@link de.ibapl.spsw.api.SerialPortSocket} for testing.
+ */
 @org.osgi.annotation.versioning.Version("2.0.0")
 package de.ibapl.spsw.mock;

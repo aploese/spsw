@@ -28,7 +28,7 @@ import javax.inject.Named;
 import org.osgi.annotation.versioning.ProviderType;
 
 /**
- *
+ * Factory class to create an instance of {@link SerialPortSocket}.
  * @author aploese
  */
 @Named
@@ -67,18 +67,23 @@ public interface SerialPortSocketFactory {
 	 * Get sorted List of serial ports in the system using default settings:<br>
 	 * include portToInclude if it exists and don't care if its busy.
 	 * 	 
-	 * @param portToInclude
-	 * @param hideBusyPorts
-	 * @return
+	 * @param portToInclude include this port even if its busy
+	 * @param hideBusyPorts if true hide busy ports.
+	 * @return a List of serial ports found.
 	 */
 	
 	List<String> getPortNames(String portToInclude, boolean hideBusyPorts);
 
 	/**
-	 * 
-	 * @param portName
-	 * @return
-	 * @throws IOException
+	 * Open the port as is.
+	 * A new instance will be created and opend. 
+	 * This is a shorthand that can be used with try with resource.
+	 * <code>try (SeialPortSocket sps = spsf.open()) {
+	 * ...
+	 * };</code>
+	 * @param portName The name of the port to open.
+	 * @return an open port.
+	 * @throws IOException if the port can't be opend.
 	 */
 	SerialPortSocket open(String portName) throws IOException, IllegalStateException;
 	

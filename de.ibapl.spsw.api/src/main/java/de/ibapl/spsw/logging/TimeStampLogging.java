@@ -1,5 +1,3 @@
-package de.ibapl.spsw.logging;
-
 /*-
  * #%L
  * SPSW API
@@ -20,6 +18,26 @@ package de.ibapl.spsw.logging;
  * #L%
  */
 
+package de.ibapl.spsw.logging;
+
+/**
+ * Specifies the way timestamps should be written to the logfile.
+ * 
+ * @author aploese
+ *
+ */
 public enum TimeStampLogging {
-NONE, FROM_OPEN, UTF,
+	/**
+	 * No timestamps are written. If timestamps are not important, this will give
+	 * the most compact logfiles.
+	 */
+	NONE,
+	/**
+	 * All timestamps are the time elapsed since the opening of the port.
+	 */
+	FROM_OPEN,
+	/**
+	 * All timestamps are absolute times in UTC.
+	 */
+	UTC,
 }

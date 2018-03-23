@@ -17,6 +17,9 @@
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  * #L%
  */
-
+/**
+ * Provides interfaces, enums and exceptions for accessing, and communicating
+ * over, the serial port.
+ */
 @org.osgi.annotation.versioning.Version("2.0.0")
 package de.ibapl.spsw.api;

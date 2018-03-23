@@ -1,5 +1,3 @@
-package de.ibapl.spsw.ser2net;
-
 /*-
  * #%L
  * SPSW API
@@ -20,6 +18,8 @@ package de.ibapl.spsw.ser2net;
  * #L%
  */
 
+package de.ibapl.spsw.ser2net;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -39,6 +39,11 @@ import de.ibapl.spsw.api.SerialPortSocket;
 import de.ibapl.spsw.api.StopBits;
 import de.ibapl.spsw.api.TimeoutIOException;
 
+/**
+ * 
+ * @author aploese
+ *
+ */
 @ProviderType
 public class Ser2NetProvider implements SerialPortSocket {
 

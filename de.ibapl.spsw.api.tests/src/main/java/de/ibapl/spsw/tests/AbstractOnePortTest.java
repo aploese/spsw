@@ -167,7 +167,7 @@ public abstract class AbstractOnePortTest extends AbstractPortTest {
 	@Test
 	public void testCTS() throws Exception {
 		assumeRTest();
-		LOG.log(Level.INFO, "run testDataBits");
+		LOG.log(Level.INFO, "run testCTS");
 		openDefault();
 
 		readSpc.isCTS();
@@ -411,7 +411,7 @@ public abstract class AbstractOnePortTest extends AbstractPortTest {
 		readSpc.setFlowControl(FlowControl.getFC_NONE());
 		readSpc.setRTS(false);
 		Thread.sleep(100);
-		assertFalse(writeSpc.isCTS(), "CTS is true; No chance to ever fill the buffer");
+		assertFalse(writeSpc.isCTS(), "CTS is true; Please correct your test setup - No chance to ever fill the buffer");
 		setTimeouts(100, 1000, 1000);
 
 		byte[] data = new byte[1024];
@@ -476,7 +476,7 @@ public abstract class AbstractOnePortTest extends AbstractPortTest {
 		readSpc.setFlowControl(FlowControl.getFC_NONE());
 		readSpc.setRTS(false);
 		Thread.sleep(10);
-		assertFalse(writeSpc.isCTS(), "CTS is true; No chance to ever fill the buffer");
+		assertFalse(writeSpc.isCTS(), "CTS is true; Please correct your test setup - No chance to ever fill the buffer");
 		setTimeouts(100, 100, 100);
 
 		int round = 1;

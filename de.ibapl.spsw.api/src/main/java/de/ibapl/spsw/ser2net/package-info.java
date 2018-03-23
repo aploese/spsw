@@ -17,6 +17,8 @@
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  * #L%
  */
-
+/**
+ * Provides classes to access a {@link de.ibapl.spsw.api.SerialPortSocket} over a {@link java.net.Socket}.
+ */
 @org.osgi.annotation.versioning.Version("2.0.0")
 package de.ibapl.spsw.ser2net;

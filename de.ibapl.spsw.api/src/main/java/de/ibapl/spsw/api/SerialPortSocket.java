@@ -39,6 +39,7 @@ import org.osgi.annotation.versioning.ProviderType;
  * <li>
  * Data Communication Equipment (DCE): modems, multiplexors, etc
  * </li>
+ * @see <a href="https://www.wikipedia.org/wiki/Serial_port">www.wikipedia.org/wiki/Serial_port</a>
  */
 @ProviderType
 public interface SerialPortSocket extends AutoCloseable {

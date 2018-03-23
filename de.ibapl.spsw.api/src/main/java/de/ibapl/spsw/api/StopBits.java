@@ -32,10 +32,25 @@ import org.osgi.annotation.versioning.ProviderType;
 @ProviderType
 public enum StopBits {
 
+	/**
+	 * One stop bit.
+     * Valid for 5,6,7,8 data bits.
+	 */
     SB_1(1),
+    /**
+     * One and a half stop bit.
+     * Only valid for 5 data bits.
+     */
     SB_1_5(1.5f),
+    /**
+     * Two stop bits.
+     * Only valid for 6,7,8 data bits.
+     */
     SB_2(2);
 
+	/**
+	 * The actual number of bits.
+	 */
     public final float value;
 
     private StopBits(float value) {

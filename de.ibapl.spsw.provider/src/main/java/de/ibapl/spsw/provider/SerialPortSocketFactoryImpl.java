@@ -351,6 +351,7 @@ public class SerialPortSocketFactoryImpl implements SerialPortSocketFactory {
 		final Pattern pattern = getPortnamesRegExp();
 		final List<String> result = new LinkedList<>();
 
+		//We misuse the listFiles method to get to the contents of the dir and return always false to prevent the creatin of an array;
 		dir.listFiles((File parentDir, String name) -> {
 			if (pattern.matcher(name).find()) {
 				final File deviceFile = new File(parentDir, name);
@@ -444,6 +445,7 @@ public class SerialPortSocketFactoryImpl implements SerialPortSocketFactory {
 		default:
 			File dir = new File(getPortnamesPath());
 
+			//We misuse the listFiles method to get to the contents of the dir and return always false to prevent the creatin of an array;
 			dir.listFiles((File parentDir, String name) -> {
 				if (pattern.matcher(name).find()) {
 					final File deviceFile = new File(parentDir, name);
