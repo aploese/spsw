@@ -423,6 +423,7 @@ public class SerialPortSocketFactoryImpl implements SerialPortSocketFactory {
 
 	@Override
 	public void getPortNames(BiConsumer<String, Boolean> portNameConsumer) {
+		final Pattern pattern = getPortnamesRegExp();
 		switch (MULTIARCH_TUPEL_BUILDER.getSimpleOsName()) {
 		case "windows":
 			String[] portNames = getWindowsBasedPortNames();
@@ -430,17 +431,18 @@ public class SerialPortSocketFactoryImpl implements SerialPortSocketFactory {
 				return;
 			}
 			for (String portName : portNames) {
-				boolean busy = true;
-				try (SerialPortSocket sp = createSerialPortSocket(portName)) {
-					sp.open();
-					busy = false;
-				} catch (IOException ex) {
+				if (pattern.matcher(portName).find()) {
+					boolean busy = true;
+					try (SerialPortSocket sp = createSerialPortSocket(portName)) {
+						sp.open();
+						busy = false;
+					} catch (IOException ex) {
+					}
+					portNameConsumer.accept(portName, Boolean.valueOf(busy));
 				}
-				portNameConsumer.accept(portName, Boolean.valueOf(busy));
 			}
 		default:
 			File dir = new File(getPortnamesPath());
-			final Pattern pattern = getPortnamesRegExp();
 
 			dir.listFiles((File parentDir, String name) -> {
 				if (pattern.matcher(name).find()) {

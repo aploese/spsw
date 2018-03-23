@@ -224,7 +224,7 @@ public abstract class AbstractOnePortTest extends AbstractPortTest {
 		writeSpc.setXOFFChar(c);
 	}
 
-	@BaselineTest
+	@NotSupportedByAllDevices
 	@Test()
 	public void test_StopBits_5_DataBits() throws Exception {
 		assumeRTest();
@@ -314,7 +314,7 @@ public abstract class AbstractOnePortTest extends AbstractPortTest {
 		});
 	}
 
-	@BaselineTest
+	@NotSupportedByAllDevices
 	@Test()
 	public void test_switch_5_To_7_DataBits() throws Exception {
 		assumeRTest();
@@ -352,7 +352,7 @@ public abstract class AbstractOnePortTest extends AbstractPortTest {
 		});
 	}
 
-	@BaselineTest
+	@NotSupportedByAllDevices
 	@Test()
 	public void test_switch_5_To_8_DataBits() throws Exception {
 		assumeRTest();
