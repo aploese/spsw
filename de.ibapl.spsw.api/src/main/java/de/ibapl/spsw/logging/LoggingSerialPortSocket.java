@@ -199,7 +199,7 @@ public class LoggingSerialPortSocket implements SerialPortSocket {
 	 * @param logOs
 	 * @param verbose
 	 * @param timeStampLogging
-	 * @return
+	 * @return the new instance with ASCII logging.
 	 * @throws FileNotFoundException
 	 */
 	public static LoggingSerialPortSocket wrapWithAsciiOutputStream(SerialPortSocket serialPortSocket,
@@ -215,7 +215,7 @@ public class LoggingSerialPortSocket implements SerialPortSocket {
 	 * @param logOs
 	 * @param verbose
 	 * @param timeStampLogging
-	 * @return
+	 * @return the new instance with hex logging.
 	 * @throws FileNotFoundException
 	 */
 	public static LoggingSerialPortSocket wrapWithHexOutputStream(SerialPortSocket serialPortSocket, OutputStream logOs,

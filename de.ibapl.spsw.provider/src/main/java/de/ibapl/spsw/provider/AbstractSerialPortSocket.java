@@ -529,6 +529,10 @@ public abstract class AbstractSerialPortSocket<T extends AbstractSerialPortSocke
 
 	private volatile boolean open;
 
+	/**
+	 * Creates a new Instance and checks read/write permissions with the System.getSecurityManager().
+	 * @param portName
+	 */
 	protected AbstractSerialPortSocket(String portName) {
 		SecurityManager security = System.getSecurityManager();
 		if (security != null) {

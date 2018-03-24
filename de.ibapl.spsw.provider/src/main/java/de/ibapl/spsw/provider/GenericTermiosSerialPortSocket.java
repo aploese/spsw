@@ -31,7 +31,7 @@ package de.ibapl.spsw.provider;
 import java.io.IOException;
 
 /**
- *
+ * Use serial_struct TIOCGSERIAL
  * @author scream3r
  */
 public class GenericTermiosSerialPortSocket extends AbstractSerialPortSocket<GenericTermiosSerialPortSocket> {

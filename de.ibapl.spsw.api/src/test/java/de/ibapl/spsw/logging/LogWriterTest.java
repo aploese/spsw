@@ -65,9 +65,9 @@ public class LogWriterTest {
 		Instant ts = Instant.parse("2017-07-25T18:47:02.763Z");
 		ByteArrayOutputStream os = new ByteArrayOutputStream(1024);
 		LogWriter instance = new LogWriter(os, false, timeStampLogging, verbose);
-		instance.beforeSpOpen(ts, "HEX_TEST_PORT", "raw");
+		instance.beforeSpOpen(ts, "HEX_TEST_PORT", "");
 		ts = ts.plusMillis(1);
-		instance.afterSpOpen(ts, "raw");
+		instance.afterSpOpen(ts);
 		instance.beforeAvailable(ts);
 		instance.afterAvailable(ts, 0);
 		instance.beforeRead(ts);
@@ -102,9 +102,9 @@ public class LogWriterTest {
 		Instant ts = Instant.parse("2017-07-25T18:47:02.763Z");
 		ByteArrayOutputStream os = new ByteArrayOutputStream(1024);
 		LogWriter instance = new LogWriter(os, true, timeStampLogging, verbose);
-		instance.beforeSpOpen(ts, "ASCII_TEST_PORT", "raw");
+		instance.beforeSpOpen(ts, "ASCII_TEST_PORT", "");
 		ts = ts.plusMillis(1);
-		instance.afterSpOpen(ts, "raw");
+		instance.afterSpOpen(ts);
 		instance.beforeAvailable(ts);
 		instance.afterAvailable(ts, 0);
 		instance.beforeRead(ts);
@@ -137,7 +137,7 @@ public class LogWriterTest {
 
 	@Test
 	public void testWriteASCII_UTF_Verbose() {
-		writeASCII(TimeStampLogging.UTF, true, "");
+		writeASCII(TimeStampLogging.UTC, true, "");
 	}
 
 	@Test
@@ -152,7 +152,7 @@ public class LogWriterTest {
 
 	@Test
 	public void testWriteASCII_UTF_NonVerbose() {
-		writeASCII(TimeStampLogging.UTF, false, "");
+		writeASCII(TimeStampLogging.UTC, false, "");
 	}
 
 	@Test
@@ -167,7 +167,7 @@ public class LogWriterTest {
 
 	@Test
 	public void testWriteHEX_UTF_Verbose() {
-		writeHEX(TimeStampLogging.UTF, true, "");
+		writeHEX(TimeStampLogging.UTC, true, "");
 	}
 
 	@Test
@@ -182,7 +182,7 @@ public class LogWriterTest {
 
 	@Test
 	public void testWriteHEX_UTF_NonVerbose() {
-		writeHEX(TimeStampLogging.UTF, false, "");
+		writeHEX(TimeStampLogging.UTC, false, "");
 	}
 
 	@Test

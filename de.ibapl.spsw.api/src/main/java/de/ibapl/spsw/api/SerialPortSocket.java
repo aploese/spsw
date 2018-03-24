@@ -29,35 +29,51 @@ import org.osgi.annotation.versioning.ProviderType;
 /**
  * The interface for accessing a serial port.
  * 
+ * Port means a serial device like UART or usb to serial converter or an TCP
+ * brige to an serial device on a different machine.
  * 
+ * An implementing class should check permissions with a SecurityManager. It is
+ * desired to check fail-fast in the constructor.
  * 
  * There are two general cable configurations used with the RS-232C
  * Communications Standard:
- * <li>
- * Data Terminal Equipment (DTE): IBM PC's, printers, plotters, etc <br>
+ * <li>Data Terminal Equipment (DTE): IBM PC's, printers, plotters, etc <br>
  * </li>
- * <li>
- * Data Communication Equipment (DCE): modems, multiplexors, etc
- * </li>
- * @see <a href="https://www.wikipedia.org/wiki/Serial_port">www.wikipedia.org/wiki/Serial_port</a>
+ * <li>Data Communication Equipment (DCE): modems, multiplexors, etc</li>
+ * 
+ * @see <a href=
+ *      "https://www.wikipedia.org/wiki/Serial_port">www.wikipedia.org/wiki/Serial_port</a>
  */
 @ProviderType
 public interface SerialPortSocket extends AutoCloseable {
 
+	/**
+	 * This should be the message of the IOException, if the operation is not
+	 * allowed on an closed port. {@value #PORT_IS_CLOSED}
+	 */
 	@Native
 	public final static String PORT_IS_CLOSED = "Port is closed";
+	/**
+	 * This should be the message of the IOException, if the operation is not
+	 * allowed on an open port. {@value #PORT_IS_OPEN}
+	 */
 	@Native
 	public final static String PORT_IS_OPEN = "Port is open";
 
 	/**
 	 * Calculate the transfer time for given size and port parameters.
-	 *  
-	 * @param len the length of the byte array to transfer
-	 * @param baudrate the used Baudrate
-	 * @param dataBits the used DataBits
-	 * @param stopBits the used Stopbits
-	 * @param parity the used Parity
-	 * @return the rounded up tranfer time in ms.
+	 * 
+	 * @param len
+	 *            the length of the byte array to transfer.
+	 * @param baudrate
+	 *            the used baudrate.
+	 * @param dataBits
+	 *            the used data bits.
+	 * @param stopBits
+	 *            the used stop bits.
+	 * @param parity
+	 *            the used parity.
+	 * @return the rounded up transfer time in ms.
 	 */
 	static int calculateMillisForBytes(int len, Baudrate baudrate, DataBits dataBits, StopBits stopBits,
 			Parity parity) {
@@ -66,8 +82,7 @@ public interface SerialPortSocket extends AutoCloseable {
 	}
 
 	static double calculateMillisPerByte(Baudrate baudrate, DataBits dataBits, StopBits stopBits, Parity parity) {
-		return ((1 + dataBits.value + (parity == Parity.NONE ? 0 : 1) + stopBits.value) * 1000.0)
-				/ baudrate.value;
+		return ((1 + dataBits.value + (parity == Parity.NONE ? 0 : 1) + stopBits.value) * 1000.0) / baudrate.value;
 	}
 
 	default int calculateMillisForBytes(int len) throws IOException {
@@ -78,103 +93,131 @@ public interface SerialPortSocket extends AutoCloseable {
 		return calculateMillisPerByte(getBaudrate(), getDatatBits(), getStopBits(), getParity());
 	}
 
-	// Not supported under Win boolean isRTS() throws IOException;
-
-	// Not supported under Win boolean isDTR() throws IOException;
-
 	/**
-	 * Close port. This method deletes event listener first, then closes the port
+	 * Close port. The port should be reopenable after closure.
 	 *
-	 * @throws java.io.IOException
+	 * @throws IOException
 	 */
 	@Override
 	void close() throws IOException;
 
 	/**
-	 * @return the current set baudrate.
+	 * Read the baudrate from the port.
+	 * 
+	 * @return the current baudrate.
 	 * @throws IOException
-	 *             if port is closed
+	 *             if port is closed or an error at OS level occures.
 	 */
 	Baudrate getBaudrate() throws IOException;
 
 	/**
-	 * @return the current set data bits.
+	 * Read the number of data bits from the port.
+	 * 
+	 * @return the current number of data bits.
 	 * @throws IOException
-	 *             if port is closed
+	 *             if port is closed or an error at OS level occures.
 	 */
 	DataBits getDatatBits() throws IOException;
 
 	/**
-	 * @return the current set flow control.
+	 * Read the flow control from the port.
+	 * 
+	 * @return the current flow control.
 	 * @throws IOException
-	 *             if port is closed
+	 *             if port is closed or an error at OS level occures.
 	 */
 	Set<FlowControl> getFlowControl() throws IOException;
 
 	/**
-	 * Get bytes count in in buffer of port
-	 * The actual size of the in buffer is unknown.
+	 * Read the number of bytes in the inbuffer of the port. The actual size of the
+	 * in buffer OS dependant.
 	 *
-	 * @return byte count in buffer.
+	 * @return the number of bytes in the inbuffer.
 	 * @throws java.io.IOException
-	 *             if port is closed
+	 *             if port is closed or an error at OS level occures.
 	 *
 	 */
 	int getInBufferBytesCount() throws IOException;
 
 	/**
-	 * @return
+	 * Returns the InputStream for this port.
+	 * 
+	 * @return the InputStream.
 	 * @throws IOException
-	 *             if port is closed
+	 *             if port is closed or an error at OS level occures.
 	 */
 	InputStream getInputStream() throws IOException;
 
 	/**
-	 * @return
+	 * Returns the inter byte timeout.
+	 * 
+	 * This timeout will be triggered only if some bytes have been received. If the
+	 * time span after receiving the last char is greater than this timeout
+	 * {@link InputStream#read(byte[])} or {@link InputStream#read(byte[], int,
+	 * int))} will return with what read up to that point.
+	 * 
+	 * @return the inter byte timeout in ms.
 	 * @throws IOException
-	 *             if port is closed
+	 *             if port is closed or an error at OS level occures.
 	 */
 	int getInterByteReadTimeout() throws IOException;
 
 	/**
-	 * Get bytes count in out buffer of port
-	 * The actual size of the out buffer is unknown.
+	 * Returns the number of bytes in the ou buffer of port. The actual size of the
+	 * out buffer is OS dependant.
 	 *
-	 * @return byte count in out buffer.
+	 * @return the number of bytes in the outbuffer.
 	 * @throws java.io.IOException
-	 *             if port is closed
+	 *             if port is closed or an error at OS level occures.
 	 *
 	 */
 	int getOutBufferBytesCount() throws IOException;
 
 	/**
-	 * @return
+	 * Returns the OutputStream for this port.
+	 * 
+	 * @return the OutputSTream.
 	 * @throws IOException
-	 *             if port is closed
+	 *             if port is closed or an error at OS level occures.
 	 */
 	OutputStream getOutputStream() throws IOException;
 
 	/**
-	 * Returns setting for the timeout in ms. 0 returns implies that the option is
-	 * disabled (i.e., timeout of infinity).
+	 * Returns setting for the read timeout in ms. 0 returns implies that the option
+	 * is disabled (i.e., timeout of infinity). This timeout is the time to wait for
+	 * some data to arrive. If this time passes a {@link TimeoutIOException} will be
+	 * thrown. {@link TimeoutIOException#dwBytesWritten} will always be {@code 0}.
 	 *
-	 * @return the timeout
+	 * @return the overall read timeout in ms or {@code 0} for infinity.
+	 * @throws IOException
+	 *             if port is closed or an error at OS level occures.
 	 *
 	 * @see #setOverallTimeout(int)
 	 */
 	int getOverallReadTimeout() throws IOException;
 
 	/**
-	 * @return
+	 * Returns setting for the write timeout in ms. 0 returns implies that the
+	 * option is disabled (i.e., timeout of infinity). This timeout is the time to
+	 * wait for some data to write out. If this time passes a
+	 * {@link TimeoutIOException} will be thrown.
+	 * {@link TimeoutIOException#dwBytesWritten} will hold the number of bytes
+	 * written to the OS.
+	 *
+	 * @return the overall read timeout in ms or {@code 0} for infinity.
 	 * @throws IOException
-	 *             if port is closed
+	 *             if port is closed or an error at OS level occures.
+	 *
+	 * @see #setOverallTimeout(int)
 	 */
 	int getOverallWriteTimeout() throws IOException;
 
 	/**
-	 * @return
+	 * Read the parity from the port.
+	 * 
+	 * @return the current parity.
 	 * @throws IOException
-	 *             if port is closed
+	 *             if port is closed or an error at OS level occures.
 	 */
 	Parity getParity() throws IOException;
 
@@ -186,239 +229,322 @@ public interface SerialPortSocket extends AutoCloseable {
 	String getPortName();
 
 	/**
-	 * @return 
+	 * Read the number of stop bits from the port.
+	 * 
+	 * @return the current number of stop bits.
 	 * @throws IOException
-	 *             if port is closed
+	 *             if port is closed or an error at OS level occures.
 	 */
 	StopBits getStopBits() throws IOException;
 
 	/**
-	 * @return
+	 * Read the XOFF char from the port.
+	 * 
+	 * @return the current XOFF char.
 	 * @throws IOException
-	 *             if port is closed
+	 *             if port is closed or an error at OS level occures.
 	 */
 	char getXOFFChar() throws IOException;
 
 	/**
-	 * @return
+	 * Read the XON char from the port.
+	 * 
+	 * @return the XON char
 	 * @throws IOException
-	 *             if port is closed
+	 *             if port is closed or an error at OS level occures.
 	 */
 	char getXONChar() throws IOException;
 
 	boolean isClosed();
 
 	/**
-	 * Clear To Send (CTS) DTE input, DCE is ready to transmit
+	 * Read the state of the CTS line from the port. Clear To Send (CTS) DTE input,
+	 * DCE is ready to transmit
 	 * 
-	 * @return
+	 * @return {@code true} if CTS is set, otherwise {@code false}.
 	 * @throws IOException
-	 *             if port is closed
+	 *             if port is closed or an error at OS level occures.
 	 */
 	boolean isCTS() throws IOException;
 
 	/**
+	 * Read the state of the DCD line from the port.
+	 * 
 	 * Data Carrier Detect (DCD) DTE input, data link established, also known as
 	 * Receive Line Signal Detect (RLSD)
 	 * 
-	 * @return DCD
+	 * @return {@code true} if DCD is set, otherwise {@code false}.
 	 * @throws IOException
-	 *             if port is closed
+	 *             if port is closed or an error at OS level occures.
 	 */
 	boolean isDCD() throws IOException;
 
 	/**
-	 * Data Set Ready (DSR) DTE input, DCE is ready to communicate
+	 * Read the state of the DSR line from the port. Data Set Ready (DSR) DTE input,
+	 * DCE is ready to communicate
 	 * 
-	 * @return DSR
+	 * @return {@code true} if DSR is set, otherwise {@code false}.
 	 * @throws IOException
-	 *             if port is closed
+	 *             if port is closed or an error at OS level occures.
 	 */
 	boolean isDSR() throws IOException;
 
 	/**
-	 * Getting port state
+	 * Returns the open state of the port.
 	 *
-	 * @return true if port is open, otherwise false
+	 * @return true if port is open, otherwise false.
+	 * @see #open()
+	 * @see #close()
 	 */
 	boolean isOpen();
 
 	/**
-	 * Ring Indicator (RI) DTE input, announces incoming call
+	 * Read the state of the RI line from the port. Ring Indicator (RI) DTE input,
+	 * announces incoming call
 	 * 
-	 * @return
+	 * @return {@code true} if RI is set, otherwise {@code false}.
 	 * @throws IOException
-	 *             if port is closed
+	 *             if port is closed or an error at OS level occures.
 	 */
 	boolean isRI() throws IOException;
 
 	/**
-	 * Port opening <br>
-	 * <br>
-	 * <b>Note: </b>If port busy <b>TYPE_PORT_BUSY</b> exception will be thrown. If
-	 * port not found <b>TYPE_PORT_NOT_FOUND</b> exception will be thrown.
-	 *
-	 * if port busy is thrown one can unlock SerialPortSockets with calls (in this
-	 * order) Runtime.getRuntime().gc(); Runtime.getRuntime().runFinalization();
+	 * Open the port.
 	 * 
-	 * @throws SerialPortException
-	 * @throws IllegalStateException
-	 *             if port is closed
+	 * @throws IOException
+	 *             if port is already opened or an error at OS level occures.
 	 */
 	void open() throws IOException;
 
 	/**
 	 * Setting the parameters of port
 	 *
-	 * if port busy is thrown one can unlock SerialPortSockets with calls (in this
-	 * order) Runtime.getRuntime().gc(); Runtime.getRuntime().runFinalization();
-	 * 
+	 * @param portName
+	 *            the name of the port to open.
 	 * @param baudRate
-	 *            data transfer rate
+	 *            the baudrate to use.
 	 * @param dataBits
-	 *            number of data bits
+	 *            the number of data bits to use.
 	 * @param stopBits
-	 *            number of stop bits
+	 *            the number of stop bits to use.
 	 * @param parity
-	 *            parity
+	 *            the parity to use.
 	 * @param flowControls
-	 * @throws java.io.IOException
-	 * @throws IllegalStateException
-	 *             if port is closed
+	 *            the flow control to use.
+	 * @return the opened port with parameters set.
+	 * @throws IOException
+	 *             if parameters can't be set, port is closed or an error at OS
+	 *             level occures.
+	 * @throws IllegalArgumentException
+	 *             if one ore more parameters can't be set.
 	 */
 	void open(Baudrate baudRate, DataBits dataBits, StopBits stopBits, Parity parity, Set<FlowControl> flowControls)
 			throws IOException;
 
 	/**
+	 * Initiate the port to send break for duration in ms.
 	 * 
 	 * @param duration
 	 *            the duration in ms.
 	 * @throws IOException
+	 *             if <b>break</b> can't be send, port is closed or an error at OS
+	 *             level occures.
 	 */
 	void sendBreak(int duration) throws IOException;
 
 	/**
-	 * @return
+	 * Initiate the port to send the XOFF char.
+	 * 
 	 * @throws IOException
-	 *             if port is closed
+	 *             if <b>XOFF</b> can't be send, port is closed or an error at OS
+	 *             level occures.
 	 */
 	void sendXOFF() throws IOException;
 
 	/**
-	 * @return
+	 * Initiate the port to send the XON char.
+	 * 
 	 * @throws IOException
-	 *             if port is closed
+	 *             if <b>XON</b> can't be send, port is closed or an error at OS
+	 *             level occures.
 	 */
 	void sendXON() throws IOException;
 
 	/**
-	 * @return
+	 * Write the baudrate to the port. <br>
+	 * If the baudrate is not supported by the underlying OS and OEM drivers one of
+	 * the following may happen:
+	 * <li>The old baudrate is not changed and an IOException or an
+	 * IllegalArgumentException is thrown.</li>
+	 * <li>the closest baudrate is set and an IOException or an
+	 * IllegalArgumentException is thrown.</li>
+	 * <li>The new baudrate is set and an IOException is thrown.</li>
+	 * 
+	 * @param baudrate
+	 *            the new baudrate.
 	 * @throws IOException
-	 *             if port is closed
+	 *             if baudrate can't be set, port is closed or an error at OS level
+	 *             occures. OR if the hardware does not support the new baudrate.
+	 * @throws IllegalArgumentException
+	 *             if the hardware does not support the new baudrate.
 	 */
 	void setBaudrate(Baudrate baudrate) throws IOException;
 
 	/**
-	 * Set Break singnal
+	 * Send the <b>break</b> signal.
 	 *
 	 * @param value
-	 *            the value
-	 * @throws java.io.IOException
+	 *            if {@code true} send the break signal infinite. otherwise stop
+	 *            sending the break signal.
+	 * @throws IOException
+	 *             if value can't be set, port is closed or an error at OS level
+	 *             occures.
 	 */
 	void setBreak(boolean value) throws IOException;
 
 	/**
-	 * @return
+	 * Write the number of data bits to the port. <br>
+	 * If the number data bits are not supported by the underlying OS and OEM
+	 * drivers one of the following may happen:
+	 * <li>The old number data bits are not changed and an IOException or an
+	 * IllegalArgumentException is thrown.</li>
+	 * <li>The new number data bits are set and an IOException is thrown.</li>
+	 * 
+	 * @param dataBits
+	 *            the new number of data bits.
 	 * @throws IOException
-	 *             if port is closed
+	 *             if the number data bits can't be set, port is closed or an error
+	 *             at OS level occures. OR if the hardware does not support the new
+	 *             number of data bits.
+	 * @throws IllegalArgumentException
+	 *             if the hardware does not support the new number of data bits.
 	 */
 	void setDataBits(DataBits dataBits) throws IOException;
 
 	/**
-	 * Data Terminal Ready (DTR) DTE output, device ready Change DTR line state
+	 * Set the state of the DTR line of the port.
+	 * 
+	 * Data Terminal Ready (DTR) DTE output, device ready Change DTR line state.
 	 *
 	 * @param value
-	 *            <b>true - ON</b>, <b>false - OFF</b>
-	 * @throws java.io.IOException
-	 *
+	 *            the new DTR state.
+	 * @throws IOException
+	 *             if DTR state can't be set, port is closed or an error at OS level
+	 *             occures.
 	 */
 	void setDTR(boolean value) throws IOException;
 
 	/**
-	 * @return
 	 * @throws IOException
-	 *             if port is closed
+	 *             if value can't be set, port is closed or an error at OS level
+	 *             occures.
+	 * @throws IllegalArgumentException
+	 *             if the hardware does not support the new value.
 	 */
 	void setFlowControl(Set<FlowControl> flowControls) throws IOException;
 
 	/**
-	 * @return
+	 * Write the parity to the port.
+	 * 
+	 * @param the
+	 *            new parity.
+	 * 
 	 * @throws IOException
-	 *             if port is closed
+	 *             if value can't be set, port is closed or an error at OS level
+	 *             occures.
 	 */
 	void setParity(Parity parity) throws IOException;
 
 	/**
+	 * Set the state of the RTS line of the port.
+	 * 
 	 * Request To Send (RTS) DTE output, DTE would like to transmit Change RTS line
 	 * state
 	 *
 	 * @param value
-	 *            <b>true - ON</b>, <b>false - OFF</b>
-	 * @throws java.io.IOException
-	 *
+	 *            the new RTS state.
+	 * @throws IOException
+	 *             if value can't be set, port is closed or an error at OS level
+	 *             occures.
 	 */
 	void setRTS(boolean value) throws IOException;
 
 	/**
+	 * Write the number of stop bits to the port. <br>
+	 * If the number stop bits are not supported by the underlying OS and OEM
+	 * drivers one of the following may happen:
+	 * <li>The old number stop bits are not changed and an IOException or an
+	 * IllegalArgumentException is thrown.</li>
+	 * <li>The new number stop bits are set and an IOException is thrown.</li>
 	 * 
 	 * @param stopBits
-	 *            The stopbits to set.
+	 *            the new number of stop bits.
 	 * @throws IOException
+	 *             if the number stop bits can't be set, port is closed or an error
+	 *             at OS level occures. OR if the hardware does not support the new
+	 *             number of stop bits.
 	 * @throws IllegalArgumentException
-	 *             if the hardware does not support the new value.
+	 *             if the hardware does not support the new number of stop bits.
 	 */
 	void setStopBits(StopBits stopBits) throws IOException;
 
 	/**
-	 * Enable/disable the timeout, in milliseconds. With this option set to a
-	 * non-zero timeout, a read() call on the InputStream associated with this
-	 * Socket will block for only this amount of time. If the timeout expires, a
-	 * <B>java.net.SocketTimeoutException</B> is raised, though the Socket is still
-	 * valid. The option <B>must</B> be enabled prior to entering the blocking
-	 * operation to have effect. The timeout must be {@code > 0}. A timeout of zero
-	 * is interpreted as an infinite timeout. {@link SocketOptions#SO_TIMEOUT
-	 * SO_TIMEOUT} If a timeout value can't be set (I.E: resolution is a tenth of a
-	 * second for posix termios) the next smaller value will be used an returned.
-	 * Except if its to small to set. In this case the smallest value will be used
-	 * and returned.
+	 * Enable/disable the timeouts, in milliseconds. With the overallReadTimeout
+	 * option set to a non-zero timeout, a read() call on the InputStream associated
+	 * with this Socket will block for only this amount of time.
+	 * 
+	 * With the overallWriteTimeout option set to a non-zero timeout, a write() call
+	 * on the OutputStream associated with this Socket will block for only this
+	 * amount of time.
+	 * 
+	 * If the overallReadTimeout or overallWriteTimeout expires, a
+	 * {@link TimeoutIOException} is raised, though the SerialPortSocket is still
+	 * valid. The overallReadTimeout or overallWriteTimeout must be {@code > 0}. A
+	 * overallReadTimeout or overallWriteTimeout of zero is interpreted as an
+	 * infinite timeout. <br>
+	 * With the interbyteReadTimeout set to a non zero value the port will wait for
+	 * more incomming bytes within this time span. A value of zero as not to wait
+	 * for more bytes. <br>
+	 * The options <B>must</B> be enabled prior to entering the blocking operation
+	 * to have effect.
 	 * 
 	 *
-	 * A overallReadTimeout and of zero is interpreted as an infinite read timeout.
-	 * A overallWriteTimeout and of zero is interpreted as an infinite write
-	 * timeout.
+	 * @param interByteReadTimeout
+	 *            the specified inter byte read timeout, in milliseconds. 0 is not
+	 *            to wait.
+	 * @param overallReadTimeout
+	 *            the overall read timeout, in milliseconds. 0 is wait infinite.
+	 * @param overallWriteTimeout
+	 *            the overall write timeout, in milliseconds. 0 is wait infinite.
 	 * 
-	 * @param timeout
-	 *            the specified timeout, in milliseconds.
-	 * @exception SocketException
-	 *                if there is an error in the underlying protocol, such as a TCP
-	 *                error.
-	 * @see #getOverallTimeout()
-	 * @throws IllegalStateException
-	 *             if port is closed
+	 * @throws IOException
+	 *             if value can't be set, port is closed or an error at OS level
+	 *             occures.
+	 * @see #getInterByteReadTimeout()
+	 * @see #getOverallReadTimeout()
+	 * @see #getOverallWriteTimeout()
 	 */
 	void setTimeouts(int interByteReadTimeout, int overallReadTimeout, int overallWriteTimeout) throws IOException;
 
 	/**
-	 * @return
+	 * Write the XOFF char to the port.
+	 * 
+	 * @param the
+	 *            <b>XOFF</b> char.
 	 * @throws IOException
-	 *             if port is closed
+	 *             if value can't be set, port is closed or an error at OS level
+	 *             occures.
 	 */
 	void setXOFFChar(char c) throws IOException;
 
 	/**
-	 * @return
+	 * Write the XON char to the port.
+	 * 
+	 * @param the
+	 *            <b>XON</b> char.
 	 * @throws IOException
-	 *             if port is closed
+	 *             if value can't be set, port is closed or an error at OS level
+	 *             occures.
 	 */
 	void setXONChar(char c) throws IOException;
 
