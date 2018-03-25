@@ -106,7 +106,7 @@
 	<modules>
 		<module>de.ibapl.spsw.api</module>
 		<module>de.ibapl.spsw.api.tests</module>
-		<module>de.ibapl.spsw.provider</module>
+		<module>de.ibapl.spsw.jniprovider</module>
 		<module>de.ibapl.spsw.provider.osgi-tests</module>
 		<!-- wait for plugin bnd-maven-plugin:3.4.0 and bnd-testing-maven-plugin:3.4.0 -->
 		<module>de.ibapl.spsw.provider.osgi-integration-tests</module>

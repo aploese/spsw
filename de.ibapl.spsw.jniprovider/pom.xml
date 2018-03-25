@@ -1,0 +1,494 @@
+<?xml version="1.0"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+
+	<parent>
+		<groupId>de.ibapl.spsw</groupId>
+		<artifactId>spsw-project</artifactId>
+		<version>2.0.0-SNAPSHOT</version>
+	</parent>
+
+	<artifactId>de.ibapl.spsw.jniprovider</artifactId>
+	<name>SPSW JNI Provider</name>
+
+	<properties>
+		<native.incude.dir>${project.build.directory}/generated-sources/main/native/include</native.incude.dir>
+		<termios.dir>${project.basedir}/src/main/native/posix_termios_wrapper</termios.dir>
+		<win_comport.dir>src/main/native/windows_comport_wrapper</win_comport.dir>
+
+		<version.x86_64-windows-pe32PLUS>2.0.0</version.x86_64-windows-pe32PLUS>
+		<version.x86-windows-pe32>2.0.0</version.x86-windows-pe32>
+
+		<version.arm-linux-gnueabi>2.0.0</version.arm-linux-gnueabi>
+		<version.arm-linux-gnueabihf>2.0.0</version.arm-linux-gnueabihf>
+		<version.aarch64-linux-gnu>2.0.0</version.aarch64-linux-gnu>
+
+		<version.mips-linux-gnu>2.0.0</version.mips-linux-gnu>
+		<version.mipsel-linux-gnu>2.0.0</version.mipsel-linux-gnu>
+		<version.mips64-linux-gnuabi64>2.0.0</version.mips64-linux-gnuabi64>
+		<version.mips64el-linux-gnuabi64>2.0.0</version.mips64el-linux-gnuabi64>
+
+		<version.x86_64-linux-gnu>2.0.0</version.x86_64-linux-gnu>
+		<version.i386-linux-gnu>2.0.0</version.i386-linux-gnu>
+
+		<license.licenseResolver>${project.baseUri}/../src/licenses</license.licenseResolver>
+		<license.licenseName>${license.licenseName.lgpl}</license.licenseName>
+	</properties>
+
+
+	<dependencies>
+		<dependency>
+			<groupId>org.osgi</groupId>
+			<artifactId>org.osgi.service.component.annotations</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>de.ibapl.spsw</groupId>
+			<artifactId>de.ibapl.spsw.api</artifactId>
+			<version>2.0.0-SNAPSHOT</version>
+		</dependency>
+		<dependency>
+			<groupId>de.ibapl.spsw</groupId>
+			<artifactId>de.ibapl.spsw.api.test</artifactId>
+			<version>2.0.0-SNAPSHOT</version>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.osgi</groupId>
+			<artifactId>org.osgi.annotation</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.servicemix.bundles</groupId>
+			<artifactId>org.apache.servicemix.bundles.javax-inject</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.junit.jupiter</groupId>
+			<artifactId>junit-jupiter-api</artifactId>
+		</dependency>
+	</dependencies>
+
+	<profiles>
+		<profile>
+			<id>BaselineTests</id>
+			<properties>
+				<excludeJunit5Tags></excludeJunit5Tags>
+				<includeJunit5Tags>Baseline</includeJunit5Tags>
+			</properties>
+		</profile>
+		<profile>
+			<id>RtsCtsTests</id>
+			<properties>
+				<excludeJunit5Tags></excludeJunit5Tags>
+				<includeJunit5Tags>RtsCts</includeJunit5Tags>
+			</properties>
+		</profile>
+
+		<profile>
+			<id>x86_64-linux-gnu-gcc</id>
+			<properties>
+				<execution.id>libspsw-x86_64-linux-gnu-gcc</execution.id>
+				<javahOS>linux</javahOS>
+				<compilerExecutable>gcc</compilerExecutable>
+				<compilerStartOption>-fPIC -O3 -m64</compilerStartOption>
+				<native.source.dir>${termios.dir}</native.source.dir>
+				<native.src.serialPortSocket>GenericTermiosSerialPortSocket.c</native.src.serialPortSocket>
+				<linkerExecutable>gcc</linkerExecutable>
+				<linkerStartOption>-shared -lc -ldl -m64 -s -O3</linkerStartOption>
+				<javahClassName>de.ibapl.spsw.provider.GenericTermiosSerialPortSocket</javahClassName>
+				<linkerEndOption>-o
+					${project.basedir}/src/main/resources/lib/x86_64-linux-gnu/libspsw-${version.x86_64-linux-gnu}.so</linkerEndOption>
+			</properties>
+			<build>
+				<plugins>
+					<plugin>
+						<groupId>org.codehaus.mojo</groupId>
+						<artifactId>native-maven-plugin</artifactId>
+					</plugin>
+				</plugins>
+			</build>
+		</profile>
+
+		<profile>
+			<id>i386-linux-gnu-gcc</id>
+			<properties>
+				<execution.id>libspsw-i386-linux-gnu-gcc</execution.id>
+				<javahOS>linux</javahOS>
+				<compilerExecutable>gcc</compilerExecutable>
+				<compilerStartOption>-fPIC -O3 -m32</compilerStartOption>
+				<native.source.dir>${termios.dir}</native.source.dir>
+				<native.src.serialPortSocket>GenericTermiosSerialPortSocket.c</native.src.serialPortSocket>
+				<linkerExecutable>gcc</linkerExecutable>
+				<linkerStartOption>-shared -lc -ldl -m32 -s -O3</linkerStartOption>
+				<linkerEndOption>-o
+					${project.basedir}/src/main/resources/lib/i386-linux-gnu/libspsw-${version.i386-linux-gnu}.so</linkerEndOption>
+			</properties>
+			<build>
+				<plugins>
+					<plugin>
+						<groupId>org.codehaus.mojo</groupId>
+						<artifactId>native-maven-plugin</artifactId>
+					</plugin>
+				</plugins>
+			</build>
+		</profile>
+
+		<profile>
+			<id>arm-linux-gnueabi-gcc</id>
+			<properties>
+				<execution.id>libspsw-arm-linux-gnueabi</execution.id>
+				<javahOS>linux</javahOS>
+				<compilerExecutable>arm-linux-gnueabi-gcc</compilerExecutable>
+				<compilerStartOption>-fPIC -O3</compilerStartOption>
+				<native.source.dir>${termios.dir}</native.source.dir>
+				<native.src.serialPortSocket>GenericTermiosSerialPortSocket.c</native.src.serialPortSocket>
+				<linkerExecutable>arm-linux-gnueabi-gcc</linkerExecutable>
+				<linkerStartOption>-shared -lc -ldl -s -O3</linkerStartOption>
+				<linkerEndOption>-o
+					${basedir}/src/main/resources/lib/arm-linux-gnueabi/libspsw-${version.arm-linux-gnueabi}.so</linkerEndOption>
+			</properties>
+			<build>
+				<plugins>
+					<plugin>
+						<groupId>org.codehaus.mojo</groupId>
+						<artifactId>native-maven-plugin</artifactId>
+					</plugin>
+				</plugins>
+			</build>
+		</profile>
+
+		<profile>
+			<id>arm-linux-gnueabihf-gcc</id>
+			<properties>
+				<execution.id>libspsw-arm-linux-gnueabihf</execution.id>
+				<javahOS>linux</javahOS>
+				<compilerExecutable>arm-linux-gnueabihf-gcc</compilerExecutable>
+				<compilerStartOption>-fPIC -O3</compilerStartOption>
+				<native.source.dir>${termios.dir}</native.source.dir>
+				<native.src.serialPortSocket>GenericTermiosSerialPortSocket.c</native.src.serialPortSocket>
+				<linkerExecutable>arm-linux-gnueabihf-gcc</linkerExecutable>
+				<linkerStartOption>-shared -lc -ldl -s -O3</linkerStartOption>
+				<linkerEndOption>-o
+					${basedir}/src/main/resources/lib/arm-linux-gnueabihf/libspsw-${version.arm-linux-gnueabihf}.so</linkerEndOption>
+			</properties>
+			<build>
+				<plugins>
+					<plugin>
+						<groupId>org.codehaus.mojo</groupId>
+						<artifactId>native-maven-plugin</artifactId>
+					</plugin>
+				</plugins>
+			</build>
+		</profile>
+
+		<profile>
+			<id>aarch64-linux-gnu-gcc</id>
+			<properties>
+				<execution.id>libspsw-aarch64-linux-gnu</execution.id>
+				<javahOS>linux</javahOS>
+				<compilerExecutable>aarch64-linux-gnu-gcc</compilerExecutable>
+				<compilerStartOption>-fPIC -O3</compilerStartOption>
+				<native.source.dir>${termios.dir}</native.source.dir>
+				<native.src.serialPortSocket>GenericTermiosSerialPortSocket.c</native.src.serialPortSocket>
+				<linkerExecutable>aarch64-linux-gnu-gcc</linkerExecutable>
+				<linkerStartOption>-shared -lc -ldl -s -O3</linkerStartOption>
+				<linkerEndOption>-o
+					${basedir}/src/main/resources/lib/aarch64-linux-gnu/libspsw-${version.aarch64-linux-gnu}.so</linkerEndOption>
+			</properties>
+			<build>
+				<plugins>
+					<plugin>
+						<groupId>org.codehaus.mojo</groupId>
+						<artifactId>native-maven-plugin</artifactId>
+					</plugin>
+				</plugins>
+			</build>
+		</profile>
+
+		<profile>
+			<id>mips-linux-gnu-gcc</id>
+			<properties>
+				<execution.id>libspsw-mips-linux-gnu-gcc</execution.id>
+				<javahOS>linux</javahOS>
+				<compilerExecutable>mips-linux-gnu-gcc</compilerExecutable>
+				<compilerStartOption>-fPIC -O3</compilerStartOption>
+				<native.source.dir>${termios.dir}</native.source.dir>
+				<native.src.serialPortSocket>GenericTermiosSerialPortSocket.c</native.src.serialPortSocket>
+				<linkerExecutable>mips-linux-gnu-gcc</linkerExecutable>
+				<linkerStartOption>-shared -lc -ldl -s -O3</linkerStartOption>
+				<linkerEndOption>-o
+					${basedir}/src/main/resources/lib/mips-linux-gnu/libspsw-${version.mips-linux-gnu}.so</linkerEndOption>
+			</properties>
+			<build>
+				<plugins>
+					<plugin>
+						<groupId>org.codehaus.mojo</groupId>
+						<artifactId>native-maven-plugin</artifactId>
+					</plugin>
+				</plugins>
+			</build>
+		</profile>
+
+		<profile>
+			<id>mipsel-linux-gnu-gcc</id>
+			<properties>
+				<execution.id>libspsw-mipsel-linux-gnu-gcc</execution.id>
+				<javahOS>linux</javahOS>
+				<compilerExecutable>mipsel-linux-gnu-gcc</compilerExecutable>
+				<compilerStartOption>-fPIC -O3</compilerStartOption>
+				<native.source.dir>${termios.dir}</native.source.dir>
+				<native.src.serialPortSocket>GenericTermiosSerialPortSocket.c</native.src.serialPortSocket>
+				<linkerExecutable>mipsel-linux-gnu-gcc</linkerExecutable>
+				<linkerStartOption>-shared -lc -ldl -s -O3</linkerStartOption>
+				<linkerEndOption>-o
+					${basedir}/src/main/resources/lib/mipsel-linux-gnu/libspsw-${version.mipsel-linux-gnu}.so</linkerEndOption>
+			</properties>
+			<build>
+				<plugins>
+					<plugin>
+						<groupId>org.codehaus.mojo</groupId>
+						<artifactId>native-maven-plugin</artifactId>
+					</plugin>
+				</plugins>
+			</build>
+		</profile>
+
+		<profile>
+			<id>mips64-linux-gnuabi64-gcc</id>
+			<properties>
+				<execution.id>libspsw-mips64-linux-gnuabi64-gcc</execution.id>
+				<javahOS>linux</javahOS>
+				<compilerExecutable>mips64-linux-gnuabi64-gcc</compilerExecutable>
+				<compilerStartOption>-fPIC -O3</compilerStartOption>
+				<native.source.dir>${termios.dir}</native.source.dir>
+				<native.src.serialPortSocket>GenericTermiosSerialPortSocket.c</native.src.serialPortSocket>
+				<linkerExecutable>mips64-linux-gnuabi64-gcc</linkerExecutable>
+				<linkerStartOption>-shared -lc -ldl -s -O3</linkerStartOption>
+				<linkerEndOption>-o
+					${basedir}/src/main/resources/lib/mips64-linux-gnuabi64/libspsw-${version.mips64-linux-gnuabi64}.so</linkerEndOption>
+			</properties>
+			<build>
+				<plugins>
+					<plugin>
+						<groupId>org.codehaus.mojo</groupId>
+						<artifactId>native-maven-plugin</artifactId>
+					</plugin>
+				</plugins>
+			</build>
+		</profile>
+
+		<profile>
+			<id>mips64el-linux-gnuabi64-gcc</id>
+			<properties>
+				<execution.id>libspsw-mips64el-linux-gnuabi64-gcc</execution.id>
+				<javahOS>linux</javahOS>
+				<compilerExecutable>mips64el-linux-gnuabi64-gcc</compilerExecutable>
+				<compilerStartOption>-fPIC -O3</compilerStartOption>
+				<native.source.dir>${termios.dir}</native.source.dir>
+				<native.src.serialPortSocket>GenericTermiosSerialPortSocket.c</native.src.serialPortSocket>
+				<linkerExecutable>mips64el-linux-gnuabi64-gcc</linkerExecutable>
+				<linkerStartOption>-shared -lc -ldl -s -O3</linkerStartOption>
+				<linkerEndOption>-o
+					${basedir}/src/main/resources/lib/mips64el-linux-gnuabi64/libspsw-${version.mips64el-linux-gnuabi64}.so</linkerEndOption>
+			</properties>
+			<build>
+				<plugins>
+					<plugin>
+						<groupId>org.codehaus.mojo</groupId>
+						<artifactId>native-maven-plugin</artifactId>
+					</plugin>
+				</plugins>
+			</build>
+		</profile>
+
+		<profile>
+			<!-- install g++-mingw-w64, gcc-multilib and g++-multilib to get this 
+				work -->
+			<id>i686-w64-mingw32-gcc</id>
+			<properties>
+				<execution.id>spsw-windows-x86</execution.id>
+				<javahOS>win32</javahOS>
+				<compilerExecutable>i686-w64-mingw32-gcc</compilerExecutable>
+				<compilerStartOption>-std=c11 -Wall -m32 -O3</compilerStartOption>
+				<native.source.dir>${win_comport.dir}</native.source.dir>
+				<native.src.serialPortSocket>GenericWinSerialPortSocket.c</native.src.serialPortSocket>
+				<linkerExecutable>i686-w64-mingw32-gcc</linkerExecutable>
+				<linkerStartOption>-m32 -shared -Wl,--dll -Wl,--kill-at -s -O3</linkerStartOption>
+				<linkerEndOption>-o
+					${basedir}/src/main/resources/lib/x86-windows-pe32/spsw-${version.x86-windows-pe32}.dll</linkerEndOption>
+			</properties>
+			<build>
+				<plugins>
+
+					<plugin>
+						<groupId>org.codehaus.mojo</groupId>
+						<artifactId>native-maven-plugin</artifactId>
+					</plugin>
+				</plugins>
+			</build>
+		</profile>
+		<profile>
+			<!-- install gcc-multilib and g++-multilib to get this work -->
+			<id>x86_64-w64-mingw32-gcc</id>
+			<properties>
+				<execution.id>spsw-windows-x86_64</execution.id>
+				<javahOS>win32</javahOS>
+				<compilerExecutable>x86_64-w64-mingw32-gcc</compilerExecutable>
+				<compilerStartOption>-std=c11 -m64 -Wall -O3</compilerStartOption>
+				<native.source.dir>${win_comport.dir}</native.source.dir>
+				<native.src.serialPortSocket>GenericWinSerialPortSocket.c</native.src.serialPortSocket>
+				<linkerExecutable>x86_64-w64-mingw32-gcc</linkerExecutable>
+				<linkerStartOption>-m64 -shared -Wl,--dll -Wl,--kill-at -s -O3</linkerStartOption>
+				<linkerEndOption>-o
+					${basedir}/src/main/resources/lib/x86_64-windows-pe32+/spsw-${version.x86_64-windows-pe32PLUS}.dll</linkerEndOption>
+			</properties>
+			<build>
+				<plugins>
+					<plugin>
+						<groupId>org.codehaus.mojo</groupId>
+						<artifactId>native-maven-plugin</artifactId>
+					</plugin>
+				</plugins>
+			</build>
+		</profile>
+
+
+	</profiles>
+
+	<build>
+		<resources>
+			<resource>
+				<directory>src/main/resources</directory>
+				<includes>
+					<include>lib/**/*.so</include>
+					<include>lib/**/*.dll</include>
+				</includes>
+				<filtering>false</filtering>
+			</resource>
+			<resource>
+				<directory>src/main/resources</directory>
+				<excludes>
+					<exclude>lib/**/*.so</exclude>
+					<exclude>lib/**/*.dll</exclude>
+				</excludes>
+				<filtering>true</filtering>
+			</resource>
+		</resources>
+		<plugins>
+			<plugin>
+				<groupId>biz.aQute.bnd</groupId>
+				<artifactId>bnd-maven-plugin</artifactId>
+				<configuration>
+					<bnd><![CDATA[
+Bundle-NativeCode: \
+ lib/arm-linux-gnueabihf/libspsw-${version.arm-linux-gnueabihf}.so; \
+  osname=Linux; \
+  processor=arm,\
+ lib/aarch64-linux-gnu/libspsw-${version.aarch64-linux-gnu}.so; \
+  osname=Linux; \
+  processor=arm64,\
+ lib/i386-linux-gnu/libspsw-${version.i386-linux-gnu}.so; \
+  osname=Linux; \
+  processor=x86,\
+ lib/x86_64-linux-gnu/libspsw-${version.x86_64-linux-gnu}.so; \
+  osname=Linux; \
+  processor=x86-64,\
+ lib/mips-linux-gnu/libspsw-${version.mips-linux-gnu}.so; \
+  osname=Linux; \
+  processor=mips,\
+ lib/mipsel-linux-gnu/libspsw-${version.mipsel-linux-gnu}.so; \
+  osname=Linux; \
+  processor=mipsel,\
+ lib/mips64-linux-gnuabi64/libspsw-${version.mips64-linux-gnuabi64}.so; \
+  osname=Linux; \
+  processor=mips64,\
+ lib/mips64el-linux-gnuabi64/libspsw-${version.mips64el-linux-gnuabi64}.so; \
+  osname=Linux; \
+  processor=mips64el,\
+ lib/x86_64-windows-pe32+/spsw-${version.x86_64-windows-pe32PLUS}.dll; \
+  osname=Windows7; osname=Windows8; osname=Windows10; \
+  processor=x86-64,\
+ lib/x86-windows-pe32/spsw-${version.x86-windows-pe32}.dll; \
+  osname=Windows7; osname=Windows8; osname=Windows10; \
+  processor=x86
+]]></bnd>
+				</configuration>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-compiler-plugin</artifactId>
+				<configuration>
+					<compilerArgs>
+						<arg>-h</arg>
+						<arg>${project.build.directory}/generated-sources/main/native/include/</arg>
+					</compilerArgs>
+				</configuration>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-surefire-plugin</artifactId>
+				<configuration>
+					<properties>
+						<includeTags>${includeJunit5Tags}</includeTags>
+						<excludeTags>${excludeJunit5Tags}</excludeTags>
+					</properties>
+				</configuration>
+			</plugin>
+		</plugins>
+
+		<pluginManagement>
+			<plugins>
+				<plugin>
+					<groupId>org.codehaus.mojo</groupId>
+					<artifactId>native-maven-plugin</artifactId>
+					<extensions>true</extensions>
+					<executions>
+						<execution>
+							<id>${execution.id}</id>
+							<phase>compile</phase>
+							<goals>
+								<goal>initialize</goal>
+								<goal>compile</goal>
+								<goal>link</goal>
+							</goals>
+							<configuration>
+								<javahOS>${javahOS}</javahOS>
+
+								<compilerProvider>generic</compilerProvider>
+								<compilerExecutable>${compilerExecutable}</compilerExecutable>
+								<compilerStartOptions>
+									<compilerStartOption>${compilerStartOption}</compilerStartOption>
+								</compilerStartOptions>
+								<sources>
+									<source>
+										<directory>${native.incude.dir}</directory>
+									</source>
+									<source>
+										<directory>${native.source.dir}</directory>
+										<fileNames>
+											<fileName>${native.src.serialPortSocket}</fileName>
+										</fileNames>
+									</source>
+								</sources>
+
+								<linkerExecutable>${linkerExecutable}</linkerExecutable>
+								<linkerStartOptions>
+									<linkerStartOption>${linkerStartOption}</linkerStartOption>
+								</linkerStartOptions>
+								<linkerFinalName />
+
+								<!-- wait for 1.0-alpha9 to define linkerOutputExtension -->
+								<linkerEndOptions>
+									<linkerEndOption>${linkerEndOption}</linkerEndOption>
+								</linkerEndOptions>
+							</configuration>
+						</execution>
+					</executions>
+				</plugin>
+			</plugins>
+		</pluginManagement>
+	</build>
+
+
+
+	<description>Provider which accesses the native resources with a Java Native Interface (JNI) binding.</description>
+</project>
