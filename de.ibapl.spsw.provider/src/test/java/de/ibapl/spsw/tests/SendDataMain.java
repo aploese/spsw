@@ -30,7 +30,7 @@ package de.ibapl.spsw.tests;
 import java.time.Instant;
 import java.time.format.DateTimeFormatter;
 
-import de.ibapl.spsw.api.Baudrate;
+import de.ibapl.spsw.api.Speed;
 import de.ibapl.spsw.api.DataBits;
 import de.ibapl.spsw.api.FlowControl;
 import de.ibapl.spsw.api.Parity;
@@ -45,7 +45,7 @@ public class SendDataMain {
 	public static void main(String[] args) throws Exception {
 		final Object printLock = new Object();
 		final SerialPortSocketFactory spsf = SerialPortSocketFactoryImpl.singleton();
-		try (SerialPortSocket serialPortSocket = spsf.open("/dev/ttyUSB0", Baudrate.B230400, DataBits.DB_8, StopBits.SB_1,
+		try (SerialPortSocket serialPortSocket = spsf.open("/dev/ttyUSB0", Speed._230400_BPS, DataBits.DB_8, StopBits.SB_1,
 				Parity.NONE, FlowControl.getFC_NONE())) {
 			serialPortSocket.setTimeouts(200, 1000, 1000);
 			Thread t = new Thread(() -> {

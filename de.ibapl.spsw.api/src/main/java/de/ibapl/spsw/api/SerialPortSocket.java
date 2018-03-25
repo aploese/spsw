@@ -71,8 +71,8 @@ public interface SerialPortSocket extends AutoCloseable {
 	 * 
 	 * @param len
 	 *            the number of characters to transfer.
-	 * @param baudrate
-	 *            the used baudrate.
+	 * @param speed
+	 *            the used speed.
 	 * @param dataBits
 	 *            the used data bits.
 	 * @param stopBits
@@ -81,30 +81,30 @@ public interface SerialPortSocket extends AutoCloseable {
 	 *            the used parity.
 	 * @return the rounded up transfer time in ms.
 	 */
-	static int calculateMillisForBytes(int len, Baudrate baudrate, DataBits dataBits, StopBits stopBits,
+	static int calculateMillisForBytes(int len, Speed speed, DataBits dataBits, StopBits stopBits,
 			Parity parity) {
 		return (int) Math.ceil((len * (1 + dataBits.value + (parity == Parity.NONE ? 0 : 1) + stopBits.value) * 1000.0)
-				/ baudrate.value);
+				/ speed.value);
 	}
 
-	static double calculateMillisPerByte(Baudrate baudrate, DataBits dataBits, StopBits stopBits, Parity parity) {
-		return ((1 + dataBits.value + (parity == Parity.NONE ? 0 : 1) + stopBits.value) * 1000.0) / baudrate.value;
+	static double calculateMillisPerByte(Speed speed, DataBits dataBits, StopBits stopBits, Parity parity) {
+		return ((1 + dataBits.value + (parity == Parity.NONE ? 0 : 1) + stopBits.value) * 1000.0) / speed.value;
+	}
+
+	static double calculateSpeedInCharactersPerSecond(Speed speed, DataBits dataBits, StopBits stopBits, Parity parity) {
+		return (double)speed.value / (1 + dataBits.value + (parity == Parity.NONE ? 0 : 1) + stopBits.value);
 	}
 
 	default int calculateMillisForBytes(int len) throws IOException {
-		return calculateMillisForBytes(len, getBaudrate(), getDatatBits(), getStopBits(), getParity());
+		return calculateMillisForBytes(len, getSpeed(), getDatatBits(), getStopBits(), getParity());
 	}
 
 	default double calculateMillisPerByte() throws IOException {
-		return calculateMillisPerByte(getBaudrate(), getDatatBits(), getStopBits(), getParity());
-	}
-
-	static double calculateSpeedInCharactersPerSecond(Baudrate baudrate, DataBits dataBits, StopBits stopBits, Parity parity) {
-		return (double)baudrate.value / (1 + dataBits.value + (parity == Parity.NONE ? 0 : 1) + stopBits.value);
+		return calculateMillisPerByte(getSpeed(), getDatatBits(), getStopBits(), getParity());
 	}
 
 	default double calculateSpeedInCharactersPerSecond() throws IOException {
-		return calculateSpeedInCharactersPerSecond(getBaudrate(), getDatatBits(), getStopBits(), getParity());
+		return calculateSpeedInCharactersPerSecond(getSpeed(), getDatatBits(), getStopBits(), getParity());
 	}
 	
 	/**
@@ -114,18 +114,6 @@ public interface SerialPortSocket extends AutoCloseable {
 	 */
 	@Override
 	void close() throws IOException;
-
-	/**
-	 * Read the speed in bit/s from the port.
-	 * the speed of characters/s can be calculated as follows:
-	 * {@code speed / (1 start bit + (5,6,7,8) data bits + (0,1) parity bit + (1,1.5,2) stop bits)}
-	 * This is the speed in characters/s and with 8 data bits its byte/s.
-	 * 
-	 * @return the current speed in bit/s.
-	 * @throws IOException
-	 *             if port is closed or an error at OS level occurs.
-	 */
-	Baudrate getBaudrate() throws IOException;
 
 	/**
 	 * Read the number of data bits from the port.
@@ -148,7 +136,7 @@ public interface SerialPortSocket extends AutoCloseable {
 
 	/**
 	 * Read the number of bytes in the in buffer of the port. The actual size of the
-	 * in buffer OS dependant.
+	 * in buffer OS dependent.
 	 *
 	 * @return the number of bytes in the in buffer.
 	 * @throws java.io.IOException
@@ -181,10 +169,10 @@ public interface SerialPortSocket extends AutoCloseable {
 	int getInterByteReadTimeout() throws IOException;
 
 	/**
-	 * Returns the number of bytes in the ou buffer of port. The actual size of the
-	 * out buffer is OS dependant.
+	 * Returns the number of bytes in the out buffer of port. The actual size of the
+	 * out buffer is OS dependent.
 	 *
-	 * @return the number of bytes in the outbuffer.
+	 * @return the number of bytes in the out buffer.
 	 * @throws java.io.IOException
 	 *             if port is closed or an error at OS level occurs.
 	 *
@@ -246,6 +234,18 @@ public interface SerialPortSocket extends AutoCloseable {
 	 * @return the port name.
 	 */
 	String getPortName();
+
+	/**
+	 * Read the speed in bit/s from the port.
+	 * the speed of characters/s can be calculated as follows:
+	 * {@code speed / (1 start bit + (5,6,7,8) data bits + (0,1) parity bit + (1,1.5,2) stop bits)}
+	 * This is the speed in characters/s and with 8 data bits its byte/s.
+	 * 
+	 * @return the current speed in bit/s.
+	 * @throws IOException
+	 *             if port is closed or an error at OS level occurs.
+	 */
+	Speed getSpeed() throws IOException;
 
 	/**
 	 * Read the number of stop bits from the port.
@@ -339,8 +339,8 @@ public interface SerialPortSocket extends AutoCloseable {
 	/**
 	 * Setting the parameters of port
 	 *
-	 * @param baudRate
-	 *            the baudrate.
+	 * @param speed
+	 *            the speed in bit/s.
 	 * @param dataBits
 	 *            the number of data bits.
 	 * @param stopBits
@@ -356,7 +356,7 @@ public interface SerialPortSocket extends AutoCloseable {
 	 * @throws IllegalArgumentException
 	 *             if one ore more parameters can't be set.
 	 */
-	void open(Baudrate baudRate, DataBits dataBits, StopBits stopBits, Parity parity, Set<FlowControl> flowControls)
+	void open(Speed speed, DataBits dataBits, StopBits stopBits, Parity parity, Set<FlowControl> flowControls)
 			throws IOException;
 
 	/**
@@ -387,26 +387,6 @@ public interface SerialPortSocket extends AutoCloseable {
 	 *             level occurs.
 	 */
 	void sendXON() throws IOException;
-
-	/**
-	 * Write the speed to the port. <br>
-	 * If the speed is not supported by the underlying OS and OEM drivers one of
-	 * the following may happen:
-	 * <li>The old speed is not changed and an IOException or an
-	 * IllegalArgumentException is thrown.</li>
-	 * <li>the closest valid speed is set and an IOException or an
-	 * IllegalArgumentException is thrown.</li>
-	 * <li>The new speed is set and an IOException is thrown.</li>
-	 * 
-	 * @param baudrate
-	 *            the new speed in bit/s.
-	 * @throws IOException
-	 *             if speed can't be set, port is closed or an error at OS level
-	 *             occurred. OR if the hardware does not support the new speed.
-	 * @throws IllegalArgumentException
-	 *             if the hardware does not support the new speed.
-	 */
-	void setBaudrate(Baudrate baudrate) throws IOException;
 
 	/**
 	 * Send the <B>break</B> signal.
@@ -486,6 +466,26 @@ public interface SerialPortSocket extends AutoCloseable {
 	 *             occurred.
 	 */
 	void setRTS(boolean value) throws IOException;
+
+	/**
+	 * Write the speed to the port. <br>
+	 * If the speed is not supported by the underlying OS and OEM drivers one of
+	 * the following may happen:
+	 * <li>The old speed is not changed and an IOException or an
+	 * IllegalArgumentException is thrown.</li>
+	 * <li>the closest valid speed is set and an IOException or an
+	 * IllegalArgumentException is thrown.</li>
+	 * <li>The new speed is set and an IOException is thrown.</li>
+	 * 
+	 * @param speed
+	 *            the new speed in bit/s.
+	 * @throws IOException
+	 *             if speed can't be set, port is closed or an error at OS level
+	 *             occurred. OR if the hardware does not support the new speed.
+	 * @throws IllegalArgumentException
+	 *             if the hardware does not support the new speed.
+	 */
+	void setSpeed(Speed speed) throws IOException;
 
 	/**
 	 * Write the number of stop bits to the port. <br>

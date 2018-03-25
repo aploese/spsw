@@ -51,7 +51,7 @@ import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Deactivate;
 import org.osgi.service.component.annotations.ServiceScope;
 
-import de.ibapl.spsw.api.Baudrate;
+import de.ibapl.spsw.api.Speed;
 import de.ibapl.spsw.api.DataBits;
 import de.ibapl.spsw.api.FlowControl;
 import de.ibapl.spsw.api.Parity;
@@ -410,7 +410,7 @@ public class SerialPortSocketFactoryImpl implements SerialPortSocketFactory {
 	}
 
 	@Override
-	public SerialPortSocket open(String portName, Baudrate baudRate, DataBits dataBits, StopBits stopBits,
+	public SerialPortSocket open(String portName, Speed baudRate, DataBits dataBits, StopBits stopBits,
 			Parity parity, Set<FlowControl> flowControls) throws IOException, IllegalStateException {
 		final SerialPortSocket result = createSerialPortSocket(portName);
 		try {

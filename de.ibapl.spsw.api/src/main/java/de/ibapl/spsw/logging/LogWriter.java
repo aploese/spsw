@@ -20,7 +20,7 @@
 
 package de.ibapl.spsw.logging;
 
-import de.ibapl.spsw.api.Baudrate;
+import de.ibapl.spsw.api.Speed;
 import de.ibapl.spsw.api.DataBits;
 import de.ibapl.spsw.api.FlowControl;
 import de.ibapl.spsw.api.Parity;
@@ -95,16 +95,16 @@ public class LogWriter {
 		log.flush();
 	}
 
-	void afterGetBaudrate(Instant ts, Baudrate result) {
+	void afterGetSpeed(Instant ts, Speed result) {
 		if (!verbose) {
 			return;
 		}
-		log.append(formatTs(ts)).append("SP").append(ACION_RETURN).append(" getBaudrate:\t").println(result);
+		log.append(formatTs(ts)).append("SP").append(ACION_RETURN).append(" getSpeed:\t").println(result);
 		log.flush();
 	}
 
-	void afterGetBaudrate(Instant ts, IOException e) {
-		log.append(formatTs(ts)).append("SP").append(ACION_RETURN).append(" getBaudrate:\t").println(e.toString());
+	void afterGetSpeed(Instant ts, IOException e) {
+		log.append(formatTs(ts)).append("SP").append(ACION_RETURN).append(" getSpeed:\t").println(e.toString());
 		e.printStackTrace(log);
 		log.flush();
 	}
@@ -450,16 +450,16 @@ public class LogWriter {
 		log.flush();
 	}
 
-	void afterSetBaudrate(Instant ts) {
+	void afterSetSpeed(Instant ts) {
 		if (!verbose) {
 			return;
 		}
-		log.append(formatTs(ts)).append("SP").append(ACION_RETURN).println(" setBaudrate");
+		log.append(formatTs(ts)).append("SP").append(ACION_RETURN).println(" setSpeed");
 		log.flush();
 	}
 
-	void afterSetBaudrate(Instant ts, IOException e) {
-		log.append(formatTs(ts)).append("SP").append(ACION_RETURN).append(" setBaudrate:\t").println(e.toString());
+	void afterSetSpeed(Instant ts, IOException e) {
+		log.append(formatTs(ts)).append("SP").append(ACION_RETURN).append(" setSpeed:\t").println(e.toString());
 		e.printStackTrace(log);
 		log.flush();
 	}
@@ -727,11 +727,11 @@ public class LogWriter {
 		log.flush();
 	}
 
-	void beforeGetBaudrate(Instant ts) {
+	void beforeGetSpeed(Instant ts) {
 		if (!verbose) {
 			return;
 		}
-		log.append(formatTs(ts)).append("SP").append(ACION_CALL).println(" getBaudrate");
+		log.append(formatTs(ts)).append("SP").append(ACION_CALL).println(" getSpeed");
 		log.flush();
 	}
 
@@ -889,8 +889,8 @@ public class LogWriter {
 		log.flush();
 	}
 
-	void beforeSetBaudrate(Instant ts, Baudrate value) {
-		log.append(formatTs(ts)).append("SP").append(ACION_CALL).append(" setBaudrate:\t").println(value);
+	void beforeSetSpeed(Instant ts, Speed value) {
+		log.append(formatTs(ts)).append("SP").append(ACION_CALL).append(" setSpeed:\t").println(value);
 		log.flush();
 	}
 

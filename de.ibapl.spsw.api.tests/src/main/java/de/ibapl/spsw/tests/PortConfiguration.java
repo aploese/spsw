@@ -2,7 +2,7 @@ package de.ibapl.spsw.tests;
 
 import java.util.Set;
 
-import de.ibapl.spsw.api.Baudrate;
+import de.ibapl.spsw.api.Speed;
 import de.ibapl.spsw.api.DataBits;
 import de.ibapl.spsw.api.FlowControl;
 import de.ibapl.spsw.api.Parity;
@@ -13,7 +13,7 @@ public interface PortConfiguration {
 	final static int TEST_TIMEOUT_OFFSET = 1000;
 	final static int TEST_TIMEOUT_MULTIPLYER = 20;
 
-	Baudrate getBaudrate();
+	Speed getSpeed();
 
 	DataBits getDataBits();
 
@@ -32,7 +32,7 @@ public interface PortConfiguration {
 	int getBufferSize();
 
 	default int calcMaxTransferTime() {
-		return TEST_TIMEOUT_OFFSET + SerialPortSocket.calculateMillisForBytes(getBufferSize(), getBaudrate(), getDataBits(), getStopBits(), getParity());
+		return TEST_TIMEOUT_OFFSET + SerialPortSocket.calculateMillisForBytes(getBufferSize(), getSpeed(), getDataBits(), getStopBits(), getParity());
 	}
 
 	default long getTestTimeout() { 

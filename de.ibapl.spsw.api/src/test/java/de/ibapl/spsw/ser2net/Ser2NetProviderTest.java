@@ -34,7 +34,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
-import de.ibapl.spsw.api.Baudrate;
+import de.ibapl.spsw.api.Speed;
 import de.ibapl.spsw.api.DataBits;
 import de.ibapl.spsw.api.FlowControl;
 import de.ibapl.spsw.api.Parity;
@@ -245,7 +245,7 @@ public class Ser2NetProviderTest {
 	@Disabled
 	public void testOpen_5args() throws Exception {
 		System.out.println("openRaw");
-		Baudrate baudRate = null;
+		Speed baudRate = null;
 		DataBits dataBits = null;
 		StopBits stopBits = null;
 		Parity parity = null;
@@ -454,15 +454,15 @@ public class Ser2NetProviderTest {
 	}
 
 	/**
-	 * Test of setBaudrate method, of class Ser2NetProvider.
+	 * Test of setSpeed method, of class Ser2NetProvider.
 	 */
 	@Test
 	@Disabled
-	public void testSetBaudrate() throws Exception {
-		System.out.println("setBaudrate");
-		Baudrate baudrate = null;
+	public void testSetSpeed() throws Exception {
+		System.out.println("setSpeed");
+		Speed speed = null;
 		Ser2NetProvider instance = null;
-		instance.setBaudrate(baudrate);
+		instance.setSpeed(speed);
 		// TODO review the generated test code and remove the default call to fail.
 		fail("The test case is a prototype.");
 	}
@@ -510,15 +510,15 @@ public class Ser2NetProviderTest {
 	}
 
 	/**
-	 * Test of getBaudrate method, of class Ser2NetProvider.
+	 * Test of getSpeed method, of class Ser2NetProvider.
 	 */
 	@Test
 	@Disabled
-	public void testGetBaudrate() throws Exception {
+	public void testGetSpeed() throws Exception {
 		System.out.println("getBaudrate");
 		Ser2NetProvider instance = null;
-		Baudrate expResult = null;
-		Baudrate result = instance.getBaudrate();
+		Speed expResult = null;
+		Speed result = instance.getSpeed();
 		assertEquals(expResult, result);
 		// TODO review the generated test code and remove the default call to fail.
 		fail("The test case is a prototype.");

@@ -24,7 +24,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.Set;
-import de.ibapl.spsw.api.Baudrate;
+import de.ibapl.spsw.api.Speed;
 import de.ibapl.spsw.api.DataBits;
 import de.ibapl.spsw.api.FlowControl;
 import de.ibapl.spsw.api.Parity;
@@ -275,14 +275,14 @@ public class LoggingSerialPortSocket implements SerialPortSocket {
 	}
 
 	@Override
-	public Baudrate getBaudrate() throws IOException {
-		logWriter.beforeGetBaudrate(Instant.now());
+	public Speed getSpeed() throws IOException {
+		logWriter.beforeGetSpeed(Instant.now());
 		try {
-			final Baudrate result = serialPortSocket.getBaudrate();
-			logWriter.afterGetBaudrate(Instant.now(), result);
+			final Speed result = serialPortSocket.getSpeed();
+			logWriter.afterGetSpeed(Instant.now(), result);
 			return result;
 		} catch (IOException e) {
-			logWriter.afterGetBaudrate(Instant.now(), e);
+			logWriter.afterGetSpeed(Instant.now(), e);
 			throw e;
 		}
 	}
@@ -536,12 +536,12 @@ public class LoggingSerialPortSocket implements SerialPortSocket {
 	}
 
 	@Override
-	public void open(Baudrate baudRate, DataBits dataBits, StopBits stopBits, Parity parity,
+	public void open(Speed speed, DataBits dataBits, StopBits stopBits, Parity parity,
 			Set<FlowControl> flowControls) throws IOException {
-		logWriter.beforeSpOpen(Instant.now(), serialPortSocket.getPortName(), "dataBits=" + dataBits + ", stopBits="
+		logWriter.beforeSpOpen(Instant.now(), serialPortSocket.getPortName(), "speed=" + speed + ", dataBits=" + dataBits + ", stopBits="
 				+ stopBits + ", partity=" + parity + ", flowControl=" + flowControls);
 		try {
-			serialPortSocket.open(baudRate, dataBits, stopBits, parity, flowControls);
+			serialPortSocket.open(speed, dataBits, stopBits, parity, flowControls);
 			logWriter.afterSpOpen(Instant.now());
 		} catch (IOException e) {
 			logWriter.afterSpOpen(Instant.now(), e);
@@ -587,13 +587,13 @@ public class LoggingSerialPortSocket implements SerialPortSocket {
 	}
 
 	@Override
-	public void setBaudrate(Baudrate baudrate) throws IOException {
-		logWriter.beforeSetBaudrate(Instant.now(), baudrate);
+	public void setSpeed(Speed speed) throws IOException {
+		logWriter.beforeSetSpeed(Instant.now(), speed);
 		try {
-			serialPortSocket.setBaudrate(baudrate);
-			logWriter.afterSetBaudrate(Instant.now());
+			serialPortSocket.setSpeed(speed);
+			logWriter.afterSetSpeed(Instant.now());
 		} catch (IOException e) {
-			logWriter.afterSetBaudrate(Instant.now(), e);
+			logWriter.afterSetSpeed(Instant.now(), e);
 			throw e;
 		}
 	}

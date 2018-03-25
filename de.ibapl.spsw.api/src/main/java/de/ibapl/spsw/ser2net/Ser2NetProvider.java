@@ -31,7 +31,7 @@ import javax.net.SocketFactory;
 
 import org.osgi.annotation.versioning.ProviderType;
 
-import de.ibapl.spsw.api.Baudrate;
+import de.ibapl.spsw.api.Speed;
 import de.ibapl.spsw.api.DataBits;
 import de.ibapl.spsw.api.FlowControl;
 import de.ibapl.spsw.api.Parity;
@@ -143,7 +143,7 @@ public class Ser2NetProvider implements SerialPortSocket {
 	private String host;
 	private int dataPort;
 	private int controlPort;
-	private Baudrate baudrate;
+	private Speed speed;
 	private Parity parity;
 	private StopBits stopBits;
 	private DataBits dataBits;
@@ -234,9 +234,9 @@ public class Ser2NetProvider implements SerialPortSocket {
 	}
 
 	@Override
-	public void open(Baudrate baudrate, DataBits dataBits, StopBits stopBits, Parity parity,
+	public void open(Speed speed, DataBits dataBits, StopBits stopBits, Parity parity,
 			Set<FlowControl> flowControls) throws IOException {
-		this.baudrate = baudrate;
+		this.speed = speed;
 		this.dataBits = dataBits;
 		this.stopBits = stopBits;
 		this.parity = parity;
@@ -338,8 +338,8 @@ public class Ser2NetProvider implements SerialPortSocket {
 	}
 
 	@Override
-	public void setBaudrate(Baudrate baudrate) throws IOException {
-		this.baudrate = baudrate;
+	public void setSpeed(Speed speed) throws IOException {
+		this.speed = speed;
 	}
 
 	@Override
@@ -358,8 +358,8 @@ public class Ser2NetProvider implements SerialPortSocket {
 	}
 
 	@Override
-	public Baudrate getBaudrate() throws IOException {
-		return baudrate;
+	public Speed getSpeed() throws IOException {
+		return speed;
 	}
 
 	@Override

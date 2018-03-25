@@ -62,70 +62,70 @@
 
 #include "de_ibapl_spsw_provider_AbstractSerialPortSocket.h"
 
-#undef SPSW_BAUDRATE_B0
-#define SPSW_BAUDRATE_B0 de_ibapl_spsw_provider_AbstractSerialPortSocket_BAUDRATE_B0
-#undef SPSW_BAUDRATE_B50
-#define SPSW_BAUDRATE_B50 de_ibapl_spsw_provider_AbstractSerialPortSocket_BAUDRATE_B50
-#undef SPSW_BAUDRATE_B75
-#define SPSW_BAUDRATE_B75 de_ibapl_spsw_provider_AbstractSerialPortSocket_BAUDRATE_B75
-#undef SPSW_BAUDRATE_B110
-#define SPSW_BAUDRATE_B110 de_ibapl_spsw_provider_AbstractSerialPortSocket_BAUDRATE_B110
-#undef SPSW_BAUDRATE_B134
-#define SPSW_BAUDRATE_B134 de_ibapl_spsw_provider_AbstractSerialPortSocket_BAUDRATE_B134
-#undef SPSW_BAUDRATE_B150
-#define SPSW_BAUDRATE_B150 de_ibapl_spsw_provider_AbstractSerialPortSocket_BAUDRATE_B150
-#undef SPSW_BAUDRATE_B200
-#define SPSW_BAUDRATE_B200 de_ibapl_spsw_provider_AbstractSerialPortSocket_BAUDRATE_B200
-#undef SPSW_BAUDRATE_B300
-#define SPSW_BAUDRATE_B300 de_ibapl_spsw_provider_AbstractSerialPortSocket_BAUDRATE_B300
-#undef SPSW_BAUDRATE_B600
-#define SPSW_BAUDRATE_B600 de_ibapl_spsw_provider_AbstractSerialPortSocket_BAUDRATE_B600
-#undef SPSW_BAUDRATE_B1200
-#define SPSW_BAUDRATE_B1200 de_ibapl_spsw_provider_AbstractSerialPortSocket_BAUDRATE_B1200
-#undef SPSW_BAUDRATE_B1800
-#define SPSW_BAUDRATE_B1800 de_ibapl_spsw_provider_AbstractSerialPortSocket_BAUDRATE_B1800
-#undef SPSW_BAUDRATE_B2400
-#define SPSW_BAUDRATE_B2400 de_ibapl_spsw_provider_AbstractSerialPortSocket_BAUDRATE_B2400
-#undef SPSW_BAUDRATE_B4800
-#define SPSW_BAUDRATE_B4800 de_ibapl_spsw_provider_AbstractSerialPortSocket_BAUDRATE_B4800
-#undef SPSW_BAUDRATE_B9600
-#define SPSW_BAUDRATE_B9600 de_ibapl_spsw_provider_AbstractSerialPortSocket_BAUDRATE_B9600
-#undef SPSW_BAUDRATE_B19200
-#define SPSW_BAUDRATE_B19200 de_ibapl_spsw_provider_AbstractSerialPortSocket_BAUDRATE_B19200
-#undef SPSW_BAUDRATE_B38400
-#define SPSW_BAUDRATE_B38400 de_ibapl_spsw_provider_AbstractSerialPortSocket_BAUDRATE_B38400
-#undef SPSW_BAUDRATE_B57600
-#define SPSW_BAUDRATE_B57600 de_ibapl_spsw_provider_AbstractSerialPortSocket_BAUDRATE_B57600
-#undef SPSW_BAUDRATE_B115200
-#define SPSW_BAUDRATE_B115200 de_ibapl_spsw_provider_AbstractSerialPortSocket_BAUDRATE_B115200
-#undef SPSW_BAUDRATE_B230400
-#define SPSW_BAUDRATE_B230400 de_ibapl_spsw_provider_AbstractSerialPortSocket_BAUDRATE_B230400
-#undef SPSW_BAUDRATE_B460800
-#define SPSW_BAUDRATE_B460800 de_ibapl_spsw_provider_AbstractSerialPortSocket_BAUDRATE_B460800
-#undef SPSW_BAUDRATE_B500000
-#define SPSW_BAUDRATE_B500000 de_ibapl_spsw_provider_AbstractSerialPortSocket_BAUDRATE_B500000
-#undef SPSW_BAUDRATE_B576000
-#define SPSW_BAUDRATE_B576000 de_ibapl_spsw_provider_AbstractSerialPortSocket_BAUDRATE_B576000
-#undef SPSW_BAUDRATE_B921600
-#define SPSW_BAUDRATE_B921600 de_ibapl_spsw_provider_AbstractSerialPortSocket_BAUDRATE_B921600
-#undef SPSW_BAUDRATE_B1000000
-#define SPSW_BAUDRATE_B1000000 de_ibapl_spsw_provider_AbstractSerialPortSocket_BAUDRATE_B1000000
-#undef SPSW_BAUDRATE_B1152000
-#define SPSW_BAUDRATE_B1152000 de_ibapl_spsw_provider_AbstractSerialPortSocket_BAUDRATE_B1152000
-#undef SPSW_BAUDRATE_B1500000
-#define SPSW_BAUDRATE_B1500000 de_ibapl_spsw_provider_AbstractSerialPortSocket_BAUDRATE_B1500000
-#undef SPSW_BAUDRATE_B2000000
-#define SPSW_BAUDRATE_B2000000 de_ibapl_spsw_provider_AbstractSerialPortSocket_BAUDRATE_B2000000
-#undef SPSW_BAUDRATE_B2500000
-#define SPSW_BAUDRATE_B2500000 de_ibapl_spsw_provider_AbstractSerialPortSocket_BAUDRATE_B2500000
-#undef SPSW_BAUDRATE_B3000000
-#define SPSW_BAUDRATE_B3000000 de_ibapl_spsw_provider_AbstractSerialPortSocket_BAUDRATE_B3000000
-#undef SPSW_BAUDRATE_B3500000
-#define SPSW_BAUDRATE_B3500000 de_ibapl_spsw_provider_AbstractSerialPortSocket_BAUDRATE_B3500000
-#undef SPSW_BAUDRATE_B4000000
-#define SPSW_BAUDRATE_B4000000 de_ibapl_spsw_provider_AbstractSerialPortSocket_BAUDRATE_B4000000
-#undef SPSW_BAUDRATE_MASK
-#define SPSW_BAUDRATE_MASK de_ibapl_spsw_provider_AbstractSerialPortSocket_BAUDRATE_MASK
+#undef SPSW_SPEED_0_BPS
+#define SPSW_SPEED_0_BPS de_ibapl_spsw_provider_AbstractSerialPortSocket_SPEED_0_BPS
+#undef SPSW_SPEED_50_BPS
+#define SPSW_SPEED_50_BPS de_ibapl_spsw_provider_AbstractSerialPortSocket_SPEED_50_BPS
+#undef SPSW_SPEED_75_BPS
+#define SPSW_SPEED_75_BPS de_ibapl_spsw_provider_AbstractSerialPortSocket_SPEED_75_BPS
+#undef SPSW_SPEED_110_BPS
+#define SPSW_SPEED_110_BPS de_ibapl_spsw_provider_AbstractSerialPortSocket_SPEED_110_BPS
+#undef SPSW_SPEED_134_BPS
+#define SPSW_SPEED_134_BPS de_ibapl_spsw_provider_AbstractSerialPortSocket_SPEED_134_BPS
+#undef SPSW_SPEED_150_BPS
+#define SPSW_SPEED_150_BPS de_ibapl_spsw_provider_AbstractSerialPortSocket_SPEED_150_BPS
+#undef SPSW_SPEED_200_BPS
+#define SPSW_SPEED_200_BPS de_ibapl_spsw_provider_AbstractSerialPortSocket_SPEED_200_BPS
+#undef SPSW_SPEED_300_BPS
+#define SPSW_SPEED_300_BPS de_ibapl_spsw_provider_AbstractSerialPortSocket_SPEED_300_BPS
+#undef SPSW_SPEED_600_BPS
+#define SPSW_SPEED_600_BPS de_ibapl_spsw_provider_AbstractSerialPortSocket_SPEED_600_BPS
+#undef SPSW_SPEED_1200_BPS
+#define SPSW_SPEED_1200_BPS de_ibapl_spsw_provider_AbstractSerialPortSocket_SPEED_1200_BPS
+#undef SPSW_SPEED_1800_BPS
+#define SPSW_SPEED_1800_BPS de_ibapl_spsw_provider_AbstractSerialPortSocket_SPEED_1800_BPS
+#undef SPSW_SPEED_2400_BPS
+#define SPSW_SPEED_2400_BPS de_ibapl_spsw_provider_AbstractSerialPortSocket_SPEED_2400_BPS
+#undef SPSW_SPEED_4800_BPS
+#define SPSW_SPEED_4800_BPS de_ibapl_spsw_provider_AbstractSerialPortSocket_SPEED_4800_BPS
+#undef SPSW_SPEED_9600_BPS
+#define SPSW_SPEED_9600_BPS de_ibapl_spsw_provider_AbstractSerialPortSocket_SPEED_9600_BPS
+#undef SPSW_SPEED_19200_BPS
+#define SPSW_SPEED_19200_BPS de_ibapl_spsw_provider_AbstractSerialPortSocket_SPEED_19200_BPS
+#undef SPSW_SPEED_38400_BPS
+#define SPSW_SPEED_38400_BPS de_ibapl_spsw_provider_AbstractSerialPortSocket_SPEED_38400_BPS
+#undef SPSW_SPEED_57600_BPS
+#define SPSW_SPEED_57600_BPS de_ibapl_spsw_provider_AbstractSerialPortSocket_SPEED_57600_BPS
+#undef SPSW_SPEED_115200_BPS
+#define SPSW_SPEED_115200_BPS de_ibapl_spsw_provider_AbstractSerialPortSocket_SPEED_115200_BPS
+#undef SPSW_SPEED_230400_BPS
+#define SPSW_SPEED_230400_BPS de_ibapl_spsw_provider_AbstractSerialPortSocket_SPEED_230400_BPS
+#undef SPSW_SPEED_460800_BPS
+#define SPSW_SPEED_460800_BPS de_ibapl_spsw_provider_AbstractSerialPortSocket_SPEED_460800_BPS
+#undef SPSW_SPEED_500000_BPS
+#define SPSW_SPEED_500000_BPS de_ibapl_spsw_provider_AbstractSerialPortSocket_SPEED_500000_BPS
+#undef SPSW_SPEED_576000_BPS
+#define SPSW_SPEED_576000_BPS de_ibapl_spsw_provider_AbstractSerialPortSocket_SPEED_576000_BPS
+#undef SPSW_SPEED_921600_BPS
+#define SPSW_SPEED_921600_BPS de_ibapl_spsw_provider_AbstractSerialPortSocket_SPEED_921600_BPS
+#undef SPSW_SPEED_1000000_BPS
+#define SPSW_SPEED_1000000_BPS de_ibapl_spsw_provider_AbstractSerialPortSocket_SPEED_1000000_BPS
+#undef SPSW_SPEED_1152000_BPS
+#define SPSW_SPEED_1152000_BPS de_ibapl_spsw_provider_AbstractSerialPortSocket_SPEED_1152000_BPS
+#undef SPSW_SPEED_1500000_BPS
+#define SPSW_SPEED_1500000_BPS de_ibapl_spsw_provider_AbstractSerialPortSocket_SPEED_1500000_BPS
+#undef SPSW_SPEED_2000000_BPS
+#define SPSW_SPEED_2000000_BPS de_ibapl_spsw_provider_AbstractSerialPortSocket_SPEED_2000000_BPS
+#undef SPSW_SPEED_2500000_BPS
+#define SPSW_SPEED_2500000_BPS de_ibapl_spsw_provider_AbstractSerialPortSocket_SPEED_2500000_BPS
+#undef SPSW_SPEED_3000000_BPS
+#define SPSW_SPEED_3000000_BPS de_ibapl_spsw_provider_AbstractSerialPortSocket_SPEED_3000000_BPS
+#undef SPSW_SPEED_3500000_BPS
+#define SPSW_SPEED_3500000_BPS de_ibapl_spsw_provider_AbstractSerialPortSocket_SPEED_3500000_BPS
+#undef SPSW_SPEED_4000000_BPS
+#define SPSW_SPEED_4000000_BPS de_ibapl_spsw_provider_AbstractSerialPortSocket_SPEED_4000000_BPS
+#undef SPSW_SPEED_MASK
+#define SPSW_SPEED_MASK de_ibapl_spsw_provider_AbstractSerialPortSocket_SPEED_MASK
 #undef SPSW_DATA_BITS_DB5
 #define SPSW_DATA_BITS_DB5 de_ibapl_spsw_provider_AbstractSerialPortSocket_DATA_BITS_DB5
 #undef SPSW_DATA_BITS_DB6
@@ -439,142 +439,142 @@ static jboolean getCommModemStatus(JNIEnv *env, jobject sps, DWORD bitMask) {
 	}
 }
 
-static jint nativeToSpswBaudRate(JNIEnv *env, DWORD baudRate) {
-	switch (baudRate) {
+static jint nativeToSpswSpeed(JNIEnv *env, DWORD speed) {
+	switch (speed) {
 	case 0:
-		return SPSW_BAUDRATE_B0;
+		return SPSW_SPEED_0_BPS;
 	case 50:
-		return SPSW_BAUDRATE_B50;
+		return SPSW_SPEED_50_BPS;
 	case 75:
-		return SPSW_BAUDRATE_B75;
+		return SPSW_SPEED_75_BPS;
 	case 110:
-		return SPSW_BAUDRATE_B110;
+		return SPSW_SPEED_110_BPS;
 	case 134:
-		return SPSW_BAUDRATE_B134;
+		return SPSW_SPEED_134_BPS;
 	case 150:
-		return SPSW_BAUDRATE_B150;
+		return SPSW_SPEED_150_BPS;
 	case 200:
-		return SPSW_BAUDRATE_B200;
+		return SPSW_SPEED_200_BPS;
 	case 300:
-		return SPSW_BAUDRATE_B300;
+		return SPSW_SPEED_300_BPS;
 	case 600:
-		return SPSW_BAUDRATE_B600;
+		return SPSW_SPEED_600_BPS;
 	case 1200:
-		return SPSW_BAUDRATE_B1200;
+		return SPSW_SPEED_1200_BPS;
 	case 1800:
-		return SPSW_BAUDRATE_B1800;
+		return SPSW_SPEED_1800_BPS;
 	case 2400:
-		return SPSW_BAUDRATE_B2400;
+		return SPSW_SPEED_2400_BPS;
 	case 4800:
-		return SPSW_BAUDRATE_B4800;
+		return SPSW_SPEED_4800_BPS;
 	case 9600:
-		return SPSW_BAUDRATE_B9600;
+		return SPSW_SPEED_9600_BPS;
 	case 19200:
-		return SPSW_BAUDRATE_B19200;
+		return SPSW_SPEED_19200_BPS;
 	case 38400:
-		return SPSW_BAUDRATE_B38400;
+		return SPSW_SPEED_38400_BPS;
 	case 57600:
-		return SPSW_BAUDRATE_B57600;
+		return SPSW_SPEED_57600_BPS;
 	case 115200:
-		return SPSW_BAUDRATE_B115200;
+		return SPSW_SPEED_115200_BPS;
 	case 230400:
-		return SPSW_BAUDRATE_B230400;
+		return SPSW_SPEED_230400_BPS;
 	case 460800:
-		return SPSW_BAUDRATE_B460800;
+		return SPSW_SPEED_460800_BPS;
 	case 500000:
-		return SPSW_BAUDRATE_B500000;
+		return SPSW_SPEED_500000_BPS;
 	case 576000:
-		return SPSW_BAUDRATE_B576000;
+		return SPSW_SPEED_576000_BPS;
 	case 921600:
-		return SPSW_BAUDRATE_B921600;
+		return SPSW_SPEED_921600_BPS;
 	case 1000000:
-		return SPSW_BAUDRATE_B1000000;
+		return SPSW_SPEED_1000000_BPS;
 	case 1152000:
-		return SPSW_BAUDRATE_B1152000;
+		return SPSW_SPEED_1152000_BPS;
 	case 1500000:
-		return SPSW_BAUDRATE_B1500000;
+		return SPSW_SPEED_1500000_BPS;
 	case 2000000:
-		return SPSW_BAUDRATE_B2000000;
+		return SPSW_SPEED_2000000_BPS;
 	case 2500000:
-		return SPSW_BAUDRATE_B2500000;
+		return SPSW_SPEED_2500000_BPS;
 	case 3000000:
-		return SPSW_BAUDRATE_B3000000;
+		return SPSW_SPEED_3000000_BPS;
 	case 3500000:
-		return SPSW_BAUDRATE_B3500000;
+		return SPSW_SPEED_3500000_BPS;
 	case 4000000:
-		return SPSW_BAUDRATE_B4000000;
+		return SPSW_SPEED_4000000_BPS;
 	default:
-		throw_Illegal_Argument_Exception(env, "Baudrate not supported");
+		throw_Illegal_Argument_Exception(env, "Speed not supported");
 		return -1;
 	}
 }
 
-static DWORD spswBaudrateToNative(JNIEnv *env, jint baudRate) {
-	switch (baudRate) {
-	case SPSW_BAUDRATE_B0:
+static DWORD spswSpeedToNative(JNIEnv *env, jint speed) {
+	switch (speed) {
+	case SPSW_SPEED_0_BPS:
 		return 0;
-	case SPSW_BAUDRATE_B50:
+	case SPSW_SPEED_50_BPS:
 		return 50;
-	case SPSW_BAUDRATE_B75:
+	case SPSW_SPEED_75_BPS:
 		return 75;
-	case SPSW_BAUDRATE_B110:
+	case SPSW_SPEED_110_BPS:
 		return 110;
-	case SPSW_BAUDRATE_B134:
+	case SPSW_SPEED_134_BPS:
 		return 134;
-	case SPSW_BAUDRATE_B150:
+	case SPSW_SPEED_150_BPS:
 		return 150;
-	case SPSW_BAUDRATE_B200:
+	case SPSW_SPEED_200_BPS:
 		return 200;
-	case SPSW_BAUDRATE_B300:
+	case SPSW_SPEED_300_BPS:
 		return 300;
-	case SPSW_BAUDRATE_B600:
+	case SPSW_SPEED_600_BPS:
 		return 600;
-	case SPSW_BAUDRATE_B1200:
+	case SPSW_SPEED_1200_BPS:
 		return 1200;
-	case SPSW_BAUDRATE_B1800:
+	case SPSW_SPEED_1800_BPS:
 		return 1800;
-	case SPSW_BAUDRATE_B2400:
+	case SPSW_SPEED_2400_BPS:
 		return 2400;
-	case SPSW_BAUDRATE_B4800:
+	case SPSW_SPEED_4800_BPS:
 		return 4800;
-	case SPSW_BAUDRATE_B9600:
+	case SPSW_SPEED_9600_BPS:
 		return 9600;
-	case SPSW_BAUDRATE_B19200:
+	case SPSW_SPEED_19200_BPS:
 		return 19200;
-	case SPSW_BAUDRATE_B38400:
+	case SPSW_SPEED_38400_BPS:
 		return 38400;
-	case SPSW_BAUDRATE_B57600:
+	case SPSW_SPEED_57600_BPS:
 		return 57600;
-	case SPSW_BAUDRATE_B115200:
+	case SPSW_SPEED_115200_BPS:
 		return 115200;
-	case SPSW_BAUDRATE_B230400:
+	case SPSW_SPEED_230400_BPS:
 		return 230400;
-	case SPSW_BAUDRATE_B460800:
+	case SPSW_SPEED_460800_BPS:
 		return 460800;
-	case SPSW_BAUDRATE_B500000:
+	case SPSW_SPEED_500000_BPS:
 		return 500000;
-	case SPSW_BAUDRATE_B576000:
+	case SPSW_SPEED_576000_BPS:
 		return 576000;
-	case SPSW_BAUDRATE_B921600:
+	case SPSW_SPEED_921600_BPS:
 		return 921600;
-	case SPSW_BAUDRATE_B1000000:
+	case SPSW_SPEED_1000000_BPS:
 		return 1000000;
-	case SPSW_BAUDRATE_B1152000:
+	case SPSW_SPEED_1152000_BPS:
 		return 1152000;
-	case SPSW_BAUDRATE_B1500000:
+	case SPSW_SPEED_1500000_BPS:
 		return 1500000;
-	case SPSW_BAUDRATE_B2000000:
+	case SPSW_SPEED_2000000_BPS:
 		return 2000000;
-	case SPSW_BAUDRATE_B2500000:
+	case SPSW_SPEED_2500000_BPS:
 		return 2500000;
-	case SPSW_BAUDRATE_B3000000:
+	case SPSW_SPEED_3000000_BPS:
 		return 3000000;
-	case SPSW_BAUDRATE_B3500000:
+	case SPSW_SPEED_3500000_BPS:
 		return 3500000;
-	case SPSW_BAUDRATE_B4000000:
+	case SPSW_SPEED_4000000_BPS:
 		return 4000000;
 	default:
-		throw_Illegal_Argument_Exception(env, "Baudrate not supported");
+		throw_Illegal_Argument_Exception(env, "Speed not supported");
 		return -1;
 	}
 }
@@ -591,9 +591,9 @@ static int getParams(JNIEnv *env, jobject sps, jint* paramBitSet) {
 		return -1;
 	}
 
-	//Baudrate
-	if (*paramBitSet & SPSW_BAUDRATE_MASK) {
-		result |= nativeToSpswBaudRate(env, dcb.BaudRate);
+	//Speed
+	if (*paramBitSet & SPSW_SPEED_MASK) {
+		result |= nativeToSpswSpeed(env, dcb.BaudRate);
 	}
 
 	//DataBits
@@ -688,12 +688,13 @@ static int getParams(JNIEnv *env, jobject sps, jint* paramBitSet) {
 
 static int setParams(JNIEnv *env, jobject sps, DCB *dcb, jint paramBitSet) {
 
-	//Baudrate
-	if (paramBitSet & SPSW_BAUDRATE_MASK) {
+	//Speed
+	if (paramBitSet & SPSW_SPEED_MASK) {
 
-		dcb->BaudRate = spswBaudrateToNative(env,
-				paramBitSet & SPSW_BAUDRATE_MASK);
+		dcb->BaudRate = spswSpeedToNative(env,
+				paramBitSet & SPSW_SPEED_MASK);
 		if (dcb->BaudRate == -1) {
+			//IAE is already thrown...
 			return -1;
 		}
 
@@ -841,7 +842,7 @@ static int setParams(JNIEnv *env, jobject sps, DCB *dcb, jint paramBitSet) {
 	}
 
 	jint paramsRead =
-	SPSW_BAUDRATE_MASK & paramBitSet ? SPSW_BAUDRATE_MASK : 0;
+	SPSW_SPEED_MASK & paramBitSet ? SPSW_SPEED_MASK : 0;
 	paramsRead |= SPSW_DATA_BITS_MASK & paramBitSet ? SPSW_DATA_BITS_MASK : 0;
 	paramsRead |= SPSW_STOP_BITS_MASK & paramBitSet ? SPSW_STOP_BITS_MASK : 0;
 	paramsRead |= SPSW_PARITY_MASK & paramBitSet ? SPSW_PARITY_MASK : 0;
@@ -854,10 +855,10 @@ static int setParams(JNIEnv *env, jobject sps, DCB *dcb, jint paramBitSet) {
 
 	if (paramsRead != paramBitSet) {
 		char buf[512];
-		if ((paramsRead & SPSW_BAUDRATE_MASK)
-				!= (paramBitSet & SPSW_BAUDRATE_MASK)) {
+		if ((paramsRead & SPSW_SPEED_MASK)
+				!= (paramBitSet & SPSW_SPEED_MASK)) {
 			snprintf(buf, sizeof(buf),
-					"Could not set Baudrate! NATIVE: paramsRead(0x%08lx) != paramBitSet(0x%08lx)",
+					"Could not set Speed! NATIVE: paramsRead(0x%08lx) != paramBitSet(0x%08lx)",
 					paramsRead, paramBitSet);
 		} else if ((paramsRead & SPSW_DATA_BITS_MASK)
 				!= (paramBitSet & SPSW_DATA_BITS_MASK)) {
@@ -1105,7 +1106,7 @@ JNIEXPORT void JNICALL Java_de_ibapl_spsw_provider_AbstractSerialPortSocket_open
 	}
 
 	if (paramBitSet != SPSW_NO_PARAMS_TO_SET) {
-		//set baudrate etc.
+		//set speed etc.
 		if (setParams(env, sps, &dcb, paramBitSet)) {
 			CloseHandle(hFile);
 			SET_FILEDESCRIPTOR(env, sps, INVALID_HANDLE_VALUE);

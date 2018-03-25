@@ -31,7 +31,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.Properties;
 
-import de.ibapl.spsw.api.Baudrate;
+import de.ibapl.spsw.api.Speed;
 import de.ibapl.spsw.api.DataBits;
 import de.ibapl.spsw.api.Parity;
 import de.ibapl.spsw.api.SerialPortSocket;
@@ -56,18 +56,18 @@ public class PrintPortCapabillitiesMain {
 				.createSerialPortSocket(serialPortName);
 		serialPortSocket.open();
 		System.out.println("Use device: " + serialPortSocket.getPortName());
-		System.out.println(String.format("%-20s%-20s%-20s%-20s", "Baudrate", "DataBits", "StopBits", "Parity"));
+		System.out.println(String.format("%-20s%-20s%-20s%-20s", "Speed", "DataBits", "StopBits", "Parity"));
 
-		for (Baudrate br : Baudrate.values()) {
+		for (Speed br : Speed.values()) {
 			for (DataBits db : DataBits.values()) {
 				for (StopBits sb : StopBits.values()) {
 					for (Parity p : Parity.values()) {
 						try {
-							serialPortSocket.setBaudrate(br);
+							serialPortSocket.setSpeed(br);
 						} catch (IllegalArgumentException e) {
-							System.err.println("Can't set Baudrate to: " + br);
+							System.err.println("Can't set Speed to: " + br);
 						} catch (IOException spe) {
-							System.err.println("Error: set Baudrate to: " + br);
+							System.err.println("Error: set Speed to: " + br);
 							System.err.println(spe);
 						}
 						try {
@@ -111,7 +111,7 @@ public class PrintPortCapabillitiesMain {
 	}
 
 	private static void printPort(SerialPortSocket sPort) throws IOException {
-		System.out.println(String.format("%-20d%-20d%-20f%-20s", sPort.getBaudrate().value, sPort.getDatatBits().value,
+		System.out.println(String.format("%-20d%-20d%-20f%-20s", sPort.getSpeed().value, sPort.getDatatBits().value,
 				sPort.getStopBits().value, sPort.getParity().name()));
 	}
 

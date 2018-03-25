@@ -47,7 +47,7 @@ import org.junit.jupiter.api.condition.OS;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
 
-import de.ibapl.spsw.api.Baudrate;
+import de.ibapl.spsw.api.Speed;
 import de.ibapl.spsw.api.DataBits;
 import de.ibapl.spsw.api.FlowControl;
 import de.ibapl.spsw.api.Parity;
@@ -404,8 +404,8 @@ public abstract class AbstractOnePortTest extends AbstractPortTest {
 		assumeTrue(readSpc != writeSpc);
 		LOG.log(Level.INFO, "run testWriteBytesTimeout");
 
-		// Set a high baudrate to speed up things
-		open(Baudrate.B115200, DataBits.DB_8, StopBits.SB_1, Parity.NONE, FlowControl.getFC_RTS_CTS());
+		// Set a high speed to speed up things
+		open(Speed._115200_BPS, DataBits.DB_8, StopBits.SB_1, Parity.NONE, FlowControl.getFC_RTS_CTS());
 		// Disabling timeout on the reading side - so the writing side has a chance to
 		// fill the buffer...
 		readSpc.setFlowControl(FlowControl.getFC_NONE());
@@ -469,8 +469,8 @@ public abstract class AbstractOnePortTest extends AbstractPortTest {
 		assumeTrue(readSpc != writeSpc);
 		LOG.log(Level.INFO, "run testWriteSingleByteTimeout");
 
-		// Set a high baudrate to speed up things
-		open(Baudrate.B115200, DataBits.DB_8, StopBits.SB_1, Parity.NONE, FlowControl.getFC_RTS_CTS());
+		// Set a high speed to speed up things
+		open(Speed._115200_BPS, DataBits.DB_8, StopBits.SB_1, Parity.NONE, FlowControl.getFC_RTS_CTS());
 		// Disabling timeout on the reading side - so the writing side has a chance to
 		// fill the buffer...
 		readSpc.setFlowControl(FlowControl.getFC_NONE());
@@ -531,7 +531,7 @@ public abstract class AbstractOnePortTest extends AbstractPortTest {
 	@BaselineTest
 	@Test
 	public void Write256kBChunk() throws Exception {
-		writeChunk(_256kB, 1000 + 2 * SerialPortSocket.calculateMillisForBytes(_256kB, Baudrate.B1000000,
+		writeChunk(_256kB, 1000 + 2 * SerialPortSocket.calculateMillisForBytes(_256kB, Speed._1000000_BPS,
 				DataBits.DB_8, StopBits.SB_1, Parity.NONE));
 	}
 
@@ -544,7 +544,7 @@ public abstract class AbstractOnePortTest extends AbstractPortTest {
 	@NotSupportedByAllDevices
 	@Test
 	public void Write1MBChunk() throws Exception {
-		writeChunk(_1MB, 1000 + 2 * SerialPortSocket.calculateMillisForBytes(_1MB, Baudrate.B1000000, DataBits.DB_8,
+		writeChunk(_1MB, 1000 + 2 * SerialPortSocket.calculateMillisForBytes(_1MB, Speed._1000000_BPS, DataBits.DB_8,
 				StopBits.SB_1, Parity.NONE));
 	}
 
@@ -569,7 +569,7 @@ public abstract class AbstractOnePortTest extends AbstractPortTest {
 	@NotSupportedByAllDevices
 	@Test
 	public void Write16MBChunk() throws Exception {
-		writeChunk(_16MB, 1000 + 2 * SerialPortSocket.calculateMillisForBytes(_16MB, Baudrate.B1000000, DataBits.DB_8,
+		writeChunk(_16MB, 1000 + 2 * SerialPortSocket.calculateMillisForBytes(_16MB, Speed._1000000_BPS, DataBits.DB_8,
 				StopBits.SB_1, Parity.NONE));
 	}
 
@@ -582,8 +582,8 @@ public abstract class AbstractOnePortTest extends AbstractPortTest {
 			LOG.log(Level.INFO, "timeout in ms:" + writeTimeout);
 		}
 
-		// Set a high baudrate to speed up things
-		open(Baudrate.B1000000, DataBits.DB_8, StopBits.SB_1, Parity.NONE, FlowControl.getFC_NONE());
+		// Set a high speed to speed up things
+		open(Speed._1000000_BPS, DataBits.DB_8, StopBits.SB_1, Parity.NONE, FlowControl.getFC_NONE());
 		setTimeouts(100, 1000, writeTimeout);
 
 		byte[] data = new byte[chunksize];
@@ -639,9 +639,9 @@ public abstract class AbstractOnePortTest extends AbstractPortTest {
 		assumeRTest();
 		LOG.log(Level.INFO, "run testOpenCloseParams");
 
-		readSpc.open(Baudrate.B9600, DataBits.DB_8, StopBits.SB_1, Parity.EVEN, FlowControl.getFC_NONE());
+		readSpc.open(Speed._9600_BPS, DataBits.DB_8, StopBits.SB_1, Parity.EVEN, FlowControl.getFC_NONE());
 		assertTrue(readSpc.isOpen());
-		assertEquals(Baudrate.B9600, readSpc.getBaudrate());
+		assertEquals(Speed._9600_BPS, readSpc.getSpeed());
 		assertEquals(DataBits.DB_8, readSpc.getDatatBits());
 		assertEquals(StopBits.SB_1, readSpc.getStopBits());
 		assertEquals(Parity.EVEN, readSpc.getParity());
@@ -659,12 +659,12 @@ public abstract class AbstractOnePortTest extends AbstractPortTest {
 		readSpc.close();
 
 		ioe = assertThrows(IOException.class, () -> {
-			readSpc.setBaudrate(Baudrate.B9600);
+			readSpc.setSpeed(Speed._9600_BPS);
 		});
 		assertEquals(ioe.getMessage(), SerialPortSocket.PORT_IS_CLOSED);
 
 		ioe = assertThrows(IOException.class, () -> {
-			readSpc.getBaudrate();
+			readSpc.getSpeed();
 		});
 		assertEquals(ioe.getMessage(), SerialPortSocket.PORT_IS_CLOSED);
 
@@ -805,31 +805,31 @@ public abstract class AbstractOnePortTest extends AbstractPortTest {
 
 	@BaselineTest
 	@Test
-	public void testBaudrate() throws Exception {
+	public void testSpeed() throws Exception {
 		assumeRTest();
-		LOG.log(Level.INFO, "run testBaudrate");
+		LOG.log(Level.INFO, "run testSpeed");
 		openDefault();
 
-		for (Baudrate b : Baudrate.values()) {
+		for (Speed b : Speed.values()) {
 			try {
-				readSpc.setBaudrate(b);
-				assertEquals(b, readSpc.getBaudrate(), "testBaudrate");
+				readSpc.setSpeed(b);
+				assertEquals(b, readSpc.getSpeed(), "test Speed");
 			} catch (IllegalArgumentException iae) {
 				switch (b) {
-				case B0:
-				case B50:
-				case B75:
-				case B110:
-				case B134:
-				case B150:
-				case B200:
-				case B2000000:
-				case B2500000:
-				case B3000000:
-				case B3500000:
-				case B4000000:
-					if (b != readSpc.getBaudrate()) {
-						LOG.warning("Can't set Baudrate to " + b);
+				case _0_BPS:
+				case _50_BPS:
+				case _75_BPS:
+				case _110_BPS:
+				case _134_BPS:
+				case _150_BPS:
+				case _200_BPS:
+				case _2000000_BPS:
+				case _2500000_BPS:
+				case _3000000_BPS:
+				case _3500000_BPS:
+				case _4000000_BPS:
+					if (b != readSpc.getSpeed()) {
+						LOG.warning("Can't set speed to " + b);
 					}
 					break;
 				default:
@@ -926,7 +926,7 @@ public abstract class AbstractOnePortTest extends AbstractPortTest {
 		LOG.log(Level.INFO, "run testCloseIn");
 
 		for (int loopIndex = 0; loopIndex < 1; loopIndex++) {
-			open(Baudrate.B2400, DataBits.DB_8, StopBits.SB_1, Parity.EVEN, FlowControl.getFC_NONE());
+			open(Speed._2400_BPS, DataBits.DB_8, StopBits.SB_1, Parity.EVEN, FlowControl.getFC_NONE());
 			// spc.setTimeouts(100, 1000, 1000);
 			printPorts();
 			final TestRead tr = new TestRead();
@@ -1025,12 +1025,12 @@ public abstract class AbstractOnePortTest extends AbstractPortTest {
 		LOG.log(Level.INFO, "run testAllSettings");
 		openDefault();
 
-		for (Baudrate br : Baudrate.values()) {
+		for (Speed speed : Speed.values()) {
 			try {
-				readSpc.setBaudrate(br);
+				readSpc.setSpeed(speed);
 			} catch (IllegalArgumentException iae) {
 				// Some HW supports this, some not ...
-				// This is logged in testSetBaudrate so ignore it here.
+				// This is logged in testSetSpeed so ignore it here.
 				continue;
 			}
 			for (DataBits db : DataBits.values()) {
@@ -1064,7 +1064,7 @@ public abstract class AbstractOnePortTest extends AbstractPortTest {
 						default:
 							throw new RuntimeException("Should never happen");
 						}
-						assertEquals(br, readSpc.getBaudrate());
+						assertEquals(speed, readSpc.getSpeed());
 						assertEquals(db, readSpc.getDatatBits());
 						assertEquals(p, readSpc.getParity());
 					}
@@ -1076,8 +1076,8 @@ public abstract class AbstractOnePortTest extends AbstractPortTest {
 	public Iterator<PortConfiguration> getTestAllSettings() {
 		LinkedList<PortConfiguration> result = new LinkedList<>();
 		PortConfigurationFactory portConfigurationFactory = new PortConfigurationFactory();
-		for (Baudrate br : Baudrate.values()) {
-			portConfigurationFactory.setBaudrate(br);
+		for (Speed speed : Speed.values()) {
+			portConfigurationFactory.setSpeed(speed);
 			for (DataBits db : DataBits.values()) {
 				portConfigurationFactory.setDataBits(db);
 				for (Parity p : Parity.values()) {
@@ -1125,7 +1125,7 @@ public abstract class AbstractOnePortTest extends AbstractPortTest {
 	public void testCloseDuringSingleRead() throws Exception {
 		assumeRTest();
 		LOG.log(Level.INFO, "run testCloseDuringSingleRead");
-		open(Baudrate.B2400, DataBits.DB_8, StopBits.SB_1, Parity.EVEN, FlowControl.getFC_NONE());
+		open(Speed._2400_BPS, DataBits.DB_8, StopBits.SB_1, Parity.EVEN, FlowControl.getFC_NONE());
 
 		new Thread(() -> {
 			try {
@@ -1152,7 +1152,7 @@ public abstract class AbstractOnePortTest extends AbstractPortTest {
 	public void testCloseDuringBytesRead() throws Exception {
 		assumeRTest();
 		LOG.log(Level.INFO, "run testCloseDuringBytesRead");
-		open(Baudrate.B2400, DataBits.DB_8, StopBits.SB_1, Parity.EVEN, FlowControl.getFC_NONE());
+		open(Speed._2400_BPS, DataBits.DB_8, StopBits.SB_1, Parity.EVEN, FlowControl.getFC_NONE());
 
 		new Thread(() -> {
 			try {
@@ -1189,7 +1189,7 @@ public abstract class AbstractOnePortTest extends AbstractPortTest {
 	public void testCloseDuringBytesWrite() throws Exception {
 		assumeWTest();
 		LOG.log(Level.INFO, "run testCloseDuringBytesRead");
-		open(Baudrate.B1000000, DataBits.DB_8, StopBits.SB_1, Parity.EVEN, FlowControl.getFC_NONE());
+		open(Speed._1000000_BPS, DataBits.DB_8, StopBits.SB_1, Parity.EVEN, FlowControl.getFC_NONE());
 		int len = (int) Math.ceil(1000.0 / readSpc.calculateMillisPerByte());
 
 		byte b[] = new byte[len];
@@ -1227,7 +1227,7 @@ public abstract class AbstractOnePortTest extends AbstractPortTest {
 		assumeWTest();
 		LOG.log(Level.INFO, "run testSendBreakBlocking");
 
-		open(Baudrate.B2400, DataBits.DB_8, StopBits.SB_1, Parity.EVEN, FlowControl.getFC_NONE());
+		open(Speed._2400_BPS, DataBits.DB_8, StopBits.SB_1, Parity.EVEN, FlowControl.getFC_NONE());
 		final long start = System.currentTimeMillis();
 		writeSpc.sendBreak(500);
 		final long end = System.currentTimeMillis();

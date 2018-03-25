@@ -31,7 +31,7 @@ import de.ibapl.spsw.api.StopBits;
 import de.ibapl.spsw.api.Parity;
 import de.ibapl.spsw.api.SerialPortSocket;
 import de.ibapl.spsw.api.DataBits;
-import de.ibapl.spsw.api.Baudrate;
+import de.ibapl.spsw.api.Speed;
 import de.ibapl.spsw.api.FlowControl;
 import java.io.IOException;
 import java.io.InputStream;
@@ -133,71 +133,71 @@ public abstract class AbstractSerialPortSocket<T extends AbstractSerialPortSocke
 	}
 
 	// Layout of the 8 nibbles
-	// parity,stopBits,flowControl,flowControl,dataBits,free,baudrate,baudrate
+	// parity,stopBits,flowControl,flowControl,dataBits,free,speed,speed
 	@Native
-	static final int BAUDRATE_B0 = 0x00000001;
+	static final int SPEED_0_BPS = 0x00000001;
 	@Native
-	static final int BAUDRATE_B50 = 0x00000002;
+	static final int SPEED_50_BPS = 0x00000002;
 	@Native
-	static final int BAUDRATE_B75 = 0x00000003;
+	static final int SPEED_75_BPS = 0x00000003;
 	@Native
-	static final int BAUDRATE_B110 = 0x00000004;
+	static final int SPEED_110_BPS = 0x00000004;
 	@Native
-	static final int BAUDRATE_B134 = 0x00000005;
+	static final int SPEED_134_BPS = 0x00000005;
 	@Native
-	static final int BAUDRATE_B150 = 0x00000006;
+	static final int SPEED_150_BPS = 0x00000006;
 	@Native
-	static final int BAUDRATE_B200 = 0x00000007;
+	static final int SPEED_200_BPS = 0x00000007;
 	@Native
-	static final int BAUDRATE_B300 = 0x00000008;
+	static final int SPEED_300_BPS = 0x00000008;
 	@Native
-	static final int BAUDRATE_B600 = 0x00000009;
+	static final int SPEED_600_BPS = 0x00000009;
 	@Native
-	static final int BAUDRATE_B1200 = 0x0000000A;
+	static final int SPEED_1200_BPS = 0x0000000A;
 	@Native
-	static final int BAUDRATE_B1800 = 0x0000000B;
+	static final int SPEED_1800_BPS = 0x0000000B;
 	@Native
-	static final int BAUDRATE_B2400 = 0x0000000C;
+	static final int SPEED_2400_BPS = 0x0000000C;
 	@Native
-	static final int BAUDRATE_B4800 = 0x0000000D;
+	static final int SPEED_4800_BPS = 0x0000000D;
 	@Native
-	static final int BAUDRATE_B9600 = 0x0000000E;
+	static final int SPEED_9600_BPS = 0x0000000E;
 	@Native
-	static final int BAUDRATE_B19200 = 0x0000000F;
+	static final int SPEED_19200_BPS = 0x0000000F;
 	@Native
-	static final int BAUDRATE_B38400 = 0x00000010;
+	static final int SPEED_38400_BPS = 0x00000010;
 	@Native
-	static final int BAUDRATE_B57600 = 0x00000011;
+	static final int SPEED_57600_BPS = 0x00000011;
 	@Native
-	static final int BAUDRATE_B115200 = 0x00000012;
+	static final int SPEED_115200_BPS = 0x00000012;
 	@Native
-	static final int BAUDRATE_B230400 = 0x00000013;
+	static final int SPEED_230400_BPS = 0x00000013;
 	@Native
-	static final int BAUDRATE_B460800 = 0x00000014;
+	static final int SPEED_460800_BPS = 0x00000014;
 	@Native
-	static final int BAUDRATE_B500000 = 0x00000015;
+	static final int SPEED_500000_BPS = 0x00000015;
 	@Native
-	static final int BAUDRATE_B576000 = 0x00000016;
+	static final int SPEED_576000_BPS = 0x00000016;
 	@Native
-	static final int BAUDRATE_B921600 = 0x00000017;
+	static final int SPEED_921600_BPS = 0x00000017;
 	@Native
-	static final int BAUDRATE_B1000000 = 0x00000018;
+	static final int SPEED_1000000_BPS = 0x00000018;
 	@Native
-	static final int BAUDRATE_B1152000 = 0x00000019;
+	static final int SPEED_1152000_BPS = 0x00000019;
 	@Native
-	static final int BAUDRATE_B1500000 = 0x0000001A;
+	static final int SPEED_1500000_BPS = 0x0000001A;
 	@Native
-	static final int BAUDRATE_B2000000 = 0x0000001B;
+	static final int SPEED_2000000_BPS = 0x0000001B;
 	@Native
-	static final int BAUDRATE_B2500000 = 0x0000001C;
+	static final int SPEED_2500000_BPS = 0x0000001C;
 	@Native
-	static final int BAUDRATE_B3000000 = 0x0000001D;
+	static final int SPEED_3000000_BPS = 0x0000001D;
 	@Native
-	static final int BAUDRATE_B3500000 = 0x0000001E;
+	static final int SPEED_3500000_BPS = 0x0000001E;
 	@Native
-	static final int BAUDRATE_B4000000 = 0x0000001F;
+	static final int SPEED_4000000_BPS = 0x0000001F;
 	@Native
-	static final int BAUDRATE_MASK = 0x000000FF;
+	static final int SPEED_MASK = 0x000000FF;
 
 	@Native
 	static final int DATA_BITS_DB5 = 0x00001000;
@@ -248,72 +248,72 @@ public abstract class AbstractSerialPortSocket<T extends AbstractSerialPortSocke
 	@Native
 	static final int NO_PARAMS_TO_SET = 0x00000000;
 
-	static Baudrate baudrateFromBitSet(int bitset) {
-		switch (bitset & BAUDRATE_MASK) {
-		case BAUDRATE_B0:
-			return Baudrate.B0;
-		case BAUDRATE_B50:
-			return Baudrate.B50;
-		case BAUDRATE_B75:
-			return Baudrate.B75;
-		case BAUDRATE_B110:
-			return Baudrate.B110;
-		case BAUDRATE_B134:
-			return Baudrate.B134;
-		case BAUDRATE_B150:
-			return Baudrate.B150;
-		case BAUDRATE_B200:
-			return Baudrate.B200;
-		case BAUDRATE_B300:
-			return Baudrate.B300;
-		case BAUDRATE_B600:
-			return Baudrate.B600;
-		case BAUDRATE_B1200:
-			return Baudrate.B1200;
-		case BAUDRATE_B1800:
-			return Baudrate.B1800;
-		case BAUDRATE_B2400:
-			return Baudrate.B2400;
-		case BAUDRATE_B4800:
-			return Baudrate.B4800;
-		case BAUDRATE_B9600:
-			return Baudrate.B9600;
-		case BAUDRATE_B19200:
-			return Baudrate.B19200;
-		case BAUDRATE_B38400:
-			return Baudrate.B38400;
-		case BAUDRATE_B57600:
-			return Baudrate.B57600;
-		case BAUDRATE_B115200:
-			return Baudrate.B115200;
-		case BAUDRATE_B230400:
-			return Baudrate.B230400;
-		case BAUDRATE_B460800:
-			return Baudrate.B460800;
-		case BAUDRATE_B500000:
-			return Baudrate.B500000;
-		case BAUDRATE_B576000:
-			return Baudrate.B576000;
-		case BAUDRATE_B921600:
-			return Baudrate.B921600;
-		case BAUDRATE_B1000000:
-			return Baudrate.B1000000;
-		case BAUDRATE_B1152000:
-			return Baudrate.B1152000;
-		case BAUDRATE_B1500000:
-			return Baudrate.B1500000;
-		case BAUDRATE_B2000000:
-			return Baudrate.B2000000;
-		case BAUDRATE_B2500000:
-			return Baudrate.B2500000;
-		case BAUDRATE_B3000000:
-			return Baudrate.B3000000;
-		case BAUDRATE_B3500000:
-			return Baudrate.B3500000;
-		case BAUDRATE_B4000000:
-			return Baudrate.B4000000;
+	static Speed speedFromBitSet(int bitset) {
+		switch (bitset & SPEED_MASK) {
+		case SPEED_0_BPS:
+			return Speed._0_BPS;
+		case SPEED_50_BPS:
+			return Speed._50_BPS;
+		case SPEED_75_BPS:
+			return Speed._75_BPS;
+		case SPEED_110_BPS:
+			return Speed._110_BPS;
+		case SPEED_134_BPS:
+			return Speed._134_BPS;
+		case SPEED_150_BPS:
+			return Speed._150_BPS;
+		case SPEED_200_BPS:
+			return Speed._200_BPS;
+		case SPEED_300_BPS:
+			return Speed._300_BPS;
+		case SPEED_600_BPS:
+			return Speed._600_BPS;
+		case SPEED_1200_BPS:
+			return Speed._1200_BPS;
+		case SPEED_1800_BPS:
+			return Speed._1800_BPS;
+		case SPEED_2400_BPS:
+			return Speed._2400_BPS;
+		case SPEED_4800_BPS:
+			return Speed._4800_BPS;
+		case SPEED_9600_BPS:
+			return Speed._9600_BPS;
+		case SPEED_19200_BPS:
+			return Speed._19200_BPS;
+		case SPEED_38400_BPS:
+			return Speed._38400_BPS;
+		case SPEED_57600_BPS:
+			return Speed._57600_BPS;
+		case SPEED_115200_BPS:
+			return Speed._115200_BPS;
+		case SPEED_230400_BPS:
+			return Speed._230400_BPS;
+		case SPEED_460800_BPS:
+			return Speed._460800_BPS;
+		case SPEED_500000_BPS:
+			return Speed._500000_BPS;
+		case SPEED_576000_BPS:
+			return Speed._576000_BPS;
+		case SPEED_921600_BPS:
+			return Speed._921600_BPS;
+		case SPEED_1000000_BPS:
+			return Speed._1000000_BPS;
+		case SPEED_1152000_BPS:
+			return Speed._1152000_BPS;
+		case SPEED_1500000_BPS:
+			return Speed._1500000_BPS;
+		case SPEED_2000000_BPS:
+			return Speed._2000000_BPS;
+		case SPEED_2500000_BPS:
+			return Speed._2500000_BPS;
+		case SPEED_3000000_BPS:
+			return Speed._3000000_BPS;
+		case SPEED_3500000_BPS:
+			return Speed._3500000_BPS;
+		case SPEED_4000000_BPS:
+			return Speed._4000000_BPS;
 		default:
-			throw new IllegalArgumentException(String.format("Unknown baudrate in bitset: %8x", bitset));
+			throw new IllegalArgumentException(String.format("Unknown speed in bitset: %8x", bitset));
 		}
 	}
 
@@ -382,72 +382,72 @@ public abstract class AbstractSerialPortSocket<T extends AbstractSerialPortSocke
 		}
 	}
 
-	static int toBitSet(Baudrate baudrate) {
-		switch (baudrate) {
-		case B0:
-			return BAUDRATE_B0;
-		case B50:
-			return BAUDRATE_B50;
-		case B75:
-			return BAUDRATE_B75;
-		case B110:
-			return BAUDRATE_B110;
-		case B134:
-			return BAUDRATE_B134;
-		case B150:
-			return BAUDRATE_B150;
-		case B200:
-			return BAUDRATE_B200;
-		case B300:
-			return BAUDRATE_B300;
-		case B600:
-			return BAUDRATE_B600;
-		case B1200:
-			return BAUDRATE_B1200;
-		case B1800:
-			return BAUDRATE_B1800;
-		case B2400:
-			return BAUDRATE_B2400;
-		case B4800:
-			return BAUDRATE_B4800;
-		case B9600:
-			return BAUDRATE_B9600;
-		case B19200:
-			return BAUDRATE_B19200;
-		case B38400:
-			return BAUDRATE_B38400;
-		case B57600:
-			return BAUDRATE_B57600;
-		case B115200:
-			return BAUDRATE_B115200;
-		case B230400:
-			return BAUDRATE_B230400;
-		case B460800:
-			return BAUDRATE_B460800;
-		case B500000:
-			return BAUDRATE_B500000;
-		case B576000:
-			return BAUDRATE_B576000;
-		case B921600:
-			return BAUDRATE_B921600;
-		case B1000000:
-			return BAUDRATE_B1000000;
-		case B1152000:
-			return BAUDRATE_B1152000;
-		case B1500000:
-			return BAUDRATE_B1500000;
-		case B2000000:
-			return BAUDRATE_B2000000;
-		case B2500000:
-			return BAUDRATE_B2500000;
-		case B3000000:
-			return BAUDRATE_B3000000;
-		case B3500000:
-			return BAUDRATE_B3500000;
-		case B4000000:
-			return BAUDRATE_B4000000;
+	static int toBitSet(Speed speed) {
+		switch (speed) {
+		case _0_BPS:
+			return SPEED_0_BPS;
+		case _50_BPS:
+			return SPEED_50_BPS;
+		case _75_BPS:
+			return SPEED_75_BPS;
+		case _110_BPS:
+			return SPEED_110_BPS;
+		case _134_BPS:
+			return SPEED_134_BPS;
+		case _150_BPS:
+			return SPEED_150_BPS;
+		case _200_BPS:
+			return SPEED_200_BPS;
+		case _300_BPS:
+			return SPEED_300_BPS;
+		case _600_BPS:
+			return SPEED_600_BPS;
+		case _1200_BPS:
+			return SPEED_1200_BPS;
+		case _1800_BPS:
+			return SPEED_1800_BPS;
+		case _2400_BPS:
+			return SPEED_2400_BPS;
+		case _4800_BPS:
+			return SPEED_4800_BPS;
+		case _9600_BPS:
+			return SPEED_9600_BPS;
+		case _19200_BPS:
+			return SPEED_19200_BPS;
+		case _38400_BPS:
+			return SPEED_38400_BPS;
+		case _57600_BPS:
+			return SPEED_57600_BPS;
+		case _115200_BPS:
+			return SPEED_115200_BPS;
+		case _230400_BPS:
+			return SPEED_230400_BPS;
+		case _460800_BPS:
+			return SPEED_460800_BPS;
+		case _500000_BPS:
+			return SPEED_500000_BPS;
+		case _576000_BPS:
+			return SPEED_576000_BPS;
+		case _921600_BPS:
+			return SPEED_921600_BPS;
+		case _1000000_BPS:
+			return SPEED_1000000_BPS;
+		case _1152000_BPS:
+			return SPEED_1152000_BPS;
+		case _1500000_BPS:
+			return SPEED_1500000_BPS;
+		case _2000000_BPS:
+			return SPEED_2000000_BPS;
+		case _2500000_BPS:
+			return SPEED_2500000_BPS;
+		case _3000000_BPS:
+			return SPEED_3000000_BPS;
+		case _3500000_BPS:
+			return SPEED_3500000_BPS;
+		case _4000000_BPS:
+			return SPEED_4000000_BPS;
 		default:
-			throw new IllegalArgumentException("Unknown baudrate: " + baudrate);
+			throw new IllegalArgumentException("Unknown speed: " + speed);
 		}
 	}
 
@@ -597,8 +597,8 @@ public abstract class AbstractSerialPortSocket<T extends AbstractSerialPortSocke
 	}
 
 	@Override
-	public Baudrate getBaudrate() throws IOException {
-		return baudrateFromBitSet(getParameters(BAUDRATE_MASK));
+	public Speed getSpeed() throws IOException {
+		return speedFromBitSet(getParameters(SPEED_MASK));
 	}
 
 	@Override
@@ -699,12 +699,12 @@ public abstract class AbstractSerialPortSocket<T extends AbstractSerialPortSocke
 	}
 
 	@Override
-	public synchronized void open(Baudrate baudrate, DataBits dataBits, StopBits stopBits, Parity parity,
+	public synchronized void open(Speed speed, DataBits dataBits, StopBits stopBits, Parity parity,
 			Set<FlowControl> flowControls) throws IOException {
 		if (open) {
 			throw new IOException(PORT_IS_OPEN);
 		}
-		int bitset = toBitSet(baudrate);
+		int bitset = toBitSet(speed);
 		bitset |= toBitSet(dataBits);
 		bitset |= toBitSet(stopBits);
 		bitset |= toBitSet(parity);
@@ -745,11 +745,11 @@ public abstract class AbstractSerialPortSocket<T extends AbstractSerialPortSocke
 	public native void sendBreak(int duration) throws IOException;
 
 	@Override
-	public void setBaudrate(Baudrate baudrate) throws IOException {
+	public void setSpeed(Speed speed) throws IOException {
 		try {
-			setParameters(toBitSet(baudrate));
+			setParameters(toBitSet(speed));
 		} catch (IllegalArgumentException ex) {
-			throw new IllegalArgumentException("Can't set baudrate " + baudrate + " on port: " + getPortName(), ex);
+			throw new IllegalArgumentException("Can't set speed " + speed + " on port: " + getPortName(), ex);
 		}
 	}
 
@@ -809,8 +809,8 @@ public abstract class AbstractSerialPortSocket<T extends AbstractSerialPortSocke
 	@Override
 	public String toString() {
 		try {
-			return String.format("[portname=%s, baudrate= %s, dataBits= %s, stopBits= %s, parity= %s, flowControl= %s]",
-					getPortName(), getBaudrate(), getDatatBits(), getStopBits(), getParity(), getFlowControl());
+			return String.format("[portname=%s, speed= %s, dataBits= %s, stopBits= %s, parity= %s, flowControl= %s]",
+					getPortName(), getSpeed(), getDatatBits(), getStopBits(), getParity(), getFlowControl());
 		} catch (IOException e) {
 			return "Internal Error " + e;
 		}

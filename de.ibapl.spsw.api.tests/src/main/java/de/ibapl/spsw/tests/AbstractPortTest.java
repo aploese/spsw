@@ -49,7 +49,7 @@ import org.junit.jupiter.api.extension.AfterTestExecutionCallback;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.api.extension.ExtensionContext;
 
-import de.ibapl.spsw.api.Baudrate;
+import de.ibapl.spsw.api.Speed;
 import de.ibapl.spsw.api.DataBits;
 import de.ibapl.spsw.api.FlowControl;
 import de.ibapl.spsw.api.Parity;
@@ -57,8 +57,6 @@ import de.ibapl.spsw.api.SerialPortSocket;
 import de.ibapl.spsw.api.SerialPortSocketFactory;
 import de.ibapl.spsw.api.StopBits;
 import de.ibapl.spsw.api.TimeoutIOException;
-import de.ibapl.spsw.tests.AbstractPortTest.Receiver;
-import de.ibapl.spsw.tests.AbstractPortTest.Sender;
 
 @ExtendWith(AbstractPortTest.AfterTestExecution.class)
 @TestInstance(Lifecycle.PER_CLASS)
@@ -290,12 +288,12 @@ public abstract class AbstractPortTest {
 		}
 	}
 
-	protected void setBaudrate(Baudrate baudrate) throws IOException {
+	protected void setSpeed(Speed speed) throws IOException {
 		if (readSpc != null) {
-			readSpc.setBaudrate(baudrate);
+			readSpc.setSpeed(speed);
 		}
 		if (writeSpc != null && writeSpc != readSpc) {
-			writeSpc.setBaudrate(baudrate);
+			writeSpc.setSpeed(speed);
 		}
 	}
 
@@ -313,23 +311,23 @@ public abstract class AbstractPortTest {
 	}
 
 	protected void openDefault() throws Exception {
-		open(Baudrate.B9600, DataBits.DB_8, StopBits.SB_1, Parity.NONE, FlowControl.getFC_NONE());
+		open(Speed._9600_BPS, DataBits.DB_8, StopBits.SB_1, Parity.NONE, FlowControl.getFC_NONE());
 	}
 
 	/**
 	 * Opens the port and make sure that In and out buffer are empty
 	 * 
-	 * @param baudrate
+	 * @param speed
 	 * @param dataBits
 	 * @param stopBits
 	 * @param parity
 	 * @param flowControl
 	 * @throws Exception
 	 */
-	protected void open(Baudrate baudrate, DataBits dataBits, StopBits stopBits, Parity parity,
+	protected void open(Speed speed, DataBits dataBits, StopBits stopBits, Parity parity,
 			Set<FlowControl> flowControl) throws Exception {
 		if (readSpc != null) {
-			readSpc.open(baudrate, dataBits, stopBits, parity, flowControl);
+			readSpc.open(speed, dataBits, stopBits, parity, flowControl);
 			assertEquals(0, readSpc.getOutBufferBytesCount(), "Can't start test: OutBuffer is not empty");
 			while (readSpc.getInBufferBytesCount() > 0) {
 				readSpc.getInputStream().read(new byte[readSpc.getInBufferBytesCount()]);
@@ -339,7 +337,7 @@ public abstract class AbstractPortTest {
 
 		}
 		if (writeSpc != null && writeSpc != readSpc) {
-			writeSpc.open(baudrate, dataBits, stopBits, parity, flowControl);
+			writeSpc.open(speed, dataBits, stopBits, parity, flowControl);
 			assertEquals(0, writeSpc.getOutBufferBytesCount(), "Can't start test: OutBuffer is not empty");
 			while (writeSpc.getInBufferBytesCount() > 0) {
 				writeSpc.getInputStream().read(new byte[writeSpc.getInBufferBytesCount()]);
@@ -363,8 +361,8 @@ public abstract class AbstractPortTest {
 		if (readSpc != null && writeSpc != null && readSpc != writeSpc) {
 			StringBuilder sb = new StringBuilder();
 			sb.append(String.format("\n\tName:        %-20s %-20s\n", readSpc.getPortName(), writeSpc.getPortName()));
-			sb.append(String.format("\tBaudrate:    %-20d %-20d\n", readSpc.getBaudrate().value,
-					writeSpc.getBaudrate().value));
+			sb.append(String.format("\tSpeed:    %-20d %-20d\n", readSpc.getSpeed().value,
+					writeSpc.getSpeed().value));
 			sb.append(String.format("\tDataBits:    %-20d %-20d\n", readSpc.getDatatBits().value,
 					writeSpc.getDatatBits().value));
 			sb.append(String.format("\tStopBits:    %-20f %-20f\n", readSpc.getStopBits().value,
@@ -387,7 +385,7 @@ public abstract class AbstractPortTest {
 			if (spc != null) {
 				StringBuilder sb = new StringBuilder();
 				sb.append(String.format("\n\tName:        %-20s\n", spc.getPortName()));
-				sb.append(String.format("\tBaudrate:    %-20d\n", spc.getBaudrate().value));
+				sb.append(String.format("\tSpeed:    %-20d\n", spc.getSpeed().value));
 				sb.append(String.format("\tDataBits:    %-20d\n", spc.getDatatBits().value));
 				sb.append(String.format("\tStopBits:    %-20f\n", spc.getStopBits().value));
 				sb.append(String.format("\tParity:      %-20s\n", spc.getParity().name()));
@@ -461,7 +459,7 @@ public abstract class AbstractPortTest {
 	}
 
 	protected void open(PortConfiguration pc) throws Exception {
-		open(pc.getBaudrate(), pc.getDataBits(), pc.getStopBits(), pc.getParity(), pc.getFlowControl());
+		open(pc.getSpeed(), pc.getDataBits(), pc.getStopBits(), pc.getParity(), pc.getFlowControl());
 		setTimeouts(pc.getInterByteReadTimeout(), pc.getOverallReadTimeout(), pc.getOverallWriteTimeout());
 	}
 

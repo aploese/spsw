@@ -3,52 +3,53 @@ package de.ibapl.spsw.tests;
 import java.util.Iterator;
 import java.util.Set;
 
-import de.ibapl.spsw.api.Baudrate;
+import de.ibapl.spsw.api.Speed;
 import de.ibapl.spsw.api.DataBits;
 import de.ibapl.spsw.api.FlowControl;
 import de.ibapl.spsw.api.Parity;
 import de.ibapl.spsw.api.StopBits;
 
 public class PortConfigurationFactory {
-	
-	
-	class PortConfigurationImpl implements PortConfiguration, Cloneable {
+
+	class PortConfigurationImpl implements PortConfiguration {
 		private int bufferSize = 1024;
-		private Set<FlowControl> flowControl = FlowControl.getFC_NONE(); // getFC_RTS_CTS();
-		private Parity parity = Parity.NONE;
-		private StopBits stopBits = StopBits.SB_1;
 		private DataBits dataBits = DataBits.DB_8;
-		private Baudrate baudrate = Baudrate.B9600;
+		private Set<FlowControl> flowControl = FlowControl.getFC_NONE(); // getFC_RTS_CTS();
 		private int interByteReadTimeout = 100;
 		private int overallReadTimeout = 2000;
 		private int overallWriteTimeout = 2000;
-		
-		@Override
-		public PortConfigurationImpl clone() {
-			try {
-				return (PortConfigurationImpl)super.clone();
-			}catch (Exception e) {
-				throw new RuntimeException(e);
-			}
+		private Parity parity = Parity.NONE;
+		private Speed speed = Speed._9600_BPS;
+		private StopBits stopBits = StopBits.SB_1;
+
+		public PortConfigurationImpl() {
 		}
-		
-		public Baudrate getBaudrate() {
-			return baudrate;
+
+		public PortConfigurationImpl(PortConfigurationImpl portConfigurationImpl) {
+			this.bufferSize = portConfigurationImpl.bufferSize;
+			this.flowControl = portConfigurationImpl.flowControl;
+			this.parity = portConfigurationImpl.parity;
+			this.stopBits = portConfigurationImpl.stopBits;
+			this.dataBits = portConfigurationImpl.dataBits;
+			this.speed = portConfigurationImpl.speed;
+			this.interByteReadTimeout = portConfigurationImpl.interByteReadTimeout;
+			this.overallReadTimeout = portConfigurationImpl.overallReadTimeout;
+			this.overallWriteTimeout = portConfigurationImpl.overallWriteTimeout;
+		}
+
+		public void adjustTimeouts() {
+			overallReadTimeout = calcMaxTransferTime();
+			overallWriteTimeout = overallReadTimeout;
+		}
+
+		@Override
+		public int getBufferSize() {
+			return bufferSize;
 		}
 
 		@Override
 		public DataBits getDataBits() {
 			return dataBits;
-		}
-
-		@Override
-		public Parity getParity() {
-			return parity;
-		}
-
-		@Override
-		public StopBits getStopBits() {
-			return stopBits;
 		}
 
 		@Override
@@ -62,92 +63,111 @@ public class PortConfigurationFactory {
 		}
 
 		@Override
-		public int getOverallWriteTimeout() {
-			return overallWriteTimeout;
-		}
-
-		@Override
 		public int getOverallReadTimeout() {
 			return overallReadTimeout;
 		}
 
 		@Override
-		public int getBufferSize() {
-			return bufferSize;
+		public int getOverallWriteTimeout() {
+			return overallWriteTimeout;
 		}
-		
+
+		@Override
+		public Parity getParity() {
+			return parity;
+		}
+
+		public Speed getSpeed() {
+			return speed;
+		}
+
+		@Override
+		public StopBits getStopBits() {
+			return stopBits;
+		}
+
 		@Override
 		public String toString() {
-			return String.format("Port Configuration %s, %s, %s, %s, fC: %s, iBTO: %d, oRTO: %d, oWTO: %d, bS: %d", baudrate, dataBits, stopBits, parity, flowControl, interByteReadTimeout, overallReadTimeout, overallWriteTimeout, bufferSize);
-		}
-
-		public void adjustTimeouts() {
-			overallReadTimeout = calcMaxTransferTime();
-			overallWriteTimeout = overallReadTimeout;
+			return String.format("Port Configuration %s, %s, %s, %s, fC: %s, iBTO: %d, oRTO: %d, oWTO: %d, bS: %d",
+					speed, dataBits, stopBits, parity, flowControl, interByteReadTimeout, overallReadTimeout,
+					overallWriteTimeout, bufferSize);
 		}
 
 	}
-	
-	//TODO change this to first|current|last|values of each enum ...
+
 	private PortConfigurationImpl portConfigurationImpl = new PortConfigurationImpl();
 
-	public PortConfiguration of(Baudrate b) {
-		PortConfigurationImpl result = portConfigurationImpl.clone();
-		result.baudrate = b;
-		result.adjustTimeouts();
-		return result;
+	public Iterator<PortConfiguration> getParityIterator() {
+		return new Iterator<PortConfiguration>() {
+
+			int currentIndex = 0;
+			Parity parities[] = Parity.values();
+
+			@Override
+			public boolean hasNext() {
+				return currentIndex < parities.length;
+			}
+
+			@Override
+			public PortConfiguration next() {
+				return of(parities[currentIndex++]);
+			}
+
+		};
 	}
-	
+
+	public Iterator<PortConfiguration> getSpeedIterator(final Speed first, final Speed last) {
+		if (last.ordinal() < first.ordinal()) {
+			throw new IllegalArgumentException("Last must be greater than first speed");
+		}
+		return new Iterator<PortConfiguration>() {
+
+			int currentIndex = first.ordinal();
+			int lastIndex = last.ordinal();
+			Speed speeds[] = Speed.values();
+
+			@Override
+			public boolean hasNext() {
+				return currentIndex <= lastIndex;
+			}
+
+			@Override
+			public PortConfiguration next() {
+				return of(speeds[currentIndex++]);
+			}
+		};
+
+	}
+
 	public PortConfiguration of(Parity parity) {
-		PortConfigurationImpl result = portConfigurationImpl.clone();
+		final PortConfigurationImpl result = new PortConfigurationImpl(portConfigurationImpl);
 		result.parity = parity;
 		result.adjustTimeouts();
 		return result;
 	}
-	
-	public PortConfiguration ofCurrent() {
-		PortConfigurationImpl result = portConfigurationImpl.clone();
+
+	public PortConfiguration of(Speed speed) {
+		final PortConfigurationImpl result = new PortConfigurationImpl(portConfigurationImpl);
+		result.speed = speed;
 		result.adjustTimeouts();
 		return result;
 	}
 
 	public PortConfiguration ofBuffersize(int bufferSize) {
-		PortConfigurationImpl result = portConfigurationImpl.clone();
+		final PortConfigurationImpl result = new PortConfigurationImpl(portConfigurationImpl);
 		result.bufferSize = bufferSize;
 		result.adjustTimeouts();
 		return result;
 	}
 
-	public Iterator<PortConfiguration> getBaudrateIterator(final Baudrate first, final Baudrate last) {
-		if (last.ordinal() < first.ordinal()) {
-        	throw new IllegalArgumentException("Last must be greater than first baudrate");
-        }
-		return new Iterator<PortConfiguration>() {
-
-        	int currentIndex = first.ordinal();
-        	Baudrate baudrates[] = Baudrate.values();
-        	int lastIndex = last.ordinal();
-        	
-            @Override
-            public boolean hasNext() {
-                return currentIndex <= lastIndex;
-            }
-
-            @Override
-            public PortConfiguration next() {
-            	return of(baudrates[currentIndex++]);
-            }
-        };
-
+	public PortConfiguration ofCurrent() {
+		final PortConfigurationImpl result = new PortConfigurationImpl(portConfigurationImpl);
+		result.adjustTimeouts();
+		return result;
 	}
 
 	public PortConfigurationFactory setBuffersize(int bufferSize) {
 		portConfigurationImpl.bufferSize = bufferSize;
-		return this;
-	}
-
-	public PortConfigurationFactory setBaudrate(Baudrate baudrate) {
-		portConfigurationImpl.baudrate = baudrate;
 		return this;
 	}
 
@@ -156,8 +176,8 @@ public class PortConfigurationFactory {
 		return this;
 	}
 
-	public PortConfigurationFactory setStopBits(StopBits stopBits) {
-		portConfigurationImpl.stopBits = stopBits;
+	public PortConfigurationFactory setFlowControl(Set<FlowControl> flowControl) {
+		portConfigurationImpl.flowControl = flowControl;
 		return this;
 	}
 
@@ -166,28 +186,14 @@ public class PortConfigurationFactory {
 		return this;
 	}
 
-	public PortConfigurationFactory setFlowControl(Set<FlowControl> flowControl) {
-		portConfigurationImpl.flowControl = flowControl;
+	public PortConfigurationFactory setSpeed(Speed speed) {
+		portConfigurationImpl.speed = speed;
 		return this;
 	}
 
-	public Iterator<PortConfiguration> getParityIterator() {
-		return new Iterator<PortConfiguration>() {
-
-			int currentIndex = 0;
-        	Parity parities[] = Parity.values();
-        	
-            @Override
-            public boolean hasNext() {
-                return currentIndex < parities.length;
-            }
-
-            @Override
-            public PortConfiguration next() {
-            	return of(parities[currentIndex++]);
-            }
-
-        };
+	public PortConfigurationFactory setStopBits(StopBits stopBits) {
+		portConfigurationImpl.stopBits = stopBits;
+		return this;
 	}
 
 }

@@ -43,7 +43,7 @@ import org.junit.jupiter.api.TestInfo;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
 
-import de.ibapl.spsw.api.Baudrate;
+import de.ibapl.spsw.api.Speed;
 import de.ibapl.spsw.api.DataBits;
 import de.ibapl.spsw.api.FlowControl;
 import de.ibapl.spsw.api.Parity;
@@ -61,7 +61,7 @@ import de.ibapl.spsw.tests.tags.RtsCtsTest;
 public abstract class AbstractReadWriteRtsCtsTests extends AbstractReadWriteTest {
 
 	public Iterator<PortConfiguration> getBaselinePortConfigurations() {
-		return new PortConfigurationFactory().setFlowControl(FlowControl.getFC_RTS_CTS()).getBaudrateIterator(Baudrate.B1200, Baudrate.B115200);
+		return new PortConfigurationFactory().setFlowControl(FlowControl.getFC_RTS_CTS()).getSpeedIterator(Speed._1200_BPS, Speed._115200_BPS);
 	}
 
 	@RtsCtsTest
@@ -126,8 +126,8 @@ public abstract class AbstractReadWriteRtsCtsTests extends AbstractReadWriteTest
 	public void testWriteBufferFull() throws Exception {
 		assumeRWTest();
 		LOG.log(Level.INFO, "run testWriteSingleByteTimeout");
-		// Set a high baudrate to speed up things
-		open(Baudrate.B115200, DataBits.DB_8, StopBits.SB_1, Parity.EVEN, FlowControl.getFC_RTS_CTS());
+		// Set a high speed to speed up things
+		open(Speed._115200_BPS, DataBits.DB_8, StopBits.SB_1, Parity.EVEN, FlowControl.getFC_RTS_CTS());
 		setTimeouts(100, 1000, 10000);
 
 		final byte[] b = new byte[1024 * 1024];
@@ -176,7 +176,7 @@ public abstract class AbstractReadWriteRtsCtsTests extends AbstractReadWriteTest
 
 		assertEquals(256, readSpc.getInputStream().read(read));
 
-		writeSpc.setBaudrate(Baudrate.B500000);
+		writeSpc.setSpeed(Speed._500000_BPS);
 		writeSpc.setFlowControl(FlowControl.getFC_NONE());
 	}
 
@@ -191,8 +191,8 @@ public abstract class AbstractReadWriteRtsCtsTests extends AbstractReadWriteTest
 	public void testFillInbuffer() throws Exception {
 		assumeRWTest();
 		LOG.log(Level.INFO, "run testWriteSingleByteTimeout");
-		// Set a high baudrate to speed up things
-		open(Baudrate.B115200, DataBits.DB_8, StopBits.SB_1, Parity.NONE, FlowControl.getFC_RTS_CTS());
+		// Set a high speed to speed up things
+		open(Speed._115200_BPS, DataBits.DB_8, StopBits.SB_1, Parity.NONE, FlowControl.getFC_RTS_CTS());
 		setTimeouts(100, 1000, 10000);
 
 		final byte[] b = new byte[1024];
@@ -242,7 +242,7 @@ public abstract class AbstractReadWriteRtsCtsTests extends AbstractReadWriteTest
 		} while (dataread > 0);
 		assertEquals(overallDataWritten, readTotal);
 
-		writeSpc.setBaudrate(Baudrate.B500000);
+		writeSpc.setSpeed(Speed._500000_BPS);
 		writeSpc.setFlowControl(FlowControl.getFC_NONE());
 	}
 	/**
@@ -257,7 +257,7 @@ public abstract class AbstractReadWriteRtsCtsTests extends AbstractReadWriteTest
 	public void testTimeout() throws Exception {
 		assumeRWTest();
 
-		open(Baudrate.B9600, DataBits.DB_8, StopBits.SB_1, Parity.EVEN, FlowControl.getFC_RTS_CTS());
+		open(Speed._9600_BPS, DataBits.DB_8, StopBits.SB_1, Parity.EVEN, FlowControl.getFC_RTS_CTS());
 		setTimeouts(0, 2000, 2000);
 
 		assertEquals(0, readSpc.getInterByteReadTimeout());
@@ -320,7 +320,7 @@ public abstract class AbstractReadWriteRtsCtsTests extends AbstractReadWriteTest
 	public void testInfiniteTimeout() throws Exception {
 		assumeRWTest();
 
-		open(Baudrate.B9600, DataBits.DB_8, StopBits.SB_1, Parity.NONE, FlowControl.getFC_RTS_CTS());
+		open(Speed._9600_BPS, DataBits.DB_8, StopBits.SB_1, Parity.NONE, FlowControl.getFC_RTS_CTS());
 		final InputStream is = readSpc.getInputStream();
 		final OutputStream os = writeSpc.getOutputStream();
 
@@ -351,7 +351,7 @@ public abstract class AbstractReadWriteRtsCtsTests extends AbstractReadWriteTest
 	@Test
 	public void testManualRTS_CTS() throws Exception {
 		assumeRWTest();
-		open(Baudrate.B9600, DataBits.DB_8, StopBits.SB_1, Parity.NONE, FlowControl.getFC_NONE());
+		open(Speed._9600_BPS, DataBits.DB_8, StopBits.SB_1, Parity.NONE, FlowControl.getFC_NONE());
 		
 		readSpc.setRTS(false);
 		Thread.sleep(WAIT_TIME);
@@ -372,7 +372,7 @@ public abstract class AbstractReadWriteRtsCtsTests extends AbstractReadWriteTest
 	@Test
 	public void testManualDTR_DSR() throws Exception {
 		assumeRWTest();
-		open(Baudrate.B9600, DataBits.DB_8, StopBits.SB_1, Parity.NONE, FlowControl.getFC_NONE());
+		open(Speed._9600_BPS, DataBits.DB_8, StopBits.SB_1, Parity.NONE, FlowControl.getFC_NONE());
 		
 		readSpc.setDTR(false);
 		Thread.sleep(WAIT_TIME);

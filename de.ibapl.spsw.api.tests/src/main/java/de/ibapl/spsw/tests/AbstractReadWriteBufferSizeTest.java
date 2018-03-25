@@ -24,7 +24,7 @@ import java.util.Iterator;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
 
-import de.ibapl.spsw.api.Baudrate;
+import de.ibapl.spsw.api.Speed;
 import de.ibapl.spsw.tests.tags.BaselineTest;
 
 /**
@@ -35,7 +35,7 @@ public abstract class AbstractReadWriteBufferSizeTest extends AbstractReadWriteT
 
 	public Iterator<PortConfiguration> getBaselinePortConfigurations() {
 		return new Iterator<PortConfiguration>() {
-			final PortConfigurationFactory pcf = new PortConfigurationFactory().setBaudrate(Baudrate.B230400);
+			final PortConfigurationFactory pcf = new PortConfigurationFactory().setSpeed(Speed._230400_BPS);
 			
         	int currentSize = 1;
         	final int maxSize = 1024*4; //4kB seems the size of the inputbuffer for some devices FTDI 232 on Windows(8k FTDI 232 on linux) whereas others can handle 16k...

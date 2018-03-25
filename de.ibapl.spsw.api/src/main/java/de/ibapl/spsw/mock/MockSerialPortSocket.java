@@ -27,7 +27,7 @@ import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.Set;
 
-import de.ibapl.spsw.api.Baudrate;
+import de.ibapl.spsw.api.Speed;
 import de.ibapl.spsw.api.DataBits;
 import de.ibapl.spsw.api.FlowControl;
 import de.ibapl.spsw.api.Parity;
@@ -258,7 +258,7 @@ public class MockSerialPortSocket implements SerialPortSocket {
 
 		return sb.toString();
 	}
-	private Baudrate baudrate;
+	private Speed speed;
 	LinkedList<Request<?>> data = new LinkedList<>();
 	private DataBits dataBits;
 	private Set<FlowControl> flowControl;
@@ -326,11 +326,11 @@ public class MockSerialPortSocket implements SerialPortSocket {
 	}
 
 	@Override
-	public Baudrate getBaudrate() throws IOException {
+	public Speed getSpeed() throws IOException {
 		if (!open) {
 			throw new IOException(PORT_IS_CLOSED);
 		}
-		return baudrate;
+		return speed;
 	}
 
 	@Override
@@ -497,19 +497,14 @@ public class MockSerialPortSocket implements SerialPortSocket {
 	}
 
 	@Override
-	public void open(Baudrate baudrate, DataBits dataBits, StopBits stopBits, Parity parity,
+	public void open(Speed speed, DataBits dataBits, StopBits stopBits, Parity parity,
 			Set<FlowControl> flowControls) throws IOException {
-		this.baudrate = baudrate;
+		this.speed = speed;
 		this.dataBits = dataBits;
 		this.stopBits = stopBits;
 		this.parity = parity;
 		this.flowControl = flowControls;
 		this.open();
-	}
-
-	public void openRaw(Baudrate baudrate, DataBits dataBits, StopBits stopBits, Parity parity,
-			Set<FlowControl> flowControls) throws IOException {
-		open(baudrate, dataBits, stopBits, parity, flowControls);
 	}
 
 	@Override
@@ -537,11 +532,11 @@ public class MockSerialPortSocket implements SerialPortSocket {
 	}
 
 	@Override
-	public void setBaudrate(Baudrate baudrate) throws IOException {
+	public void setSpeed(Speed speed) throws IOException {
 		if (!open) {
 			throw new IOException(PORT_IS_CLOSED);
 		}
-		this.baudrate = baudrate;
+		this.speed = speed;
 	}
 
 	@Override

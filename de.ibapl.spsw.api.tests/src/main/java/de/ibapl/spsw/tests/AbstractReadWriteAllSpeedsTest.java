@@ -24,7 +24,7 @@ import java.util.Iterator;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
 
-import de.ibapl.spsw.api.Baudrate;
+import de.ibapl.spsw.api.Speed;
 import de.ibapl.spsw.tests.tags.BaselineTest;
 import de.ibapl.spsw.tests.tags.HighSpeedTest;
 import de.ibapl.spsw.tests.tags.LowSpeedTest;
@@ -33,19 +33,19 @@ import de.ibapl.spsw.tests.tags.LowSpeedTest;
  * Unit test for simple App. Timeout is computed 8 data bits + 2 stop bits +
  * parity bit + start bit == 12
  */
-public abstract class AbstractReadWriteAllBaudratesTest extends AbstractReadWriteTest {
+public abstract class AbstractReadWriteAllSpeedsTest extends AbstractReadWriteTest {
 
 	public Iterator<PortConfiguration> getLowSpeedPortConfigurations() {
-		return new PortConfigurationFactory().setBuffersize(64).getBaudrateIterator(Baudrate.B50, Baudrate.B600);
+		return new PortConfigurationFactory().setBuffersize(64).getSpeedIterator(Speed._50_BPS, Speed._600_BPS);
 	}
 
 	public Iterator<PortConfiguration> getHighSpeedPortConfigurations() {
-		return new PortConfigurationFactory().setBuffersize(64).getBaudrateIterator(Baudrate.B460800,
-				Baudrate.B4000000);
+		return new PortConfigurationFactory().setBuffersize(64).getSpeedIterator(Speed._460800_BPS,
+				Speed._4000000_BPS);
 	}
 
 	public Iterator<PortConfiguration> getBaselinePortConfigurations() {
-		return new PortConfigurationFactory().setBuffersize(64).getBaudrateIterator(Baudrate.B1200, Baudrate.B230400);
+		return new PortConfigurationFactory().setBuffersize(64).getSpeedIterator(Speed._1200_BPS, Speed._230400_BPS);
 	}
 
 	@LowSpeedTest

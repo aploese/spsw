@@ -158,7 +158,7 @@ public interface SerialPortSocketFactory {
 	 * 
 	 * <pre>
 	 * {@code 
-	 *   try (SerialPortSocket sps = spsf.open(portName, baudRate, dataBits, stopBits, parity, flowControls)) {
+	 *   try (SerialPortSocket sps = spsf.open(portName, speed, dataBits, stopBits, parity, flowControls)) {
 	 *     sps.write("Hello World".getBytes());
 	 *   } catch (IOException ioe) {
 	 *   }
@@ -167,8 +167,8 @@ public interface SerialPortSocketFactory {
 	 * 
 	 * @param portName
 	 *            the name of the port to open.
-	 * @param baudRate
-	 *            the baudrate.
+	 * @param speed
+	 *            the speed in bit/s.
 	 * @param dataBits
 	 *            the number of data bits.
 	 * @param stopBits
@@ -185,13 +185,13 @@ public interface SerialPortSocketFactory {
 	 * @throws SecurityException
 	 *             if the caller has no read or write permissions to the port.
 	 * 
-	 * @see SerialPortSocket#open(Baudrate, DataBits, StopBits, Parity, Set)
+	 * @see SerialPortSocket#open(Speed, DataBits, StopBits, Parity, Set)
 	 * @see SecurityManager#checkRead(String)
 	 * @see SecurityManager#checkWrite(String)
 	 * @see java.io.FileOutputStream#FileOutputStream(String)
 	 * @see java.io.FileInputStream#FileInputStream(String).
 	 */
-	SerialPortSocket open(String portName, Baudrate baudRate, DataBits dataBits, StopBits stopBits, Parity parity,
+	SerialPortSocket open(String portName, Speed speed, DataBits dataBits, StopBits stopBits, Parity parity,
 			Set<FlowControl> flowControls) throws IOException;
 
 }
