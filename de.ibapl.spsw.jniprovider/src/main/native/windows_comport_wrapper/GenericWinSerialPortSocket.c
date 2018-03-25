@@ -194,7 +194,7 @@ JNIEXPORT jint JNICALL JNI_OnLoad(JavaVM *jvm, void *reserved) {
 	}
 
 	jclass spswClass = (*env)->FindClass(env,
-			"de/ibapl/spsw/jniprovider/GenericWinSerialPortSocket;");
+			"de/ibapl/spsw/jniprovider/GenericWinSerialPortSocket");
 	if (spswClass == NULL) {
 		return JNI_ERR;
 	}
@@ -214,7 +214,7 @@ JNIEXPORT jint JNICALL JNI_OnLoad(JavaVM *jvm, void *reserved) {
 
 	// mark that the lib was loaded
 	jclass serialPortSocketFactoryImpl = (*env)->FindClass(env,
-			"de/ibapl/spsw/jniprovider/SerialPortSocketFactoryImpl;");
+			"de/ibapl/spsw/jniprovider/SerialPortSocketFactoryImpl");
 	if (serialPortSocketFactoryImpl == NULL) {
 		return JNI_ERR;
 	}
