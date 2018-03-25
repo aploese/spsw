@@ -24,12 +24,14 @@ package de.ibapl.spsw.api;
 import org.osgi.annotation.versioning.ProviderType;
 
 /**
- * The Baudrate to set.
+ * The speed in bit/s to set.
+ * The speed is commonly known as baudrate, but baudrate is the symbolrate and not the speed.
+ *  
  * 
- * Here Baudrate means Bit/s to transfer a byte(5,6,7,8<nb>data<nb>bits) with one
- * startbit, one or none parity bit and one or two stopbits.
+ * Here speed means bit/s to transfer a character(5,6,7,8<nb>data<nb>bits) with one
+ * startbit, one or none parity bit and one, one and a half or two stop bits.
  * 
- * This enum holds the "well known" values.
+ * This enum holds the values which should be supported by POSIX and Windows.
  * 
  * @author aploese
  */

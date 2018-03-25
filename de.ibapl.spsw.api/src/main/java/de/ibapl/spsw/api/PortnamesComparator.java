@@ -3,6 +3,11 @@ package de.ibapl.spsw.api;
 import java.util.Comparator;
 
 /**
+ * Compare two port names so that COM1,COM2,COM10 are sorted in that order.
+ * The natural order would be COM1,COM10,COM2, this might not be desired from the users point of view.
+ * Shorter numbers are virtually filled up with leading zeros and then they will be compared.
+ * The current implementation may be changed if needed.
+ * 
  * "ttyUSB09".compareTo("ttyUSB19") == PortnamesComparator.compare("ttyUSB9",
  * "ttyUSB19")
  * 

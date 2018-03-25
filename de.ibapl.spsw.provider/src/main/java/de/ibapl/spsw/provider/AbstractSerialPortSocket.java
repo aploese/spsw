@@ -530,19 +530,26 @@ public abstract class AbstractSerialPortSocket<T extends AbstractSerialPortSocke
 	private volatile boolean open;
 
 	/**
-	 * Creates a new Instance and checks read/write permissions with the System.getSecurityManager().
-	 * @param portName
+	 * Creates a new Instance and checks read/write permissions with the
+	 * System.getSecurityManager().
+	 * 
+	 * @param portName the name of the port.
+	 *            
+	 * @see SecurityManager#checkRead(String)
+	 * @see SecurityManager#checkWrite(String)
+	 * @see java.io.FileOutputStream#FileOutputStream(String)
+	 * @see java.io.FileInputStream#FileInputStream(String).
+	 * 
 	 */
-	protected AbstractSerialPortSocket(String portName) {
+	public AbstractSerialPortSocket(String portName) {
+		if (portName == null) {
+			throw new IllegalArgumentException("portname must not null!");
+		}
 		SecurityManager security = System.getSecurityManager();
 		if (security != null) {
 			security.checkRead(portName);
 			security.checkWrite(portName);
 		}
-		if (portName == null) {
-			throw new IllegalArgumentException("portname must not null!");
-		}
-
 		this.portName = portName;
 	}
 
@@ -755,7 +762,8 @@ public abstract class AbstractSerialPortSocket<T extends AbstractSerialPortSocke
 			setParameters(toBitSet(dataBits));
 		} catch (IllegalArgumentException ex) {
 			throw new IllegalArgumentException(
-					"Can't set dataBits " + dataBits + " on port: " + getPortName() + " value is:" + getDatatBits(), ex);
+					"Can't set dataBits " + dataBits + " on port: " + getPortName() + " value is:" + getDatatBits(),
+					ex);
 		}
 	}
 

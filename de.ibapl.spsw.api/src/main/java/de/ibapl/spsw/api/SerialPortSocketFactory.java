@@ -23,6 +23,7 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Set;
 import java.util.function.BiConsumer;
+
 import javax.inject.Named;
 import org.osgi.annotation.versioning.ProviderType;
 
@@ -40,7 +41,7 @@ import org.osgi.annotation.versioning.ProviderType;
  * 		spsf = spsFactoryIterator.next();
  * 	}
  * 	if (spsFactoryIterator.hasNext()) {
- * 		// Handle the occurence of a second factory
+ * 		// Handle the second factory
  * 	}
  * }
  * </pre>
@@ -92,6 +93,10 @@ public interface SerialPortSocketFactory {
 	 * 
 	 * @throws SecurityException
 	 *             if the caller has no read or write permissions to the port.
+	 * @see SecurityManager#checkRead(String)
+	 * @see SecurityManager#checkWrite(String)
+	 * @see java.io.FileOutputStream#FileOutputStream(String)
+	 * @see java.io.FileInputStream#FileInputStream(String).
 	 */
 	SerialPortSocket createSerialPortSocket(String portName);
 
@@ -139,7 +144,11 @@ public interface SerialPortSocketFactory {
 	 *             if the port can't be opened.
 	 * @throws SecurityException
 	 *             if the caller has no read or write permissions to the port.
-	 * 
+	 * @see SerialPortSocket#open()
+	 * @see SecurityManager#checkRead(String)
+	 * @see SecurityManager#checkWrite(String)
+	 * @see java.io.FileOutputStream#FileOutputStream(String)
+	 * @see java.io.FileInputStream#FileInputStream(String).
 	 */
 	SerialPortSocket open(String portName) throws IOException, IllegalStateException;
 
@@ -159,24 +168,28 @@ public interface SerialPortSocketFactory {
 	 * @param portName
 	 *            the name of the port to open.
 	 * @param baudRate
-	 *            the baudrate to use.
+	 *            the baudrate.
 	 * @param dataBits
-	 *            the number of data bits to use.
+	 *            the number of data bits.
 	 * @param stopBits
-	 *            the number of stop bits to use.
+	 *            the number of stop bits.
 	 * @param parity
-	 *            the parity to use.
+	 *            the parity.
 	 * @param flowControls
-	 *            the flow control to use.
+	 *            the flow control.
 	 * @return the opened port with parameters set.
 	 * @throws IOException
-	 *             if the port can't be opened or some error occured.
+	 *             if the port can't be opened or some error occurred.
 	 * @throws IllegalArgumentException
 	 *             if one ore more parameters can't be set.
 	 * @throws SecurityException
 	 *             if the caller has no read or write permissions to the port.
 	 * 
 	 * @see SerialPortSocket#open(Baudrate, DataBits, StopBits, Parity, Set)
+	 * @see SecurityManager#checkRead(String)
+	 * @see SecurityManager#checkWrite(String)
+	 * @see java.io.FileOutputStream#FileOutputStream(String)
+	 * @see java.io.FileInputStream#FileInputStream(String).
 	 */
 	SerialPortSocket open(String portName, Baudrate baudRate, DataBits dataBits, StopBits stopBits, Parity parity,
 			Set<FlowControl> flowControls) throws IOException;

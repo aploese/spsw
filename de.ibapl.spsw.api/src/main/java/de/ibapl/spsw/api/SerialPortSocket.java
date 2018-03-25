@@ -30,16 +30,22 @@ import org.osgi.annotation.versioning.ProviderType;
  * The interface for accessing a serial port.
  * 
  * Port means a serial device like UART or usb to serial converter or an TCP
- * brige to an serial device on a different machine.
+ * bridge to an serial device on a different machine.
  * 
  * An implementing class should check permissions with a SecurityManager. It is
- * desired to check fail-fast in the constructor.
+ * desired to check fail-fast in the constructor. Checking of the closed state
+ * should be done lazily. The implementations are not required to be thread
+ * save. Closing an port with blocked read or write operation should unblock the
+ * pending read/write and throw a InterruptedIOException in the Thread of that
+ * read/write. It is desired to close any OS resources in an finalizer.
  * 
  * There are two general cable configurations used with the RS-232C
  * Communications Standard:
  * <li>Data Terminal Equipment (DTE): IBM PC's, printers, plotters, etc <br>
  * </li>
  * <li>Data Communication Equipment (DCE): modems, multiplexors, etc</li>
+ * <br>
+ * Don't confuse characters with bytes, see {@link DataBits} for more details.
  * 
  * @see <a href=
  *      "https://www.wikipedia.org/wiki/Serial_port">www.wikipedia.org/wiki/Serial_port</a>
@@ -48,14 +54,14 @@ import org.osgi.annotation.versioning.ProviderType;
 public interface SerialPortSocket extends AutoCloseable {
 
 	/**
-	 * This should be the message of the IOException, if the operation is not
-	 * allowed on an closed port. {@value #PORT_IS_CLOSED}
+	 * {@value #PORT_IS_CLOSED}. This should be the message of the IOException, if
+	 * the operation is not allowed on an closed port.
 	 */
 	@Native
 	public final static String PORT_IS_CLOSED = "Port is closed";
 	/**
-	 * This should be the message of the IOException, if the operation is not
-	 * allowed on an open port. {@value #PORT_IS_OPEN}
+	 * {@value #PORT_IS_OPEN}. This should be the message of the IOException, if the
+	 * operation is not allowed on an open port.
 	 */
 	@Native
 	public final static String PORT_IS_OPEN = "Port is open";
@@ -64,7 +70,7 @@ public interface SerialPortSocket extends AutoCloseable {
 	 * Calculate the transfer time for given size and port parameters.
 	 * 
 	 * @param len
-	 *            the length of the byte array to transfer.
+	 *            the number of characters to transfer.
 	 * @param baudrate
 	 *            the used baudrate.
 	 * @param dataBits
@@ -93,6 +99,14 @@ public interface SerialPortSocket extends AutoCloseable {
 		return calculateMillisPerByte(getBaudrate(), getDatatBits(), getStopBits(), getParity());
 	}
 
+	static double calculateSpeedInCharactersPerSecond(Baudrate baudrate, DataBits dataBits, StopBits stopBits, Parity parity) {
+		return (double)baudrate.value / (1 + dataBits.value + (parity == Parity.NONE ? 0 : 1) + stopBits.value);
+	}
+
+	default double calculateSpeedInCharactersPerSecond() throws IOException {
+		return calculateSpeedInCharactersPerSecond(getBaudrate(), getDatatBits(), getStopBits(), getParity());
+	}
+	
 	/**
 	 * Close port. The port should be reopenable after closure.
 	 *
@@ -102,20 +116,24 @@ public interface SerialPortSocket extends AutoCloseable {
 	void close() throws IOException;
 
 	/**
-	 * Read the baudrate from the port.
+	 * Read the speed in bit/s from the port.
+	 * the speed of characters/s can be calculated as follows:
+	 * {@code speed / (1 start bit + (5,6,7,8) data bits + (0,1) parity bit + (1,1.5,2) stop bits)}
+	 * This is the speed in characters/s and with 8 data bits its byte/s.
 	 * 
-	 * @return the current baudrate.
+	 * @return the current speed in bit/s.
 	 * @throws IOException
-	 *             if port is closed or an error at OS level occures.
+	 *             if port is closed or an error at OS level occurs.
 	 */
 	Baudrate getBaudrate() throws IOException;
 
 	/**
 	 * Read the number of data bits from the port.
 	 * 
-	 * @return the current number of data bits.
+	 * @return the current number of data bits in each character.
 	 * @throws IOException
-	 *             if port is closed or an error at OS level occures.
+	 *             if port is closed or an error at OS level occurs.
+	 * @see DataBits
 	 */
 	DataBits getDatatBits() throws IOException;
 
@@ -124,17 +142,17 @@ public interface SerialPortSocket extends AutoCloseable {
 	 * 
 	 * @return the current flow control.
 	 * @throws IOException
-	 *             if port is closed or an error at OS level occures.
+	 *             if port is closed or an error at OS level occurs.
 	 */
 	Set<FlowControl> getFlowControl() throws IOException;
 
 	/**
-	 * Read the number of bytes in the inbuffer of the port. The actual size of the
+	 * Read the number of bytes in the in buffer of the port. The actual size of the
 	 * in buffer OS dependant.
 	 *
-	 * @return the number of bytes in the inbuffer.
+	 * @return the number of bytes in the in buffer.
 	 * @throws java.io.IOException
-	 *             if port is closed or an error at OS level occures.
+	 *             if port is closed or an error at OS level occurs.
 	 *
 	 */
 	int getInBufferBytesCount() throws IOException;
@@ -144,7 +162,7 @@ public interface SerialPortSocket extends AutoCloseable {
 	 * 
 	 * @return the InputStream.
 	 * @throws IOException
-	 *             if port is closed or an error at OS level occures.
+	 *             if port is closed or an error at OS level occurs.
 	 */
 	InputStream getInputStream() throws IOException;
 
@@ -158,7 +176,7 @@ public interface SerialPortSocket extends AutoCloseable {
 	 * 
 	 * @return the inter byte timeout in ms.
 	 * @throws IOException
-	 *             if port is closed or an error at OS level occures.
+	 *             if port is closed or an error at OS level occurs.
 	 */
 	int getInterByteReadTimeout() throws IOException;
 
@@ -168,7 +186,7 @@ public interface SerialPortSocket extends AutoCloseable {
 	 *
 	 * @return the number of bytes in the outbuffer.
 	 * @throws java.io.IOException
-	 *             if port is closed or an error at OS level occures.
+	 *             if port is closed or an error at OS level occurs.
 	 *
 	 */
 	int getOutBufferBytesCount() throws IOException;
@@ -178,7 +196,7 @@ public interface SerialPortSocket extends AutoCloseable {
 	 * 
 	 * @return the OutputSTream.
 	 * @throws IOException
-	 *             if port is closed or an error at OS level occures.
+	 *             if port is closed or an error at OS level occurs.
 	 */
 	OutputStream getOutputStream() throws IOException;
 
@@ -190,7 +208,7 @@ public interface SerialPortSocket extends AutoCloseable {
 	 *
 	 * @return the overall read timeout in ms or {@code 0} for infinity.
 	 * @throws IOException
-	 *             if port is closed or an error at OS level occures.
+	 *             if port is closed or an error at OS level occurs.
 	 *
 	 * @see #setOverallTimeout(int)
 	 */
@@ -206,7 +224,7 @@ public interface SerialPortSocket extends AutoCloseable {
 	 *
 	 * @return the overall read timeout in ms or {@code 0} for infinity.
 	 * @throws IOException
-	 *             if port is closed or an error at OS level occures.
+	 *             if port is closed or an error at OS level occurs.
 	 *
 	 * @see #setOverallTimeout(int)
 	 */
@@ -217,7 +235,8 @@ public interface SerialPortSocket extends AutoCloseable {
 	 * 
 	 * @return the current parity.
 	 * @throws IOException
-	 *             if port is closed or an error at OS level occures.
+	 *             if port is closed or an error at OS level occurs.
+	 * @see Parity
 	 */
 	Parity getParity() throws IOException;
 
@@ -233,7 +252,8 @@ public interface SerialPortSocket extends AutoCloseable {
 	 * 
 	 * @return the current number of stop bits.
 	 * @throws IOException
-	 *             if port is closed or an error at OS level occures.
+	 *             if port is closed or an error at OS level occurs.
+	 * @see StopBits
 	 */
 	StopBits getStopBits() throws IOException;
 
@@ -242,7 +262,7 @@ public interface SerialPortSocket extends AutoCloseable {
 	 * 
 	 * @return the current XOFF char.
 	 * @throws IOException
-	 *             if port is closed or an error at OS level occures.
+	 *             if port is closed or an error at OS level occurs.
 	 */
 	char getXOFFChar() throws IOException;
 
@@ -251,7 +271,7 @@ public interface SerialPortSocket extends AutoCloseable {
 	 * 
 	 * @return the XON char
 	 * @throws IOException
-	 *             if port is closed or an error at OS level occures.
+	 *             if port is closed or an error at OS level occurs.
 	 */
 	char getXONChar() throws IOException;
 
@@ -263,7 +283,7 @@ public interface SerialPortSocket extends AutoCloseable {
 	 * 
 	 * @return {@code true} if CTS is set, otherwise {@code false}.
 	 * @throws IOException
-	 *             if port is closed or an error at OS level occures.
+	 *             if port is closed or an error at OS level occurs.
 	 */
 	boolean isCTS() throws IOException;
 
@@ -275,7 +295,7 @@ public interface SerialPortSocket extends AutoCloseable {
 	 * 
 	 * @return {@code true} if DCD is set, otherwise {@code false}.
 	 * @throws IOException
-	 *             if port is closed or an error at OS level occures.
+	 *             if port is closed or an error at OS level occurs.
 	 */
 	boolean isDCD() throws IOException;
 
@@ -285,7 +305,7 @@ public interface SerialPortSocket extends AutoCloseable {
 	 * 
 	 * @return {@code true} if DSR is set, otherwise {@code false}.
 	 * @throws IOException
-	 *             if port is closed or an error at OS level occures.
+	 *             if port is closed or an error at OS level occurs.
 	 */
 	boolean isDSR() throws IOException;
 
@@ -304,7 +324,7 @@ public interface SerialPortSocket extends AutoCloseable {
 	 * 
 	 * @return {@code true} if RI is set, otherwise {@code false}.
 	 * @throws IOException
-	 *             if port is closed or an error at OS level occures.
+	 *             if port is closed or an error at OS level occurs.
 	 */
 	boolean isRI() throws IOException;
 
@@ -312,29 +332,27 @@ public interface SerialPortSocket extends AutoCloseable {
 	 * Open the port.
 	 * 
 	 * @throws IOException
-	 *             if port is already opened or an error at OS level occures.
+	 *             if port is already opened or an error at OS level occurs.
 	 */
 	void open() throws IOException;
 
 	/**
 	 * Setting the parameters of port
 	 *
-	 * @param portName
-	 *            the name of the port to open.
 	 * @param baudRate
-	 *            the baudrate to use.
+	 *            the baudrate.
 	 * @param dataBits
-	 *            the number of data bits to use.
+	 *            the number of data bits.
 	 * @param stopBits
-	 *            the number of stop bits to use.
+	 *            the number of stop bits.
 	 * @param parity
-	 *            the parity to use.
+	 *            the parity.
 	 * @param flowControls
-	 *            the flow control to use.
+	 *            the flow control.
 	 * @return the opened port with parameters set.
 	 * @throws IOException
 	 *             if parameters can't be set, port is closed or an error at OS
-	 *             level occures.
+	 *             level occurred.
 	 * @throws IllegalArgumentException
 	 *             if one ore more parameters can't be set.
 	 */
@@ -348,7 +366,7 @@ public interface SerialPortSocket extends AutoCloseable {
 	 *            the duration in ms.
 	 * @throws IOException
 	 *             if <b>break</b> can't be send, port is closed or an error at OS
-	 *             level occures.
+	 *             level occurs.
 	 */
 	void sendBreak(int duration) throws IOException;
 
@@ -357,7 +375,7 @@ public interface SerialPortSocket extends AutoCloseable {
 	 * 
 	 * @throws IOException
 	 *             if <b>XOFF</b> can't be send, port is closed or an error at OS
-	 *             level occures.
+	 *             level occurs.
 	 */
 	void sendXOFF() throws IOException;
 
@@ -366,39 +384,39 @@ public interface SerialPortSocket extends AutoCloseable {
 	 * 
 	 * @throws IOException
 	 *             if <b>XON</b> can't be send, port is closed or an error at OS
-	 *             level occures.
+	 *             level occurs.
 	 */
 	void sendXON() throws IOException;
 
 	/**
-	 * Write the baudrate to the port. <br>
-	 * If the baudrate is not supported by the underlying OS and OEM drivers one of
+	 * Write the speed to the port. <br>
+	 * If the speed is not supported by the underlying OS and OEM drivers one of
 	 * the following may happen:
-	 * <li>The old baudrate is not changed and an IOException or an
+	 * <li>The old speed is not changed and an IOException or an
 	 * IllegalArgumentException is thrown.</li>
-	 * <li>the closest baudrate is set and an IOException or an
+	 * <li>the closest valid speed is set and an IOException or an
 	 * IllegalArgumentException is thrown.</li>
-	 * <li>The new baudrate is set and an IOException is thrown.</li>
+	 * <li>The new speed is set and an IOException is thrown.</li>
 	 * 
 	 * @param baudrate
-	 *            the new baudrate.
+	 *            the new speed in bit/s.
 	 * @throws IOException
-	 *             if baudrate can't be set, port is closed or an error at OS level
-	 *             occures. OR if the hardware does not support the new baudrate.
+	 *             if speed can't be set, port is closed or an error at OS level
+	 *             occurred. OR if the hardware does not support the new speed.
 	 * @throws IllegalArgumentException
-	 *             if the hardware does not support the new baudrate.
+	 *             if the hardware does not support the new speed.
 	 */
 	void setBaudrate(Baudrate baudrate) throws IOException;
 
 	/**
-	 * Send the <b>break</b> signal.
+	 * Send the <B>break</B> signal.
 	 *
 	 * @param value
 	 *            if {@code true} send the break signal infinite. otherwise stop
 	 *            sending the break signal.
 	 * @throws IOException
 	 *             if value can't be set, port is closed or an error at OS level
-	 *             occures.
+	 *             occurred.
 	 */
 	void setBreak(boolean value) throws IOException;
 
@@ -414,7 +432,7 @@ public interface SerialPortSocket extends AutoCloseable {
 	 *            the new number of data bits.
 	 * @throws IOException
 	 *             if the number data bits can't be set, port is closed or an error
-	 *             at OS level occures. OR if the hardware does not support the new
+	 *             at OS level occurred. OR if the hardware does not support the new
 	 *             number of data bits.
 	 * @throws IllegalArgumentException
 	 *             if the hardware does not support the new number of data bits.
@@ -430,14 +448,14 @@ public interface SerialPortSocket extends AutoCloseable {
 	 *            the new DTR state.
 	 * @throws IOException
 	 *             if DTR state can't be set, port is closed or an error at OS level
-	 *             occures.
+	 *             occurred.
 	 */
 	void setDTR(boolean value) throws IOException;
 
 	/**
 	 * @throws IOException
 	 *             if value can't be set, port is closed or an error at OS level
-	 *             occures.
+	 *             occurred.
 	 * @throws IllegalArgumentException
 	 *             if the hardware does not support the new value.
 	 */
@@ -451,7 +469,7 @@ public interface SerialPortSocket extends AutoCloseable {
 	 * 
 	 * @throws IOException
 	 *             if value can't be set, port is closed or an error at OS level
-	 *             occures.
+	 *             occurred.
 	 */
 	void setParity(Parity parity) throws IOException;
 
@@ -465,7 +483,7 @@ public interface SerialPortSocket extends AutoCloseable {
 	 *            the new RTS state.
 	 * @throws IOException
 	 *             if value can't be set, port is closed or an error at OS level
-	 *             occures.
+	 *             occurred.
 	 */
 	void setRTS(boolean value) throws IOException;
 
@@ -481,7 +499,7 @@ public interface SerialPortSocket extends AutoCloseable {
 	 *            the new number of stop bits.
 	 * @throws IOException
 	 *             if the number stop bits can't be set, port is closed or an error
-	 *             at OS level occures. OR if the hardware does not support the new
+	 *             at OS level occurred. OR if the hardware does not support the new
 	 *             number of stop bits.
 	 * @throws IllegalArgumentException
 	 *             if the hardware does not support the new number of stop bits.
@@ -503,8 +521,8 @@ public interface SerialPortSocket extends AutoCloseable {
 	 * overallReadTimeout or overallWriteTimeout of zero is interpreted as an
 	 * infinite timeout. <br>
 	 * With the interbyteReadTimeout set to a non zero value the port will wait for
-	 * more incomming bytes within this time span. A value of zero as not to wait
-	 * for more bytes. <br>
+	 * more incoming bytes within this time span. A value of zero as not to wait for
+	 * more bytes. <br>
 	 * The options <B>must</B> be enabled prior to entering the blocking operation
 	 * to have effect.
 	 * 
@@ -519,7 +537,8 @@ public interface SerialPortSocket extends AutoCloseable {
 	 * 
 	 * @throws IOException
 	 *             if value can't be set, port is closed or an error at OS level
-	 *             occures.
+	 *             occurred.
+	 *             
 	 * @see #getInterByteReadTimeout()
 	 * @see #getOverallReadTimeout()
 	 * @see #getOverallWriteTimeout()
@@ -533,7 +552,7 @@ public interface SerialPortSocket extends AutoCloseable {
 	 *            <b>XOFF</b> char.
 	 * @throws IOException
 	 *             if value can't be set, port is closed or an error at OS level
-	 *             occures.
+	 *             occurred.
 	 */
 	void setXOFFChar(char c) throws IOException;
 
@@ -544,7 +563,7 @@ public interface SerialPortSocket extends AutoCloseable {
 	 *            <b>XON</b> char.
 	 * @throws IOException
 	 *             if value can't be set, port is closed or an error at OS level
-	 *             occures.
+	 *             occurred.
 	 */
 	void setXONChar(char c) throws IOException;
 
