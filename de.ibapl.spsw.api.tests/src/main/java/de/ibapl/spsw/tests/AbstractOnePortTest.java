@@ -525,26 +525,26 @@ public abstract class AbstractOnePortTest extends AbstractPortTest {
 	@BaselineTest
 	@Test
 	public void testWrite256kBChunkInfiniteWrite() throws Exception {
-		writeChunk(_256kB, 0);
+		writeChunk(_256kB, Speed._230400_BPS, 0);
 	}
 
 	@BaselineTest
 	@Test
 	public void Write256kBChunk() throws Exception {
-		writeChunk(_256kB, 1000 + 2 * SerialPortSocket.calculateMillisForBytes(_256kB, Speed._1000000_BPS,
+		writeChunk(_256kB, Speed._230400_BPS, 1000 + 2 * SerialPortSocket.calculateMillisForBytes(_256kB, Speed._230400_BPS,
 				DataBits.DB_8, StopBits.SB_1, Parity.NONE));
 	}
 
 	@NotSupportedByAllDevices
 	@Test
 	public void testWrite1MBChunkInfiniteWrite() throws Exception {
-		writeChunk(_1MB, 0);
+		writeChunk(_1MB, Speed._1000000_BPS, 0);
 	}
 
 	@NotSupportedByAllDevices
 	@Test
 	public void Write1MBChunk() throws Exception {
-		writeChunk(_1MB, 1000 + 2 * SerialPortSocket.calculateMillisForBytes(_1MB, Speed._1000000_BPS, DataBits.DB_8,
+		writeChunk(_1MB, Speed._1000000_BPS, 1000 + 2 * SerialPortSocket.calculateMillisForBytes(_1MB, Speed._1000000_BPS, DataBits.DB_8,
 				StopBits.SB_1, Parity.NONE));
 	}
 
@@ -557,7 +557,7 @@ public abstract class AbstractOnePortTest extends AbstractPortTest {
 	@NotSupportedByAllDevices
 	@Test
 	public void testWrite16MBChunkInfiniteWrite() throws Exception {
-		writeChunk(_16MB, 0);
+		writeChunk(_16MB, Speed._1000000_BPS, 0);
 	}
 
 	/**
@@ -569,11 +569,11 @@ public abstract class AbstractOnePortTest extends AbstractPortTest {
 	@NotSupportedByAllDevices
 	@Test
 	public void Write16MBChunk() throws Exception {
-		writeChunk(_16MB, 1000 + 2 * SerialPortSocket.calculateMillisForBytes(_16MB, Speed._1000000_BPS, DataBits.DB_8,
+		writeChunk(_16MB, Speed._1000000_BPS, 1000 + 2 * SerialPortSocket.calculateMillisForBytes(_16MB, Speed._1000000_BPS, DataBits.DB_8,
 				StopBits.SB_1, Parity.NONE));
 	}
 
-	public void writeChunk(int chunksize, int writeTimeout) throws Exception {
+	public void writeChunk(int chunksize, Speed speed, int writeTimeout) throws Exception {
 		assumeWTest();
 		LOG.log(Level.INFO, "run testWriteBytesTimeout writeTO:" + writeTimeout);
 		if (writeTimeout == -1) {
@@ -583,7 +583,7 @@ public abstract class AbstractOnePortTest extends AbstractPortTest {
 		}
 
 		// Set a high speed to speed up things
-		open(Speed._1000000_BPS, DataBits.DB_8, StopBits.SB_1, Parity.NONE, FlowControl.getFC_NONE());
+		open(speed, DataBits.DB_8, StopBits.SB_1, Parity.NONE, FlowControl.getFC_NONE());
 		setTimeouts(100, 1000, writeTimeout);
 
 		byte[] data = new byte[chunksize];
@@ -1189,8 +1189,8 @@ public abstract class AbstractOnePortTest extends AbstractPortTest {
 	public void testCloseDuringBytesWrite() throws Exception {
 		assumeWTest();
 		LOG.log(Level.INFO, "run testCloseDuringBytesRead");
-		open(Speed._1000000_BPS, DataBits.DB_8, StopBits.SB_1, Parity.EVEN, FlowControl.getFC_NONE());
-		int len = (int) Math.ceil(1000.0 / readSpc.calculateMillisPerByte());
+		open(Speed._230400_BPS, DataBits.DB_8, StopBits.SB_1, Parity.EVEN, FlowControl.getFC_NONE());
+		int len = (int) Math.ceil(1000.0 / writeSpc.calculateMillisPerByte());
 
 		byte b[] = new byte[len];
 		assertTrue(writeSpc.isOpen());
@@ -1200,7 +1200,7 @@ public abstract class AbstractOnePortTest extends AbstractPortTest {
 				Thread.sleep(100);
 				LOG.log(Level.INFO, "Will now close the port");
 				writeSpc.close();
-				assertTrue(readSpc.isClosed(), "Port was not closed!");
+				assertTrue(writeSpc.isClosed(), "Port was not closed!");
 				LOG.log(Level.INFO, "Port is closed");
 			} catch (Exception e) {
 				fail("Exception occured: " + e);
@@ -1215,7 +1215,7 @@ public abstract class AbstractOnePortTest extends AbstractPortTest {
 		});
 		LOG.log(Level.INFO, "Bytes: " + iioe.bytesTransferred + " of: " + len + " written MSG: " + iioe.getMessage());
 
-		assertTrue(readSpc.isClosed(), "Port was not closed!");
+		assertTrue(writeSpc.isClosed(), "Port was not closed!");
 		// Allow 200ms to recover -on win the next executed test may fail with port busy
 		// otherwise (FTDI on win)
 		Thread.sleep(200);

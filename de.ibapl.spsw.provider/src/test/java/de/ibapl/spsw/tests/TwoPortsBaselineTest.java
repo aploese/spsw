@@ -2,7 +2,7 @@
  * #%L
  * SPSW Provider
  * %%
- * Copyright (C) 2009 - 2017 Arne Plöse
+ * Copyright (C) 2009 - 2018 Arne Plöse
  * %%
  * SPSW - Drivers for the serial port, https://github.com/aploese/spsw/
  * Copyright (C) 2009-2018, Arne Plöse and individual contributors as indicated
@@ -27,19 +27,6 @@
  */
 package de.ibapl.spsw.tests;
 
-import java.util.stream.Stream;
-
-import de.ibapl.spsw.api.SerialPortSocketFactory;
-import de.ibapl.spsw.provider.SerialPortSocketFactoryImpl;
-
-/**
- * Unit test for simple App. Timeout is computed 8 data bits + 2 stop bits +
- * parity bit + start bit == 12
- */
 public class TwoPortsBaselineTest extends AbstractReadWriteBaselineTest {
-
-	protected SerialPortSocketFactory getSerialPortSocketFactory() {
-		return SerialPortSocketFactoryImpl.singleton();
-	}
 
 }

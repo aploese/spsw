@@ -2,7 +2,7 @@
  * #%L
  * SPSW Provider
  * %%
- * Copyright (C) 2009 - 2017 Arne Plöse
+ * Copyright (C) 2009 - 2018 Arne Plöse
  * %%
  * SPSW - Drivers for the serial port, https://github.com/aploese/spsw/
  * Copyright (C) 2009-2018, Arne Plöse and individual contributors as indicated
@@ -34,20 +34,13 @@ import java.util.logging.Level;
 
 import org.junit.jupiter.api.Test;
 
-import de.ibapl.spsw.api.SerialPortSocketFactory;
 import de.ibapl.spsw.provider.GenericTermiosSerialPortSocket;
-import de.ibapl.spsw.provider.SerialPortSocketFactoryImpl;
 
 /**
  *
  * @author aploese
  */
 public class OnePortTest extends AbstractOnePortTest {
-
-	@Override
-	protected SerialPortSocketFactory getSerialPortSocketFactory() {
-		return SerialPortSocketFactoryImpl.singleton();
-	}
 
 	@Test
 	public void testRTS() throws Exception {

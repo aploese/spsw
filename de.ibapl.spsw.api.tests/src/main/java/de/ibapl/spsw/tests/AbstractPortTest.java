@@ -22,6 +22,7 @@ package de.ibapl.spsw.tests;
 import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTimeoutPreemptively;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -34,7 +35,9 @@ import java.io.InterruptedIOException;
 import java.io.OutputStream;
 import java.text.MessageFormat;
 import java.time.Duration;
+import java.util.Iterator;
 import java.util.Properties;
+import java.util.ServiceLoader;
 import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -279,7 +282,14 @@ public abstract class AbstractPortTest {
 	protected SerialPortSocket writeSpc;
 	protected boolean currentTestFailed;
 
-	protected abstract SerialPortSocketFactory getSerialPortSocketFactory();
+	protected SerialPortSocketFactory getSerialPortSocketFactory() {
+		ServiceLoader<SerialPortSocketFactory> serviceLoader = ServiceLoader.load(SerialPortSocketFactory.class);
+		Iterator<SerialPortSocketFactory> iterator = serviceLoader.iterator();
+		assertTrue(iterator.hasNext(), "No implementation of SerialPortSocket found - Please fix test setup");
+		final SerialPortSocketFactory result =iterator.next();
+		assertFalse(iterator.hasNext(), "More than one implementation of SerialPortSocket found - Please fix test setup");
+		return result;
+	}
 
 	public static class AfterTestExecution implements AfterTestExecutionCallback {
 		public void afterTestExecution(ExtensionContext context) throws Exception {

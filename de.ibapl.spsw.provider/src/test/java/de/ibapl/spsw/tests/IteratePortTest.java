@@ -2,7 +2,7 @@
  * #%L
  * SPSW Provider
  * %%
- * Copyright (C) 2009 - 2017 Arne Plöse
+ * Copyright (C) 2009 - 2018 Arne Plöse
  * %%
  * SPSW - Drivers for the serial port, https://github.com/aploese/spsw/
  * Copyright (C) 2009-2018, Arne Plöse and individual contributors as indicated
@@ -35,9 +35,6 @@ import org.junit.jupiter.api.Test;
 
 import de.ibapl.spsw.provider.SerialPortSocketFactoryImpl;
 
-/**
- * Unit test for simple App.
- */
 public class IteratePortTest {
 
 	private static final Logger LOG = Logger.getLogger("SerialTests");
@@ -47,7 +44,7 @@ public class IteratePortTest {
 		LOG.info("Load native Lib");
 		SerialPortSocketFactoryImpl serialPortSocketFactoryImpl = new SerialPortSocketFactoryImpl();
 		serialPortSocketFactoryImpl.loadNativeLib();
-		assertTrue(SerialPortSocketFactoryImpl.singleton().isLibLoaded());
+		assertTrue(serialPortSocketFactoryImpl.isLibLoaded());
 	}
 
 }
