@@ -78,9 +78,30 @@ public class SerialPortSocketTest {
 		ServiceLoader<SerialPortSocketFactory> spsFactoryLoader = ServiceLoader.load(SerialPortSocketFactory.class);
 		Iterator<SerialPortSocketFactory> spsFactoryIterator = spsFactoryLoader.iterator();
 		assertTrue(spsFactoryIterator.hasNext());
-		assertEquals(SerialPortSocketFactoryImpl.class, spsFactoryIterator.next().getClass());
+		SerialPortSocketFactory serialPortSocketFactory = spsFactoryIterator.next();
+		assertEquals(SerialPortSocketFactoryImpl.class, serialPortSocketFactory.getClass());
 		//We excpect to have ony one implementation hanging around...
 		assertFalse(spsFactoryIterator.hasNext());
+		
+		//We get the same ServiceLoader Instance, so we get the same SerialPortSocketFactory
+		spsFactoryIterator = spsFactoryLoader.iterator();
+		assertTrue(spsFactoryIterator.hasNext());
+		SerialPortSocketFactory serialPortSocketFactory1 = spsFactoryIterator.next();
+		assertEquals(SerialPortSocketFactoryImpl.class, serialPortSocketFactory1.getClass());
+		assertTrue(serialPortSocketFactory == serialPortSocketFactory1, "Not the same Instance");
+		//We excpect to have ony one implementation hanging around...
+		assertFalse(spsFactoryIterator.hasNext());
+		
+		//We get a new ServiceLoader Instance, so we get a new SerialPortSocketFactory
+		spsFactoryLoader = ServiceLoader.load(SerialPortSocketFactory.class);
+		spsFactoryIterator = spsFactoryLoader.iterator();
+		assertTrue(spsFactoryIterator.hasNext());
+		SerialPortSocketFactory serialPortSocketFactory2 = spsFactoryIterator.next();
+		assertEquals(SerialPortSocketFactoryImpl.class, serialPortSocketFactory1.getClass());
+		assertTrue(serialPortSocketFactory != serialPortSocketFactory2, "The same Instance");
+		//We excpect to have ony one implementation hanging around...
+		assertFalse(spsFactoryIterator.hasNext());
+		
 	}
 
 

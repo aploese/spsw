@@ -439,7 +439,7 @@ static jboolean getCommModemStatus(JNIEnv *env, jobject sps, DWORD bitMask) {
 	}
 }
 
-static jint nativeToSpswSpeed(JNIEnv *env, DWORD speed) {
+static jint DCB_BaudrateToSpswSpeed(JNIEnv *env, DWORD speed) {
 	switch (speed) {
 	case 0:
 		return SPSW_SPEED_0_BPS;
@@ -509,74 +509,106 @@ static jint nativeToSpswSpeed(JNIEnv *env, DWORD speed) {
 	}
 }
 
-static DWORD spswSpeedToNative(JNIEnv *env, jint speed) {
+static jint setDCB_Baudrate(JNIEnv *env, jint speed, DCB *dcb) {
 	switch (speed) {
 	case SPSW_SPEED_0_BPS:
-		return 0;
+		dcb->BaudRate = 0;
+		break;
 	case SPSW_SPEED_50_BPS:
-		return 50;
+		dcb->BaudRate = 50;
+		break;
 	case SPSW_SPEED_75_BPS:
-		return 75;
+		dcb->BaudRate = 75;
+		break;
 	case SPSW_SPEED_110_BPS:
-		return 110;
+		dcb->BaudRate = 110;
+		break;
 	case SPSW_SPEED_134_BPS:
-		return 134;
+		dcb->BaudRate = 134;
+		break;
 	case SPSW_SPEED_150_BPS:
-		return 150;
+		dcb->BaudRate = 150;
+		break;
 	case SPSW_SPEED_200_BPS:
-		return 200;
+		dcb->BaudRate = 200;
+		break;
 	case SPSW_SPEED_300_BPS:
-		return 300;
+		dcb->BaudRate = 300;
+		break;
 	case SPSW_SPEED_600_BPS:
-		return 600;
+		dcb->BaudRate = 600;
+		break;
 	case SPSW_SPEED_1200_BPS:
-		return 1200;
+		dcb->BaudRate = 1200;
+		break;
 	case SPSW_SPEED_1800_BPS:
-		return 1800;
+		dcb->BaudRate = 1800;
+		break;
 	case SPSW_SPEED_2400_BPS:
-		return 2400;
+		dcb->BaudRate = 2400;
+		break;
 	case SPSW_SPEED_4800_BPS:
-		return 4800;
+		dcb->BaudRate = 4800;
+		break;
 	case SPSW_SPEED_9600_BPS:
-		return 9600;
+		dcb->BaudRate = 9600;
+		break;
 	case SPSW_SPEED_19200_BPS:
-		return 19200;
+		dcb->BaudRate = 19200;
+		break;
 	case SPSW_SPEED_38400_BPS:
-		return 38400;
+		dcb->BaudRate = 38400;
+		break;
 	case SPSW_SPEED_57600_BPS:
-		return 57600;
+		dcb->BaudRate = 57600;
+		break;
 	case SPSW_SPEED_115200_BPS:
-		return 115200;
+		dcb->BaudRate = 115200;
+		break;
 	case SPSW_SPEED_230400_BPS:
-		return 230400;
+		dcb->BaudRate = 230400;
+		break;
 	case SPSW_SPEED_460800_BPS:
-		return 460800;
+		dcb->BaudRate = 460800;
+		break;
 	case SPSW_SPEED_500000_BPS:
-		return 500000;
+		dcb->BaudRate = 500000;
+		break;
 	case SPSW_SPEED_576000_BPS:
-		return 576000;
+		dcb->BaudRate = 576000;
+		break;
 	case SPSW_SPEED_921600_BPS:
-		return 921600;
+		dcb->BaudRate = 921600;
+		break;
 	case SPSW_SPEED_1000000_BPS:
-		return 1000000;
+		dcb->BaudRate = 1000000;
+		break;
 	case SPSW_SPEED_1152000_BPS:
-		return 1152000;
+		dcb->BaudRate = 1152000;
+		break;
 	case SPSW_SPEED_1500000_BPS:
-		return 1500000;
+		dcb->BaudRate = 1500000;
+		break;
 	case SPSW_SPEED_2000000_BPS:
-		return 2000000;
+		dcb->BaudRate = 2000000;
+		break;
 	case SPSW_SPEED_2500000_BPS:
-		return 2500000;
+		dcb->BaudRate = 2500000;
+		break;
 	case SPSW_SPEED_3000000_BPS:
-		return 3000000;
+		dcb->BaudRate = 3000000;
+		break;
 	case SPSW_SPEED_3500000_BPS:
-		return 3500000;
+		dcb->BaudRate = 3500000;
+		break;
 	case SPSW_SPEED_4000000_BPS:
-		return 4000000;
+		dcb->BaudRate = 4000000;
+		break;
 	default:
 		throw_Illegal_Argument_Exception(env, "Speed not supported");
 		return -1;
 	}
+	return 0;
 }
 
 static int getParams(JNIEnv *env, jobject sps, jint* paramBitSet) {
@@ -593,7 +625,13 @@ static int getParams(JNIEnv *env, jobject sps, jint* paramBitSet) {
 
 	//Speed
 	if (*paramBitSet & SPSW_SPEED_MASK) {
-		result |= nativeToSpswSpeed(env, dcb.BaudRate);
+		jint speed = DCB_BaudrateToSpswSpeed(env, dcb.BaudRate);
+		if (speed == -1) {
+			//IAE is already thrown...
+			return -1;
+		} else {
+			result |= speed;
+		}
 	}
 
 	//DataBits
@@ -691,9 +729,7 @@ static int setParams(JNIEnv *env, jobject sps, DCB *dcb, jint paramBitSet) {
 	//Speed
 	if (paramBitSet & SPSW_SPEED_MASK) {
 
-		dcb->BaudRate = spswSpeedToNative(env,
-				paramBitSet & SPSW_SPEED_MASK);
-		if (dcb->BaudRate == -1) {
+		if (setDCB_Baudrate(env, paramBitSet & SPSW_SPEED_MASK, dcb) == -1) {
 			//IAE is already thrown...
 			return -1;
 		}

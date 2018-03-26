@@ -567,104 +567,136 @@ static jint speed_t2Speed(JNIEnv *env, speed_t speed) {
 	}
 }
 
-static speed_t speed2speed_t(JNIEnv *env, jint speed) {
+static jint speed2speed_t(JNIEnv *env, jint speed, speed_t *speedValue) {
 	switch (speed) {
 	case SPSW_SPEED_0_BPS:
-		return B0;
+		*speedValue = B0;
+		break;
 	case SPSW_SPEED_50_BPS:
-		return B50;
+		*speedValue = B50;
+		break;
 	case SPSW_SPEED_75_BPS:
-		return B75;
+		*speedValue = B75;
+		break;
 	case SPSW_SPEED_110_BPS:
-		return B110;
+		*speedValue = B110;
+		break;
 	case SPSW_SPEED_134_BPS:
-		return B134;
+		*speedValue = B134;
+		break;
 	case SPSW_SPEED_150_BPS:
-		return B150;
+		*speedValue = B150;
+		break;
 	case SPSW_SPEED_200_BPS:
-		return B200;
+		*speedValue = B200;
+		break;
 	case SPSW_SPEED_300_BPS:
-		return B300;
+		*speedValue = B300;
+		break;
 	case SPSW_SPEED_600_BPS:
-		return B600;
+		*speedValue = B600;
+		break;
 	case SPSW_SPEED_1200_BPS:
-		return B1200;
+		*speedValue = B1200;
+		break;
 	case SPSW_SPEED_1800_BPS:
-		return B1800;
+		*speedValue = B1800;
+		break;
 	case SPSW_SPEED_2400_BPS:
-		return B2400;
+		*speedValue = B2400;
+		break;
 	case SPSW_SPEED_4800_BPS:
-		return B4800;
+		*speedValue = B4800;
+		break;
 	case SPSW_SPEED_9600_BPS:
-		return B9600;
+		*speedValue = B9600;
+		break;
 	case SPSW_SPEED_19200_BPS:
-		return B19200;
+		*speedValue = B19200;
+		break;
 	case SPSW_SPEED_38400_BPS:
-		return B38400;
+		*speedValue = B38400;
+		break;
 #ifdef B57600
 		case SPSW_SPEED_57600_BPS:
-		return B57600;
+			*speedValue = B57600;
+		break;
 #endif
 #ifdef B115200
 		case SPSW_SPEED_115200_BPS:
-		return B115200;
+			*speedValue = B115200;
+		break;
 #endif
 #ifdef B230400
 		case SPSW_SPEED_230400_BPS:
-		return B230400;
+			*speedValue = B230400;
+		break;
 #endif
 #ifdef B460800
 		case SPSW_SPEED_460800_BPS:
-		return B460800;
+			*speedValue = B460800;
+		break;
 #endif
 #ifdef B500000
 		case SPSW_SPEED_500000_BPS:
-		return B500000;
+			*speedValue = B500000;
+		break;
 #endif
 #ifdef B576000
 		case SPSW_SPEED_576000_BPS:
-		return B576000;
+			*speedValue = B576000;
+		break;
 #endif
 #ifdef B921600
 		case SPSW_SPEED_921600_BPS:
-		return B921600;
+			*speedValue = B921600;
+		break;
 #endif
 #ifdef B1000000
 		case SPSW_SPEED_1000000_BPS:
-		return B1000000;
+			*speedValue = B1000000;
+		break;
 #endif
 #ifdef B1152000
 		case SPSW_SPEED_1152000_BPS:
-		return B1152000;
+			*speedValue = B1152000;
+		break;
 #endif
 #ifdef B1500000
 		case SPSW_SPEED_1500000_BPS:
-		return B1500000;
+			*speedValue = B1500000;
+		break;
 #endif
 #ifdef B2000000
 		case SPSW_SPEED_2000000_BPS:
-		return B2000000;
+			*speedValue = B2000000;
+		break;
 #endif
 #ifdef B2500000
 		case SPSW_SPEED_2500000_BPS:
-		return B2500000;
+			*speedValue = B2500000;
+		break;
 #endif
 #ifdef B3000000
 		case SPSW_SPEED_3000000_BPS:
-		return B3000000;
+			*speedValue = B3000000;
+		break;
 #endif
 #ifdef B3500000
 		case SPSW_SPEED_3500000_BPS:
-		return B3500000;
+			*speedValue = B3500000;
+		break;
 #endif
 #ifdef B4000000
 		case SPSW_SPEED_4000000_BPS:
-		return B4000000;
+			*speedValue = B4000000;
+		break;
 #endif
 	default:
 		throw_Illegal_Argument_Exception(env, "Speed not supported");
 		return -1;
 	}
+	return 0;
 }
 
 static int getParams(JNIEnv *env, jobject sps, jint* paramBitSet) {
@@ -686,7 +718,14 @@ static int getParams(JNIEnv *env, jobject sps, jint* paramBitSet) {
 					"In and out speed mismatch");
 			return -1;
 		}
-		result |= speed_t2Speed(env, inSpeed);
+		jint speed = speed_t2Speed(env, inSpeed);
+		if (speed == -1) {
+			//IAE is already thrown...
+			return -1;
+		} else {
+			result |= speed;
+		}
+
 	}
 
 	//DataBits
@@ -793,9 +832,8 @@ static int setParams(JNIEnv *env, jobject sps, struct termios *settings,
 
 	//Speed
 	if (paramBitSet & SPSW_SPEED_MASK) {
-		speed_t speedValue = speed2speed_t(env,
-				paramBitSet & SPSW_SPEED_MASK);
-		if (speedValue == -1) {
+		speed_t speedValue;
+		if (speed2speed_t(env, paramBitSet & SPSW_SPEED_MASK, &speedValue) == -1) {
 			//IAE is already thrown...
 			return -1;
 		}
@@ -803,7 +841,7 @@ static int setParams(JNIEnv *env, jobject sps, struct termios *settings,
 		//Set standard speed from "termios.h"
 		if (cfsetspeed(settings, speedValue) < 0) {
 			throw_ClosedOrNativeException(env, sps,
-					"Speed of in and output mismatch");
+					"Can't set Speed cfsetspeed(settings, speedValue)");
 			return -1;
 		}
 
