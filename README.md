@@ -30,15 +30,15 @@ In the final application add this implementation to the runtime only.
 #### OSGi
 Just use the OSGi annotation @Reference. 
 ```
-	@Reference
-	List<SerialPortSocketFactory> loader;
+@Reference
+List<SerialPortSocketFactory> loader;
 ```
 
 #### Spring, JEE (JSR 330)
 Use the @Inject annotation.
 ```
-	@Inject
-	List<SerialPortSocketFactory> loader;
+@Inject
+List<SerialPortSocketFactory> loader;
 ```
 
 #### J2SE with java.util.ServiceLoader
@@ -46,54 +46,54 @@ Use the @Inject annotation.
 Use the ServiceLoader to load all instances of SerialPortSocketFactory. Usually there should be only one - but prepared for the other.
 
 ```
-	ServiceLoader<SerialPortSocketFactory> loader = ServiceLoader.load(SerialPortSocketFactory.class);
-	Iterator<SerialPortSocketFactory> iterator = loader.iterator();
-	if (!iterator.hasNext()) {
-		LOG.severe("NO implementation of SerialPortSocketFactory available - add a provider for that to the test dependencies");
+ServiceLoader<SerialPortSocketFactory> loader = ServiceLoader.load(SerialPortSocketFactory.class);
+Iterator<SerialPortSocketFactory> iterator = loader.iterator();
+if (!iterator.hasNext()) {
+	LOG.severe("NO implementation of SerialPortSocketFactory available - add a provider for that to the test dependencies");
+}
+SerialPortSocketFactory serialPortSocketFactory = iterator.next();
+if (iterator.hasNext()) {
+	StringBuilder sb = new StringBuilder("More than one implementation of SerialPortSocketFactory available - fix the test dependencies\n");
+	iterator = loader.iterator();
+	while ( iterator.hasNext()) {
+	sb.append(iterator.next().getClass().getCanonicalName()).append("\n");
 	}
-	SerialPortSocketFactory serialPortSocketFactory = iterator.next();
-	if (iterator.hasNext()) {
-		StringBuilder sb = new StringBuilder("More than one implementation of SerialPortSocketFactory available - fix the test dependencies\n");
-		iterator = loader.iterator();
-		while ( iterator.hasNext()) {
-		sb.append(iterator.next().getClass().getCanonicalName()).append("\n");
-		}
-		LOG.severe(sb.toString());
-	}
+  LOG.severe(sb.toString());
+}
 ```
 
 ### Open Try With Resource
 ```
-	try (SerialPortSocket serialPortSocket = serialPortSocketFactory.open(PORT_NAME) {
-		serialPortSocket.open();
-		serialPortSocket.getOutputStream().write("Hello World!".getBytes());
-	} catch (IOException ioe) {
-		System.err.println(ioe);
-	}
+try (SerialPortSocket serialPortSocket = serialPortSocketFactory.open(PORT_NAME) {
+	serialPortSocket.open();
+	serialPortSocket.getOutputStream().write("Hello World!".getBytes());
+} catch (IOException ioe) {
+	System.err.println(ioe);
+}
 ```
 
 ### Open Try With Resource And Parameters 
 ```
-	try (SerialPortSocket serialPortSocket = serialPortSocketFactory.open(PORT_NAME, Speed._9600_BPS, DataBits.DB_8, StopBits.SB_1, Parity.NONE, FlowControl.getFC_NONE()) {
-		serialPortSocket.open();
-		serialPortSocket.getOutputStream().write("Hello World!".getBytes());
-	} catch (IOException ioe) {
-		System.err.println(ioe);
-	}
+try (SerialPortSocket serialPortSocket = serialPortSocketFactory.open(PORT_NAME, Speed._9600_BPS, DataBits.DB_8, StopBits.SB_1, Parity.NONE, FlowControl.getFC_NONE()) {
+	serialPortSocket.open();
+	serialPortSocket.getOutputStream().write("Hello World!".getBytes());
+} catch (IOException ioe) {
+	System.err.println(ioe);
+}
 ```
 
 ### Create and Open 
 ```
-	SerialPortSocket serialPortSocket = serialPortSocketFactory.createSerialPortSocket(PORT_NAME);
-		serialPortSocket.open(Speed._9600_BPS, DataBits.DB_8, StopBits.SB_1, Parity.NONE, FlowControl.getFC_NONE());
-		try {
-			serialPortSocket.getOutputStream().write("Hello World!".getBytes());
-		} catch (IOException ioe) {
-			System.err.println(ioe);
-		} finally {
-			serialPortSocket.close();
-		}
+SerialPortSocket serialPortSocket = serialPortSocketFactory.createSerialPortSocket(PORT_NAME);
+	serialPortSocket.open(Speed._9600_BPS, DataBits.DB_8, StopBits.SB_1, Parity.NONE, FlowControl.getFC_NONE());
+	try {
+		serialPortSocket.getOutputStream().write("Hello World!".getBytes());
+	} catch (IOException ioe) {
+		System.err.println(ioe);
+	} finally {
+		serialPortSocket.close();
 	}
+}
 ```
 
 ### Setting Timeouts
@@ -103,25 +103,25 @@ Set the write timeout to 2000 ms.
 Be aware that the read amount of wait time is implementation dependant.  
 
 ```
-		serialPortSocket.open();
-		try {
-			serialPortSocket.setTimeouts(100, 1000, 2000);
-			serialPortSocket.getOutputStream().write("Hello World!".getBytes());
-			final byte[] buf = new byte["Hello World!".length()];
-			final int len = serialPortSocket.getInputStream().read(buf);
-			for (int i = 0; i < len; i++) {
-				System.out.print((char)buf[i]);
-			}
-			System.out.println();
-		} catch (TimeoutIOException tioe) {
-			System.err.println(tioe);
-		} catch (InterruptedIOException iioe) {
-			System.err.println(iioe);
-		} catch (IOException ioe) {
-			System.err.println(ioe);
-		} finally {
-			serialPortSocket.close();
-		}
+serialPortSocket.open();
+try {
+	serialPortSocket.setTimeouts(100, 1000, 2000);
+	serialPortSocket.getOutputStream().write("Hello World!".getBytes());
+	final byte[] buf = new byte["Hello World!".length()];
+	final int len = serialPortSocket.getInputStream().read(buf);
+	for (int i = 0; i < len; i++) {
+		System.out.print((char)buf[i]);
+	}
+	System.out.println();
+} catch (TimeoutIOException tioe) {
+	System.err.println(tioe);
+} catch (InterruptedIOException iioe) {
+	System.err.println(iioe);
+} catch (IOException ioe) {
+	System.err.println(ioe);
+} finally {
+	serialPortSocket.close();
+}
 ```
 
 
