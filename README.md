@@ -23,9 +23,9 @@ In the final application add this implementation to the runtime only.
 </dependency>
 ```
 
-##Code Examples
+## Code Examples
 
-###OSGi
+### OSGi
 Just use the OSGi annotation @Reference. 
 ```
 	@Reference
@@ -62,9 +62,9 @@ Use the ServiceLoader to load all instances of SerialPortSocketFactory. Usually 
 
 ## Testing Hardware
 
-1.  Grap yourself 2 serial devices and an NullModem adapter or cable. OR use one device with properly cross connected lines.
-1.  Goto the directory de.ibapl.spsw.jniprovider.
-2.  copy src/test/resources/junit-spsw-config.properties.template to src/test/resources/junit-spsw-config.properties
-3.  Edit the portnames in src/test/resources/junit-spsw-config.properties. If you have a "cross connected" device use the same name for readPort a writePort.
-4.  Run mvn -PBaselineTests test for the Baseline tests. This tests should never fail.
-5.  mvn  test to execute all tests - some will fail. Look at the test itself and on the outcome to device whats up.
+1.  Grap yourself 2 serial devices and a null modem adapter or a null modem cable. OR use one device with properly cross connected lines [Null modem](https://www.wikipedia.org/wiki/Null_modem) .
+1.  Goto the directory `de.ibapl.spsw.jniprovider`.
+2.  copy `src/test/resources/junit-spsw-config.properties.template` to `src/test/resources/junit-spsw-config.properties`
+3.  Edit the portnames in `src/test/resources/junit-spsw-config.properties`. If you have a "cross connected" device use the same name for readPort a writePort.
+4.  Run `mvn -PBaselineTests test` for the Baseline tests. This tests should never fail.
+5.  `mvn  test` to execute all tests - some will fail. Look at the test itself and on the outcome to device whats up.
