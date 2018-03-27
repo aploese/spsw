@@ -67,6 +67,8 @@ Use the ServiceLoader to load all instances of SerialPortSocketFactory. Usually 
 	try (SerialPortSocket serialPortSocket = serialPortSocketFactory.open(PORT_NAME) {
 		serialPortSocket.open();
 		serialPortSocket.getOutputStream().write("Hello World!".getBytes());
+	} catch (IOException ioe) {
+		System.err.println(ioe);
 	}
 ```
 
@@ -75,6 +77,8 @@ Use the ServiceLoader to load all instances of SerialPortSocketFactory. Usually 
 	try (SerialPortSocket serialPortSocket = serialPortSocketFactory.open(PORT_NAME, Speed._9600_BPS, DataBits.DB_8, StopBits.SB_1, Parity.NONE, FlowControl.getFC_NONE()) {
 		serialPortSocket.open();
 		serialPortSocket.getOutputStream().write("Hello World!".getBytes());
+	} catch (IOException ioe) {
+		System.err.println(ioe);
 	}
 ```
 
@@ -82,7 +86,13 @@ Use the ServiceLoader to load all instances of SerialPortSocketFactory. Usually 
 ```
 	SerialPortSocket serialPortSocket = serialPortSocketFactory.createSerialPortSocket(PORT_NAME);
 		serialPortSocket.open(Speed._9600_BPS, DataBits.DB_8, StopBits.SB_1, Parity.NONE, FlowControl.getFC_NONE());
-		serialPortSocket.getOutputStream().write("Hello World!".getBytes());
+		try {
+			serialPortSocket.getOutputStream().write("Hello World!".getBytes());
+		} catch (IOException ioe) {
+			System.err.println(ioe);
+		} finally {
+			serialPortSocket.close();
+		}
 	}
 ```
 
@@ -94,7 +104,24 @@ Be aware that the read amount of wait time is implementation dependant.
 
 ```
 		serialPortSocket.open();
-		serialPortSocket.setTimeouts(100, 1000, 2000);
+		try {
+			serialPortSocket.setTimeouts(100, 1000, 2000);
+			serialPortSocket.getOutputStream().write("Hello World!".getBytes());
+			final byte[] buf = new byte["Hello World!".length()];
+			final int len = serialPortSocket.getInputStream().read(buf);
+			for (int i = 0; i < len; i++) {
+				System.out.print((char)buf[i]);
+			}
+			System.out.println();
+		} catch (TimeoutIOException tioe) {
+			System.err.println(tioe);
+		} catch (InterruptedIOException iioe) {
+			System.err.println(iioe);
+		} catch (IOException ioe) {
+			System.err.println(ioe);
+		} finally {
+			serialPortSocket.close();
+		}
 ```
 
 
