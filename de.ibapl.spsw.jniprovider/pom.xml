@@ -69,6 +69,15 @@
 
 	<profiles>
 		<profile>
+			<id>release</id>
+			<properties>
+			<!-- Exclude all HW tests -->
+				<excludeJunit5Tags>Baseline,DtrDsr,HighSpeed,LowSpeed,NotSupportedByDevice,RtsCts,SlowTest</excludeJunit5Tags>
+				<includeJunit5Tags></includeJunit5Tags>
+			</properties>
+		</profile>
+
+		<profile>
 			<id>BaselineTests</id>
 			<properties>
 				<excludeJunit5Tags></excludeJunit5Tags>
