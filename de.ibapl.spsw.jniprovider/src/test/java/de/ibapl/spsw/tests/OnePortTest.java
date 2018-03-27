@@ -35,6 +35,8 @@ import java.util.logging.Level;
 import org.junit.jupiter.api.Test;
 
 import de.ibapl.spsw.jniprovider.GenericTermiosSerialPortSocket;
+import de.ibapl.spsw.tests.tags.DtrDsrTest;
+import de.ibapl.spsw.tests.tags.RtsCtsTest;
 
 /**
  *
@@ -43,6 +45,7 @@ import de.ibapl.spsw.jniprovider.GenericTermiosSerialPortSocket;
 public class OnePortTest extends AbstractOnePortTest {
 
 	@Override
+	@RtsCtsTest
 	@Test
 	public void testRTS() throws Exception {
 		assumeWTest();
@@ -60,6 +63,7 @@ public class OnePortTest extends AbstractOnePortTest {
 	}
 
 	@Override
+	@DtrDsrTest
 	@Test
 	public void testDTR() throws Exception {
 		assumeWTest();

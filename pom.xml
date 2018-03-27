@@ -97,9 +97,10 @@
 
 
 	<scm>
-		<url>http://github.com/aploese/spsw</url>
-		<connection>scm:git:git://github.com/aploese/spsw.git</connection>
+		<url>https://github.com/aploese/spsw</url>
+		<connection>scm:git:https://github.com/aploese/spsw.git</connection>
 		<developerConnection>scm:git:git@github.com:aploese/spsw.git</developerConnection>
+		<tag>HEAD</tag>
 	</scm>
 
 
