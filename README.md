@@ -25,23 +25,26 @@ In the final application add this implementation to the runtime only.
 
 ## Code Examples
 
-### OSGi
+### Load SerialPortSocketFactory
+
+#### OSGi
 Just use the OSGi annotation @Reference. 
 ```
 	@Reference
 	List<SerialPortSocketFactory> loader;
 ```
 
-### Spring, JEE (JSR 330)
+#### Spring, JEE (JSR 330)
 Use the @Inject annotation.
 ```
 	@Inject
 	List<SerialPortSocketFactory> loader;
 ```
 
-### J2SE with java.util.ServiceLoader
+#### J2SE with java.util.ServiceLoader
 
 Use the ServiceLoader to load all instances of SerialPortSocketFactory. Usually there should be only one - but prepared for the other.
+
 ```
 	ServiceLoader<SerialPortSocketFactory> loader = ServiceLoader.load(SerialPortSocketFactory.class);
 	Iterator<SerialPortSocketFactory> iterator = loader.iterator();
@@ -57,14 +60,50 @@ Use the ServiceLoader to load all instances of SerialPortSocketFactory. Usually 
 		}
 		LOG.severe(sb.toString());
 	}
-	serialPortSocket = serialPortSocketFactory.createSerialPortSocket(PORT_NAME);
 ```
+
+### Open Try With Resource
+```
+	try (SerialPortSocket serialPortSocket = serialPortSocketFactory.open(PORT_NAME) {
+		serialPortSocket.open();
+		serialPortSocket.getOutputStream().write("Hello World!".getBytes());
+	}
+```
+
+### Open Try With Resource And Parameters 
+```
+	try (SerialPortSocket serialPortSocket = serialPortSocketFactory.open(PORT_NAME, Speed._9600_BPS, DataBits.DB_8, StopBits.SB_1, Parity.NONE, FlowControl.getFC_NONE()) {
+		serialPortSocket.open();
+		serialPortSocket.getOutputStream().write("Hello World!".getBytes());
+	}
+```
+
+### Create and Open 
+```
+	SerialPortSocket serialPortSocket = serialPortSocketFactory.createSerialPortSocket(PORT_NAME);
+		serialPortSocket.open(Speed._9600_BPS, DataBits.DB_8, StopBits.SB_1, Parity.NONE, FlowControl.getFC_NONE());
+		serialPortSocket.getOutputStream().write("Hello World!".getBytes());
+	}
+```
+
+### Setting Timeouts
+Set the InterByteTimeout to 100 ms.
+Set the read timeout to 1000 ms.
+Set the write timeout to 2000 ms.
+Be aware that the read amount of wait time is implementation dependant.  
+
+```
+		serialPortSocket.open();
+		serialPortSocket.setTimeouts(100, 1000, 2000);
+```
+
+
 
 ## Testing Hardware
 
 1.  Grap yourself 2 serial devices and a null modem adapter or a null modem cable. OR use one device with properly cross connected lines [Null modem](https://www.wikipedia.org/wiki/Null_modem) .
 1.  Goto the directory `de.ibapl.spsw.jniprovider`.
-2.  copy `src/test/resources/junit-spsw-config.properties.template` to `src/test/resources/junit-spsw-config.properties`
+2.  copy `src/test/resources/junit-spsw-config.properties.template` to `src/test/resources/junit-spsw-config.properties`.
 3.  Edit the portnames in `src/test/resources/junit-spsw-config.properties`. If you have a "cross connected" device use the same name for readPort a writePort.
 4.  Run `mvn -PBaselineTests test` for the Baseline tests. This tests should never fail.
 5.  `mvn  test` to execute all tests - some will fail. Look at the test itself and on the outcome to device whats up.
