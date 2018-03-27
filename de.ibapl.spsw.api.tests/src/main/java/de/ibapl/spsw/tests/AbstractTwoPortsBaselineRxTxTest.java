@@ -2,7 +2,7 @@
  * #%L
  * SPSW Provider
  * %%
- * Copyright (C) 2009 - 2017 Arne Plöse
+ * Copyright (C) 2009 - 2018 Arne Plöse
  * %%
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License 2.0 which is available at
@@ -47,11 +47,10 @@ import gnu.io.RXTXPort;
 import gnu.io.SerialPort;
 
 /**
- * Unit test for simple App. Timeout is computed 8 data bits + 2 stop bits +
- * parity bit + start bit == 12 This is only for regression tests
+ * @author Arne Plöse
  */
 @ExtendWith(AbstractTwoPortsBaselineRxTxTest.AfterTestExecution.class)
-public abstract class AbstractTwoPortsBaselineRxTxTest  {
+public abstract class AbstractTwoPortsBaselineRxTxTest {
 
 	protected static final int PORT_RECOVERY_TIME_MS = AbstractPortTest.PORT_RECOVERY_TIME_MS;
 	protected static final boolean HARDWARE_SUPPORTS_RTS_CTS = false;
@@ -76,9 +75,11 @@ public abstract class AbstractTwoPortsBaselineRxTxTest  {
 	protected boolean currentTestFailed;
 
 	public static class AfterTestExecution implements AfterTestExecutionCallback {
-	public void afterTestExecution(ExtensionContext context) throws Exception {
-			((AbstractTwoPortsBaselineRxTxTest)context.getRequiredTestInstance()).currentTestFailed = context.getExecutionException().isPresent();
-	}
+		@Override
+		public void afterTestExecution(ExtensionContext context) throws Exception {
+			((AbstractTwoPortsBaselineRxTxTest) context.getRequiredTestInstance()).currentTestFailed = context
+					.getExecutionException().isPresent();
+		}
 	}
 
 	@BeforeAll

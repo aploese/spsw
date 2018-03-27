@@ -1,10 +1,17 @@
 package de.ibapl.spsw.osgi.tests;
 
+import static org.junit.Assert.assertNotNull;
+
+import org.junit.Test;
+import org.osgi.framework.BundleContext;
+import org.osgi.framework.FrameworkUtil;
+import org.osgi.framework.ServiceReference;
+
 /*-
  * #%L
  * SPSW OSGi Tests
  * %%
- * Copyright (C) 2009 - 2017 Arne Plöse
+ * Copyright (C) 2009 - 2018 Arne Plöse
  * %%
  * SPSW - Drivers for the serial port, https://github.com/aploese/spsw/
  * Copyright (C) 2009-2018, Arne Plöse and individual contributors as indicated
@@ -28,31 +35,25 @@ package de.ibapl.spsw.osgi.tests;
  * #L%
  */
 
-
 import de.ibapl.spsw.api.SerialPortSocketFactory;
-import org.osgi.framework.BundleContext;
-import org.osgi.framework.FrameworkUtil;
-import org.osgi.framework.ServiceReference;
-
-import static org.junit.Assert.assertNotNull;
-import org.junit.Test;
 
 public class SerialPortSocketFactoryTest {
 
-    private final BundleContext context = FrameworkUtil.getBundle(this.getClass()).getBundleContext();
+	private final BundleContext context = FrameworkUtil.getBundle(this.getClass()).getBundleContext();
 
-    ;
-    
-    // Why is ref == null ??? 
-    @Test
-//    @Ignore
-    public void testSerialPortSocketFactory() throws Exception {
-        System.out.println("RUN de.ibapl.spsw.osgi.tests.SerialPortSocketFactoryTest.testSerialPortSocketFactory()");
+	;
 
-        ServiceReference<SerialPortSocketFactory> ref = context.getServiceReference(SerialPortSocketFactory.class);
-        assertNotNull("No such service", ref);
-        SerialPortSocketFactory serialPortSocketFactory = context.getService(ref);
-        assertNotNull("Service object init error", serialPortSocketFactory);
-        System.out.println("FINISHED de.ibapl.spsw.osgi.tests.SerialPortSocketFactoryTest.testSerialPortSocketFactory()");
-    }
+	// Why is ref == null ???
+	@Test
+	// @Ignore
+	public void testSerialPortSocketFactory() throws Exception {
+		System.out.println("RUN de.ibapl.spsw.osgi.tests.SerialPortSocketFactoryTest.testSerialPortSocketFactory()");
+
+		ServiceReference<SerialPortSocketFactory> ref = context.getServiceReference(SerialPortSocketFactory.class);
+		assertNotNull("No such service", ref);
+		SerialPortSocketFactory serialPortSocketFactory = context.getService(ref);
+		assertNotNull("Service object init error", serialPortSocketFactory);
+		System.out
+				.println("FINISHED de.ibapl.spsw.osgi.tests.SerialPortSocketFactoryTest.testSerialPortSocketFactory()");
+	}
 }

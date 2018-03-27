@@ -2,7 +2,7 @@
  * #%L
  * SPSW Provider
  * %%
- * Copyright (C) 2009 - 2017 Arne Plöse
+ * Copyright (C) 2009 - 2018 Arne Plöse
  * %%
  * SPSW - Drivers for the serial port, https://github.com/aploese/spsw/
  * Copyright (C) 2009-2018, Arne Plöse and individual contributors as indicated
@@ -50,24 +50,25 @@ import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Deactivate;
 import org.osgi.service.component.annotations.ServiceScope;
 
-import de.ibapl.spsw.api.Speed;
 import de.ibapl.spsw.api.DataBits;
 import de.ibapl.spsw.api.FlowControl;
 import de.ibapl.spsw.api.Parity;
 import de.ibapl.spsw.api.PortnamesComparator;
 import de.ibapl.spsw.api.SerialPortSocket;
 import de.ibapl.spsw.api.SerialPortSocketFactory;
+import de.ibapl.spsw.api.Speed;
 import de.ibapl.spsw.api.StopBits;
 
 /**
- *
- * @author aploese
+ * Impements the {@linkplain SerialPortSocketFactory}.
+ * 
+ * @author Arne Plöse
  */
 @Singleton
-@Component(name = "de.ibapl.spsw.provider", scope = ServiceScope.SINGLETON, immediate = true)
+@Component(name = "de.ibapl.spsw.jniprovider", scope = ServiceScope.SINGLETON, immediate = true)
 public class SerialPortSocketFactoryImpl implements SerialPortSocketFactory {
 
-	protected final static Logger LOG = Logger.getLogger("de.ibapl.spsw.provider");
+	protected final static Logger LOG = Logger.getLogger("de.ibapl.spsw.jniprovider");
 
 	/**
 	 * Do not load the native library here on failure it may throw up the running

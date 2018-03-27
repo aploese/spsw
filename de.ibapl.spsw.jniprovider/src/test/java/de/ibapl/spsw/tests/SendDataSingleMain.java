@@ -30,19 +30,23 @@ package de.ibapl.spsw.tests;
 import java.time.Instant;
 import java.time.format.DateTimeFormatter;
 
-import de.ibapl.spsw.api.Speed;
 import de.ibapl.spsw.api.DataBits;
 import de.ibapl.spsw.api.FlowControl;
 import de.ibapl.spsw.api.Parity;
 import de.ibapl.spsw.api.SerialPortSocket;
+import de.ibapl.spsw.api.Speed;
 import de.ibapl.spsw.api.StopBits;
 import de.ibapl.spsw.jniprovider.SerialPortSocketFactoryImpl;
 
+/**
+ * 
+ * @author Arne Plöse
+ *
+ */
 public class SendDataSingleMain {
 
 	public static void main(String[] args) throws Exception {
-		SerialPortSocket serialPortSocket = new SerialPortSocketFactoryImpl()
-				.createSerialPortSocket("/dev/ttyUSB0");
+		SerialPortSocket serialPortSocket = new SerialPortSocketFactoryImpl().createSerialPortSocket("/dev/ttyUSB0");
 		serialPortSocket.open(Speed._300_BPS, DataBits.DB_8, StopBits.SB_1, Parity.NONE, FlowControl.getFC_NONE());
 		serialPortSocket.setTimeouts(1000, 0, 0);
 		Thread t = new Thread(() -> {

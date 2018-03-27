@@ -1,10 +1,8 @@
-package de.ibapl.spsw.api;
-
 /*-
  * #%L
  * SPSW API
  * %%
- * Copyright (C) 2009 - 2017 Arne Plöse
+ * Copyright (C) 2009 - 2018 Arne Plöse
  * %%
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License 2.0 which is available at
@@ -19,16 +17,19 @@ package de.ibapl.spsw.api;
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  * #L%
  */
+package de.ibapl.spsw.api;
 
 import java.util.EnumSet;
 import java.util.Set;
+
 import org.osgi.annotation.versioning.ProviderType;
 
 /**
  * The flow control encoded as enum constants. Not all OS (POSIX) support
- * separate in/out, whereas other do (Windows). So best set both directions.
+ * separate in/out, whereas other do (Windows). So its recommended to set set
+ * both directions.
  * 
- * @author aploese
+ * @author Arne Plöse
  */
 @ProviderType
 public enum FlowControl {

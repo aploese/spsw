@@ -2,7 +2,7 @@
  * #%L
  * SPSW Provider
  * %%
- * Copyright (C) 2009 - 2017 Arne Plöse
+ * Copyright (C) 2009 - 2018 Arne Plöse
  * %%
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License 2.0 which is available at
@@ -27,8 +27,7 @@ import org.junit.jupiter.params.provider.MethodSource;
 import de.ibapl.spsw.tests.tags.BaselineTest;
 
 /**
- * Unit test for simple App. Timeout is computed 8 data bits + 2 stop bits +
- * parity bit + start bit == 12
+ * @author Arne Plöse
  */
 public abstract class AbstractReadWriteAllParitiesTest extends AbstractReadWriteTest {
 
@@ -42,14 +41,14 @@ public abstract class AbstractReadWriteAllParitiesTest extends AbstractReadWrite
 	public void test_WriteBytes_ReadBytes(PortConfiguration pc) throws Exception {
 		writeBytes_ReadBytes(pc);
 	}
-	
+
 	@BaselineTest
 	@ParameterizedTest
 	@MethodSource({ "getBaselinePortConfigurations" })
 	public void test_WriteBytes_ReadSingle(PortConfiguration pc) throws Exception {
 		writeBytes_ReadSingle(pc);
 	}
-	
+
 	@BaselineTest
 	@ParameterizedTest
 	@MethodSource({ "getBaselinePortConfigurations" })

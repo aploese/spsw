@@ -1,7 +1,3 @@
-package de.ibapl.spsw.logging;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
-
 /*-
  * #%L
  * SPSW API
@@ -21,14 +17,13 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  * #L%
  */
+package de.ibapl.spsw.logging;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.io.ByteArrayOutputStream;
 import java.time.Instant;
 
-import org.junit.jupiter.api.AfterAll;
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
@@ -36,28 +31,12 @@ import de.ibapl.spsw.api.TimeoutIOException;
 
 /**
  *
- * @author aploese
+ * @author Arne Plöse
  */
 @Disabled
 public class LogWriterTest {
 
 	public LogWriterTest() {
-	}
-
-	@BeforeAll
-	public static void setUpClass() {
-	}
-
-	@AfterAll
-	public static void tearDownClass() {
-	}
-
-	@BeforeEach
-	public void setUp() {
-	}
-
-	@AfterEach
-	public void tearDown() {
 	}
 
 	private void writeHEX(TimeStampLogging timeStampLogging, boolean verbose, String expected) {

@@ -17,27 +17,26 @@
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  * #L%
  */
-
 package de.ibapl.spsw.logging;
 
 /**
- * Specifies the way timestamps should be written to the logfile.
+ * Specifies the way time stamps should be written to the log.
  * 
- * @author aploese
+ * @author Arne Plöse
  *
  */
 public enum TimeStampLogging {
 	/**
-	 * No timestamps are written. If timestamps are not important, this will give
-	 * the most compact logfiles.
+	 * No time stamps are written. If time stamps are not important, this will give
+	 * the most compact log.
 	 */
 	NONE,
 	/**
-	 * All timestamps are the time elapsed since the opening of the port.
+	 * All time stamps are the time elapsed since the opening of the port.
 	 */
 	FROM_OPEN,
 	/**
-	 * All timestamps are absolute times in UTC.
+	 * All time stamps are absolute times in UTC.
 	 */
 	UTC,
 }

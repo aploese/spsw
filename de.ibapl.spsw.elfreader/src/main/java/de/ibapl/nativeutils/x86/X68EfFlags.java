@@ -1,5 +1,3 @@
-package de.ibapl.nativeutils.x86;
-
 /*-
  * #%L
  * SPSW Provider
@@ -27,9 +25,16 @@ package de.ibapl.nativeutils.x86;
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  * #L%
  */
+package de.ibapl.nativeutils.x86;
+
 
 import de.ibapl.nativeutils.EFlags;
 
-public enum X68EfFlags implements EFlags  {
+/**
+ * 
+ * @author Arne Plöse
+ *
+ */
+public enum X68EfFlags implements EFlags {
 
 }

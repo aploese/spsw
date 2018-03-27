@@ -25,14 +25,12 @@
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  * #L%
  */
-
 package de.ibapl.spsw.tests;
 
 /**
  *
- * @author aploese
+ * @author Arne Plöse
  */
 public class ReadWriteAllSpeedsTest extends AbstractReadWriteAllSpeedsTest {
-
 
 }

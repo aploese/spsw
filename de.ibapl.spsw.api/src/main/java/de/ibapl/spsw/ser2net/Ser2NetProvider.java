@@ -17,7 +17,6 @@
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  * #L%
  */
-
 package de.ibapl.spsw.ser2net;
 
 import java.io.IOException;
@@ -31,17 +30,21 @@ import javax.net.SocketFactory;
 
 import org.osgi.annotation.versioning.ProviderType;
 
-import de.ibapl.spsw.api.Speed;
 import de.ibapl.spsw.api.DataBits;
 import de.ibapl.spsw.api.FlowControl;
 import de.ibapl.spsw.api.Parity;
 import de.ibapl.spsw.api.SerialPortSocket;
+import de.ibapl.spsw.api.Speed;
 import de.ibapl.spsw.api.StopBits;
 import de.ibapl.spsw.api.TimeoutIOException;
 
 /**
+ * Accesses a remote serial device on a differrent machine over
+ * <a href="http://ser2net.sourceforge.net/">ser2net</a> connection. Currently
+ * set or change of port parameters, dending BREAK or acess or set of line
+ * status (RTS/CTS...) is not supported.
  * 
- * @author aploese
+ * @author Arne Plöse
  *
  */
 @ProviderType
@@ -234,8 +237,8 @@ public class Ser2NetProvider implements SerialPortSocket {
 	}
 
 	@Override
-	public void open(Speed speed, DataBits dataBits, StopBits stopBits, Parity parity,
-			Set<FlowControl> flowControls) throws IOException {
+	public void open(Speed speed, DataBits dataBits, StopBits stopBits, Parity parity, Set<FlowControl> flowControls)
+			throws IOException {
 		this.speed = speed;
 		this.dataBits = dataBits;
 		this.stopBits = stopBits;

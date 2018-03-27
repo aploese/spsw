@@ -1,5 +1,3 @@
-package de.ibapl.nativeutils;
-
 /*-
  * #%L
  * SPSW Provider
@@ -27,7 +25,13 @@ package de.ibapl.nativeutils;
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  * #L%
  */
+package de.ibapl.nativeutils;
 
+/**
+ * 
+ * @author Arne Plöse
+ *
+ */
 public interface EFlags {
 
 }

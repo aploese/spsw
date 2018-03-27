@@ -9,8 +9,10 @@ import java.util.Collection;
 import java.util.LinkedList;
 
 /**
- *
- * @author aploese
+ * Build the  Multiarch Tuples <a href="https://wiki.debian.org/Multiarch/Tuples">wiki.debian.org/Multiarch/Tuples</a>.
+ * Multiarch Tuples are needed to figure out which native lib to load arm soft float or hard float for example.
+ * 
+ * @author Arne Plöse
  */
 public final class MultiarchTupelBuilder {
 

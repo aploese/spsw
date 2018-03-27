@@ -2,7 +2,7 @@
  * #%L
  * SPSW Provider
  * %%
- * Copyright (C) 2009 - 2017 Arne Plöse
+ * Copyright (C) 2009 - 2018 Arne Plöse
  * %%
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License 2.0 which is available at
@@ -52,15 +52,18 @@ import org.junit.jupiter.api.extension.AfterTestExecutionCallback;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.api.extension.ExtensionContext;
 
-import de.ibapl.spsw.api.Speed;
 import de.ibapl.spsw.api.DataBits;
 import de.ibapl.spsw.api.FlowControl;
 import de.ibapl.spsw.api.Parity;
 import de.ibapl.spsw.api.SerialPortSocket;
 import de.ibapl.spsw.api.SerialPortSocketFactory;
+import de.ibapl.spsw.api.Speed;
 import de.ibapl.spsw.api.StopBits;
 import de.ibapl.spsw.api.TimeoutIOException;
 
+/**
+ * @author Arne Plöse
+ */
 @ExtendWith(AbstractPortTest.AfterTestExecution.class)
 @TestInstance(Lifecycle.PER_CLASS)
 public abstract class AbstractPortTest {
@@ -286,12 +289,14 @@ public abstract class AbstractPortTest {
 		ServiceLoader<SerialPortSocketFactory> serviceLoader = ServiceLoader.load(SerialPortSocketFactory.class);
 		Iterator<SerialPortSocketFactory> iterator = serviceLoader.iterator();
 		assertTrue(iterator.hasNext(), "No implementation of SerialPortSocket found - Please fix test setup");
-		final SerialPortSocketFactory result =iterator.next();
-		assertFalse(iterator.hasNext(), "More than one implementation of SerialPortSocket found - Please fix test setup");
+		final SerialPortSocketFactory result = iterator.next();
+		assertFalse(iterator.hasNext(),
+				"More than one implementation of SerialPortSocket found - Please fix test setup");
 		return result;
 	}
 
 	public static class AfterTestExecution implements AfterTestExecutionCallback {
+		@Override
 		public void afterTestExecution(ExtensionContext context) throws Exception {
 			((AbstractPortTest) context.getRequiredTestInstance()).currentTestFailed = context.getExecutionException()
 					.isPresent();
@@ -334,8 +339,8 @@ public abstract class AbstractPortTest {
 	 * @param flowControl
 	 * @throws Exception
 	 */
-	protected void open(Speed speed, DataBits dataBits, StopBits stopBits, Parity parity,
-			Set<FlowControl> flowControl) throws Exception {
+	protected void open(Speed speed, DataBits dataBits, StopBits stopBits, Parity parity, Set<FlowControl> flowControl)
+			throws Exception {
 		if (readSpc != null) {
 			readSpc.open(speed, dataBits, stopBits, parity, flowControl);
 			assertEquals(0, readSpc.getOutBufferBytesCount(), "Can't start test: OutBuffer is not empty");
@@ -371,8 +376,7 @@ public abstract class AbstractPortTest {
 		if (readSpc != null && writeSpc != null && readSpc != writeSpc) {
 			StringBuilder sb = new StringBuilder();
 			sb.append(String.format("\n\tName:        %-20s %-20s\n", readSpc.getPortName(), writeSpc.getPortName()));
-			sb.append(String.format("\tSpeed:    %-20d %-20d\n", readSpc.getSpeed().value,
-					writeSpc.getSpeed().value));
+			sb.append(String.format("\tSpeed:    %-20d %-20d\n", readSpc.getSpeed().value, writeSpc.getSpeed().value));
 			sb.append(String.format("\tDataBits:    %-20d %-20d\n", readSpc.getDatatBits().value,
 					writeSpc.getDatatBits().value));
 			sb.append(String.format("\tStopBits:    %-20f %-20f\n", readSpc.getStopBits().value,

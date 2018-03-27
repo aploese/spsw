@@ -1,17 +1,37 @@
+/*-
+ * #%L
+ * SPSW API
+ * %%
+ * Copyright (C) 2009 - 2018 Arne Plöse
+ * %%
+ * This program and the accompanying materials are made available under the
+ * terms of the Eclipse Public License 2.0 which is available at
+ * http://www.eclipse.org/legal/epl-2.0.
+ * 
+ * This Source Code may also be made available under the following Secondary
+ * Licenses when the conditions for such availability set forth in the Eclipse
+ * Public License, v. 2.0 are satisfied: GNU General Public License, version 2
+ * with the GNU Classpath Exception which is
+ * available at https://www.gnu.org/software/classpath/license.html.
+ * 
+ * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
+ * #L%
+ */
 package de.ibapl.spsw.api;
 
 import java.util.Comparator;
 
 /**
- * Compare two port names so that COM1,COM2,COM10 are sorted in that order.
- * The natural order would be COM1,COM10,COM2, this might not be desired from the users point of view.
- * Shorter numbers are virtually filled up with leading zeros and then they will be compared.
- * The current implementation may be changed if needed.
+ * Compare two port names so that COM1,COM2,COM10 are sorted in that order. The
+ * natural order would be COM1,COM10,COM2, this might not be desired from the
+ * users point of view. Shorter numbers are virtually filled up with leading
+ * zeros and then they will be compared. The current implementation may be
+ * changed if needed.
  * 
  * "ttyUSB09".compareTo("ttyUSB19") == PortnamesComparator.compare("ttyUSB9",
  * "ttyUSB19")
  * 
- * @author aploese
+ * @author Arne Plöse
  *
  */
 public class PortnamesComparator implements Comparator<String> {
@@ -83,18 +103,18 @@ public class PortnamesComparator implements Comparator<String> {
 				int digitsA = iterA.getNumberOfDigits();
 				int digitsB = iterB.getNumberOfDigits();
 				if (digitsA == digitsB) {
-					
+
 				} else {
 					if (fisttStuffedAt == 0) {
 						fisttStuffedAt = digitsA - digitsB;
 					}
-				if (digitsA > digitsB) {
-					iterB.addZeros(digitsA - digitsB);
-					digitsFound = digitsA;
-				} else if (digitsA < digitsB) {
-					iterA.addZeros(digitsB - digitsA);
-					digitsFound = digitsB;
-				}
+					if (digitsA > digitsB) {
+						iterB.addZeros(digitsA - digitsB);
+						digitsFound = digitsA;
+					} else if (digitsA < digitsB) {
+						iterA.addZeros(digitsB - digitsA);
+						digitsFound = digitsB;
+					}
 				}
 			} else {
 				digitsFound--;
@@ -108,7 +128,7 @@ public class PortnamesComparator implements Comparator<String> {
 		if (lengthDifference == 0) {
 			return fisttStuffedAt;
 		} else {
-		return lengthDifference;
+			return lengthDifference;
 		}
 	}
 }

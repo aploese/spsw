@@ -2,7 +2,7 @@
  * #%L
  * SPSW API
  * %%
- * Copyright (C) 2009 - 2017 Arne Plöse
+ * Copyright (C) 2009 - 2018 Arne Plöse
  * %%
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License 2.0 which is available at
@@ -19,71 +19,69 @@
  */
 package de.ibapl.spsw.api;
 
-
 import org.osgi.annotation.versioning.ProviderType;
 
 /**
  * The number of data bits in each character encoded as enum constants.
- * Fife bits in character are for the baudot code.
- * Six bits are uncommon.
- * Seven bits are for 7bit ASCII.
- * Eight bits are for bytes.
+ * <li>Fife bits in character are for the baudot code.</li>
+ * <li>Six bits are uncommon, but some devices supports it.</li>
+ * <li>Seven bits are for 7bit ASCII.</li>
+ * <li>Eight bits are for bytes.</li>
  * 
- * @author aploese
+ * @author Arne Plöse
  */
 @ProviderType
 public enum DataBits {
 
 	/**
-	 * Fife data bits.
-	 * Valid stop bits are 1 and 1.5 bit.
+	 * Fife data bits. Valid stop bits are 1 and 1.5 bit.
 	 */
-    DB_5(5),
+	DB_5(5),
 	/**
-	 * Six data bits.
-	 * Valid stop bits are 1 and 2 bit.
+	 * Six data bits. Valid stop bits are 1 and 2 bit.
 	 */
-    DB_6(6),
+	DB_6(6),
 	/**
-	 * Seven data bits.
-	 * Valid stop bits are 1 and 2 bit.
+	 * Seven data bits. Valid stop bits are 1 and 2 bit.
 	 */
-    DB_7(7),
+	DB_7(7),
 	/**
-	 * Eight data bits.
-	 * Valid stop bits are 1 and 2 bit.
+	 * Eight data bits. Valid stop bits are 1 and 2 bit.
 	 */
-    DB_8(8);
+	DB_8(8);
 
 	/**
 	 * Returns the enum constants of DataBits of the given bits in each character.
-	 * @param nativeValue the number of bits to convert.
+	 * 
+	 * @param nativeValue
+	 *            the number of bits to convert.
 	 * @return the converted number of bits.
-	 * @throws IllegalArgumentException if the number is out of range.
+	 * @throws IllegalArgumentException
+	 *             if the number is out of range.
 	 */
-    public static DataBits fromNative(int nativeValue) {
-        switch (nativeValue) {
-            case 5:
-                return DB_5;
-            case 6:
-                return DB_6;
-            case 7:
-                return DB_7;
-            case 8:
-                return DB_8;
-            default:
-                throw new IllegalArgumentException("No enum constant for: " + nativeValue + " data bits");
+	public static DataBits fromNative(int nativeValue) {
+		switch (nativeValue) {
+		case 5:
+			return DB_5;
+		case 6:
+			return DB_6;
+		case 7:
+			return DB_7;
+		case 8:
+			return DB_8;
+		default:
+			throw new IllegalArgumentException("No enum constant for: " + nativeValue + " data bits");
 
-        }
-    }
-    
-    /**
-     * The number of data bits.
-     */
-    public final int value;
+		}
+	}
 
-    private DataBits(int dataBits) {
-        this.value = dataBits;
-    }
+	/**
+	 * The number of data bits as int value.
+	 */
+	public final int value;
+
+	private DataBits(int dataBits) {
+		this.value = dataBits;
+	}
 
 }

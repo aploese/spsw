@@ -94,7 +94,6 @@
 				<native.src.serialPortSocket>GenericTermiosSerialPortSocket.c</native.src.serialPortSocket>
 				<linkerExecutable>gcc</linkerExecutable>
 				<linkerStartOption>-shared -lc -ldl -m64 -s -O3</linkerStartOption>
-				<javahClassName>de.ibapl.spsw.provider.GenericTermiosSerialPortSocket</javahClassName>
 				<linkerEndOption>-o
 					${project.basedir}/src/main/resources/lib/x86_64-linux-gnu/libspsw-${version.x86_64-linux-gnu}.so</linkerEndOption>
 			</properties>

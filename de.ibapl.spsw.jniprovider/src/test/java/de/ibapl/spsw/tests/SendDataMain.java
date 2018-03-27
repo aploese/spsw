@@ -30,23 +30,28 @@ package de.ibapl.spsw.tests;
 import java.time.Instant;
 import java.time.format.DateTimeFormatter;
 
-import de.ibapl.spsw.api.Speed;
 import de.ibapl.spsw.api.DataBits;
 import de.ibapl.spsw.api.FlowControl;
 import de.ibapl.spsw.api.Parity;
 import de.ibapl.spsw.api.SerialPortSocket;
 import de.ibapl.spsw.api.SerialPortSocketFactory;
+import de.ibapl.spsw.api.Speed;
 import de.ibapl.spsw.api.StopBits;
 import de.ibapl.spsw.api.TimeoutIOException;
 import de.ibapl.spsw.jniprovider.SerialPortSocketFactoryImpl;
 
+/**
+ * 
+ * @author Arne Plöse
+ *
+ */
 public class SendDataMain {
 
 	public static void main(String[] args) throws Exception {
 		final Object printLock = new Object();
 		final SerialPortSocketFactory spsf = new SerialPortSocketFactoryImpl();
-		try (SerialPortSocket serialPortSocket = spsf.open("/dev/ttyUSB0", Speed._230400_BPS, DataBits.DB_8, StopBits.SB_1,
-				Parity.NONE, FlowControl.getFC_NONE())) {
+		try (SerialPortSocket serialPortSocket = spsf.open("/dev/ttyUSB0", Speed._230400_BPS, DataBits.DB_8,
+				StopBits.SB_1, Parity.NONE, FlowControl.getFC_NONE())) {
 			serialPortSocket.setTimeouts(200, 1000, 1000);
 			Thread t = new Thread(() -> {
 				final DateTimeFormatter dtf = DateTimeFormatter.ISO_INSTANT;

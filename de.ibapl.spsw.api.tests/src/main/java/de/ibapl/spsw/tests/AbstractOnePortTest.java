@@ -2,7 +2,7 @@
  * #%L
  * SPSW Provider
  * %%
- * Copyright (C) 2009 - 2017 Arne Plöse
+ * Copyright (C) 2009 - 2018 Arne Plöse
  * %%
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License 2.0 which is available at
@@ -41,17 +41,16 @@ import java.util.Set;
 import java.util.logging.Level;
 
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.condition.DisabledOnOs;
 import org.junit.jupiter.api.condition.EnabledOnOs;
 import org.junit.jupiter.api.condition.OS;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
 
-import de.ibapl.spsw.api.Speed;
 import de.ibapl.spsw.api.DataBits;
 import de.ibapl.spsw.api.FlowControl;
 import de.ibapl.spsw.api.Parity;
 import de.ibapl.spsw.api.SerialPortSocket;
+import de.ibapl.spsw.api.Speed;
 import de.ibapl.spsw.api.StopBits;
 import de.ibapl.spsw.api.TimeoutIOException;
 import de.ibapl.spsw.tests.tags.BaselineTest;
@@ -60,7 +59,7 @@ import de.ibapl.spsw.tests.tags.RtsCtsTest;
 import de.ibapl.spsw.tests.tags.SlowTest;
 
 /**
- * Unit test for simple App.
+ * @author Arne Plöse
  */
 public abstract class AbstractOnePortTest extends AbstractPortTest {
 
@@ -411,7 +410,8 @@ public abstract class AbstractOnePortTest extends AbstractPortTest {
 		readSpc.setFlowControl(FlowControl.getFC_NONE());
 		readSpc.setRTS(false);
 		Thread.sleep(100);
-		assertFalse(writeSpc.isCTS(), "CTS is true; Please correct your test setup - No chance to ever fill the buffer");
+		assertFalse(writeSpc.isCTS(),
+				"CTS is true; Please correct your test setup - No chance to ever fill the buffer");
 		setTimeouts(100, 1000, 1000);
 
 		byte[] data = new byte[1024];
@@ -476,7 +476,8 @@ public abstract class AbstractOnePortTest extends AbstractPortTest {
 		readSpc.setFlowControl(FlowControl.getFC_NONE());
 		readSpc.setRTS(false);
 		Thread.sleep(10);
-		assertFalse(writeSpc.isCTS(), "CTS is true; Please correct your test setup - No chance to ever fill the buffer");
+		assertFalse(writeSpc.isCTS(),
+				"CTS is true; Please correct your test setup - No chance to ever fill the buffer");
 		setTimeouts(100, 100, 100);
 
 		int round = 1;
@@ -531,8 +532,8 @@ public abstract class AbstractOnePortTest extends AbstractPortTest {
 	@BaselineTest
 	@Test
 	public void Write256kBChunk() throws Exception {
-		writeChunk(_256kB, Speed._230400_BPS, 1000 + 2 * SerialPortSocket.calculateMillisForBytes(_256kB, Speed._230400_BPS,
-				DataBits.DB_8, StopBits.SB_1, Parity.NONE));
+		writeChunk(_256kB, Speed._230400_BPS, 1000 + 2 * SerialPortSocket.calculateMillisForCharacters(_256kB,
+				Speed._230400_BPS, DataBits.DB_8, StopBits.SB_1, Parity.NONE));
 	}
 
 	@NotSupportedByAllDevices
@@ -544,8 +545,8 @@ public abstract class AbstractOnePortTest extends AbstractPortTest {
 	@NotSupportedByAllDevices
 	@Test
 	public void Write1MBChunk() throws Exception {
-		writeChunk(_1MB, Speed._1000000_BPS, 1000 + 2 * SerialPortSocket.calculateMillisForBytes(_1MB, Speed._1000000_BPS, DataBits.DB_8,
-				StopBits.SB_1, Parity.NONE));
+		writeChunk(_1MB, Speed._1000000_BPS, 1000 + 2 * SerialPortSocket.calculateMillisForCharacters(_1MB,
+				Speed._1000000_BPS, DataBits.DB_8, StopBits.SB_1, Parity.NONE));
 	}
 
 	/**
@@ -569,8 +570,8 @@ public abstract class AbstractOnePortTest extends AbstractPortTest {
 	@NotSupportedByAllDevices
 	@Test
 	public void Write16MBChunk() throws Exception {
-		writeChunk(_16MB, Speed._1000000_BPS, 1000 + 2 * SerialPortSocket.calculateMillisForBytes(_16MB, Speed._1000000_BPS, DataBits.DB_8,
-				StopBits.SB_1, Parity.NONE));
+		writeChunk(_16MB, Speed._1000000_BPS, 1000 + 2 * SerialPortSocket.calculateMillisForCharacters(_16MB,
+				Speed._1000000_BPS, DataBits.DB_8, StopBits.SB_1, Parity.NONE));
 	}
 
 	public void writeChunk(int chunksize, Speed speed, int writeTimeout) throws Exception {
@@ -589,7 +590,7 @@ public abstract class AbstractOnePortTest extends AbstractPortTest {
 		byte[] data = new byte[chunksize];
 		int dataWritten = 0;
 		try {
-			assertTimeoutPreemptively(Duration.ofMillis(writeSpc.calculateMillisForBytes(data.length * 2)), () -> {
+			assertTimeoutPreemptively(Duration.ofMillis(writeSpc.calculateMillisForCharacters(data.length * 2)), () -> {
 				writeSpc.getOutputStream().write(data);
 			});
 			dataWritten = data.length;
@@ -1190,7 +1191,7 @@ public abstract class AbstractOnePortTest extends AbstractPortTest {
 		assumeWTest();
 		LOG.log(Level.INFO, "run testCloseDuringBytesRead");
 		open(Speed._230400_BPS, DataBits.DB_8, StopBits.SB_1, Parity.EVEN, FlowControl.getFC_NONE());
-		int len = (int) Math.ceil(1000.0 / writeSpc.calculateMillisPerByte());
+		int len = (int) Math.ceil(1000.0 / writeSpc.calculateMillisPerCharacter());
 
 		byte b[] = new byte[len];
 		assertTrue(writeSpc.isOpen());
@@ -1341,11 +1342,17 @@ public abstract class AbstractOnePortTest extends AbstractPortTest {
 
 		getSerialPortSocketFactory().getPortNames((portname, busy) -> {
 			LOG.log(Level.INFO, "Found port: {0} busy: {1}", new Object[] { portname, busy });
-			assertTrue(allPorts.contains(portname), () -> {return String.format("Expected to find %s in allPorts", portname);});
+			assertTrue(allPorts.contains(portname), () -> {
+				return String.format("Expected to find %s in allPorts", portname);
+			});
 			if (busy) {
-				assertFalse(ports.contains(portname), () -> {return String.format("Expected not to find %s in ports", portname);});
+				assertFalse(ports.contains(portname), () -> {
+					return String.format("Expected not to find %s in ports", portname);
+				});
 			} else {
-				assertTrue(ports.contains(portname), () -> {return String.format("Expected to find %s in ports", portname);});
+				assertTrue(ports.contains(portname), () -> {
+					return String.format("Expected to find %s in ports", portname);
+				});
 			}
 		});
 	}

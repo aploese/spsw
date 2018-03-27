@@ -2,7 +2,7 @@
  * #%L
  * SPSW API
  * %%
- * Copyright (C) 2009 - 2017 Arne Plöse
+ * Copyright (C) 2009 - 2018 Arne Plöse
  * %%
  * SPSW - Drivers for the serial port, https://github.com/aploese/spsw/
  * Copyright (C) 2009-2018, Arne Plöse and individual contributors as indicated
@@ -27,12 +27,6 @@
  */
 package de.ibapl.spsw.jniprovider;
 
-import de.ibapl.spsw.api.StopBits;
-import de.ibapl.spsw.api.Parity;
-import de.ibapl.spsw.api.SerialPortSocket;
-import de.ibapl.spsw.api.DataBits;
-import de.ibapl.spsw.api.Speed;
-import de.ibapl.spsw.api.FlowControl;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -40,9 +34,20 @@ import java.lang.annotation.Native;
 import java.util.EnumSet;
 import java.util.Set;
 
+import de.ibapl.spsw.api.DataBits;
+import de.ibapl.spsw.api.FlowControl;
+import de.ibapl.spsw.api.Parity;
+import de.ibapl.spsw.api.SerialPortSocket;
+import de.ibapl.spsw.api.Speed;
+import de.ibapl.spsw.api.StopBits;
+
 /**
- *
+ * Base class for {@linkplain GenericTermiosSerialPortSocket} and
+ * {@linkplain GenericWinSerialPortSocket} with common JNI bindings.
+ * 
+ * 
  * @author scream3r
+ * @author Arne Plöse
  */
 public abstract class AbstractSerialPortSocket<T extends AbstractSerialPortSocket<T>> implements SerialPortSocket {
 
@@ -533,8 +538,9 @@ public abstract class AbstractSerialPortSocket<T extends AbstractSerialPortSocke
 	 * Creates a new Instance and checks read/write permissions with the
 	 * System.getSecurityManager().
 	 * 
-	 * @param portName the name of the port.
-	 *            
+	 * @param portName
+	 *            the name of the port.
+	 * 
 	 * @see SecurityManager#checkRead(String)
 	 * @see SecurityManager#checkWrite(String)
 	 * @see java.io.FileOutputStream#FileOutputStream(String)
@@ -640,8 +646,10 @@ public abstract class AbstractSerialPortSocket<T extends AbstractSerialPortSocke
 	}
 
 	/**
+	 * Returns the parameters as masked bit set.
 	 * 
-	 * @return
+	 * @return the parameters as masked bit set.
+	 * 
 	 * @throws IOException
 	 */
 	protected native int getParameters(int parameterBitSetMask) throws IOException;
@@ -717,8 +725,9 @@ public abstract class AbstractSerialPortSocket<T extends AbstractSerialPortSocke
 	 * Open port
 	 *
 	 * @param portName
-	 *            name of port for opening
-	 * @param type
+	 *            the name of port for opening
+	 * @param paramBitSet
+	 *            the parameters as masked bit set.
 	 * @throws java.io.IOException
 	 *
 	 */
@@ -776,9 +785,10 @@ public abstract class AbstractSerialPortSocket<T extends AbstractSerialPortSocke
 	}
 
 	/**
+	 * Set the parameters that are set in the parameterBitSet.
 	 * 
 	 * @param parameterBitSet
-	 * @return the parameterBitSet after setting
+	 *            the parameters to set in a masked bit set.
 	 * @throws IOException
 	 */
 	protected native void setParameters(int parameterBitSet) throws IOException;

@@ -27,6 +27,11 @@
  */
 package de.ibapl.spsw.tests;
 
+/**
+ * 
+ * @author Arne Plöse
+ *
+ */
 public class TwoPortsBaselineTest extends AbstractReadWriteBaselineTest {
 
 }

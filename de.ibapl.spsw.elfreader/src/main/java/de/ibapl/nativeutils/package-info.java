@@ -1,11 +1,8 @@
-@org.osgi.annotation.versioning.Version("1.0.0")
-package de.ibapl.nativeutils;
-
 /*-
  * #%L
  * SPSW API
  * %%
- * Copyright (C) 2009 - 2017 Arne Plöse
+ * Copyright (C) 2009 - 2018 Arne Plöse
  * %%
  * SPSW - Drivers for the serial port, https://github.com/aploese/spsw/
  * Copyright (C) 2009-2018, Arne Plöse and individual contributors as indicated
@@ -28,4 +25,5 @@ package de.ibapl.nativeutils;
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  * #L%
  */
-
+@org.osgi.annotation.versioning.Version("1.0.0")
+package de.ibapl.nativeutils;

@@ -2,7 +2,7 @@
  * #%L
  * SPSW Provider
  * %%
- * Copyright (C) 2009 - 2017 Arne Plöse
+ * Copyright (C) 2009 - 2018 Arne Plöse
  * %%
  * SPSW - Drivers for the serial port, https://github.com/aploese/spsw/
  * Copyright (C) 2009-2018, Arne Plöse and individual contributors as indicated
@@ -45,12 +45,10 @@ import java.util.ServiceLoader;
 import org.junit.jupiter.api.Test;
 
 import de.ibapl.spsw.api.SerialPortSocketFactory;
-import de.ibapl.spsw.jniprovider.AbstractSerialPortSocket;
-import de.ibapl.spsw.jniprovider.SerialPortSocketFactoryImpl;
 
 /**
  *
- * @author aploese
+ * @author Arne Plöse
  */
 public class SerialPortSocketTest {
 
@@ -72,7 +70,7 @@ public class SerialPortSocketTest {
 		spsf.activate();
 		assertTrue(SerialPortSocketFactoryImpl.isLibLoaded());
 	}
-	
+
 	@Test
 	public void testServiceLoader() throws Exception {
 		ServiceLoader<SerialPortSocketFactory> spsFactoryLoader = ServiceLoader.load(SerialPortSocketFactory.class);
@@ -80,29 +78,29 @@ public class SerialPortSocketTest {
 		assertTrue(spsFactoryIterator.hasNext());
 		SerialPortSocketFactory serialPortSocketFactory = spsFactoryIterator.next();
 		assertEquals(SerialPortSocketFactoryImpl.class, serialPortSocketFactory.getClass());
-		//We excpect to have ony one implementation hanging around...
+		// We excpect to have ony one implementation hanging around...
 		assertFalse(spsFactoryIterator.hasNext());
-		
-		//We get the same ServiceLoader Instance, so we get the same SerialPortSocketFactory
+
+		// We get the same ServiceLoader Instance, so we get the same
+		// SerialPortSocketFactory
 		spsFactoryIterator = spsFactoryLoader.iterator();
 		assertTrue(spsFactoryIterator.hasNext());
 		SerialPortSocketFactory serialPortSocketFactory1 = spsFactoryIterator.next();
 		assertEquals(SerialPortSocketFactoryImpl.class, serialPortSocketFactory1.getClass());
 		assertTrue(serialPortSocketFactory == serialPortSocketFactory1, "Not the same Instance");
-		//We excpect to have ony one implementation hanging around...
+		// We excpect to have ony one implementation hanging around...
 		assertFalse(spsFactoryIterator.hasNext());
-		
-		//We get a new ServiceLoader Instance, so we get a new SerialPortSocketFactory
+
+		// We get a new ServiceLoader Instance, so we get a new SerialPortSocketFactory
 		spsFactoryLoader = ServiceLoader.load(SerialPortSocketFactory.class);
 		spsFactoryIterator = spsFactoryLoader.iterator();
 		assertTrue(spsFactoryIterator.hasNext());
 		SerialPortSocketFactory serialPortSocketFactory2 = spsFactoryIterator.next();
 		assertEquals(SerialPortSocketFactoryImpl.class, serialPortSocketFactory1.getClass());
 		assertTrue(serialPortSocketFactory != serialPortSocketFactory2, "The same Instance");
-		//We excpect to have ony one implementation hanging around...
+		// We excpect to have ony one implementation hanging around...
 		assertFalse(spsFactoryIterator.hasNext());
-		
-	}
 
+	}
 
 }

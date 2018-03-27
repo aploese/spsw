@@ -27,12 +27,10 @@
  */
 package de.ibapl.spsw.tests;
 
-
 /**
  *
- * @author aploese
+ * @author Arne Plöse
  */
 public class ReadWriteRtsCtsTests extends AbstractReadWriteRtsCtsTests {
-
 
 }

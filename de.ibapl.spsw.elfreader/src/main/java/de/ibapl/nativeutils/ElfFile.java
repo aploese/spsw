@@ -1,5 +1,3 @@
-package de.ibapl.nativeutils;
-
 /*-
  * #%L
  * SPSW Provider
@@ -27,8 +25,14 @@ package de.ibapl.nativeutils;
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  * #L%
  */
+package de.ibapl.nativeutils;
 
-public class ElfFile {
-	public ElfHeader header;
-	
+/**
+ * 
+ * @author Arne Plöse
+ *
+ */
+public class ElfFile<EF extends EFlags> {
+	public ElfHeader<EF> header;
+
 }

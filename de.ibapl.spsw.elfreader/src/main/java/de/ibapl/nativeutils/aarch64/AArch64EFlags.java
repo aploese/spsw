@@ -1,5 +1,3 @@
-package de.ibapl.nativeutils.aarch64;
-
 /*-
  * #%L
  * SPSW Provider
@@ -27,9 +25,16 @@ package de.ibapl.nativeutils.aarch64;
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  * #L%
  */
+package de.ibapl.nativeutils.aarch64;
+
 
 import de.ibapl.nativeutils.EFlags;
 
+/**
+ * 
+ * @author Arne Plöse
+ *
+ */
 public enum AArch64EFlags implements EFlags {
 
 }

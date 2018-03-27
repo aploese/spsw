@@ -38,10 +38,11 @@ import de.ibapl.spsw.jniprovider.GenericTermiosSerialPortSocket;
 
 /**
  *
- * @author aploese
+ * @author Arne Plöse
  */
 public class OnePortTest extends AbstractOnePortTest {
 
+	@Override
 	@Test
 	public void testRTS() throws Exception {
 		assumeWTest();
@@ -58,6 +59,7 @@ public class OnePortTest extends AbstractOnePortTest {
 		}
 	}
 
+	@Override
 	@Test
 	public void testDTR() throws Exception {
 		assumeWTest();

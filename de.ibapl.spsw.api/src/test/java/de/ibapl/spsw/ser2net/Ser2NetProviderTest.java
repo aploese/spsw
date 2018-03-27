@@ -34,15 +34,15 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
-import de.ibapl.spsw.api.Speed;
 import de.ibapl.spsw.api.DataBits;
 import de.ibapl.spsw.api.FlowControl;
 import de.ibapl.spsw.api.Parity;
+import de.ibapl.spsw.api.Speed;
 import de.ibapl.spsw.api.StopBits;
 
 /**
  *
- * @author aploese
+ * @author Arne Plöse
  */
 public class Ser2NetProviderTest {
 

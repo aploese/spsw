@@ -31,13 +31,18 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.Properties;
 
-import de.ibapl.spsw.api.Speed;
 import de.ibapl.spsw.api.DataBits;
 import de.ibapl.spsw.api.Parity;
 import de.ibapl.spsw.api.SerialPortSocket;
+import de.ibapl.spsw.api.Speed;
 import de.ibapl.spsw.api.StopBits;
 import de.ibapl.spsw.jniprovider.SerialPortSocketFactoryImpl;
 
+/**
+ * 
+ * @author Arne Plöse
+ *
+ */
 public class PrintPortCapabillitiesMain {
 
 	public static void main(String[] args) throws Exception {

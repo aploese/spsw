@@ -1,5 +1,3 @@
-package de.ibapl.nativeutils.arm;
-
 /*-
  * #%L
  * SPSW Provider
@@ -27,12 +25,13 @@ package de.ibapl.nativeutils.arm;
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  * #L%
  */
+package de.ibapl.nativeutils.arm;
 
 import de.ibapl.nativeutils.EFlags;
 
 /**
  *
- * @author aploese
+ * @author Arne Plöse
  */
 public enum ArmEFlags implements EFlags {
 

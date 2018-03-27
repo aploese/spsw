@@ -1,5 +1,3 @@
-package de.ibapl.nativeutils;
-
 /*-
  * #%L
  * SPSW Provider
@@ -27,12 +25,12 @@ package de.ibapl.nativeutils;
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  * #L%
  */
+package de.ibapl.nativeutils;
 
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.EnumSet;
-import java.util.HashSet;
 import java.util.Set;
 
 import de.ibapl.nativeutils.ElfHeader.ElfClass;
@@ -45,9 +43,14 @@ import de.ibapl.nativeutils.arm.ArmEFlags;
 import de.ibapl.nativeutils.mips.MipsEFlags;
 import de.ibapl.nativeutils.x86.X68EfFlags;
 
-public class ElfFileParser {
+/**
+ * 
+ * @author Arne Plöse
+ *
+ */
+public class ElfFileParser<EF extends EFlags> {
 
-	private ElfFile result;
+	private ElfFile<EF> result;
 	private InputStream is;
 	public long e_entry;
 	public long e_phoff;
@@ -82,7 +85,7 @@ public class ElfFileParser {
 			throw new IOException("Stream Closed");
 		}
 		if (this.result.header.elfData == ElfData.ELFDATA2LSB) {
-		return data[0] & 0xff | ((data[1] & 0xff) << 8) | ((data[2] & 0xff) << 16) | ((data[3] & 0xff) << 24);
+			return data[0] & 0xff | ((data[1] & 0xff) << 8) | ((data[2] & 0xff) << 16) | ((data[3] & 0xff) << 24);
 		} else if (this.result.header.elfData == ElfData.ELFDATA2MSB) {
 			return data[3] & 0xff | ((data[2] & 0xff) << 8) | ((data[1] & 0xff) << 16) | ((data[0] & 0xff) << 24);
 		} else {
@@ -97,9 +100,9 @@ public class ElfFileParser {
 			throw new IOException("Stream Closed");
 		}
 		if (this.result.header.elfData == ElfData.ELFDATA2LSB) {
-		return data[0] & 0xffL | ((data[1] & 0xffL) << 8) | ((data[2] & 0xffL) << 16) | ((data[3] & 0xffL) << 24)
-				| ((data[4] & 0xffL) << 32) | ((data[5] & 0xffL) << 40) | ((data[6] & 0xffL) << 48)
-				| ((data[7] & 0xffL) << 56);
+			return data[0] & 0xffL | ((data[1] & 0xffL) << 8) | ((data[2] & 0xffL) << 16) | ((data[3] & 0xffL) << 24)
+					| ((data[4] & 0xffL) << 32) | ((data[5] & 0xffL) << 40) | ((data[6] & 0xffL) << 48)
+					| ((data[7] & 0xffL) << 56);
 		} else if (this.result.header.elfData == ElfData.ELFDATA2MSB) {
 			return data[7] & 0xffL | ((data[6] & 0xffL) << 8) | ((data[5] & 0xffL) << 16) | ((data[4] & 0xffL) << 24)
 					| ((data[3] & 0xffL) << 32) | ((data[2] & 0xffL) << 40) | ((data[1] & 0xffL) << 48)
@@ -165,19 +168,19 @@ public class ElfFileParser {
 		}
 		switch (result.header.machine) {
 		case EM_ARM:
-			result.header.e_Flags = parse_e_flags_EM_ARM(readInt());
+			result.header.e_Flags = (Set)parse_e_flags_EM_ARM(readInt());
 			break;
 		case EM_AARCH64:
-			result.header.e_Flags = parse_e_flags_EM_AARCH64(readInt());
+			result.header.e_Flags = (Set)parse_e_flags_EM_AARCH64(readInt());
 			break;
 		case EM_MIPS:
-			result.header.e_Flags = parse_e_flags_EM_MIPS(readInt());
+			result.header.e_Flags = (Set)parse_e_flags_EM_MIPS(readInt());
 			break;
 		case EM_386:
-			result.header.e_Flags = parse_e_flags_EM_386(readInt());
+			result.header.e_Flags = (Set)parse_e_flags_EM_386(readInt());
 			break;
 		case EM_X86_64:
-			result.header.e_Flags = parse_e_flags_EM_X86_64(readInt());
+			result.header.e_Flags = (Set)parse_e_flags_EM_X86_64(readInt());
 			break;
 		default:
 			throw new RuntimeException("Not implemented Yet");
@@ -242,7 +245,7 @@ public class ElfFileParser {
 			result.add(MipsEFlags.EF_MIPS_ABI_O64);
 			break;
 		default:
-			// No-op 
+			// No-op
 		}
 
 		if ((readInt & 0x00000001) == 0x00000001) {
@@ -730,8 +733,8 @@ public class ElfFileParser {
 		}
 	}
 
-	public ElfFile parser(InputStream is) throws IOException {
-		result = new ElfFile();
+	public ElfFile<?> parser(InputStream is) throws IOException {
+		result = new ElfFile<>();
 		this.is = is;
 		try {
 			parseHeader();
@@ -741,7 +744,7 @@ public class ElfFileParser {
 		}
 	}
 
-	public ElfFile parseProcSelf() throws IOException {
+	public ElfFile<?> parseProcSelf() throws IOException {
 		return parser(new FileInputStream("/proc/self/exe"));
 	}
 

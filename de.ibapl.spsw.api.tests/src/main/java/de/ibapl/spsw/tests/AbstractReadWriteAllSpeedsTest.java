@@ -2,7 +2,7 @@
  * #%L
  * SPSW Provider
  * %%
- * Copyright (C) 2009 - 2017 Arne Plöse
+ * Copyright (C) 2009 - 2018 Arne Plöse
  * %%
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License 2.0 which is available at
@@ -30,8 +30,7 @@ import de.ibapl.spsw.tests.tags.HighSpeedTest;
 import de.ibapl.spsw.tests.tags.LowSpeedTest;
 
 /**
- * Unit test for simple App. Timeout is computed 8 data bits + 2 stop bits +
- * parity bit + start bit == 12
+ * @author Arne Plöse
  */
 public abstract class AbstractReadWriteAllSpeedsTest extends AbstractReadWriteTest {
 
@@ -40,8 +39,7 @@ public abstract class AbstractReadWriteAllSpeedsTest extends AbstractReadWriteTe
 	}
 
 	public Iterator<PortConfiguration> getHighSpeedPortConfigurations() {
-		return new PortConfigurationFactory().setBuffersize(64).getSpeedIterator(Speed._460800_BPS,
-				Speed._4000000_BPS);
+		return new PortConfigurationFactory().setBuffersize(64).getSpeedIterator(Speed._460800_BPS, Speed._4000000_BPS);
 	}
 
 	public Iterator<PortConfiguration> getBaselinePortConfigurations() {
@@ -166,14 +164,14 @@ public abstract class AbstractReadWriteAllSpeedsTest extends AbstractReadWriteTe
 	public void test_WriteBytes_ReadBytes_(PortConfiguration pc) throws Exception {
 		writeBytes_ReadBytes(pc);
 	}
-	
+
 	@BaselineTest
 	@ParameterizedTest
 	@MethodSource({ "getBaselinePortConfigurations" })
 	public void test_WriteBytes_ReadSingle(PortConfiguration pc) throws Exception {
 		writeBytes_ReadSingle(pc);
 	}
-	
+
 	@BaselineTest
 	@ParameterizedTest
 	@MethodSource({ "getBaselinePortConfigurations" })
@@ -215,6 +213,5 @@ public abstract class AbstractReadWriteAllSpeedsTest extends AbstractReadWriteTe
 	public void test_WriteSingle_ReadSingle_Threaded(PortConfiguration pc) throws Exception {
 		writeSingle_ReadSingle_Threaded(pc);
 	}
-
 
 }

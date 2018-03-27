@@ -1,35 +1,38 @@
+/*-
+ * #%L
+ * SPSW API
+ * %%
+ * Copyright (C) 2009 - 2018 Arne Plöse
+ * %%
+ * This program and the accompanying materials are made available under the
+ * terms of the Eclipse Public License 2.0 which is available at
+ * http://www.eclipse.org/legal/epl-2.0.
+ * 
+ * This Source Code may also be made available under the following Secondary
+ * Licenses when the conditions for such availability set forth in the Eclipse
+ * Public License, v. 2.0 are satisfied: GNU General Public License, version 2
+ * with the GNU Classpath Exception which is
+ * available at https://www.gnu.org/software/classpath/license.html.
+ * 
+ * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
+ * #L%
+ */
 package de.ibapl.spsw.api;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 
 import java.util.Collections;
 import java.util.LinkedList;
 
-import org.junit.jupiter.api.AfterAll;
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import de.ibapl.spsw.api.PortnamesComparator.Iterator;
-
+/**
+ * 
+ * @author Arne Plöse
+ *
+ */
 class PortnamesComparatorTest {
-
-	@BeforeAll
-	static void setUpBeforeClass() throws Exception {
-	}
-
-	@AfterAll
-	static void tearDownAfterClass() throws Exception {
-	}
-
-	@BeforeEach
-	void setUp() throws Exception {
-	}
-
-	@AfterEach
-	void tearDown() throws Exception {
-	}
 
 	@Test
 	void testCompareLinux() {
@@ -40,7 +43,7 @@ class PortnamesComparatorTest {
 		assertEquals(-2, pnc.compare("", "a0"));
 		assertEquals(-1, pnc.compare("", "0"));
 		assertEquals(-2, pnc.compare("", "0a"));
-		
+
 		assertEquals(-1, pnc.compare("ttyUSB9", "ttyUSB09"));
 		assertEquals("ttyUSB09".compareTo("ttyUSB19"), pnc.compare("ttyUSB9", "ttyUSB19"));
 		assertEquals("ttyUSB19".compareTo("ttyUSB09"), pnc.compare("ttyUSB19", "ttyUSB9"));
@@ -51,12 +54,10 @@ class PortnamesComparatorTest {
 		assertEquals(1, pnc.compare("ttyUSB09B", "ttyUSB0009A"));
 		assertEquals(1, pnc.compare("ttyUSB0009B", "ttyUSB009A"));
 		assertEquals(1, pnc.compare("ttyUSB0009B", "ttyUSB9A0"));
-		
+
 		assertEquals(2, pnc.compare("ttyUSB000", "ttyUSB0"));
-		
+
 		assertEquals(1, pnc.compare("ttyUSB0", "ttyUSB"));
-		
-		
 	}
 
 	@Test
@@ -81,6 +82,7 @@ class PortnamesComparatorTest {
 		assertEquals(1, pnc.compare("ttyUSB008", "ttyUSB08"));
 		assertEquals(-1, pnc.compare("ttyUSB008", "ttyUSB09"));
 	}
+
 	@Test
 	void testCompareLinux2() {
 		PortnamesComparator pnc = new PortnamesComparator();
@@ -103,7 +105,7 @@ class PortnamesComparatorTest {
 		list.add("USB12.B");
 
 		list.sort(pnc);
-		
+
 		java.util.Iterator<String> iter = list.iterator();
 		assertEquals("USB", iter.next());
 		assertEquals("USB0", iter.next());
@@ -124,7 +126,7 @@ class PortnamesComparatorTest {
 		assertFalse(iter.hasNext());
 		Collections.reverse(list);
 		list.sort(pnc);
-		
+
 		iter = list.iterator();
 		assertEquals("USB", iter.next());
 		assertEquals("USB0", iter.next());
@@ -142,12 +144,11 @@ class PortnamesComparatorTest {
 		assertEquals("USB12", iter.next());
 		assertEquals("USB12.A", iter.next());
 		assertEquals("USB12.B", iter.next());
-		
+
 		/*
-		for (String s: list) {
-			System.out.println("assertEquals(\"" + s + "\", iter.next());");
-		}
-		*/
+		 * for (String s: list) { System.out.println("assertEquals(\"" + s +
+		 * "\", iter.next());"); }
+		 */
 	}
 
 }

@@ -1,5 +1,3 @@
-package de.ibapl.nativeutils.mips;
-
 /*-
  * #%L
  * SPSW Provider
@@ -27,15 +25,18 @@ package de.ibapl.nativeutils.mips;
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  * #L%
  */
+package de.ibapl.nativeutils.mips;
 
 import de.ibapl.nativeutils.EFlags;
 
+/**
+ * 
+ * @author Arne Plöse
+ *
+ */
 public enum MipsEFlags implements EFlags {
 
-		EF_MIPS_ARCH_1, EF_MIPS_ARCH_2, EF_MIPS_ARCH_3, EF_MIPS_ARCH_4, EF_MIPS_ARCH_5,
-		EF_MIPS_ARCH_32, EF_MIPS_ARCH_64, EF_MIPS_ARCH_32R2, EF_MIPS_ARCH_64R2,
-		
-		EF_MIPS_ABI_O32, EF_MIPS_ABI_O64,
-		EF_MIPS_NOREORDER,EF_MIPS_PIC,EF_MIPS_CPIC,EF_MIPS_ABI2,EF_MIPS_OPTIONS_FIRST,EF_MIPS_32BITMODE,
-		EF_MIPS_FP64,EF_MIPS_NAN2008;
+	EF_MIPS_ARCH_1, EF_MIPS_ARCH_2, EF_MIPS_ARCH_3, EF_MIPS_ARCH_4, EF_MIPS_ARCH_5, EF_MIPS_ARCH_32, EF_MIPS_ARCH_64, EF_MIPS_ARCH_32R2, EF_MIPS_ARCH_64R2,
+
+	EF_MIPS_ABI_O32, EF_MIPS_ABI_O64, EF_MIPS_NOREORDER, EF_MIPS_PIC, EF_MIPS_CPIC, EF_MIPS_ABI2, EF_MIPS_OPTIONS_FIRST, EF_MIPS_32BITMODE, EF_MIPS_FP64, EF_MIPS_NAN2008;
 }

@@ -1,5 +1,3 @@
-package de.ibapl.nativeutils;
-
 /*-
  * #%L
  * SPSW Provider
@@ -27,11 +25,18 @@ package de.ibapl.nativeutils;
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  * #L%
  */
+package de.ibapl.nativeutils;
 
 import java.util.Set;
 
 import de.ibapl.nativeutils.arm.ArmEFlags;
 
+/**
+ * 
+ * @author Arne Plöse
+ *
+ * @param <EF>
+ */
 public class ElfHeader<EF extends EFlags> {
 	public enum ElfClass {
 		ELFCLASSNONE, ELFCLASS32, ELFCLASS64;
@@ -97,37 +102,37 @@ public class ElfHeader<EF extends EFlags> {
 		return e_Flags;
 	}
 
-        
-        protected String getArm32Tupel() {
-			switch (getElfData()) {
-			case ELFDATA2LSB:
-				if (e_Flags.contains(ArmEFlags.EF_ARM_VFP_FLOAT)) {
-					return "arm-linux-gnueabihf";
-				} else if (e_Flags.contains(ArmEFlags.EF_ARM_SOFT_FLOAT)) {
-					return "arm-linux-gnueabi";
-				}
-				throw new RuntimeException("Unknown e_Flags" + e_Flags);
-			default:
-				throw new RuntimeException("Not implemented yet: " + getElfData());
+	protected String getArm32Tupel() {
+		switch (getElfData()) {
+		case ELFDATA2LSB:
+			if (e_Flags.contains(ArmEFlags.EF_ARM_VFP_FLOAT)) {
+				return "arm-linux-gnueabihf";
+			} else if (e_Flags.contains(ArmEFlags.EF_ARM_SOFT_FLOAT)) {
+				return "arm-linux-gnueabi";
 			}
-        }
+			throw new RuntimeException("Unknown e_Flags" + e_Flags);
+		default:
+			throw new RuntimeException("Not implemented yet: " + getElfData());
+		}
+	}
+
 	/**
 	 * https://wiki.debian.org/Multiarch/Tuples
 	 */
 	public String getMultiarchTupel(String osName) {
-	//TODO use osName	
-            switch (getMachine()) {
+		// TODO use osName
+		switch (getMachine()) {
 		case EM_ARM:
-                    return getArm32Tupel();
+			return getArm32Tupel();
 		case EM_AARCH64:
-                    // reading /proc/self/exe may lead us to this ...
-                    switch (getElfClass()) {
-                        case ELFCLASS32:
-                            System.err.println("Machine aarch64 but elfClass is arm and not aarch64!");
-                            return getArm32Tupel();
-                        case ELFCLASS64:
-                            return "aarch64-linux-gnu";
-                    }
+			// reading /proc/self/exe may lead us to this ...
+			switch (getElfClass()) {
+			case ELFCLASS32:
+				System.err.println("Machine aarch64 but elfClass is arm and not aarch64!");
+				return getArm32Tupel();
+			case ELFCLASS64:
+				return "aarch64-linux-gnu";
+			}
 		case EM_X86_64:
 			return "x86_64-linux-gnu";
 		case EM_386:

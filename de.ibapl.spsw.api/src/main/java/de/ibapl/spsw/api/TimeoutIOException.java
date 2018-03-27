@@ -25,25 +25,26 @@ import java.io.InterruptedIOException;
  * Signals that a timeout has occurred on a {@link SerialPortSocket} read or
  * write.
  * 
- * @author aploese
+ * @author Arne Plöse
  *
  */
 public class TimeoutIOException extends InterruptedIOException {
 
 	private static final long serialVersionUID = 1L;
 
-    /**
-     * Constructs a new TimeoutIOException with a detail
-     * message.
-     * @param message the detail message
-     */
+	/**
+	 * Constructs a new TimeoutIOException with a detail message.
+	 * 
+	 * @param message
+	 *            the detail message
+	 */
 	public TimeoutIOException(String message) {
 		super(message);
 	}
 
-    /**
-     * Construct a new TimeoutIOException with no detailed message.
-     */
+	/**
+	 * Construct a new TimeoutIOException with no detailed message.
+	 */
 	public TimeoutIOException() {
 	}
 

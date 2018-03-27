@@ -17,7 +17,6 @@
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  * #L%
  */
-
 package de.ibapl.spsw.mock;
 
 import java.io.IOException;
@@ -27,16 +26,40 @@ import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.Set;
 
-import de.ibapl.spsw.api.Speed;
 import de.ibapl.spsw.api.DataBits;
 import de.ibapl.spsw.api.FlowControl;
 import de.ibapl.spsw.api.Parity;
 import de.ibapl.spsw.api.SerialPortSocket;
+import de.ibapl.spsw.api.Speed;
 import de.ibapl.spsw.api.StopBits;
 
 /**
+ * Helper class for test that interact with a SerialPortSocket. The behavior of
+ * a SerialPortSocket can be predefined. Example:
  * 
- * @author aploese
+ * <pre>
+ * {@code
+ * 		mockSerialPortSocket = new MockSerialPortSocket();
+		mockSerialPortSocket.expectedWrite("0102");
+		mockSerialPortSocket.expectedRead("0201");
+		mockSerialPortSocket.expectedWrite("0304");
+		mockSerialPortSocket.expectedRead("0403");
+
+		SerialPortSocket serialPortSocket = mockSerialPortSocket;
+		
+		serialPortSocket.open();
+		serialPortSocket.getOutputStream().write(0x01);
+		serialPortSocket.getOutputStream().write(0x02);
+		assertEquals(0x02, serialPortSocket.getInputStream().read());
+		assertEquals(0x01, serialPortSocket.getInputStream().read());
+		assertThrows(UnexpectedRequestError.class, () -> {
+			serialPortSocket.getInputStream().read(); });
+ * 
+ * }
+ * 
+ * <pre>
+ * 
+ * @author Arne Plöse
  */
 public class MockSerialPortSocket implements SerialPortSocket {
 
@@ -224,6 +247,7 @@ public class MockSerialPortSocket implements SerialPortSocket {
 	public enum RequestType {
 		READ, WRITE;
 	}
+
 	public class UnexpectedRequestError extends Error {
 
 		/**
@@ -240,6 +264,7 @@ public class MockSerialPortSocket implements SerialPortSocket {
 		}
 
 	}
+
 	public static byte[] ascii2Bytes(String s) {
 		byte[] result = new byte[s.length() / 2];
 
@@ -249,6 +274,7 @@ public class MockSerialPortSocket implements SerialPortSocket {
 
 		return result;
 	}
+
 	public static String bytes2Ascii(byte[] byteArray) {
 		StringBuilder sb = new StringBuilder(byteArray.length);
 
@@ -258,6 +284,7 @@ public class MockSerialPortSocket implements SerialPortSocket {
 
 		return sb.toString();
 	}
+
 	private Speed speed;
 	LinkedList<Request<?>> data = new LinkedList<>();
 	private DataBits dataBits;
@@ -497,8 +524,8 @@ public class MockSerialPortSocket implements SerialPortSocket {
 	}
 
 	@Override
-	public void open(Speed speed, DataBits dataBits, StopBits stopBits, Parity parity,
-			Set<FlowControl> flowControls) throws IOException {
+	public void open(Speed speed, DataBits dataBits, StopBits stopBits, Parity parity, Set<FlowControl> flowControls)
+			throws IOException {
 		this.speed = speed;
 		this.dataBits = dataBits;
 		this.stopBits = stopBits;

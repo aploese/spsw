@@ -2,7 +2,7 @@
  * #%L
  * SPSW API
  * %%
- * Copyright (C) 2009 - 2017 Arne Plöse
+ * Copyright (C) 2009 - 2018 Arne Plöse
  * %%
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License 2.0 which is available at
@@ -23,15 +23,17 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.time.Instant;
 import java.util.Set;
-import de.ibapl.spsw.api.Speed;
+
+import org.osgi.annotation.versioning.ProviderType;
+
 import de.ibapl.spsw.api.DataBits;
 import de.ibapl.spsw.api.FlowControl;
 import de.ibapl.spsw.api.Parity;
 import de.ibapl.spsw.api.SerialPortSocket;
+import de.ibapl.spsw.api.Speed;
 import de.ibapl.spsw.api.StopBits;
-import java.time.Instant;
-import org.osgi.annotation.versioning.ProviderType;
 
 /**
  * A wrapper around an {@link SerialPortSocket} to log its activity. Use the
@@ -41,7 +43,7 @@ import org.osgi.annotation.versioning.ProviderType;
  * {@link #wrapWithHexOutputStream(SerialPortSocket, OutputStream, boolean, TimeStampLogging)}
  * to construct a new instance.
  * 
- * @author aploese
+ * @author Arne Plöse
  */
 @ProviderType
 public class LoggingSerialPortSocket implements SerialPortSocket {
@@ -229,6 +231,7 @@ public class LoggingSerialPortSocket implements SerialPortSocket {
 
 	private LOS los;
 	final private SerialPortSocket serialPortSocket;
+
 	/**
 	 * 
 	 * @see #wrapWithAsciiOutputStream(SerialPortSocket, OutputStream, boolean,
@@ -249,6 +252,7 @@ public class LoggingSerialPortSocket implements SerialPortSocket {
 		this.logWriter = new LogWriter(logOs, ascii, timeStampLogging, verbose);
 
 	}
+
 	@Override
 	public void close() throws IOException {
 		los = null;
@@ -536,10 +540,10 @@ public class LoggingSerialPortSocket implements SerialPortSocket {
 	}
 
 	@Override
-	public void open(Speed speed, DataBits dataBits, StopBits stopBits, Parity parity,
-			Set<FlowControl> flowControls) throws IOException {
-		logWriter.beforeSpOpen(Instant.now(), serialPortSocket.getPortName(), "speed=" + speed + ", dataBits=" + dataBits + ", stopBits="
-				+ stopBits + ", partity=" + parity + ", flowControl=" + flowControls);
+	public void open(Speed speed, DataBits dataBits, StopBits stopBits, Parity parity, Set<FlowControl> flowControls)
+			throws IOException {
+		logWriter.beforeSpOpen(Instant.now(), serialPortSocket.getPortName(), "speed=" + speed + ", dataBits="
+				+ dataBits + ", stopBits=" + stopBits + ", partity=" + parity + ", flowControl=" + flowControls);
 		try {
 			serialPortSocket.open(speed, dataBits, stopBits, parity, flowControls);
 			logWriter.afterSpOpen(Instant.now());

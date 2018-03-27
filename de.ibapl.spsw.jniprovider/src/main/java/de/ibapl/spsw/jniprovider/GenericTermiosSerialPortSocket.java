@@ -2,7 +2,7 @@
  * #%L
  * SPSW Provider
  * %%
- * Copyright (C) 2009 - 2017 Arne Plöse
+ * Copyright (C) 2009 - 2018 Arne Plöse
  * %%
  * SPSW - Drivers for the serial port, https://github.com/aploese/spsw/
  * Copyright (C) 2009-2018, Arne Plöse and individual contributors as indicated
@@ -27,26 +27,29 @@
  */
 package de.ibapl.spsw.jniprovider;
 
-
 import java.io.IOException;
 
 /**
- * Use serial_struct TIOCGSERIAL
+ * JNI wrapper around the POSIX termios structure.
+ * 
+ * Use serial_struct TIOCGSERIAL to get more infos?
+ * 
  * @author scream3r
+ * @author Arne Plöse
  */
 public class GenericTermiosSerialPortSocket extends AbstractSerialPortSocket<GenericTermiosSerialPortSocket> {
 
 	/**
 	 * The file descriptor or handle for this Port
 	 */
-	private volatile  int fd = -1;
+	private volatile int fd = -1;
 	/**
 	 * The close event file descriptor or handle proper multi threaded closing for
 	 * this Port
 	 */
 	private int closeEventFd = -1;
 
-	private int outByteTime = -1;	
+	private int outByteTime = -1;
 	/**
 	 * used in native code
 	 */
@@ -60,7 +63,7 @@ public class GenericTermiosSerialPortSocket extends AbstractSerialPortSocket<Gen
 
 	@Override
 	public native void drainOutputBuffer() throws IOException;
-	
+
 	@Override
 	public int getInterByteReadTimeout() throws IOException {
 		return interByteReadTimeout;

@@ -2,7 +2,7 @@
  * #%L
  * SPSW API
  * %%
- * Copyright (C) 2009 - 2017 Arne Plöse
+ * Copyright (C) 2009 - 2018 Arne Plöse
  * %%
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License 2.0 which is available at
@@ -20,6 +20,8 @@
 /**
  * Provides interfaces, enums and exceptions for accessing, and communicating
  * over, the serial port.
+ * 
+ * @author Arne Plöse
  */
 @org.osgi.annotation.versioning.Version("2.0.0")
 package de.ibapl.spsw.api;

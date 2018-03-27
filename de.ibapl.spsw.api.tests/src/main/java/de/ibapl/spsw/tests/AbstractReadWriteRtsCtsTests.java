@@ -2,7 +2,7 @@
  * #%L
  * SPSW Provider
  * %%
- * Copyright (C) 2009 - 2017 Arne Plöse
+ * Copyright (C) 2009 - 2018 Arne Plöse
  * %%
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License 2.0 which is available at
@@ -35,33 +35,28 @@ import java.util.Arrays;
 import java.util.Iterator;
 import java.util.logging.Level;
 
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.TestInfo;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
 
-import de.ibapl.spsw.api.Speed;
 import de.ibapl.spsw.api.DataBits;
 import de.ibapl.spsw.api.FlowControl;
 import de.ibapl.spsw.api.Parity;
+import de.ibapl.spsw.api.Speed;
 import de.ibapl.spsw.api.StopBits;
 import de.ibapl.spsw.api.TimeoutIOException;
-import de.ibapl.spsw.tests.tags.BaselineTest;
 import de.ibapl.spsw.tests.tags.DtrDsrTest;
 import de.ibapl.spsw.tests.tags.RtsCtsTest;
 
 /**
- * Unit test for simple App. Use @Ignore if your hardware can't handle higer
- * speeds.
- * 
+ * @author Arne Plöse
  */
 public abstract class AbstractReadWriteRtsCtsTests extends AbstractReadWriteTest {
 
 	public Iterator<PortConfiguration> getBaselinePortConfigurations() {
-		return new PortConfigurationFactory().setFlowControl(FlowControl.getFC_RTS_CTS()).getSpeedIterator(Speed._1200_BPS, Speed._115200_BPS);
+		return new PortConfigurationFactory().setFlowControl(FlowControl.getFC_RTS_CTS())
+				.getSpeedIterator(Speed._1200_BPS, Speed._115200_BPS);
 	}
 
 	@RtsCtsTest
@@ -70,14 +65,14 @@ public abstract class AbstractReadWriteRtsCtsTests extends AbstractReadWriteTest
 	public void test_WriteBytes_ReadBytes(PortConfiguration pc) throws Exception {
 		writeBytes_ReadBytes(pc);
 	}
-	
+
 	@RtsCtsTest
 	@ParameterizedTest
 	@MethodSource({ "getBaselinePortConfigurations" })
 	public void test_WriteBytes_ReadSingle(PortConfiguration pc) throws Exception {
 		writeBytes_ReadSingle(pc);
 	}
-	
+
 	@RtsCtsTest
 	@ParameterizedTest
 	@MethodSource({ "getBaselinePortConfigurations" })
@@ -119,7 +114,7 @@ public abstract class AbstractReadWriteRtsCtsTests extends AbstractReadWriteTest
 	public void test_WriteSingle_ReadSingle_Threaded(PortConfiguration pc) throws Exception {
 		writeSingle_ReadSingle_Threaded(pc);
 	}
-	
+
 	// TODO does not work as expected Linux Kernel fills in buffer size?
 	@Disabled
 	@Test
@@ -245,6 +240,7 @@ public abstract class AbstractReadWriteRtsCtsTests extends AbstractReadWriteTest
 		writeSpc.setSpeed(Speed._500000_BPS);
 		writeSpc.setFlowControl(FlowControl.getFC_NONE());
 	}
+
 	/**
 	 * Send 128 bytes out - the outputbuffer will hold this - so write returns
 	 * assuming all bytes are written. But we will only read one byte ... because
@@ -345,14 +341,15 @@ public abstract class AbstractReadWriteRtsCtsTests extends AbstractReadWriteTest
 		}
 
 	}
+
 	final static int WAIT_TIME = 1;
-	
+
 	@RtsCtsTest
 	@Test
 	public void testManualRTS_CTS() throws Exception {
 		assumeRWTest();
 		open(Speed._9600_BPS, DataBits.DB_8, StopBits.SB_1, Parity.NONE, FlowControl.getFC_NONE());
-		
+
 		readSpc.setRTS(false);
 		Thread.sleep(WAIT_TIME);
 		assertFalse(writeSpc.isCTS());
@@ -373,7 +370,7 @@ public abstract class AbstractReadWriteRtsCtsTests extends AbstractReadWriteTest
 	public void testManualDTR_DSR() throws Exception {
 		assumeRWTest();
 		open(Speed._9600_BPS, DataBits.DB_8, StopBits.SB_1, Parity.NONE, FlowControl.getFC_NONE());
-		
+
 		readSpc.setDTR(false);
 		Thread.sleep(WAIT_TIME);
 		assertFalse(writeSpc.isDSR());
@@ -384,12 +381,12 @@ public abstract class AbstractReadWriteRtsCtsTests extends AbstractReadWriteTest
 		writeSpc.setDTR(false);
 		Thread.sleep(WAIT_TIME);
 		assertFalse(readSpc.isDSR());
-		//If this fails maybe DSR and DCD are not shortend?
+		// If this fails maybe DSR and DCD are not shortend?
 		assertFalse(readSpc.isDCD());
 		writeSpc.setDTR(true);
 		Thread.sleep(WAIT_TIME);
 		assertTrue(readSpc.isDSR());
-		//If this fails maybe DSR and DCD are not shortend?
+		// If this fails maybe DSR and DCD are not shortend?
 		assertTrue(readSpc.isDCD());
 	}
 

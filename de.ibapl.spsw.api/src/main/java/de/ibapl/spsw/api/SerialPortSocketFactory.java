@@ -2,7 +2,7 @@
  * #%L
  * SPSW API
  * %%
- * Copyright (C) 2009 - 2017 Arne Plöse
+ * Copyright (C) 2009 - 2018 Arne Plöse
  * %%
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License 2.0 which is available at
@@ -25,6 +25,7 @@ import java.util.Set;
 import java.util.function.BiConsumer;
 
 import javax.inject.Named;
+
 import org.osgi.annotation.versioning.ProviderType;
 
 /**
@@ -46,7 +47,7 @@ import org.osgi.annotation.versioning.ProviderType;
  * }
  * </pre>
  * 
- * @author aploese
+ * @author Arne Plöse
  */
 @Named
 @ProviderType()
@@ -87,9 +88,11 @@ public interface SerialPortSocketFactory {
 
 	/**
 	 * Create a new SerialPortSocket.
+	 * Simply create a new instance and set the port name.
 	 * 
 	 * @param portName
-	 * @return
+	 * 
+	 * @return the new created instance.
 	 * 
 	 * @throws SecurityException
 	 *             if the caller has no read or write permissions to the port.

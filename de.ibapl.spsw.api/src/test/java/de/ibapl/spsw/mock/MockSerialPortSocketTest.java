@@ -26,9 +26,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.IOException;
 
-import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -37,31 +35,21 @@ import de.ibapl.spsw.mock.MockSerialPortSocket.UnexpectedRequestError;
 
 /**
  *
- * @author arnep@users.sourceforge.net
- * @version $Id$
+ * @author Arne Plöse
  */
 public class MockSerialPortSocketTest {
 
-	@BeforeAll
-	public static void setUpClass() throws Exception {
-	}
-
-	@AfterAll
-	public static void tearDownClass() throws Exception {
-	}
-
-	private MockSerialPortSocket slaves;
+	private MockSerialPortSocket mockSerialPortSocket;
 
 	@BeforeEach
 	public void setUp() throws Exception {
-		slaves = new MockSerialPortSocket();
-		slaves.open();
+		mockSerialPortSocket = new MockSerialPortSocket();
 	}
 
 	@AfterEach
 	public void tearDown() throws Exception {
-		slaves.close();
-		slaves = null;
+		mockSerialPortSocket.close();
+		mockSerialPortSocket = null;
 	}
 
 	public MockSerialPortSocketTest() {
@@ -69,50 +57,59 @@ public class MockSerialPortSocketTest {
 
 	@Test()
 	public void respondToRequest_1() throws IOException {
+		mockSerialPortSocket.open();
 		assertThrows(UnexpectedRequestError.class, () -> {
-			slaves.getOutputStream().write(0x01);
+			mockSerialPortSocket.getOutputStream().write(0x01);
 		});
 	}
 
 	@Test()
 	public void respondToRequest_2() throws IOException {
+		mockSerialPortSocket.open();
 		assertThrows(UnexpectedRequestError.class, () -> {
-			slaves.getInputStream().read();
+			mockSerialPortSocket.getInputStream().read();
 		});
 	}
 
 	@Test
 	public void respondToRequest_Timeout() throws IOException {
-		slaves.expectedRead("01");
-		slaves.expectedRead(new TimeoutIOException("Test"));
-		slaves.getInputStream().read();
+		mockSerialPortSocket.expectedRead("01");
+		mockSerialPortSocket.expectedRead(new TimeoutIOException("Test"));
+
+		mockSerialPortSocket.open();
+
+		mockSerialPortSocket.getInputStream().read();
 		assertThrows(TimeoutIOException.class, () -> {
-			slaves.getInputStream().read();
+			mockSerialPortSocket.getInputStream().read();
 		});
 	}
 
 	@Test
 	public void respondToReques_3() throws Exception {
-		slaves.expectedWrite("0102");
-		slaves.expectedRead("0201");
-		slaves.expectedWrite("0304");
-		slaves.expectedRead("0403");
+		mockSerialPortSocket.expectedWrite("0102");
+		mockSerialPortSocket.expectedRead("0201");
+		mockSerialPortSocket.expectedWrite("0304");
+		mockSerialPortSocket.expectedRead("0403");
 
-		slaves.getOutputStream().write(0x01);
-		slaves.getOutputStream().write(0x02);
-		assertEquals(0x02, slaves.getInputStream().read());
-		assertEquals(0x01, slaves.getInputStream().read());
+		mockSerialPortSocket.open();
+
+		mockSerialPortSocket.getOutputStream().write(0x01);
+		mockSerialPortSocket.getOutputStream().write(0x02);
+		assertEquals(0x02, mockSerialPortSocket.getInputStream().read());
+		assertEquals(0x01, mockSerialPortSocket.getInputStream().read());
 		assertThrows(UnexpectedRequestError.class, () -> {
-			slaves.getInputStream().read();
+			mockSerialPortSocket.getInputStream().read();
 		});
 	}
 
 	@Test
 	public void test_read_array() throws Exception {
-		slaves.expectedRead("0102");
-		byte[] b = new byte[16];
+		mockSerialPortSocket.expectedRead("0102");
 
-		int count = slaves.getInputStream().read(b);
+		mockSerialPortSocket.open();
+
+		byte[] b = new byte[16];
+		int count = mockSerialPortSocket.getInputStream().read(b);
 		assertEquals(2, count);
 		assertEquals(0x01, b[0]);
 		assertEquals(0x02, b[1]);
@@ -120,54 +117,62 @@ public class MockSerialPortSocketTest {
 
 	@Test
 	public void respondToReques_4() throws Exception {
-		slaves.expectedWrite("01");
-		assertFalse(slaves.allRequestsHandled());
+		mockSerialPortSocket.expectedWrite("01");
+
+		mockSerialPortSocket.open();
+
+		assertFalse(mockSerialPortSocket.allRequestsHandled());
 	}
 
 	@Test
 	public void respondToReques_5() throws Exception {
-		slaves.addRequest("0102", "0201");
-		assertEquals(0, slaves.getInputStream().available());
+		mockSerialPortSocket.addRequest("0102", "0201");
 
-		slaves.getOutputStream().write(0x01);
-		assertEquals(0, slaves.getInputStream().available());
-		slaves.getOutputStream().write(0x02);
-		assertEquals(2, slaves.getInputStream().available());
-		assertEquals(0x02, slaves.getInputStream().read());
-		assertEquals(1, slaves.getInputStream().available());
-		assertEquals(0x01, slaves.getInputStream().read());
-		assertEquals(0, slaves.getInputStream().available());
+		mockSerialPortSocket.open();
+
+		assertEquals(0, mockSerialPortSocket.getInputStream().available());
+
+		mockSerialPortSocket.getOutputStream().write(0x01);
+		assertEquals(0, mockSerialPortSocket.getInputStream().available());
+		mockSerialPortSocket.getOutputStream().write(0x02);
+		assertEquals(2, mockSerialPortSocket.getInputStream().available());
+		assertEquals(0x02, mockSerialPortSocket.getInputStream().read());
+		assertEquals(1, mockSerialPortSocket.getInputStream().available());
+		assertEquals(0x01, mockSerialPortSocket.getInputStream().read());
+		assertEquals(0, mockSerialPortSocket.getInputStream().available());
 	}
 
 	@Test
 	public void respondToRequest() throws Exception {
-		slaves.expectedWrite("0102");
-		slaves.expectedRead("0201");
-		slaves.expectedWrite("0304");
-		slaves.expectedRead("0403");
-		slaves.expectedWrite("0506");
-		slaves.expectedWrite("0708");
-		slaves.expectedRead("0807");
+		mockSerialPortSocket.expectedWrite("0102");
+		mockSerialPortSocket.expectedRead("0201");
+		mockSerialPortSocket.expectedWrite("0304");
+		mockSerialPortSocket.expectedRead("0403");
+		mockSerialPortSocket.expectedWrite("0506");
+		mockSerialPortSocket.expectedWrite("0708");
+		mockSerialPortSocket.expectedRead("0807");
 
-		slaves.getOutputStream().write(0x01);
-		slaves.getOutputStream().write(0x02);
-		assertEquals(0x02, slaves.getInputStream().read());
-		assertEquals(0x01, slaves.getInputStream().read());
+		mockSerialPortSocket.open();
 
-		slaves.getOutputStream().write(0x03);
-		slaves.getOutputStream().write(0x04);
-		assertEquals(0x04, slaves.getInputStream().read());
-		assertEquals(0x03, slaves.getInputStream().read());
+		mockSerialPortSocket.getOutputStream().write(0x01);
+		mockSerialPortSocket.getOutputStream().write(0x02);
+		assertEquals(0x02, mockSerialPortSocket.getInputStream().read());
+		assertEquals(0x01, mockSerialPortSocket.getInputStream().read());
 
-		slaves.getOutputStream().write(0x05);
-		slaves.getOutputStream().write(0x06);
+		mockSerialPortSocket.getOutputStream().write(0x03);
+		mockSerialPortSocket.getOutputStream().write(0x04);
+		assertEquals(0x04, mockSerialPortSocket.getInputStream().read());
+		assertEquals(0x03, mockSerialPortSocket.getInputStream().read());
 
-		slaves.getOutputStream().write(0x07);
-		slaves.getOutputStream().write(0x08);
-		assertEquals(0x08, slaves.getInputStream().read());
-		assertEquals(0x07, slaves.getInputStream().read());
+		mockSerialPortSocket.getOutputStream().write(0x05);
+		mockSerialPortSocket.getOutputStream().write(0x06);
 
-		assertTrue(slaves.allRequestsHandled());
+		mockSerialPortSocket.getOutputStream().write(0x07);
+		mockSerialPortSocket.getOutputStream().write(0x08);
+		assertEquals(0x08, mockSerialPortSocket.getInputStream().read());
+		assertEquals(0x07, mockSerialPortSocket.getInputStream().read());
+
+		assertTrue(mockSerialPortSocket.allRequestsHandled());
 	}
 
 }

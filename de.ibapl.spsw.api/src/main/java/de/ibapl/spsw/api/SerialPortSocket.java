@@ -2,7 +2,7 @@
  * #%L
  * SPSW API
  * %%
- * Copyright (C) 2009 - 2017 Arne Plöse
+ * Copyright (C) 2009 - 2018 Arne Plöse
  * %%
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License 2.0 which is available at
@@ -19,36 +19,48 @@
  */
 package de.ibapl.spsw.api;
 
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.lang.annotation.Native;
 import java.util.Set;
+
 import org.osgi.annotation.versioning.ProviderType;
 
 /**
  * The interface for accessing a serial port.
  * 
- * Port means a serial device like UART or usb to serial converter or an TCP
- * bridge to an serial device on a different machine.
+ * Port means a serial device like UART, usb to serial converter or even a TCP
+ * bridge to an serial device on a different machine. Due to the fact that a
+ * character her can have 5,6,7 or 8 data bits, don't confuse characters with
+ * bytes, see {@link DataBits} for more details. If you work wit 8 data bytes
+ * characters and bytes have the same length.
  * 
- * An implementing class should check permissions with a SecurityManager. It is
- * desired to check fail-fast in the constructor. Checking of the closed state
- * should be done lazily. The implementations are not required to be thread
- * save. Closing an port with blocked read or write operation should unblock the
- * pending read/write and throw a InterruptedIOException in the Thread of that
- * read/write. It is desired to close any OS resources in an finalizer.
- * 
- * There are two general cable configurations used with the RS-232C
- * Communications Standard:
+ * A implementing class should check permissions with a SecurityManager. It is
+ * desired to check fail-fast in the constructor. The {@link FileOutputStream}
+ * should be the blueprint.<br>
+ * Checking of the closed state should be done lazily to improve performance.
+ * The implementations are not required to be thread save.<br>
+ * Closing a port with blocked read or write operation should unblock the
+ * pending read/write and throw a
+ * {@code InterruptedIOException(SerialPortSocket.PORT_IS_CLOSED)} in the Thread
+ * of that read/write.<br>
+ * It is desired to close any OS resources in an finalizer. This is to to
+ * prevent blocked ports in larger systems. A call to the garbage collector can
+ * then free the still claimed resources.
+ *
+ * The meaning of the signal lines (RTS/CTS...) is viewn from this point. There
+ * are two general cable configurations used with the RS-232C Communications
+ * Standard:
  * <li>Data Terminal Equipment (DTE): IBM PC's, printers, plotters, etc <br>
  * </li>
- * <li>Data Communication Equipment (DCE): modems, multiplexors, etc</li>
- * <br>
- * Don't confuse characters with bytes, see {@link DataBits} for more details.
+ * <li>Data Communication Equipment (DCE): modems, multiplexors, etc</li> <br>
  * 
  * @see <a href=
  *      "https://www.wikipedia.org/wiki/Serial_port">www.wikipedia.org/wiki/Serial_port</a>
+ * 
+ * @author Arne Plöse
  */
 @ProviderType
 public interface SerialPortSocket extends AutoCloseable {
@@ -81,32 +93,78 @@ public interface SerialPortSocket extends AutoCloseable {
 	 *            the used parity.
 	 * @return the rounded up transfer time in ms.
 	 */
-	static int calculateMillisForBytes(int len, Speed speed, DataBits dataBits, StopBits stopBits,
-			Parity parity) {
-		return (int) Math.ceil((len * (1 + dataBits.value + (parity == Parity.NONE ? 0 : 1) + stopBits.value) * 1000.0)
-				/ speed.value);
+	static int calculateMillisForCharacters(int len, Speed speed, DataBits dataBits, StopBits stopBits, Parity parity) {
+		return (int) Math.ceil(
+				(len * (1 + dataBits.value + (parity == Parity.NONE ? 0 : 1) + stopBits.value) * 1000.0) / speed.value);
 	}
 
-	static double calculateMillisPerByte(Speed speed, DataBits dataBits, StopBits stopBits, Parity parity) {
+	/**
+	 * Calculate the transfer time for a single character with the given port
+	 * parameters.
+	 * 
+	 * @param speed
+	 *            the used speed.
+	 * @param dataBits
+	 *            the used data bits.
+	 * @param stopBits
+	 *            the used stop bits.
+	 * @param parity
+	 *            the used parity.
+	 * @return the transfer time in ms.
+	 */
+	static double calculateMillisPerCharacter(Speed speed, DataBits dataBits, StopBits stopBits, Parity parity) {
 		return ((1 + dataBits.value + (parity == Parity.NONE ? 0 : 1) + stopBits.value) * 1000.0) / speed.value;
 	}
 
-	static double calculateSpeedInCharactersPerSecond(Speed speed, DataBits dataBits, StopBits stopBits, Parity parity) {
-		return (double)speed.value / (1 + dataBits.value + (parity == Parity.NONE ? 0 : 1) + stopBits.value);
+	/**
+	 * Calculate the speed in charactes/s with the given port parameters. If data
+	 * bits == 8 it is Byte/s.
+	 * 
+	 * @param speed
+	 *            the used speed.
+	 * @param dataBits
+	 *            the used data bits.
+	 * @param stopBits
+	 *            the used stop bits.
+	 * @param parity
+	 *            the used parity.
+	 * @return the speed in charactes/s.
+	 */
+	static double calculateSpeedInCharactersPerSecond(Speed speed, DataBits dataBits, StopBits stopBits,
+			Parity parity) {
+		return (double) speed.value / (1 + dataBits.value + (parity == Parity.NONE ? 0 : 1) + stopBits.value);
 	}
 
-	default int calculateMillisForBytes(int len) throws IOException {
-		return calculateMillisForBytes(len, getSpeed(), getDatatBits(), getStopBits(), getParity());
+	/**
+	 * Calculate the transfer time for given size and the current port settings.
+	 * 
+	 * @param len
+	 *            the number of characters to transfer.
+	 * @return the rounded up transfer time in ms.
+	 */
+	default int calculateMillisForCharacters(int len) throws IOException {
+		return calculateMillisForCharacters(len, getSpeed(), getDatatBits(), getStopBits(), getParity());
 	}
 
-	default double calculateMillisPerByte() throws IOException {
-		return calculateMillisPerByte(getSpeed(), getDatatBits(), getStopBits(), getParity());
+	/**
+	 * Calculate the transfer time for a single character with the current port
+	 * settings.
+	 * 
+	 */
+	default double calculateMillisPerCharacter() throws IOException {
+		return calculateMillisPerCharacter(getSpeed(), getDatatBits(), getStopBits(), getParity());
 	}
 
+	/**
+	 * Calculate the speed in charactes/s with the current port settings. If data
+	 * bits == 8 it is Byte/s.
+	 * 
+	 * @return the speed in charactes/s.
+	 */
 	default double calculateSpeedInCharactersPerSecond() throws IOException {
 		return calculateSpeedInCharactersPerSecond(getSpeed(), getDatatBits(), getStopBits(), getParity());
 	}
-	
+
 	/**
 	 * Close port. The port should be reopenable after closure.
 	 *
@@ -159,8 +217,9 @@ public interface SerialPortSocket extends AutoCloseable {
 	 * 
 	 * This timeout will be triggered only if some bytes have been received. If the
 	 * time span after receiving the last char is greater than this timeout
-	 * {@link InputStream#read(byte[])} or {@link InputStream#read(byte[], int,
-	 * int))} will return with what read up to that point.
+	 * {@link InputStream#read(byte[])} or
+	 * {@link InputStream#read(byte[], int, int)} will return with what read up to
+	 * that point.
 	 * 
 	 * @return the inter byte timeout in ms.
 	 * @throws IOException
@@ -192,13 +251,13 @@ public interface SerialPortSocket extends AutoCloseable {
 	 * Returns setting for the read timeout in ms. 0 returns implies that the option
 	 * is disabled (i.e., timeout of infinity). This timeout is the time to wait for
 	 * some data to arrive. If this time passes a {@link TimeoutIOException} will be
-	 * thrown. {@link TimeoutIOException#dwBytesWritten} will always be {@code 0}.
+	 * thrown. {@link TimeoutIOException#bytesTransferred} will always be {@code 0}.
 	 *
 	 * @return the overall read timeout in ms or {@code 0} for infinity.
 	 * @throws IOException
 	 *             if port is closed or an error at OS level occurs.
 	 *
-	 * @see #setOverallTimeout(int)
+	 * @see #setTimeouts(int, int, int)
 	 */
 	int getOverallReadTimeout() throws IOException;
 
@@ -207,14 +266,14 @@ public interface SerialPortSocket extends AutoCloseable {
 	 * option is disabled (i.e., timeout of infinity). This timeout is the time to
 	 * wait for some data to write out. If this time passes a
 	 * {@link TimeoutIOException} will be thrown.
-	 * {@link TimeoutIOException#dwBytesWritten} will hold the number of bytes
+	 * {@link TimeoutIOException#bytesTransferred} will hold the number of bytes
 	 * written to the OS.
 	 *
 	 * @return the overall read timeout in ms or {@code 0} for infinity.
 	 * @throws IOException
 	 *             if port is closed or an error at OS level occurs.
 	 *
-	 * @see #setOverallTimeout(int)
+	 * @see #setTimeouts(int, int, int)
 	 */
 	int getOverallWriteTimeout() throws IOException;
 
@@ -236,8 +295,8 @@ public interface SerialPortSocket extends AutoCloseable {
 	String getPortName();
 
 	/**
-	 * Read the speed in bit/s from the port.
-	 * the speed of characters/s can be calculated as follows:
+	 * Read the speed in bit/s from the port. the speed of characters/s can be
+	 * calculated as follows:
 	 * {@code speed / (1 start bit + (5,6,7,8) data bits + (0,1) parity bit + (1,1.5,2) stop bits)}
 	 * This is the speed in characters/s and with 8 data bits its byte/s.
 	 * 
@@ -349,7 +408,7 @@ public interface SerialPortSocket extends AutoCloseable {
 	 *            the parity.
 	 * @param flowControls
 	 *            the flow control.
-	 * @return the opened port with parameters set.
+	 * 
 	 * @throws IOException
 	 *             if parameters can't be set, port is closed or an error at OS
 	 *             level occurred.
@@ -444,8 +503,8 @@ public interface SerialPortSocket extends AutoCloseable {
 	/**
 	 * Write the parity to the port.
 	 * 
-	 * @param the
-	 *            new parity.
+	 * @param parity
+	 *            the new parity.
 	 * 
 	 * @throws IOException
 	 *             if value can't be set, port is closed or an error at OS level
@@ -469,8 +528,8 @@ public interface SerialPortSocket extends AutoCloseable {
 
 	/**
 	 * Write the speed to the port. <br>
-	 * If the speed is not supported by the underlying OS and OEM drivers one of
-	 * the following may happen:
+	 * If the speed is not supported by the underlying OS and OEM drivers one of the
+	 * following may happen:
 	 * <li>The old speed is not changed and an IOException or an
 	 * IllegalArgumentException is thrown.</li>
 	 * <li>the closest valid speed is set and an IOException or an
@@ -538,7 +597,7 @@ public interface SerialPortSocket extends AutoCloseable {
 	 * @throws IOException
 	 *             if value can't be set, port is closed or an error at OS level
 	 *             occurred.
-	 *             
+	 * 
 	 * @see #getInterByteReadTimeout()
 	 * @see #getOverallReadTimeout()
 	 * @see #getOverallWriteTimeout()
@@ -548,8 +607,8 @@ public interface SerialPortSocket extends AutoCloseable {
 	/**
 	 * Write the XOFF char to the port.
 	 * 
-	 * @param the
-	 *            <b>XOFF</b> char.
+	 * @param c
+	 *            the <b>XOFF</b> char.
 	 * @throws IOException
 	 *             if value can't be set, port is closed or an error at OS level
 	 *             occurred.
@@ -559,8 +618,8 @@ public interface SerialPortSocket extends AutoCloseable {
 	/**
 	 * Write the XON char to the port.
 	 * 
-	 * @param the
-	 *            <b>XON</b> char.
+	 * @param c
+	 *            the <b>XON</b> char.
 	 * @throws IOException
 	 *             if value can't be set, port is closed or an error at OS level
 	 *             occurred.

@@ -1,3 +1,30 @@
+/*-
+ * #%L
+ * SPSW Provider
+ * %%
+ * Copyright (C) 2009 - 2018 Arne Plöse
+ * %%
+ * SPSW - Drivers for the serial port, https://github.com/aploese/spsw/
+ * Copyright (C) 2009-2018, Arne Plöse and individual contributors as indicated
+ * by the @authors tag. See the copyright.txt in the distribution for a
+ * full listing of individual contributors.
+ * 
+ * This is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU General Public License as
+ * published by the Free Software Foundation; either version 3 of
+ * the License, or (at your option) any later version.
+ * 
+ * This software is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+ * Lesser General Public License for more details.
+ * 
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with this software; if not, write to the Free
+ * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
+ * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
+ * #L%
+ */
 package de.ibapl.nativeutils;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -31,7 +58,6 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
  * #L%
  */
 
-
 import java.io.IOException;
 import java.io.InputStream;
 
@@ -40,12 +66,17 @@ import org.junit.jupiter.api.Test;
 import de.ibapl.nativeutils.arm.ArmEFlags;
 import de.ibapl.nativeutils.mips.MipsEFlags;
 
+/**
+ * 
+ * @author Arne Plöse
+ *
+ */
 public class ReadElfHeaderTest {
 
 	@Test
 	public void test_arm_linux_gnueabi() throws IOException {
 		InputStream is = ReadElfHeaderTest.class.getResourceAsStream("arm-linux-gnueabi/libspsw-1.1.0.so");
-		ElfFile elfFile = new ElfFileParser().parser(is);
+		ElfFile<?> elfFile = new ElfFileParser<>().parser(is);
 		assertEquals(ElfHeader.ElfClass.ELFCLASS32, elfFile.header.elfClass);
 		assertEquals(ElfHeader.ElfData.ELFDATA2LSB, elfFile.header.elfData);
 
@@ -63,7 +94,7 @@ public class ReadElfHeaderTest {
 	@Test
 	public void test_arm_linux_gnueabihf() throws IOException {
 		InputStream is = ReadElfHeaderTest.class.getResourceAsStream("arm-linux-gnueabihf/libspsw-1.1.0.so");
-		ElfFile elfFile = new ElfFileParser().parser(is);
+		ElfFile<?> elfFile = new ElfFileParser<>().parser(is);
 		assertEquals(ElfHeader.ElfClass.ELFCLASS32, elfFile.header.elfClass);
 		assertEquals(ElfHeader.ElfData.ELFDATA2LSB, elfFile.header.elfData);
 		assertEquals(1, elfFile.header.elfVersion);
@@ -80,7 +111,7 @@ public class ReadElfHeaderTest {
 	@Test
 	public void test_aarch64_linux_gnu() throws IOException {
 		InputStream is = ReadElfHeaderTest.class.getResourceAsStream("aarch64-linux-gnu/libspsw-1.1.0.so");
-		ElfFile elfFile = new ElfFileParser().parser(is);
+		ElfFile<?> elfFile = new ElfFileParser<>().parser(is);
 		assertEquals(ElfHeader.ElfClass.ELFCLASS64, elfFile.header.elfClass);
 		assertEquals(ElfHeader.ElfData.ELFDATA2LSB, elfFile.header.elfData);
 		assertEquals(1, elfFile.header.elfVersion);
@@ -95,7 +126,7 @@ public class ReadElfHeaderTest {
 	@Test
 	public void test_mips_linux_gnu() throws IOException {
 		InputStream is = ReadElfHeaderTest.class.getResourceAsStream("mips-linux-gnu/libspsw-1.1.0.so");
-		ElfFile elfFile = new ElfFileParser().parser(is);
+		ElfFile<?> elfFile = new ElfFileParser<>().parser(is);
 		assertEquals(ElfHeader.ElfClass.ELFCLASS32, elfFile.header.elfClass);
 		assertEquals(ElfHeader.ElfData.ELFDATA2MSB, elfFile.header.elfData);
 		assertEquals(1, elfFile.header.elfVersion);
@@ -115,7 +146,7 @@ public class ReadElfHeaderTest {
 	@Test
 	public void test_mipsel_linux_gnu() throws IOException {
 		InputStream is = ReadElfHeaderTest.class.getResourceAsStream("mipsel-linux-gnu/libspsw-1.1.0.so");
-		ElfFile elfFile = new ElfFileParser().parser(is);
+		ElfFile<?> elfFile = new ElfFileParser<>().parser(is);
 		assertEquals(ElfHeader.ElfClass.ELFCLASS32, elfFile.header.elfClass);
 		assertEquals(ElfHeader.ElfData.ELFDATA2LSB, elfFile.header.elfData);
 		assertEquals(1, elfFile.header.elfVersion);
@@ -135,7 +166,7 @@ public class ReadElfHeaderTest {
 	@Test
 	public void test_mips64_linux_gnuabi64() throws IOException {
 		InputStream is = ReadElfHeaderTest.class.getResourceAsStream("mips64-linux-gnuabi64/libspsw-1.1.0.so");
-		ElfFile elfFile = new ElfFileParser().parser(is);
+		ElfFile<?> elfFile = new ElfFileParser<>().parser(is);
 		assertEquals(ElfHeader.ElfClass.ELFCLASS64, elfFile.header.elfClass);
 		assertEquals(ElfHeader.ElfData.ELFDATA2MSB, elfFile.header.elfData);
 		assertEquals(1, elfFile.header.elfVersion);
@@ -154,7 +185,7 @@ public class ReadElfHeaderTest {
 	@Test
 	public void test_mips64el_linux_gnuabi64() throws IOException {
 		InputStream is = ReadElfHeaderTest.class.getResourceAsStream("mips64el-linux-gnuabi64/libspsw-1.1.0.so");
-		ElfFile elfFile = new ElfFileParser().parser(is);
+		ElfFile<?> elfFile = new ElfFileParser<>().parser(is);
 		assertEquals(ElfHeader.ElfClass.ELFCLASS64, elfFile.header.elfClass);
 		assertEquals(ElfHeader.ElfData.ELFDATA2LSB, elfFile.header.elfData);
 		assertEquals(1, elfFile.header.elfVersion);
@@ -173,7 +204,7 @@ public class ReadElfHeaderTest {
 	@Test
 	public void test_i386_linux_gnu() throws IOException {
 		InputStream is = ReadElfHeaderTest.class.getResourceAsStream("i386-linux-gnu/libspsw-1.1.0.so");
-		ElfFile elfFile = new ElfFileParser().parser(is);
+		ElfFile<?> elfFile = new ElfFileParser<>().parser(is);
 		assertEquals(ElfHeader.ElfClass.ELFCLASS32, elfFile.header.elfClass);
 		assertEquals(ElfHeader.ElfData.ELFDATA2LSB, elfFile.header.elfData);
 		assertEquals(1, elfFile.header.elfVersion);
@@ -188,7 +219,7 @@ public class ReadElfHeaderTest {
 	@Test
 	public void test_x86_64_linux_gnu() throws IOException {
 		InputStream is = ReadElfHeaderTest.class.getResourceAsStream("x86_64-linux-gnu/libspsw-1.1.0.so");
-		ElfFile elfFile = new ElfFileParser().parser(is);
+		ElfFile<?> elfFile = new ElfFileParser<>().parser(is);
 		assertEquals(ElfHeader.ElfClass.ELFCLASS64, elfFile.header.elfClass);
 		assertEquals(ElfHeader.ElfData.ELFDATA2LSB, elfFile.header.elfData);
 		assertEquals(1, elfFile.header.elfVersion);

@@ -2,7 +2,7 @@
  * #%L
  * SPSW API
  * %%
- * Copyright (C) 2009 - 2017 Arne Plöse
+ * Copyright (C) 2009 - 2018 Arne Plöse
  * %%
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License 2.0 which is available at
@@ -17,14 +17,8 @@
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  * #L%
  */
-
 package de.ibapl.spsw.logging;
 
-import de.ibapl.spsw.api.Speed;
-import de.ibapl.spsw.api.DataBits;
-import de.ibapl.spsw.api.FlowControl;
-import de.ibapl.spsw.api.Parity;
-import de.ibapl.spsw.api.StopBits;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.PrintStream;
@@ -32,11 +26,21 @@ import java.time.Duration;
 import java.time.Instant;
 import java.time.format.DateTimeFormatter;
 import java.util.Set;
+
 import org.osgi.annotation.versioning.ProviderType;
 
+import de.ibapl.spsw.api.DataBits;
+import de.ibapl.spsw.api.FlowControl;
+import de.ibapl.spsw.api.Parity;
+import de.ibapl.spsw.api.Speed;
+import de.ibapl.spsw.api.StopBits;
+
 /**
- * This class handles the actual formatting and writing to the {@link OutputStream}.
- * @author aploese
+ * Utility class to write to a OutputStream. This class handles the actual
+ * formatting and writing to the {@link OutputStream}. It measures the time for
+ * read and write calls and prints the duration if desired.
+ * 
+ * @author Arne Plöse
  */
 @ProviderType
 public class LogWriter {
@@ -54,10 +58,15 @@ public class LogWriter {
 
 	/**
 	 * 
-	 * @param logStream the {@link OutputStream} to write to.
-	 * @param ascii If true write bytes in their ASCII representation otherwise format hexadecimal.
-	 * @param timeStampLogging How to log timestamps.
-	 * @param verbose If true be more verbose.
+	 * @param logStream
+	 *            the {@link OutputStream} to write to.
+	 * @param ascii
+	 *            If true write bytes in their ASCII representation otherwise format
+	 *            hexadecimal.
+	 * @param timeStampLogging
+	 *            How to log timestamps.
+	 * @param verbose
+	 *            If true be more verbose.
 	 */
 	public LogWriter(OutputStream logStream, boolean ascii, TimeStampLogging timeStampLogging, boolean verbose) {
 		dateTimeFormatter = DateTimeFormatter.ISO_INSTANT;
