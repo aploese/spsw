@@ -10,7 +10,7 @@
 	<inceptionYear>2009</inceptionYear>
 
 	<description>
-        Access the serial port with spsw subpackage.
+        Access the serial port with spsw subpackages.
     </description>
 
 	<organization>
