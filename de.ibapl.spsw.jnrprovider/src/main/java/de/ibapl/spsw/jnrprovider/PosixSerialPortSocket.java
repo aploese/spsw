@@ -30,13 +30,34 @@ import de.ibapl.spsw.api.Parity;
 import de.ibapl.spsw.api.SerialPortSocket;
 import de.ibapl.spsw.api.Speed;
 import de.ibapl.spsw.api.StopBits;
+import jnr.constants.platform.Errno;
+import jnr.constants.platform.OpenFlags;
+import jnr.posix.POSIX;
+import jnr.posix.POSIXFactory;
 
 public class PosixSerialPortSocket implements SerialPortSocket {
 
-	@Override
-	public void close() throws IOException {
-		// TODO Auto-generated method stub
+	private int fd = -1;
+	private POSIX posix;
+	private final String portname;
 
+	public PosixSerialPortSocket(String portname) {
+		this.portname = portname;
+		posix = POSIXFactory.getPOSIX(); // Was new DummyPOSIXHandler(), true);
+	}
+
+	@Override
+	public synchronized void close() throws IOException {
+		if (fd != -1) {
+			int tempFd = fd;
+			fd = -1;
+			int err = posix.close(tempFd);
+			if (err == 0) {
+			} else {
+				fd = tempFd;
+				throw new IOException("close => POSIX errno: " + posix.errno());
+			}
+		}
 	}
 
 	@Override
@@ -101,8 +122,7 @@ public class PosixSerialPortSocket implements SerialPortSocket {
 
 	@Override
 	public String getPortName() {
-		// TODO Auto-generated method stub
-		return null;
+		return portname;
 	}
 
 	@Override
@@ -130,9 +150,8 @@ public class PosixSerialPortSocket implements SerialPortSocket {
 	}
 
 	@Override
-	public boolean isClosed() {
-		// TODO Auto-generated method stub
-		return false;
+	public synchronized boolean isClosed() {
+		return fd == -1;
 	}
 
 	@Override
@@ -155,8 +174,7 @@ public class PosixSerialPortSocket implements SerialPortSocket {
 
 	@Override
 	public boolean isOpen() {
-		// TODO Auto-generated method stub
-		return false;
+		return fd > -1;
 	}
 
 	@Override
@@ -166,9 +184,45 @@ public class PosixSerialPortSocket implements SerialPortSocket {
 	}
 
 	@Override
-	public void open() throws IOException {
-		// TODO Auto-generated method stub
+	public synchronized void open() throws IOException {
+		if (fd != -1) {
+			throw new IOException("Port is already opend");
+		}
+		int tempFd = posix.open(portname,
+				OpenFlags.O_RDWR.intValue() | OpenFlags.O_NOCTTY.intValue() | OpenFlags.O_NONBLOCK.intValue(), 0666);
 
+		if (tempFd < 0) {
+			switch (Errno.valueOf(posix.errno())) {
+			case EBUSY:
+				throw new IOException(String.format("Port is busy: (%s)", portname));
+			case ENOENT:
+				throw new IOException(String.format("Port not found: (%s)", portname));
+			case EACCES:
+				throw new IOException(String.format("Permission denied: (%s)", portname));
+			case EIO:
+				throw new IOException(String.format("Not a serial port: (%s)", portname));
+			default:
+				throw new IOException(
+						String.format("%s: Unknown port error %s: open (%s)", Errno.valueOf(posix.errno()), portname));
+			}
+
+		} else {
+			fd = tempFd;
+		}
+/*TODO We got this far ... her the real work starts....
+		struct termios settings;
+		if (posix.tcgetattr(fd, settings)) {
+			posix.close(fd); //since 2.7.0
+			fd = -1;
+			switch (Errno.valueOf(posix.errno())) {
+				case ENOTTY:
+					throw new IOException(String.format("Not a serial port: (%s)", portname));
+				default:
+					throw new IOException(
+							String.format("%s: Unknown port error %s: open tcgetattr (%s)", Errno.valueOf(posix.errno()), portname));
+			}
+			}
+*/
 	}
 
 	@Override
@@ -261,6 +315,24 @@ public class PosixSerialPortSocket implements SerialPortSocket {
 	public void setXONChar(char c) throws IOException {
 		// TODO Auto-generated method stub
 
+	}
+
+	@Override
+	protected final void finalize() throws Throwable {
+		try {
+			if (isOpen()) {
+				close();
+			}
+		} catch (Exception ex) {
+			// This should always work
+			System.err.println("SerialPortSocket " + getPortName() + " finalize() exception: " + ex);
+		} catch (Error err) {
+			// Leave a trace what hit us...
+			System.err.println("SerialPortSocket " + getPortName() + " finalize() error: " + err);
+			throw err;
+		} finally {
+			super.finalize();
+		}
 	}
 
 }

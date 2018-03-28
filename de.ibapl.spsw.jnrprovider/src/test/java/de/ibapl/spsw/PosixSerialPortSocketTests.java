@@ -27,8 +27,12 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import de.ibapl.spsw.jnrprovider.PosixSerialPortSocket;
+
 class PosixSerialPortSocketTests {
 
+	PosixSerialPortSocket posixSerialPortSocket;
+	
 	@BeforeAll
 	static void setUpBeforeClass() throws Exception {
 	}
@@ -39,15 +43,26 @@ class PosixSerialPortSocketTests {
 
 	@BeforeEach
 	void setUp() throws Exception {
+		posixSerialPortSocket = new PosixSerialPortSocket("/dev/ttyUSB0");
 	}
 
 	@AfterEach
 	void tearDown() throws Exception {
+		posixSerialPortSocket.close();
 	}
 
 	@Test
-	void test() {
-		assertTrue(true, "Not yet implemented");
+	void testOpen() throws Exception {
+		assertFalse(posixSerialPortSocket.isOpen());
+		posixSerialPortSocket.open();
+		assertTrue(posixSerialPortSocket.isOpen());
 	}
 
+	@Test
+	void testClose() throws Exception {
+		posixSerialPortSocket.open();
+		assertTrue(posixSerialPortSocket.isOpen());
+		posixSerialPortSocket.close();
+		assertFalse(posixSerialPortSocket.isOpen());
+	}
 }
