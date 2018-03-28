@@ -1,5 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>de.ibapl.spsw</groupId>
 	<artifactId>spsw-project</artifactId>
@@ -99,7 +101,6 @@
 		<url>https://github.com/aploese/spsw</url>
 		<connection>scm:git:https://github.com/aploese/spsw.git</connection>
 		<developerConnection>scm:git:git@github.com:aploese/spsw.git</developerConnection>
-		<tag>spsw-project-2.0.0</tag>
 	</scm>
 
 
@@ -108,7 +109,6 @@
 		<module>de.ibapl.spsw.api.tests</module>
 		<module>de.ibapl.spsw.jniprovider</module>
 		<module>de.ibapl.spsw.provider.osgi-tests</module>
-		<!-- wait for plugin bnd-maven-plugin:3.4.0 and bnd-testing-maven-plugin:3.4.0 -->
 		<module>de.ibapl.spsw.provider.osgi-integration-tests</module>
 		<module>de.ibapl.spsw.elfreader</module>
 	</modules>
@@ -230,11 +230,11 @@
 						</archive>
 					</configuration>
 				</plugin>
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-release-plugin</artifactId>
-				<version>2.5.3</version>
-			</plugin>
+				<plugin>
+					<groupId>org.apache.maven.plugins</groupId>
+					<artifactId>maven-release-plugin</artifactId>
+					<version>2.5.3</version>
+				</plugin>
 				<plugin>
 					<groupId>org.apache.maven.plugins</groupId>
 					<artifactId>maven-gpg-plugin</artifactId>
