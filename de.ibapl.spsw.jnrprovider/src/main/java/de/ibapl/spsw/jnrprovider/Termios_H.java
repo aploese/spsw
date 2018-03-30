@@ -36,19 +36,21 @@ public interface Termios_H {
 	}
 
 	public interface Functions {
-		// speed_t cfgetispeed(const struct termios *termios_p);
-		// speed_t cfgetospeed(const struct termios *termios_p);
-		// int cfsetispeed(struct termios *termios_p, speed_t speed);
-		// int cfsetospeed(struct termios *termios_p, speed_t speed);
+		int cfgetispeed(Termios termios);
+		int cfgetospeed(Termios termios);
+		int cfsetispeed(@Out @Transient Termios termios, int speed);
+		 int cfsetospeed(@Out @Transient Termios termios, int speed);
+		 //TODO POSIX ??? set both in and out
+		 int cfsetspeed(@Out @Transient Termios termios, int speed);
 		int tcdrain(int fildes);
 
 		// int tcflow(int fildes, int action);
 		// int tcflush(int fildes, int queue_selector);
-		int tcgetattr(int fildes, @Out @Transient Termios termios_p);
+		int tcgetattr(int fildes, @Out @Transient Termios termios);
 
 		// pid_t tcgetsid(int fildes);
 		int tcsendbreak(int fildes, int duration);
-		int tcsetattr(int fildes, int optional_actions, Termios termios_p);
+		int tcsetattr(int fildes, int optional_actions, Termios termios);
 	}
 
 	/*

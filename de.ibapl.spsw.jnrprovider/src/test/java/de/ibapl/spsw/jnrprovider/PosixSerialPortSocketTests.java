@@ -27,8 +27,12 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import de.ibapl.spsw.api.DataBits;
 import de.ibapl.spsw.api.Parity;
+import de.ibapl.spsw.api.Speed;
+import de.ibapl.spsw.api.StopBits;
 import de.ibapl.spsw.jnrprovider.PosixSerialPortSocket;
+import jnr.constants.platform.TermiosFlags;
 
 class PosixSerialPortSocketTests {
 
@@ -76,4 +80,37 @@ class PosixSerialPortSocketTests {
 		}
 	}
 
+	@Test
+	void testDataBits() throws Exception {
+		posixSerialPortSocket.open();
+		for (DataBits db : DataBits.values()) {
+			if (db == DataBits.DB_6) {
+				continue;
+			}
+			posixSerialPortSocket.setDataBits(db);
+			assertEquals(db, posixSerialPortSocket.getDatatBits());
+		}
+	}
+
+	@Test
+	void testSpeed() throws Exception {
+		posixSerialPortSocket.open();
+		for (Speed s : Speed.values()) {
+			if (s == Speed._0_BPS) {
+				continue;
+			}
+			posixSerialPortSocket.setSpeed(s);
+			assertEquals(s, posixSerialPortSocket.getSpeed());
+		}
+	}
+
+	
+	@Test
+	void testStopBits() throws Exception {
+		posixSerialPortSocket.open();
+		posixSerialPortSocket.setDataBits(DataBits.DB_8);
+		posixSerialPortSocket.setStopBits(StopBits.SB_2);
+		assertEquals(StopBits.SB_2, posixSerialPortSocket.getStopBits());
+	}
+	
 }
