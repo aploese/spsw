@@ -48,14 +48,12 @@ public class SerialPortSocketFactoryImpl implements SerialPortSocketFactory {
 
 	@Override
 	public SerialPortSocket createSerialPortSocket(String portName) {
-		// TODO Auto-generated method stub
-		return null;
+		return new PosixSerialPortSocket(portName);
 	}
 
 	@Override
 	public void getPortNames(BiConsumer<String, Boolean> portNameConsumer) {
 		// TODO Auto-generated method stub
-
 	}
 
 	@Override
@@ -72,15 +70,17 @@ public class SerialPortSocketFactoryImpl implements SerialPortSocketFactory {
 
 	@Override
 	public SerialPortSocket open(String portName) throws IOException, IllegalStateException {
-		// TODO Auto-generated method stub
-		return null;
+		SerialPortSocket result = new PosixSerialPortSocket(portName);
+		result.open();
+		return result;
 	}
 
 	@Override
 	public SerialPortSocket open(String portName, Speed speed, DataBits dataBits, StopBits stopBits, Parity parity,
 			Set<FlowControl> flowControls) throws IOException {
-		// TODO Auto-generated method stub
-		return null;
+		SerialPortSocket result = new PosixSerialPortSocket(portName);
+		result.open(speed, dataBits, stopBits, parity, flowControls);
+		return result;
 	}
 
 }

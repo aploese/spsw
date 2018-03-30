@@ -30,20 +30,28 @@ import de.ibapl.spsw.api.Parity;
 import de.ibapl.spsw.api.SerialPortSocket;
 import de.ibapl.spsw.api.Speed;
 import de.ibapl.spsw.api.StopBits;
+import de.ibapl.spsw.jnrprovider.Termios_H.Termios;
 import jnr.constants.platform.Errno;
 import jnr.constants.platform.OpenFlags;
+import jnr.constants.platform.TermiosFlags;
+import jnr.ffi.LibraryLoader;
+import jnr.ffi.Runtime;
 import jnr.posix.POSIX;
 import jnr.posix.POSIXFactory;
 
 public class PosixSerialPortSocket implements SerialPortSocket {
 
-	private int fd = -1;
+	private volatile int fd = -1;
 	private POSIX posix;
 	private final String portname;
+	private Termios_H.Functions tf;
+	private Runtime runtime;
 
 	public PosixSerialPortSocket(String portname) {
 		this.portname = portname;
 		posix = POSIXFactory.getPOSIX(); // Was new DummyPOSIXHandler(), true);
+		tf = LibraryLoader.create(Termios_H.Functions.class).load("c");
+		runtime = Runtime.getRuntime(tf);
 	}
 
 	@Override
@@ -116,8 +124,46 @@ public class PosixSerialPortSocket implements SerialPortSocket {
 
 	@Override
 	public Parity getParity() throws IOException {
-		// TODO Auto-generated method stub
-		return null;
+		Termios_H.Termios termios = new Termios_H.Termios(runtime);
+		if (tf.tcgetattr(fd, termios) != 0) {
+			throw new IOException(String.format("%s: Unknown port error %s: open tcgetattr (%s)",
+					Errno.valueOf(posix.errno()), portname));
+		}
+
+		if ((termios.c_cflag.intValue() & TermiosFlags.PARENB.intValue()) == 0) {
+			return Parity.NONE;
+		} else if ((termios.c_cflag.intValue() & TermiosFlags.PARODD.intValue()) == 0) {
+			if (TermiosFlags.PAREXT.defined()) {
+				if ((termios.c_cflag.intValue() & TermiosFlags.PAREXT.intValue()) == 0) {
+					return Parity.EVEN;
+				} else {
+					return Parity.SPACE;
+				}
+			} else if (TermiosFlags.CMSPAR.defined()) {
+				if ((termios.c_cflag.intValue() & TermiosFlags.CMSPAR.intValue()) == 0) {
+					return Parity.EVEN;
+				} else {
+					return Parity.SPACE;
+				}
+			}
+		} else {
+			// ODD or MARK
+			if (TermiosFlags.PAREXT.defined()) {
+				if ((termios.c_cflag.intValue() & TermiosFlags.PAREXT.intValue()) == 0) {
+					return Parity.ODD;
+				} else {
+					return Parity.MARK;
+				}
+			} else if (TermiosFlags.CMSPAR.defined()) {
+				if ((termios.c_cflag.intValue() & TermiosFlags.CMSPAR.intValue()) == 0) {
+					return Parity.ODD;
+				} else {
+					return Parity.MARK;
+				}
+			}
+		}
+		throw new IOException("Could not figure out Parity");
+
 	}
 
 	@Override
@@ -209,20 +255,28 @@ public class PosixSerialPortSocket implements SerialPortSocket {
 		} else {
 			fd = tempFd;
 		}
-/*TODO We got this far ... her the real work starts....
-		struct termios settings;
-		if (posix.tcgetattr(fd, settings)) {
-			posix.close(fd); //since 2.7.0
+		Termios_H.Termios termios = new Termios_H.Termios(runtime);
+		if (tf.tcgetattr(fd, termios) != 0) {
+			posix.close(fd);
 			fd = -1;
 			switch (Errno.valueOf(posix.errno())) {
-				case ENOTTY:
-					throw new IOException(String.format("Not a serial port: (%s)", portname));
-				default:
-					throw new IOException(
-							String.format("%s: Unknown port error %s: open tcgetattr (%s)", Errno.valueOf(posix.errno()), portname));
+			case ENOTTY:
+				throw new IOException(String.format("Not a serial port: (%s)", portname));
+			default:
+				throw new IOException(String.format("%s: Unknown port error %s: open tcgetattr (%s)",
+						Errno.valueOf(posix.errno()), portname));
 			}
-			}
-*/
+		}
+
+		/*
+		 * struct serial_struct { int type; int line; unsigned int port; int irq; int
+		 * flags; int xmit_fifo_size; int custom_divisor; int baud_base; unsigned short
+		 * close_delay; char io_type; char reserved_char[1]; int hub6; unsigned short
+		 * closing_wait; / * time to wait before closing * / unsigned short
+		 * closing_wait2; / * no longer used... * / unsigned char *iomem_base; unsigned
+		 * short iomem_reg_shift; unsigned int port_high; unsigned long iomap_base; / *
+		 * cookie passed into ioremap * / };
+		 */
 	}
 
 	@Override
@@ -276,8 +330,68 @@ public class PosixSerialPortSocket implements SerialPortSocket {
 
 	@Override
 	public void setParity(Parity parity) throws IOException {
-		// TODO Auto-generated method stub
+		Termios_H.Termios termios = new Termios_H.Termios(runtime);
+		if (tf.tcgetattr(fd, termios) != 0) {
+			throw new IOException(String.format("%s: Unknown port error %s: open tcgetattr (%s)",
+					Errno.valueOf(posix.errno()), portname));
+		}
+		if (TermiosFlags.PAREXT.defined()) {
+			termios.c_cflag.set(termios.c_cflag.intValue() & ~(TermiosFlags.PARENB.intValue()
+					| TermiosFlags.PARODD.intValue() | TermiosFlags.PAREXT.intValue())); // Clear parity settings
+		} else if (TermiosFlags.CMSPAR.defined()) {
+			termios.c_cflag.set(termios.c_cflag.intValue() & ~(TermiosFlags.PARENB.intValue()
+					| TermiosFlags.PARODD.intValue() | TermiosFlags.CMSPAR.intValue())); // Clear parity settings
+		} else {
+			termios.c_cflag.set(
+					termios.c_cflag.intValue() & ~(TermiosFlags.PARENB.intValue() | TermiosFlags.PARODD.intValue())); // Clear
+																														// parity
+																														// settings
+		}
+		switch (parity) {
+		case NONE:
+			termios.c_iflag.set(termios.c_iflag.intValue() & ~TermiosFlags.INPCK.intValue()); // switch parity input
+																								// checking off
+			break;
+		case ODD:
+			termios.c_cflag.set(
+					termios.c_cflag.intValue() | (TermiosFlags.PARENB.intValue() | TermiosFlags.PARODD.intValue()));
+			termios.c_iflag.set(termios.c_iflag.intValue() | TermiosFlags.INPCK.intValue()); // switch parity input
+																								// checking On
+			break;
+		case EVEN:
+			termios.c_cflag.set(termios.c_cflag.intValue() | TermiosFlags.PARENB.intValue());
+			termios.c_iflag.set(termios.c_iflag.intValue() | TermiosFlags.INPCK.intValue());
+			break;
+		case MARK:
+			if (TermiosFlags.PAREXT.defined()) {
+				termios.c_cflag.set(termios.c_cflag.intValue() | (TermiosFlags.PARENB.intValue()
+						| TermiosFlags.PARODD.intValue() | TermiosFlags.PAREXT.intValue()));
+				termios.c_iflag.set(termios.c_iflag.intValue() | TermiosFlags.INPCK.intValue());
+			} else if (TermiosFlags.CMSPAR.defined()) {
+				termios.c_cflag.set(termios.c_cflag.intValue() | (TermiosFlags.PARENB.intValue()
+						| TermiosFlags.PARODD.intValue() | TermiosFlags.CMSPAR.intValue()));
+				termios.c_iflag.set(termios.c_iflag.intValue() | TermiosFlags.INPCK.intValue());
+			}
+			break;
+		case SPACE:
+			if (TermiosFlags.PAREXT.defined()) {
+				termios.c_cflag.set(
+						termios.c_cflag.intValue() | (TermiosFlags.PARENB.intValue() | TermiosFlags.PAREXT.intValue()));
+				termios.c_iflag.set(termios.c_iflag.intValue() | TermiosFlags.INPCK.intValue());
+			} else if (TermiosFlags.CMSPAR.defined()) {
+				termios.c_cflag.set(
+						termios.c_cflag.intValue() | (TermiosFlags.PARENB.intValue() | TermiosFlags.CMSPAR.intValue()));
+				termios.c_iflag.set(termios.c_iflag.intValue() | TermiosFlags.INPCK.intValue());
+			}
+			break;
+		default:
+			throw new IllegalArgumentException("Wrong parity");
+		}
 
+		if (tf.tcsetattr(fd, TermiosFlags.TCSANOW.intValue(), termios) != 0) {
+			throw new IOException(String.format("%s: Unknown port error %s: open tcgetattr (%s)",
+					Errno.valueOf(posix.errno()), portname));
+		}
 	}
 
 	@Override
