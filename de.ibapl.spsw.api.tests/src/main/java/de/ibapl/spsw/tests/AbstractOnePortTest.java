@@ -200,12 +200,17 @@ public abstract class AbstractOnePortTest extends AbstractPortTest {
 		openDefault();
 
 		LOG.log(Level.INFO, "port: {0}", writeSpc);
-		char c = writeSpc.getXONChar();
+		final char xon = writeSpc.getXONChar();
+		final char xoff = writeSpc.getXOFFChar();
+		
 		writeSpc.setXONChar('a');
 		assertEquals('a', writeSpc.getXONChar());
+		assertEquals(xoff, writeSpc.getXOFFChar());
+		
 		writeSpc.setXONChar('z');
 		assertEquals('z', writeSpc.getXONChar());
-		writeSpc.setXONChar(c);
+		assertEquals(xoff, writeSpc.getXOFFChar());
+		writeSpc.setXONChar(xon);
 	}
 
 	@BaselineTest
@@ -215,12 +220,16 @@ public abstract class AbstractOnePortTest extends AbstractPortTest {
 		LOG.log(Level.INFO, "run testXOFFChar");
 		openDefault();
 
-		char c = writeSpc.getXOFFChar();
+		final char xon = writeSpc.getXONChar();
+		final char xoff = writeSpc.getXOFFChar();
 		writeSpc.setXOFFChar('a');
+		assertEquals(xon, writeSpc.getXONChar());
 		assertEquals('a', writeSpc.getXOFFChar());
+
 		writeSpc.setXOFFChar('z');
+		assertEquals(xon, writeSpc.getXONChar());
 		assertEquals('z', writeSpc.getXOFFChar());
-		writeSpc.setXOFFChar(c);
+		writeSpc.setXOFFChar(xoff);
 	}
 
 	@NotSupportedByAllDevices

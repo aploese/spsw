@@ -21,13 +21,17 @@ package de.ibapl.spsw.jnrprovider;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+import java.io.IOException;
+
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 import de.ibapl.spsw.api.DataBits;
+import de.ibapl.spsw.api.FlowControl;
 import de.ibapl.spsw.api.Parity;
 import de.ibapl.spsw.api.Speed;
 import de.ibapl.spsw.api.StopBits;
@@ -112,5 +116,60 @@ class PosixSerialPortSocketTests {
 		posixSerialPortSocket.setStopBits(StopBits.SB_2);
 		assertEquals(StopBits.SB_2, posixSerialPortSocket.getStopBits());
 	}
+
+	@Test
+	void testFlowControl() throws Exception {
+		posixSerialPortSocket.open();
+		posixSerialPortSocket.setFlowControl(FlowControl.getFC_NONE());
+		assertEquals(FlowControl.getFC_NONE(), posixSerialPortSocket.getFlowControl());
+		posixSerialPortSocket.setFlowControl(FlowControl.getFC_RTS_CTS());
+		assertEquals(FlowControl.getFC_RTS_CTS(), posixSerialPortSocket.getFlowControl());
+		posixSerialPortSocket.setFlowControl(FlowControl.getFC_RTS_CTS_XON_XOFF());
+		assertEquals(FlowControl.getFC_RTS_CTS_XON_XOFF(), posixSerialPortSocket.getFlowControl());
+	}
+
+	@Test
+	void testSendBreak() throws Exception {
+		posixSerialPortSocket.open();
+		posixSerialPortSocket.sendBreak(1000);
+		}
 	
+	@Test
+	void testXON_XOFF() throws Exception {
+		posixSerialPortSocket.open();
+		final char xoff = posixSerialPortSocket.getXOFFChar();
+		final char xon = posixSerialPortSocket.getXONChar();
+		posixSerialPortSocket.setXONChar('a');
+		assertEquals(xoff, posixSerialPortSocket.getXOFFChar());
+		assertEquals('a', posixSerialPortSocket.getXONChar());
+		posixSerialPortSocket.setXONChar(xon);
+		assertEquals(xoff, posixSerialPortSocket.getXOFFChar());
+		assertEquals(xon, posixSerialPortSocket.getXONChar());
+
+		posixSerialPortSocket.setXOFFChar('a');
+		assertEquals('a', posixSerialPortSocket.getXOFFChar());
+		assertEquals(xon, posixSerialPortSocket.getXONChar());
+		posixSerialPortSocket.setXOFFChar(xoff);
+		assertEquals(xoff, posixSerialPortSocket.getXOFFChar());
+		assertEquals(xon, posixSerialPortSocket.getXONChar());
+	}
+	
+	
+	@Test 
+	void testPrintTermios() throws IOException {
+		posixSerialPortSocket.open();
+		System.out.println(posixSerialPortSocket.printNative());
+	}
+
+	/**
+	 * TODO what is TermiosFlags.valueOf supposed to return????
+	 */
+	@Disabled
+	@Test 
+	void testTermiosFlags() {
+		for (TermiosFlags tf : TermiosFlags.values()) {
+			assertEquals(tf, TermiosFlags.valueOf(tf.intValue()));
+		}
+	}
+
 }

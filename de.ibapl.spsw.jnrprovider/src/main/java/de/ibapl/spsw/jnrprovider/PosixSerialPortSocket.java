@@ -22,6 +22,7 @@ package de.ibapl.spsw.jnrprovider;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.EnumSet;
 import java.util.Set;
 
 import de.ibapl.spsw.api.DataBits;
@@ -36,6 +37,7 @@ import jnr.constants.platform.OpenFlags;
 import jnr.constants.platform.TermiosFlags;
 import jnr.ffi.LibraryLoader;
 import jnr.ffi.Runtime;
+import jnr.ffi.Struct.cc_t;
 import jnr.posix.POSIX;
 import jnr.posix.POSIXFactory;
 
@@ -97,8 +99,21 @@ public class PosixSerialPortSocket implements SerialPortSocket {
 
 	@Override
 	public Set<FlowControl> getFlowControl() throws IOException {
-		// TODO Auto-generated method stub
-		return null;
+		return getFlowControl(getTermios());
+	}
+
+	public Set<FlowControl> getFlowControl(Termios termios) throws IOException {
+		Set<FlowControl> result = EnumSet.noneOf(FlowControl.class);
+		if ((termios.c_cflag.intValue() & TermiosFlags.CRTSCTS.intValue()) == TermiosFlags.CRTSCTS.intValue()) {
+			result.addAll(FlowControl.getFC_RTS_CTS());
+		}
+		if ((termios.c_iflag.intValue() & TermiosFlags.IXOFF.intValue()) == TermiosFlags.IXOFF.intValue()) {
+			result.add(FlowControl.XON_XOFF_IN);
+		}
+		if ((termios.c_iflag.intValue() & TermiosFlags.IXON.intValue()) == TermiosFlags.IXON.intValue()) {
+			result.add(FlowControl.XON_XOFF_OUT);
+		}
+		return result;
 	}
 
 	@Override
@@ -200,11 +215,12 @@ public class PosixSerialPortSocket implements SerialPortSocket {
 		int inSpeed = tf.cfgetispeed(termios);
 		int outSpeed = tf.cfgetospeed(termios);
 		if (inSpeed != outSpeed) {
-			throw new IOException("In and out speed mismatch In:" + speed_t2speed(inSpeed) + " Out: " + speed_t2speed(outSpeed));
+			throw new IOException(
+					"In and out speed mismatch In:" + speed_t2speed(inSpeed) + " Out: " + speed_t2speed(outSpeed));
 		}
 		return speed_t2speed(inSpeed);
 	}
-	
+
 	@Override
 	public StopBits getStopBits() throws IOException {
 		return getStopBits(getTermios());
@@ -385,14 +401,14 @@ public class PosixSerialPortSocket implements SerialPortSocket {
 
 	@Override
 	public char getXOFFChar() throws IOException {
-		// TODO Auto-generated method stub
-		return 0;
+		Termios termios = getTermios();
+		return (char)termios.c_cc[TermiosFlags.VSTOP.intValue()].byteValue();
 	}
 
 	@Override
 	public char getXONChar() throws IOException {
-		// TODO Auto-generated method stub
-		return 0;
+		Termios termios = getTermios();
+		return (char)termios.c_cc[TermiosFlags.VSTART.intValue()].byteValue();
 	}
 
 	@Override
@@ -467,14 +483,7 @@ public class PosixSerialPortSocket implements SerialPortSocket {
 			if (posix.errno() == Errno.ENOTTY.intValue()) {
 				throw new IOException(String.format("Not a serial port: (%s)", portname));
 			} else {
-				for (Errno e : Errno.values()) {
-					if (e.intValue() == posix.errno()) {
-						throw new IOException(
-								String.format("Native port error \"%s\" => open tcgetattr (%s)", e, portname));
-					}
-				}
-				throw new IOException(
-						String.format("Native port error \"%d\" => open tcgetattr (%s)", posix.errno(), portname));
+				throwClosedOrNativeException("open tcgetattr");
 			}
 		}
 
@@ -493,8 +502,9 @@ public class PosixSerialPortSocket implements SerialPortSocket {
 
 	@Override
 	public void sendBreak(int duration) throws IOException {
-		// TODO Auto-generated method stub
-
+		if (tf.tcsendbreak(fd, duration) != 0) {
+			throwClosedOrNativeException("Can't sendBreak");
+		}
 	}
 
 	@Override
@@ -528,8 +538,7 @@ public class PosixSerialPortSocket implements SerialPortSocket {
 
 	@Override
 	public void setFlowControl(Set<FlowControl> flowControls) throws IOException {
-		// TODO Auto-generated method stub
-
+		setParams(getTermios(), null, null, null, null, flowControls);
 	}
 
 	private Termios_H.Termios getTermios() throws IOException {
@@ -552,17 +561,16 @@ public class PosixSerialPortSocket implements SerialPortSocket {
 
 		if (speed != null) {
 			int speedValue = speed2speed_t(speed);
+			// TODO check what this extra fields in struct termios mean: ...
+			// #define _HAVE_STRUCT_TERMIOS_C_ISPEED 1
+			// #define _HAVE_STRUCT_TERMIOS_C_OSPEED 1
 
-			//Set standard speed from "termios.h"
+			// Set standard speed from "termios.h"
 			if (tf.cfsetspeed(termios, speedValue) < 0) {
-				if (isClosed()) {
-					throw new IOException(PORT_IS_CLOSED);
-				} else {
-					throw new IOException("Can't set Speed cfsetspeed(settings, speedValue)");
+				throwClosedOrNativeException("Can't set Speed cfsetspeed(settings, speedValue)");
 			}
 		}
-		}
-		
+
 		if (dataBits != null) {
 			termios.c_cflag.set(termios.c_cflag.intValue() & ~TermiosFlags.CSIZE.intValue());
 			switch (dataBits) {
@@ -665,6 +673,29 @@ public class PosixSerialPortSocket implements SerialPortSocket {
 			}
 		}
 
+		if (flowControls != null) {
+			termios.c_cflag.set(termios.c_cflag.intValue() & ~TermiosFlags.CRTSCTS.intValue());
+			termios.c_iflag
+					.set(termios.c_iflag.intValue() & ~(TermiosFlags.IXON.intValue() | TermiosFlags.IXOFF.intValue()));
+			if (flowControls.contains(FlowControl.RTS_CTS_IN)) {
+				if (flowControls.contains(FlowControl.RTS_CTS_OUT)) {
+					termios.c_cflag.set(termios.c_cflag.intValue() | TermiosFlags.CRTSCTS.intValue());
+				} else {
+					throw new IllegalArgumentException("Can only set RTS/CTS for both in and out");
+				}
+			} else {
+				if (flowControls.contains(FlowControl.RTS_CTS_OUT)) {
+					throw new IllegalArgumentException("Can only set RTS/CTS for both in and out");
+				}
+			}
+			if (flowControls.contains(FlowControl.XON_XOFF_IN)) {
+				termios.c_iflag.set(termios.c_iflag.intValue() | TermiosFlags.IXOFF.intValue());
+			}
+			if (flowControls.contains(FlowControl.XON_XOFF_OUT)) {
+				termios.c_iflag.set(termios.c_iflag.intValue() | TermiosFlags.IXON.intValue());
+			}
+		}
+
 		if (tf.tcsetattr(fd, TermiosFlags.TCSANOW.intValue(), termios) != 0) {
 			for (Errno e : Errno.values()) {
 				if (e.intValue() == posix.errno()) {
@@ -693,8 +724,7 @@ public class PosixSerialPortSocket implements SerialPortSocket {
 			} else {
 				sb.append("\n");
 			}
-			sb.append("Could not set speed to: ").append(speed).append(" instead it is: ")
-					.append(getSpeed(termios));
+			sb.append("Could not set speed to: ").append(speed).append(" instead it is: ").append(getSpeed(termios));
 		}
 
 		// Make sure it the right stopBits if it was set - termios may fail silently
@@ -718,7 +748,15 @@ public class PosixSerialPortSocket implements SerialPortSocket {
 			sb.append("Could not set dataBits to: ").append(dataBits).append(" instead it is: ")
 					.append(getDatatBits(termios));
 		}
-
+		if (flowControls != null && !flowControls.equals(getFlowControl(termios))) {
+			if (sb == null) {
+				sb = new StringBuilder();
+			} else {
+				sb.append("\n");
+			}
+			sb.append("Could not set flowContrel to: ").append(flowControls).append(" instead it is: ")
+					.append(getFlowControl(termios));
+		}
 		if (sb != null) {
 			throw new IllegalArgumentException(sb.toString());
 		}
@@ -754,14 +792,42 @@ public class PosixSerialPortSocket implements SerialPortSocket {
 
 	@Override
 	public void setXOFFChar(char c) throws IOException {
-		// TODO Auto-generated method stub
+		Termios termios = getTermios();
+		termios.c_cc[TermiosFlags.VSTOP.intValue()].set((byte) c);
 
+		if (tf.tcsetattr(fd, TermiosFlags.TCSANOW.intValue(), termios) != 0) {
+			throwClosedOrNativeException("setXOFFChar tcsetattr");
+		}
+
+		if (getXOFFChar() != c) {
+			throw new RuntimeException("Cant't set XOFF char");
+		}
+	}
+
+	private void throwClosedOrNativeException(String formatString, Object... args) throws IOException {
+		// TODO what does Errno.valueOf( exactly?
+		final int errno = posix.errno();
+		for (Errno e : Errno.values()) {
+			if (e.intValue() == errno) {
+				throw new IOException(String.format("Native port error on %s, \"%s\" %s", portname, e,
+						String.format(formatString, args)));
+			}
+		}
+		throw new IOException(String.format("Native port error on %s, \"%d\" %s", portname, errno,
+				String.format(formatString, args)));
 	}
 
 	@Override
 	public void setXONChar(char c) throws IOException {
-		// TODO Auto-generated method stub
+		Termios termios = getTermios();
+		termios.c_cc[TermiosFlags.VSTART.intValue()].set((byte) c);
 
+		if (tf.tcsetattr(fd, TermiosFlags.TCSANOW.intValue(), termios) != 0) {
+			throwClosedOrNativeException("setXONChar tcsetattr");
+		}
+		if (getXONChar() != c) {
+			throw new RuntimeException("Cant't set XON char");
+		}
 	}
 
 	@Override
@@ -780,6 +846,10 @@ public class PosixSerialPortSocket implements SerialPortSocket {
 		} finally {
 			super.finalize();
 		}
+	}
+
+	String printNative() throws IOException{
+		return getTermios().toString();
 	}
 
 }
