@@ -56,9 +56,9 @@ if (iterator.hasNext()) {
 	StringBuilder sb = new StringBuilder("More than one implementation of SerialPortSocketFactory available - fix the test dependencies\n");
 	iterator = loader.iterator();
 	while ( iterator.hasNext()) {
-	sb.append(iterator.next().getClass().getCanonicalName()).append("\n");
+        sb.append(iterator.next().getClass().getCanonicalName()).append("\n");
 	}
-  LOG.severe(sb.toString());
+    LOG.severe(sb.toString());
 }
 ```
 
@@ -85,21 +85,23 @@ try (SerialPortSocket serialPortSocket = serialPortSocketFactory.open(PORT_NAME,
 ### Create and Open 
 ```
 SerialPortSocket serialPortSocket = serialPortSocketFactory.createSerialPortSocket(PORT_NAME);
-	serialPortSocket.open(Speed._9600_BPS, DataBits.DB_8, StopBits.SB_1, Parity.NONE, FlowControl.getFC_NONE());
-	try {
-		serialPortSocket.getOutputStream().write("Hello World!".getBytes());
-	} catch (IOException ioe) {
-		System.err.println(ioe);
-	} finally {
-		serialPortSocket.close();
-	}
+serialPortSocket.open(Speed._9600_BPS, DataBits.DB_8, StopBits.SB_1, Parity.NONE, FlowControl.getFC_NONE());
+try {
+    serialPortSocket.getOutputStream().write("Hello World!".getBytes());
+} catch (IOException ioe) {
+    System.err.println(ioe);
+} finally {
+    serialPortSocket.close();
 }
 ```
 
 ### Setting Timeouts
-Set the InterByteTimeout to 100 ms.
-Set the read timeout to 1000 ms.
-Set the write timeout to 2000 ms.
+Set the `interByteReadTimeout` to 100 ms. The `interByteReadTimeout` is the time to wait after data has been received before return from wait. 
+
+Set the `overallReadTimeout` to 1000 ms. The `overallReadTimeout` is the time to wait if no data is received before return from wait. 
+
+Set the `overallWriteTimeout` to 2000 ms.
+
 Be aware that the read amount of wait time is implementation dependant.  
 
 ```
