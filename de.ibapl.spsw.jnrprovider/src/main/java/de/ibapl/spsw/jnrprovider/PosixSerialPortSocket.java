@@ -31,13 +31,10 @@ import de.ibapl.spsw.api.Parity;
 import de.ibapl.spsw.api.SerialPortSocket;
 import de.ibapl.spsw.api.Speed;
 import de.ibapl.spsw.api.StopBits;
-import de.ibapl.spsw.jnrprovider.Termios_H.Termios;
+import de.ibapl.spsw.jnr.Termios_H;
+import de.ibapl.spsw.jnr.Termios_H.Termios;
 import jnr.constants.platform.Errno;
 import jnr.constants.platform.OpenFlags;
-import jnr.constants.platform.TermiosFlags;
-import jnr.ffi.LibraryLoader;
-import jnr.ffi.Runtime;
-import jnr.ffi.Struct.cc_t;
 import jnr.posix.POSIX;
 import jnr.posix.POSIXFactory;
 
@@ -46,14 +43,12 @@ public class PosixSerialPortSocket implements SerialPortSocket {
 	private volatile int fd = -1;
 	private POSIX posix;
 	private final String portname;
-	private Termios_H.Functions tf;
-	private Runtime runtime;
+	private Termios_H termios_H;
 
 	public PosixSerialPortSocket(String portname) {
 		this.portname = portname;
 		posix = POSIXFactory.getPOSIX(); // Was new DummyPOSIXHandler(), true);
-		tf = LibraryLoader.create(Termios_H.Functions.class).load("c");
-		runtime = Runtime.getRuntime(tf);
+		termios_H = new Termios_H();
 	}
 
 	@Override
@@ -77,14 +72,14 @@ public class PosixSerialPortSocket implements SerialPortSocket {
 
 	private DataBits getDatatBits(Termios termios) throws IOException {
 		try {
-			int v = termios.c_cflag.intValue() & TermiosFlags.CSIZE.intValue();
-			if (v == TermiosFlags.CS5.intValue()) {
+			int v = termios.c_cflag.intValue() & termios_H.CSIZE;
+			if (v == termios_H.CS5) {
 				return DataBits.DB_5;
-			} else if (v == TermiosFlags.CS6.intValue()) {
+			} else if (v == termios_H.CS6) {
 				return DataBits.DB_6;
-			} else if (v == TermiosFlags.CS7.intValue()) {
+			} else if (v == termios_H.CS7) {
 				return DataBits.DB_7;
-			} else if (v == TermiosFlags.CS8.intValue()) {
+			} else if (v == termios_H.CS8) {
 				return DataBits.DB_8;
 			} else {
 				throw new IllegalArgumentException(
@@ -103,14 +98,16 @@ public class PosixSerialPortSocket implements SerialPortSocket {
 	}
 
 	public Set<FlowControl> getFlowControl(Termios termios) throws IOException {
+		final int c_cflag = termios.c_cflag.intValue();
+		final int c_iflag = termios.c_iflag.intValue();
 		Set<FlowControl> result = EnumSet.noneOf(FlowControl.class);
-		if ((termios.c_cflag.intValue() & TermiosFlags.CRTSCTS.intValue()) == TermiosFlags.CRTSCTS.intValue()) {
+		if ((c_cflag & termios_H.CRTSCTS) == termios_H.CRTSCTS) {
 			result.addAll(FlowControl.getFC_RTS_CTS());
 		}
-		if ((termios.c_iflag.intValue() & TermiosFlags.IXOFF.intValue()) == TermiosFlags.IXOFF.intValue()) {
+		if ((c_iflag & termios_H.IXOFF) == termios_H.IXOFF) {
 			result.add(FlowControl.XON_XOFF_IN);
 		}
-		if ((termios.c_iflag.intValue() & TermiosFlags.IXON.intValue()) == TermiosFlags.IXON.intValue()) {
+		if ((c_iflag & termios_H.IXON) == termios_H.IXON) {
 			result.add(FlowControl.XON_XOFF_OUT);
 		}
 		return result;
@@ -164,18 +161,18 @@ public class PosixSerialPortSocket implements SerialPortSocket {
 	}
 
 	private Parity getParity(Termios termios) throws IOException {
-
-		if ((termios.c_cflag.intValue() & TermiosFlags.PARENB.intValue()) == 0) {
+		final int c_cflag = termios.c_cflag.intValue();
+		if ((c_cflag & termios_H.PARENB) == 0) {
 			return Parity.NONE;
-		} else if ((termios.c_cflag.intValue() & TermiosFlags.PARODD.intValue()) == 0) {
-			if (TermiosFlags.PAREXT.defined()) {
-				if ((termios.c_cflag.intValue() & TermiosFlags.PAREXT.intValue()) == 0) {
+		} else if ((c_cflag & termios_H.PARODD) == 0) {
+			if (termios_H.PAREXT != null) {
+				if ((c_cflag & termios_H.PAREXT) == 0) {
 					return Parity.EVEN;
 				} else {
 					return Parity.SPACE;
 				}
-			} else if (TermiosFlags.CMSPAR.defined()) {
-				if ((termios.c_cflag.intValue() & TermiosFlags.CMSPAR.intValue()) == 0) {
+			} else if (termios_H.CMSPAR != null) {
+				if ((c_cflag & termios_H.CMSPAR) == 0) {
 					return Parity.EVEN;
 				} else {
 					return Parity.SPACE;
@@ -183,14 +180,14 @@ public class PosixSerialPortSocket implements SerialPortSocket {
 			}
 		} else {
 			// ODD or MARK
-			if (TermiosFlags.PAREXT.defined()) {
-				if ((termios.c_cflag.intValue() & TermiosFlags.PAREXT.intValue()) == 0) {
+			if (termios_H.PAREXT != null) {
+				if ((c_cflag & termios_H.PAREXT) == 0) {
 					return Parity.ODD;
 				} else {
 					return Parity.MARK;
 				}
-			} else if (TermiosFlags.CMSPAR.defined()) {
-				if ((termios.c_cflag.intValue() & TermiosFlags.CMSPAR.intValue()) == 0) {
+			} else if (termios_H.CMSPAR != null) {
+				if ((c_cflag & termios_H.CMSPAR) == 0) {
 					return Parity.ODD;
 				} else {
 					return Parity.MARK;
@@ -212,8 +209,8 @@ public class PosixSerialPortSocket implements SerialPortSocket {
 	}
 
 	private Speed getSpeed(Termios termios) throws IOException {
-		int inSpeed = tf.cfgetispeed(termios);
-		int outSpeed = tf.cfgetospeed(termios);
+		int inSpeed = termios_H.cfgetispeed(termios);
+		int outSpeed = termios_H.cfgetospeed(termios);
 		if (inSpeed != outSpeed) {
 			throw new IOException(
 					"In and out speed mismatch In:" + speed_t2speed(inSpeed) + " Out: " + speed_t2speed(outSpeed));
@@ -227,91 +224,74 @@ public class PosixSerialPortSocket implements SerialPortSocket {
 	}
 
 	private Speed speed_t2speed(int speed_t) {
-		if (speed_t == TermiosFlags.B0.intValue()) {
+		if (speed_t == termios_H.B0) {
 			return Speed._0_BPS;
-		} else if (speed_t == TermiosFlags.B50.intValue()) {
+		} else if (speed_t == termios_H.B50) {
 			return Speed._50_BPS;
-		} else if (speed_t == TermiosFlags.B75.intValue()) {
+		} else if (speed_t == termios_H.B75) {
 			return Speed._75_BPS;
-		} else if (speed_t == TermiosFlags.B110.intValue()) {
+		} else if (speed_t == termios_H.B110) {
 			return Speed._110_BPS;
-		} else if (speed_t == TermiosFlags.B134.intValue()) {
+		} else if (speed_t == termios_H.B134) {
 			return Speed._134_BPS;
-		} else if (speed_t == TermiosFlags.B150.intValue()) {
+		} else if (speed_t == termios_H.B150) {
 			return Speed._150_BPS;
-		} else if (speed_t == TermiosFlags.B200.intValue()) {
+		} else if (speed_t == termios_H.B200) {
 			return Speed._200_BPS;
-		} else if (speed_t == TermiosFlags.B300.intValue()) {
+		} else if (speed_t == termios_H.B300) {
 			return Speed._300_BPS;
-		} else if (speed_t == TermiosFlags.B600.intValue()) {
+		} else if (speed_t == termios_H.B600) {
 			return Speed._600_BPS;
-		} else if (speed_t == TermiosFlags.B1200.intValue()) {
+		} else if (speed_t == termios_H.B1200) {
 			return Speed._1200_BPS;
-		} else if (speed_t == TermiosFlags.B1800.intValue()) {
+		} else if (speed_t == termios_H.B1800) {
 			return Speed._1800_BPS;
-		} else if (speed_t == TermiosFlags.B2400.intValue()) {
+		} else if (speed_t == termios_H.B2400) {
 			return Speed._2400_BPS;
-		} else if (speed_t == TermiosFlags.B4800.intValue()) {
+		} else if (speed_t == termios_H.B4800) {
 			return Speed._4800_BPS;
-		} else if (speed_t == TermiosFlags.B9600.intValue()) {
+		} else if (speed_t == termios_H.B9600) {
 			return Speed._9600_BPS;
-		} else if (speed_t == TermiosFlags.B19200.intValue()) {
+		} else if (speed_t == termios_H.B19200) {
 			return Speed._19200_BPS;
-		} else if (speed_t == TermiosFlags.B38400.intValue()) {
+		} else if (speed_t == termios_H.B38400) {
 			return Speed._38400_BPS;
-		} else if (TermiosFlags.B57600.defined() && speed_t == TermiosFlags.B57600.intValue()) {
+		} else if (termios_H.B57600 != null && speed_t == termios_H.B57600) {
 			return Speed._57600_BPS;
-		} else if (TermiosFlags.B115200.defined() && speed_t == TermiosFlags.B115200.intValue()) {
+		} else if (termios_H.B115200 != null && speed_t == termios_H.B115200) {
 			return Speed._115200_BPS;
-		} else if (TermiosFlags.B230400.defined() && speed_t == TermiosFlags.B230400.intValue()) {
+		} else if (termios_H.B230400 != null && speed_t == termios_H.B230400) {
 			return Speed._230400_BPS;
-		} else if (TermiosFlags.B460800.defined() && speed_t == TermiosFlags.B460800.intValue()) {
+		} else if (termios_H.B460800 != null && speed_t == termios_H.B460800) {
 			return Speed._460800_BPS;
-		} else if (TermiosFlags.B500000.defined() && speed_t == TermiosFlags.B500000.intValue()) {
+		} else if (termios_H.B500000 != null && speed_t == termios_H.B500000) {
 			return Speed._500000_BPS;
-		} else if (TermiosFlags.B576000.defined() && speed_t == TermiosFlags.B576000.intValue()) {
+		} else if (termios_H.B576000 != null && speed_t == termios_H.B576000) {
 			return Speed._576000_BPS;
-		} else if (TermiosFlags.B921600.defined() && speed_t == TermiosFlags.B921600.intValue()) {
+		} else if (termios_H.B921600 != null && speed_t == termios_H.B921600) {
 			return Speed._921600_BPS;
-		} else if (TermiosFlags.B1000000.defined() && speed_t == TermiosFlags.B1000000.intValue()) {
+		} else if (termios_H.B1000000 != null && speed_t == termios_H.B1000000) {
 			return Speed._1000000_BPS;
-		} else if (TermiosFlags.B1152000.defined() && speed_t == TermiosFlags.B1152000.intValue()) {
+		} else if (termios_H.B1152000 != null && speed_t == termios_H.B1152000) {
 			return Speed._1152000_BPS;
-		} else if (TermiosFlags.B1500000.defined() && speed_t == TermiosFlags.B1500000.intValue()) {
+		} else if (termios_H.B1500000 != null && speed_t == termios_H.B1500000) {
 			return Speed._1500000_BPS;
-		} else if (TermiosFlags.B2000000.defined() && speed_t == TermiosFlags.B2000000.intValue()) {
+		} else if (termios_H.B2000000 != null && speed_t == termios_H.B2000000) {
 			return Speed._2000000_BPS;
-		} else if (TermiosFlags.B2500000.defined() && speed_t == TermiosFlags.B2500000.intValue()) {
+		} else if (termios_H.B2500000 != null && speed_t == termios_H.B2500000) {
 			return Speed._2500000_BPS;
-		} else if (TermiosFlags.B3000000.defined() && speed_t == TermiosFlags.B3000000.intValue()) {
+		} else if (termios_H.B3000000 != null && speed_t == termios_H.B3000000) {
 			return Speed._3000000_BPS;
-		} else if (TermiosFlags.B3500000.defined() && speed_t == TermiosFlags.B3500000.intValue()) {
+		} else if (termios_H.B3500000 != null && speed_t == termios_H.B3500000) {
 			return Speed._3500000_BPS;
-		} else if (TermiosFlags.B4000000.defined() && speed_t == TermiosFlags.B4000000.intValue()) {
+		} else if (termios_H.B4000000 != null && speed_t == termios_H.B4000000) {
 			return Speed._4000000_BPS;
 		} else {
 			throw new IllegalArgumentException("speed not supported: " + speed_t);
 		}
 
 	}
-
-	/**
-	 * Checks if defined and return the intValue. If not defined a
-	 * IllegalArgumentException is thrown.
-	 * 
-	 * @param termiosFlags
-	 * @return the intValue
-	 * @throws IllegalArgumentException
-	 *             if not defined.
-	 */
-	private int checkDefined(TermiosFlags termiosFlags) {
-		if (termiosFlags.defined()) {
-			return termiosFlags.intValue();
-		} else {
-			throw new IllegalArgumentException("TermiosFlag not defined: " + termiosFlags);
-		}
-	}
-
+	
 	/**
 	 * 
 	 * @param speed
@@ -320,77 +300,138 @@ public class PosixSerialPortSocket implements SerialPortSocket {
 	private int speed2speed_t(Speed speed) {
 		switch (speed) {
 		case _0_BPS:
-			return TermiosFlags.B0.intValue();
+			return termios_H.B0;
 		case _50_BPS:
-			return TermiosFlags.B50.intValue();
+			return termios_H.B50;
 		case _75_BPS:
-			return TermiosFlags.B75.intValue();
+			return termios_H.B75;
 		case _110_BPS:
-			return TermiosFlags.B110.intValue();
+			return termios_H.B110;
 		case _134_BPS:
-			return TermiosFlags.B134.intValue();
+			return termios_H.B134;
 		case _150_BPS:
-			return TermiosFlags.B150.intValue();
+			return termios_H.B150;
 		case _200_BPS:
-			return TermiosFlags.B200.intValue();
+			return termios_H.B200;
 		case _300_BPS:
-			return TermiosFlags.B300.intValue();
+			return termios_H.B300;
 		case _600_BPS:
-			return TermiosFlags.B600.intValue();
+			return termios_H.B600;
 		case _1200_BPS:
-			return TermiosFlags.B1200.intValue();
+			return termios_H.B1200;
 		case _1800_BPS:
-			return TermiosFlags.B1800.intValue();
+			return termios_H.B1800;
 		case _2400_BPS:
-			return TermiosFlags.B2400.intValue();
+			return termios_H.B2400;
 		case _4800_BPS:
-			return TermiosFlags.B4800.intValue();
+			return termios_H.B4800;
 		case _9600_BPS:
-			return TermiosFlags.B9600.intValue();
+			return termios_H.B9600;
 		case _19200_BPS:
-			return TermiosFlags.B19200.intValue();
+			return termios_H.B19200;
 		case _38400_BPS:
-			return TermiosFlags.B38400.intValue();
+			return termios_H.B38400;
 		case _57600_BPS:
-			return checkDefined(TermiosFlags.B57600);
+			if (termios_H.B57600 != null) {
+				return termios_H.B57600;
+			} else {
+				throw new IllegalArgumentException("No defined! termios_H.B57600");
+			}
 		case _115200_BPS:
-			return checkDefined(TermiosFlags.B115200);
+			if (termios_H.B115200 != null) {
+				return termios_H.B115200;
+			} else {
+				throw new IllegalArgumentException("No defined! termios_H.B115200");
+			}
 		case _230400_BPS:
-			return checkDefined(TermiosFlags.B230400);
+			if (termios_H.B230400 != null) {
+				return termios_H.B230400;
+			} else {
+				throw new IllegalArgumentException("No defined! termios_H.B230400");
+			}
 		case _460800_BPS:
-			return checkDefined(TermiosFlags.B460800);
+			if (termios_H.B460800 != null) {
+				return termios_H.B460800;
+			} else {
+				throw new IllegalArgumentException("No defined! termios_H.B460800");
+			}
 		case _500000_BPS:
-			return checkDefined(TermiosFlags.B500000);
+			if (termios_H.B500000 != null) {
+				return termios_H.B500000;
+			} else {
+				throw new IllegalArgumentException("No defined! termios_H.B500000");
+			}
 		case _576000_BPS:
-			return checkDefined(TermiosFlags.B576000);
+			if (termios_H.B576000 != null) {
+				return termios_H.B576000;
+			} else {
+				throw new IllegalArgumentException("No defined! termios_H.B576000");
+			}
 		case _921600_BPS:
-			return checkDefined(TermiosFlags.B921600);
+			if (termios_H.B921600 != null) {
+				return termios_H.B921600;
+			} else {
+				throw new IllegalArgumentException("No defined! termios_H.B921600");
+			}
 		case _1000000_BPS:
-			return checkDefined(TermiosFlags.B1000000);
+			if (termios_H.B1000000 != null) {
+				return termios_H.B1000000;
+			} else {
+				throw new IllegalArgumentException("No defined! termios_H.B1000000");
+			}
 		case _1152000_BPS:
-			return checkDefined(TermiosFlags.B1152000);
+			if (termios_H.B1152000 != null) {
+				return termios_H.B1152000;
+			} else {
+				throw new IllegalArgumentException("No defined! termios_H.B1152000");
+			}
 		case _1500000_BPS:
-			return checkDefined(TermiosFlags.B1500000);
+			if (termios_H.B1500000 != null) {
+				return termios_H.B1500000;
+			} else {
+				throw new IllegalArgumentException("No defined! termios_H.B1500000");
+			}
 		case _2000000_BPS:
-			return checkDefined(TermiosFlags.B2000000);
+			if (termios_H.B2000000 != null) {
+				return termios_H.B2000000;
+			} else {
+				throw new IllegalArgumentException("No defined! termios_H.B2000000");
+			}
 		case _2500000_BPS:
-			return checkDefined(TermiosFlags.B2500000);
+			if (termios_H.B2500000 != null) {
+				return termios_H.B2500000;
+			} else {
+				throw new IllegalArgumentException("No defined! termios_H.B2500000");
+			}
 		case _3000000_BPS:
-			return checkDefined(TermiosFlags.B3000000);
+			if (termios_H.B3000000 != null) {
+				return termios_H.B3000000;
+			} else {
+				throw new IllegalArgumentException("No defined! termios_H.B3000000");
+			}
 		case _3500000_BPS:
-			return checkDefined(TermiosFlags.B3500000);
+			if (termios_H.B3500000 != null) {
+				return termios_H.B3500000;
+			} else {
+				throw new IllegalArgumentException("No defined! termios_H.B3500000");
+			}
 		case _4000000_BPS:
-			return checkDefined(TermiosFlags.B4000000);
+			if (termios_H.B4000000 != null) {
+				return termios_H.B4000000;
+			} else {
+				throw new IllegalArgumentException("No defined! termios_H.B4000000");
+			}
 		default:
 			throw new IllegalArgumentException("Speed not supported: " + speed);
 		}
 	}
 
 	private StopBits getStopBits(Termios termios) throws IOException {
-		if ((termios.c_cflag.intValue() & TermiosFlags.CSTOPB.intValue()) == 0) {
+		final int c_cflag = termios.c_cflag.intValue();
+		if ((c_cflag & termios_H.CSTOPB) == 0) {
 			return StopBits.SB_1;
-		} else if ((termios.c_cflag.intValue() & TermiosFlags.CSTOPB.intValue()) == TermiosFlags.CSTOPB.intValue()) {
-			if ((termios.c_cflag.intValue() & TermiosFlags.CSIZE.intValue()) == TermiosFlags.CS5.intValue()) {
+		} else if ((c_cflag & termios_H.CSTOPB) == termios_H.CSTOPB) {
+			if ((c_cflag & termios_H.CSIZE) == termios_H.CS5) {
 				return StopBits.SB_1_5;
 			} else {
 				return StopBits.SB_2;
@@ -402,13 +443,13 @@ public class PosixSerialPortSocket implements SerialPortSocket {
 	@Override
 	public char getXOFFChar() throws IOException {
 		Termios termios = getTermios();
-		return (char)termios.c_cc[TermiosFlags.VSTOP.intValue()].byteValue();
+		return (char)termios.c_cc[termios_H.VSTOP].byteValue();
 	}
 
 	@Override
 	public char getXONChar() throws IOException {
 		Termios termios = getTermios();
-		return (char)termios.c_cc[TermiosFlags.VSTART.intValue()].byteValue();
+		return (char)termios.c_cc[termios_H.VSTART].byteValue();
 	}
 
 	@Override
@@ -476,8 +517,8 @@ public class PosixSerialPortSocket implements SerialPortSocket {
 			fd = tempFd;
 		}
 
-		Termios_H.Termios termios = new Termios_H.Termios(runtime);
-		if (tf.tcgetattr(fd, termios) != 0) {
+		Termios_H.Termios termios = termios_H.createTermios();
+		if (termios_H.tcgetattr(fd, termios) != 0) {
 			posix.close(fd);
 			fd = -1;
 			if (posix.errno() == Errno.ENOTTY.intValue()) {
@@ -502,7 +543,7 @@ public class PosixSerialPortSocket implements SerialPortSocket {
 
 	@Override
 	public void sendBreak(int duration) throws IOException {
-		if (tf.tcsendbreak(fd, duration) != 0) {
+		if (termios_H.tcsendbreak(fd, duration) != 0) {
 			throwClosedOrNativeException("Can't sendBreak");
 		}
 	}
@@ -542,8 +583,8 @@ public class PosixSerialPortSocket implements SerialPortSocket {
 	}
 
 	private Termios_H.Termios getTermios() throws IOException {
-		Termios_H.Termios termios = new Termios_H.Termios(runtime);
-		if (tf.tcgetattr(fd, termios) != 0) {
+		Termios_H.Termios termios = termios_H.createTermios();
+		if (termios_H.tcgetattr(fd, termios) != 0) {
 			for (Errno e : Errno.values()) {
 				if (e.intValue() == posix.errno()) {
 					throw new IOException(
@@ -566,25 +607,29 @@ public class PosixSerialPortSocket implements SerialPortSocket {
 			// #define _HAVE_STRUCT_TERMIOS_C_OSPEED 1
 
 			// Set standard speed from "termios.h"
-			if (tf.cfsetspeed(termios, speedValue) < 0) {
+			if (termios_H.cfsetspeed(termios, speedValue) < 0) {
 				throwClosedOrNativeException("Can't set Speed cfsetspeed(settings, speedValue)");
 			}
 		}
-
+		
+		//Cache values for better readability
+		int c_cflag = termios.c_cflag.intValue();
+		int c_iflag = termios.c_iflag.intValue();
+		
 		if (dataBits != null) {
-			termios.c_cflag.set(termios.c_cflag.intValue() & ~TermiosFlags.CSIZE.intValue());
+			c_cflag &=  ~termios_H.CSIZE;
 			switch (dataBits) {
 			case DB_5:
-				termios.c_cflag.set(termios.c_cflag.intValue() | TermiosFlags.CS5.intValue());
+				c_cflag |= termios_H.CS5;
 				break;
 			case DB_6:
-				termios.c_cflag.set(termios.c_cflag.intValue() | TermiosFlags.CS6.intValue());
+				c_cflag |= termios_H.CS6;
 				break;
 			case DB_7:
-				termios.c_cflag.set(termios.c_cflag.intValue() | TermiosFlags.CS7.intValue());
+				c_cflag |= termios_H.CS7;
 				break;
 			case DB_8:
-				termios.c_cflag.set(termios.c_cflag.intValue() | TermiosFlags.CS8.intValue());
+				c_cflag |= termios_H.CS8;
 				break;
 			default:
 				throw new IllegalArgumentException("Wrong databits");
@@ -596,20 +641,20 @@ public class PosixSerialPortSocket implements SerialPortSocket {
 			switch (stopBits) {
 			case SB_1:
 				// 1 stop bit (for info see ->> MSDN)
-				termios.c_cflag.set(termios.c_cflag.intValue() & ~TermiosFlags.CSTOPB.intValue());
+				c_cflag &= ~termios_H.CSTOPB;
 				break;
 			case SB_1_5:
-				if ((termios.c_cflag.intValue() & TermiosFlags.CSIZE.intValue()) == TermiosFlags.CS5.intValue()) {
-					termios.c_cflag.set(termios.c_cflag.intValue() | TermiosFlags.CSTOPB.intValue());
+				if ((c_cflag & termios_H.CSIZE) == termios_H.CS5) {
+					c_cflag |= termios_H.CSTOPB;
 				} else {
 					throw new IllegalArgumentException("setStopBits 1.5 stop bits are only valid for 5 DataBits");
 				}
 				break;
 			case SB_2:
-				if ((termios.c_cflag.intValue() & TermiosFlags.CSIZE.intValue()) == TermiosFlags.CS5.intValue()) {
+				if ((c_cflag & termios_H.CSIZE) == termios_H.CS5) {
 					throw new IllegalArgumentException("setStopBits 2 stop bits are only valid for 6,7,8 DataBits");
 				} else {
-					termios.c_cflag.set(termios.c_cflag.intValue() | TermiosFlags.CSTOPB.intValue());
+					c_cflag |= termios_H.CSTOPB;
 				}
 				break;
 			default:
@@ -619,53 +664,49 @@ public class PosixSerialPortSocket implements SerialPortSocket {
 		}
 
 		if (parity != null) {
-			if (TermiosFlags.PAREXT.defined()) {
-				termios.c_cflag.set(termios.c_cflag.intValue() & ~(TermiosFlags.PARENB.intValue()
-						| TermiosFlags.PARODD.intValue() | TermiosFlags.PAREXT.intValue())); // Clear parity settings
-			} else if (TermiosFlags.CMSPAR.defined()) {
-				termios.c_cflag.set(termios.c_cflag.intValue() & ~(TermiosFlags.PARENB.intValue()
-						| TermiosFlags.PARODD.intValue() | TermiosFlags.CMSPAR.intValue())); // Clear parity settings
+			if (termios_H.PAREXT != null) {
+				c_cflag &= ~(termios_H.PARENB
+						| termios_H.PARODD | termios_H.PAREXT); // Clear parity settings
+			} else if (termios_H.CMSPAR != null) {
+				c_cflag &= ~(termios_H.PARENB
+						| termios_H.PARODD | termios_H.CMSPAR); // Clear parity settings
 			} else {
-				termios.c_cflag.set(termios.c_cflag.intValue()
-						& ~(TermiosFlags.PARENB.intValue() | TermiosFlags.PARODD.intValue())); // Clear
+				c_cflag &= ~(termios_H.PARENB | termios_H.PARODD); // Clear
 																								// parity
 																								// settings
 			}
 			switch (parity) {
 			case NONE:
-				termios.c_iflag.set(termios.c_iflag.intValue() & ~TermiosFlags.INPCK.intValue()); // switch parity input
+				c_iflag &= ~termios_H.INPCK; // switch parity input
 																									// checking off
 				break;
 			case ODD:
-				termios.c_cflag.set(
-						termios.c_cflag.intValue() | (TermiosFlags.PARENB.intValue() | TermiosFlags.PARODD.intValue()));
-				termios.c_iflag.set(termios.c_iflag.intValue() | TermiosFlags.INPCK.intValue()); // switch parity input
+				c_cflag |= (termios_H.PARENB | termios_H.PARODD);
+				c_iflag |= termios_H.INPCK; // switch parity input
 																									// checking On
 				break;
 			case EVEN:
-				termios.c_cflag.set(termios.c_cflag.intValue() | TermiosFlags.PARENB.intValue());
-				termios.c_iflag.set(termios.c_iflag.intValue() | TermiosFlags.INPCK.intValue());
+				c_cflag |= termios_H.PARENB;
+				c_iflag |= termios_H.INPCK;
 				break;
 			case MARK:
-				if (TermiosFlags.PAREXT.defined()) {
-					termios.c_cflag.set(termios.c_cflag.intValue() | (TermiosFlags.PARENB.intValue()
-							| TermiosFlags.PARODD.intValue() | TermiosFlags.PAREXT.intValue()));
-					termios.c_iflag.set(termios.c_iflag.intValue() | TermiosFlags.INPCK.intValue());
-				} else if (TermiosFlags.CMSPAR.defined()) {
-					termios.c_cflag.set(termios.c_cflag.intValue() | (TermiosFlags.PARENB.intValue()
-							| TermiosFlags.PARODD.intValue() | TermiosFlags.CMSPAR.intValue()));
-					termios.c_iflag.set(termios.c_iflag.intValue() | TermiosFlags.INPCK.intValue());
+				if (termios_H.PAREXT != null) {
+					c_cflag |= (termios_H.PARENB
+							| termios_H.PARODD | termios_H.PAREXT);
+					c_iflag |= termios_H.INPCK;
+				} else if (termios_H.CMSPAR != null) {
+					c_cflag |= (termios_H.PARENB
+							| termios_H.PARODD | termios_H.CMSPAR);
+					c_iflag |= termios_H.INPCK;
 				}
 				break;
 			case SPACE:
-				if (TermiosFlags.PAREXT.defined()) {
-					termios.c_cflag.set(termios.c_cflag.intValue()
-							| (TermiosFlags.PARENB.intValue() | TermiosFlags.PAREXT.intValue()));
-					termios.c_iflag.set(termios.c_iflag.intValue() | TermiosFlags.INPCK.intValue());
-				} else if (TermiosFlags.CMSPAR.defined()) {
-					termios.c_cflag.set(termios.c_cflag.intValue()
-							| (TermiosFlags.PARENB.intValue() | TermiosFlags.CMSPAR.intValue()));
-					termios.c_iflag.set(termios.c_iflag.intValue() | TermiosFlags.INPCK.intValue());
+				if (termios_H.PAREXT != null) {
+					c_cflag |= (termios_H.PARENB | termios_H.PAREXT);
+					c_iflag |= termios_H.INPCK;
+				} else if (termios_H.CMSPAR != null) {
+					c_cflag |= (termios_H.PARENB | termios_H.CMSPAR);
+					c_iflag |= termios_H.INPCK;
 				}
 				break;
 			default:
@@ -674,12 +715,11 @@ public class PosixSerialPortSocket implements SerialPortSocket {
 		}
 
 		if (flowControls != null) {
-			termios.c_cflag.set(termios.c_cflag.intValue() & ~TermiosFlags.CRTSCTS.intValue());
-			termios.c_iflag
-					.set(termios.c_iflag.intValue() & ~(TermiosFlags.IXON.intValue() | TermiosFlags.IXOFF.intValue()));
+			c_cflag &= ~termios_H.CRTSCTS;
+			c_iflag &= ~(termios_H.IXON | termios_H.IXOFF);
 			if (flowControls.contains(FlowControl.RTS_CTS_IN)) {
 				if (flowControls.contains(FlowControl.RTS_CTS_OUT)) {
-					termios.c_cflag.set(termios.c_cflag.intValue() | TermiosFlags.CRTSCTS.intValue());
+					c_cflag |= termios_H.CRTSCTS;
 				} else {
 					throw new IllegalArgumentException("Can only set RTS/CTS for both in and out");
 				}
@@ -689,14 +729,17 @@ public class PosixSerialPortSocket implements SerialPortSocket {
 				}
 			}
 			if (flowControls.contains(FlowControl.XON_XOFF_IN)) {
-				termios.c_iflag.set(termios.c_iflag.intValue() | TermiosFlags.IXOFF.intValue());
+				c_iflag |= termios_H.IXOFF;
 			}
 			if (flowControls.contains(FlowControl.XON_XOFF_OUT)) {
-				termios.c_iflag.set(termios.c_iflag.intValue() | TermiosFlags.IXON.intValue());
+				c_iflag |= termios_H.IXON;
 			}
 		}
 
-		if (tf.tcsetattr(fd, TermiosFlags.TCSANOW.intValue(), termios) != 0) {
+		termios.c_cflag.set(c_cflag);
+		termios.c_iflag.set(c_iflag);
+		
+		if (termios_H.tcsetattr(fd, termios_H.TCSANOW, termios) != 0) {
 			for (Errno e : Errno.values()) {
 				if (e.intValue() == posix.errno()) {
 					throw new IOException(
@@ -793,9 +836,9 @@ public class PosixSerialPortSocket implements SerialPortSocket {
 	@Override
 	public void setXOFFChar(char c) throws IOException {
 		Termios termios = getTermios();
-		termios.c_cc[TermiosFlags.VSTOP.intValue()].set((byte) c);
+		termios.c_cc[termios_H.VSTOP].set((byte) c);
 
-		if (tf.tcsetattr(fd, TermiosFlags.TCSANOW.intValue(), termios) != 0) {
+		if (termios_H.tcsetattr(fd, termios_H.TCSANOW, termios) != 0) {
 			throwClosedOrNativeException("setXOFFChar tcsetattr");
 		}
 
@@ -820,9 +863,9 @@ public class PosixSerialPortSocket implements SerialPortSocket {
 	@Override
 	public void setXONChar(char c) throws IOException {
 		Termios termios = getTermios();
-		termios.c_cc[TermiosFlags.VSTART.intValue()].set((byte) c);
+		termios.c_cc[termios_H.VSTART].set((byte) c);
 
-		if (tf.tcsetattr(fd, TermiosFlags.TCSANOW.intValue(), termios) != 0) {
+		if (termios_H.tcsetattr(fd, termios_H.TCSANOW, termios) != 0) {
 			throwClosedOrNativeException("setXONChar tcsetattr");
 		}
 		if (getXONChar() != c) {
