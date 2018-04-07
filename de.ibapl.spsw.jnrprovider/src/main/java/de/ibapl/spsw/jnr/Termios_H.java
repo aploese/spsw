@@ -22,305 +22,39 @@ package de.ibapl.spsw.jnr;
 import jnr.ffi.LibraryLoader;
 import jnr.ffi.Runtime;
 import jnr.ffi.Struct;
+import jnr.ffi.Struct.pid_t;
 import jnr.ffi.annotations.Out;
 import jnr.ffi.annotations.Transient;
 
 @Wrapper("termios.h")
 public class Termios_H {
 
-	@Defines("termios.h")
-	public interface TermiosDefines extends JnrDefines {
-		@Mandatory()
-		short NCCS();
-		@IsDefined()
-		boolean _HAVE_STRUCT_TERMIOS_C_ISPEED();
-		@IsDefined()
-		boolean _HAVE_STRUCT_TERMIOS_C_OSPEED();
-		@Optional()
-		Short VINTR();
-		@Optional()
-		Short VQUIT();
-		@Optional()
-		Short VERASE();
-		@Optional()
-		Short VKILL();
-		@Optional()
-		Short VEOF();
-		@Optional()
-		Short VTIME();
-		@Optional()
-		Short VMIN();
-		@Optional()
-		Short VSWTC();
-		@Optional()
-		Short VSWTCH();
-		@Optional()
-		Short VSTART();
-		@Optional()
-		Short VSTOP();
-		@Optional()
-		Short VSUSP();
-		@Optional()
-		Short VEOL();
-		@Optional()
-		Short VREPRINT();
-		@Optional()
-		Short VDISCARD();
-		@Optional()
-		Short VWERASE();
-		@Optional()
-		Short VLNEXT();
-		@Optional()
-		Short VEOL2();
-		@Mandatory()
-		short IGNBRK();
-		@Mandatory()
-		short BRKINT();
-		@Mandatory()
-		short IGNPAR();
-		@Mandatory()
-		short PARMRK();
-		@Mandatory()
-		short INPCK();
-		@Mandatory()
-		short ISTRIP();
-		@Mandatory()
-		short INLCR();
-		@Mandatory()
-		short IGNCR();
-		@Mandatory()
-		short ICRNL();
-		@Mandatory()
-		short IUCLC();
-		@Mandatory()
-		short IXON();
-		@Mandatory()
-		short IXANY();
-		@Mandatory()
-		short IXOFF();
-		@Mandatory()
-		short IMAXBEL();
-		@Mandatory()
-		short IUTF8();
-		@Mandatory()
-		short OPOST();
-		@Mandatory()
-		short OLCUC();
-		@Mandatory()
-		short ONLCR();
-		@Mandatory()
-		short OCRNL();
-		@Mandatory()
-		short ONOCR();
-		@Mandatory()
-		short ONLRET();
-		@Mandatory()
-		short OFILL();
-		@Mandatory()
-		short OFDEL();
-		@Mandatory()
-		short NLDLY();
-		@Mandatory()
-		short NL0();
-		@Mandatory()
-		short NL1();
-		@Mandatory()
-		short CRDLY();
-		@Mandatory()
-		short CR0();
-		@Mandatory()
-		short CR1();
-		@Mandatory()
-		short CR2();
-		@Mandatory()
-		short CR3();
-		@Mandatory()
-		short TABDLY();
-		@Mandatory()
-		short TAB0();
-		@Mandatory()
-		short TAB1();
-		@Mandatory()
-		short TAB2();
-		@Mandatory()
-		short TAB3();
-		@Mandatory()
-		short BSDLY();
-		@Mandatory()
-		short BS0();
-		@Mandatory()
-		short BS1();
-		@Mandatory()
-		short FFDLY();
-		@Mandatory()
-		short FF0();
-		@Mandatory()
-		short FF1();
-		@Mandatory()
-		short VTDLY();
-		@Mandatory()
-		short VT0();
-		@Mandatory()
-		short VT1();
-		@Mandatory()
-		short XTABS();
-		@Mandatory()
-		short CBAUD();
-		@Mandatory()
-		short B0();
-		@Mandatory()
-		short B50();
-		@Mandatory()
-		short B75();
-		@Mandatory()
-		short B110();
-		@Mandatory()
-		short B134();
-		@Mandatory()
-		short B150();
-		@Mandatory()
-		short B200();
-		@Mandatory()
-		short B300();
-		@Mandatory()
-		short B600();
-		@Mandatory()
-		short B1200();
-		@Mandatory()
-		short B1800();
-		@Mandatory()
-		short B2400();
-		@Mandatory()
-		short B4800();
-		@Mandatory()
-		short B9600();
-		@Mandatory()
-		short B19200();
-		@Mandatory()
-		short B38400();
-		@Mandatory()
-		short EXTA();
-		@Mandatory()
-		short EXTB();
-		@Mandatory()
-		short CSIZE();
-		@Mandatory()
-		short CS5();
-		@Mandatory()
-		short CS6();
-		@Mandatory()
-		short CS7();
-		@Mandatory()
-		short CS8();
-		@Mandatory()
-		short CSTOPB();
-		@Mandatory()
-		short CREAD();
-		@Mandatory()
-		short PARENB();
-		@Mandatory()
-		short PARODD();
-		@Mandatory()
-		short HUPCL();
-		@Mandatory()
-		short CLOCAL();
-		@Mandatory()
-		short CBAUDEX();
-		@Optional()
-		short B57600();
-		@Optional()
-		short B115200();
-		@Optional()
-		short B230400();
-		@Optional()
-		short B460800();
-		@Optional()
-		short B500000();
-		@Optional()
-		short B576000();
-		@Optional()
-		short B921600();
-		@Optional()
-		short B1000000();
-		@Optional()
-		short B1152000();
-		@Optional()
-		short B1500000();
-		@Optional()
-		short B2000000();
-		@Optional()
-		short B2500000();
-		@Optional()
-		short B3000000();
-		@Optional()
-		short B3500000();
-		@Optional()
-		short B4000000();
-		@Mandatory()
-		short __MAX_BAUD();
-		@Mandatory()
-		int CIBAUD();
-		@Optional()
-		Integer CMSPAR();
-		@Mandatory()
-		int CRTSCTS();
-		@Mandatory()
-		short ISIG();
-		@Mandatory()
-		short ICANON();
-		@Mandatory()
-		short XCASE();
-		@Mandatory()
-		short ECHO();
-		@Mandatory()
-		short ECHOE();
-		@Mandatory()
-		short ECHOK();
-		@Mandatory()
-		short ECHONL();
-		@Mandatory()
-		short NOFLSH();
-		@Mandatory()
-		short TOSTOP();
-		@Mandatory()
-		short ECHOCTL();
-		@Mandatory()
-		short ECHOPRT();
-		@Mandatory()
-		short ECHOKE();
-		@Mandatory()
-		short FLUSHO();
-		@Mandatory()
-		short PENDIN();
-		@Mandatory()
-		short IEXTEN();
-		@Mandatory()
-		int EXTPROC();
-		@Mandatory
-		short TCOOFF();
-		@Mandatory()
-		short TCOON();
-		@Mandatory()
-		short TCIOFF();
-		@Mandatory()
-		short TCION();
-		@Mandatory()
-		short TCIFLUSH();
-		@Mandatory()
-		short TCOFLUSH();
-		@Mandatory()
-		short TCIOFLUSH();
-		@Mandatory()
-		short TCSANOW();
-		@Mandatory()
-		short TCSADRAIN();
-		@Mandatory()
-		short TCSAFLUSH();
-		@Optional()
-		Short PAREXT();
-		// @Prototype("switch(value && CBAUD) {case B0: return 50; case B50: return 50;
-		// default throw IllegalArgumentException(); end;")
-		// int toBaudrate(int value);
+	// Wrap the interface
+	public interface NativeFunctions {
+		int cfgetispeed(Termios termios);
+
+		int cfgetospeed(Termios termios);
+
+		int cfsetispeed(@Out @Transient Termios termios, int speed);
+
+		int cfsetospeed(@Out @Transient Termios termios, int speed);
+
+		// TODO POSIX ??? set both in and out
+		int cfsetspeed(@Out @Transient Termios termios, int speed);
+
+		int tcdrain(int fildes);
+
+		int tcflow(int fildes, int action);
+
+		int tcflush(int fildes, int queue_selector);
+
+		int tcgetattr(int fildes, @Out @Transient Termios termios);
+
+		pid_t tcgetsid(int fildes);
+
+		int tcsendbreak(int fildes, int duration);
+
+		int tcsetattr(int fildes, int optional_actions, Termios termios);
 	}
 
 	public final class Termios extends Struct {
@@ -331,19 +65,19 @@ public class Termios_H {
 		public final cc_t c_line = new cc_t(); /* line discipline */
 		public final cc_t[] c_cc = createCc_t(); /* control characters */
 
-		// This is termios2 but linux except mips does define this.
+		// This is termios2 ??? - but linux except mips does define this.
 		/**
 		 * Use this only if {@link TermiosFlags#._HAVE_STRUCT_TERMIOS_C_ISPEED} is
 		 * defined.
 		 * 
 		 */
-		public final speed_t c_ispeed = new speed_t(); /* input speed */
+		public final speed_t c_ispeed = _HAVE_STRUCT_TERMIOS_C_ISPEED ? new speed_t() : null; /* input speed */
 		/**
 		 * Use this only if {@link TermiosFlags#._HAVE_STRUCT_TERMIOS_C_OSPEED} is
 		 * defined.
 		 * 
 		 */
-		public final speed_t c_ospeed = new speed_t(); /* output speed */
+		public final speed_t c_ospeed = _HAVE_STRUCT_TERMIOS_C_OSPEED ? new speed_t() : null; /* output speed */
 
 		private Termios(Runtime runtime) {
 			super(runtime);
@@ -423,31 +157,443 @@ public class Termios_H {
 		}
 	}
 
-	// Wrap the interface
-	public interface NativeFunctions {
-		int cfgetispeed(Termios termios);
+	@Defines("termios.h")
+	public interface TermiosDefines extends JnrDefines {
+		@Mandatory()
+		short __MAX_BAUD();
 
-		int cfgetospeed(Termios termios);
+		@IsDefined()
+		boolean _HAVE_STRUCT_TERMIOS_C_ISPEED();
 
-		int cfsetispeed(@Out @Transient Termios termios, int speed);
+		@IsDefined()
+		boolean _HAVE_STRUCT_TERMIOS_C_OSPEED();
 
-		int cfsetospeed(@Out @Transient Termios termios, int speed);
+		@Mandatory()
+		short B0();
 
-		// TODO POSIX ??? set both in and out
-		int cfsetspeed(@Out @Transient Termios termios, int speed);
+		@Optional()
+		short B1000000();
 
-		int tcdrain(int fildes);
+		@Mandatory()
+		short B110();
 
-		// int tcflow(int fildes, int action);
-		// int tcflush(int fildes, int queue_selector);
-		int tcgetattr(int fildes, @Out @Transient Termios termios);
+		@Optional()
+		short B115200();
 
-		// pid_t tcgetsid(int fildes);
-		int tcsendbreak(int fildes, int duration);
+		@Optional()
+		short B1152000();
 
-		int tcsetattr(int fildes, int optional_actions, Termios termios);
+		@Mandatory()
+		short B1200();
+
+		@Mandatory()
+		short B134();
+
+		@Mandatory()
+		short B150();
+
+		@Optional()
+		short B1500000();
+
+		@Mandatory()
+		short B1800();
+
+		@Mandatory()
+		short B19200();
+
+		@Mandatory()
+		short B200();
+
+		@Optional()
+		short B2000000();
+
+		@Optional()
+		short B230400();
+
+		@Mandatory()
+		short B2400();
+
+		@Optional()
+		short B2500000();
+
+		@Mandatory()
+		short B300();
+
+		@Optional()
+		short B3000000();
+
+		@Optional()
+		short B3500000();
+
+		@Mandatory()
+		short B38400();
+
+		@Optional()
+		short B4000000();
+
+		@Optional()
+		short B460800();
+
+		@Mandatory()
+		short B4800();
+
+		@Mandatory()
+		short B50();
+
+		@Optional()
+		short B500000();
+
+		@Optional()
+		short B57600();
+
+		@Optional()
+		short B576000();
+
+		@Mandatory()
+		short B600();
+
+		@Mandatory()
+		short B75();
+
+		@Optional()
+		short B921600();
+
+		@Mandatory()
+		short B9600();
+
+		@Mandatory()
+		short BRKINT();
+
+		@Mandatory()
+		short BS0();
+
+		@Mandatory()
+		short BS1();
+
+		@Mandatory()
+		short BSDLY();
+
+		@Mandatory()
+		short CBAUD();
+
+		@Mandatory()
+		short CBAUDEX();
+
+		@Mandatory()
+		int CIBAUD();
+
+		@Mandatory()
+		short CLOCAL();
+
+		@Optional()
+		Integer CMSPAR();
+
+		@Mandatory()
+		short CR0();
+
+		@Mandatory()
+		short CR1();
+
+		@Mandatory()
+		short CR2();
+
+		@Mandatory()
+		short CR3();
+
+		@Mandatory()
+		short CRDLY();
+
+		@Mandatory()
+		short CREAD();
+
+		@Mandatory()
+		int CRTSCTS();
+
+		@Mandatory()
+		short CS5();
+
+		@Mandatory()
+		short CS6();
+
+		@Mandatory()
+		short CS7();
+
+		@Mandatory()
+		short CS8();
+
+		@Mandatory()
+		short CSIZE();
+
+		@Mandatory()
+		short CSTOPB();
+
+		@Mandatory()
+		short ECHO();
+
+		@Mandatory()
+		short ECHOCTL();
+
+		@Mandatory()
+		short ECHOE();
+
+		@Mandatory()
+		short ECHOK();
+
+		@Mandatory()
+		short ECHOKE();
+
+		@Mandatory()
+		short ECHONL();
+
+		@Mandatory()
+		short ECHOPRT();
+
+		@Mandatory()
+		short EXTA();
+
+		@Mandatory()
+		short EXTB();
+
+		@Mandatory()
+		int EXTPROC();
+
+		@Mandatory()
+		short FF0();
+
+		@Mandatory()
+		short FF1();
+
+		@Mandatory()
+		short FFDLY();
+
+		@Mandatory()
+		short FLUSHO();
+
+		@Mandatory()
+		short HUPCL();
+
+		@Mandatory()
+		short ICANON();
+
+		@Mandatory()
+		short ICRNL();
+
+		@Mandatory()
+		short IEXTEN();
+
+		@Mandatory()
+		short IGNBRK();
+
+		@Mandatory()
+		short IGNCR();
+
+		@Mandatory()
+		short IGNPAR();
+
+		@Mandatory()
+		short IMAXBEL();
+
+		@Mandatory()
+		short INLCR();
+
+		@Mandatory()
+		short INPCK();
+
+		@Mandatory()
+		short ISIG();
+
+		@Mandatory()
+		short ISTRIP();
+
+		@Mandatory()
+		short IUCLC();
+
+		@Mandatory()
+		short IUTF8();
+
+		@Mandatory()
+		short IXANY();
+
+		@Mandatory()
+		short IXOFF();
+
+		@Mandatory()
+		short IXON();
+
+		@Mandatory()
+		short NCCS();
+
+		@Mandatory()
+		short NL0();
+
+		@Mandatory()
+		short NL1();
+
+		@Mandatory()
+		short NLDLY();
+
+		@Mandatory()
+		short NOFLSH();
+
+		@Mandatory()
+		short OCRNL();
+
+		@Mandatory()
+		short OFDEL();
+
+		@Mandatory()
+		short OFILL();
+
+		@Mandatory()
+		short OLCUC();
+
+		@Mandatory()
+		short ONLCR();
+
+		@Mandatory()
+		short ONLRET();
+
+		@Mandatory()
+		short ONOCR();
+
+		@Mandatory()
+		short OPOST();
+
+		@Mandatory()
+		short PARENB();
+
+		@Optional()
+		Short PAREXT();
+		// @Prototype("switch(value && CBAUD) {case B0: return 50; case B50: return 50;
+		// default throw IllegalArgumentException(); end;")
+		// int toBaudrate(int value);
+
+		@Mandatory()
+		short PARMRK();
+
+		@Mandatory()
+		short PARODD();
+
+		@Mandatory()
+		short PENDIN();
+
+		@Mandatory()
+		short TAB0();
+
+		@Mandatory()
+		short TAB1();
+
+		@Mandatory()
+		short TAB2();
+
+		@Mandatory()
+		short TAB3();
+
+		@Mandatory()
+		short TABDLY();
+
+		@Mandatory()
+		short TCIFLUSH();
+
+		@Mandatory()
+		short TCIOFF();
+
+		@Mandatory()
+		short TCIOFLUSH();
+
+		@Mandatory()
+		short TCION();
+
+		@Mandatory()
+		short TCOFLUSH();
+
+		@Mandatory
+		short TCOOFF();
+
+		@Mandatory()
+		short TCOON();
+
+		@Mandatory()
+		short TCSADRAIN();
+
+		@Mandatory()
+		short TCSAFLUSH();
+
+		@Mandatory()
+		short TCSANOW();
+
+		@Mandatory()
+		short TOSTOP();
+
+		@Optional()
+		Short VDISCARD();
+
+		@Optional()
+		Short VEOF();
+
+		@Optional()
+		Short VEOL();
+
+		@Optional()
+		Short VEOL2();
+
+		@Optional()
+		Short VERASE();
+
+		@Optional()
+		Short VINTR();
+
+		@Optional()
+		Short VKILL();
+
+		@Optional()
+		Short VLNEXT();
+
+		@Optional()
+		Short VMIN();
+
+		@Optional()
+		Short VQUIT();
+
+		@Optional()
+		Short VREPRINT();
+
+		@Optional()
+		Short VSTART();
+
+		@Optional()
+		Short VSTOP();
+
+		@Optional()
+		Short VSUSP();
+
+		@Optional()
+		Short VSWTC();
+
+		@Optional()
+		Short VSWTCH();
+
+		@Mandatory()
+		short VT0();
+
+		@Mandatory()
+		short VT1();
+
+		@Mandatory()
+		short VTDLY();
+
+		@Optional()
+		Short VTIME();
+
+		@Optional()
+		Short VWERASE();
+
+		@Mandatory()
+		short XCASE();
+
+		@Mandatory()
+		short XTABS();
 	}
-
 
 	final public short NCCS;
 	final public boolean _HAVE_STRUCT_TERMIOS_C_ISPEED;
@@ -594,156 +740,155 @@ public class Termios_H {
 	final public short TCSAFLUSH;
 	final public Short PAREXT;
 
-	final NativeFunctions nativeFunctions;
+	final private NativeFunctions nativeFunctions;
 
 	public Termios_H() {
-		this.nativeFunctions = LibraryLoader.create(NativeFunctions.class).load("c");
-		TermiosDefines termiosFlags = JnrDefines.getInstance(TermiosDefines.class);
-		this.NCCS = termiosFlags.NCCS();
-		this._HAVE_STRUCT_TERMIOS_C_ISPEED = termiosFlags._HAVE_STRUCT_TERMIOS_C_ISPEED();
-		this._HAVE_STRUCT_TERMIOS_C_OSPEED = termiosFlags._HAVE_STRUCT_TERMIOS_C_OSPEED();
-		this.VINTR = termiosFlags.VINTR();
-		this.VQUIT = termiosFlags.VQUIT();
-		this.VERASE = termiosFlags.VERASE();
-		this.VKILL = termiosFlags.VKILL();
-		this.VEOF = termiosFlags.VEOF();
-		this.VTIME = termiosFlags.VTIME();
-		this.VMIN = termiosFlags.VMIN();
-		this.VSWTC = termiosFlags.VSWTC();
-		this.VSWTCH = termiosFlags.VSWTCH();
-		this.VSTART = termiosFlags.VSTART();
-		this.VSTOP = termiosFlags.VSTOP();
-		this.VSUSP = termiosFlags.VSUSP();
-		this.VEOL = termiosFlags.VEOL();
-		this.VREPRINT = termiosFlags.VREPRINT();
-		this.VDISCARD = termiosFlags.VDISCARD();
-		this.VWERASE = termiosFlags.VWERASE();
-		this.VLNEXT = termiosFlags.VLNEXT();
-		this.VEOL2 = termiosFlags.VEOL2();
-		this.IGNBRK = termiosFlags.IGNBRK();
-		this.BRKINT = termiosFlags.BRKINT();
-		this.IGNPAR = termiosFlags.IGNPAR();
-		this.PARMRK = termiosFlags.PARMRK();
-		this.INPCK = termiosFlags.INPCK();
-		this.ISTRIP = termiosFlags.ISTRIP();
-		this.INLCR = termiosFlags.INLCR();
-		this.IGNCR = termiosFlags.IGNCR();
-		this.ICRNL = termiosFlags.ICRNL();
-		this.IUCLC = termiosFlags.IUCLC();
-		this.IXON = termiosFlags.IXON();
-		this.IXANY = termiosFlags.IXANY();
-		this.IXOFF = termiosFlags.IXOFF();
-		this.IMAXBEL = termiosFlags.IMAXBEL();
-		this.IUTF8 = termiosFlags.IUTF8();
-		this.OPOST = termiosFlags.OPOST();
-		this.OLCUC = termiosFlags.OLCUC();
-		this.ONLCR = termiosFlags.ONLCR();
-		this.OCRNL = termiosFlags.OCRNL();
-		this.ONOCR = termiosFlags.ONOCR();
-		this.ONLRET = termiosFlags.ONLRET();
-		this.OFILL = termiosFlags.OFILL();
-		this.OFDEL = termiosFlags.OFDEL();
-		this.NLDLY = termiosFlags.NLDLY();
-		this.NL0 = termiosFlags.NL0();
-		this.NL1 = termiosFlags.NL1();
-		this.CRDLY = termiosFlags.CRDLY();
-		this.CR0 = termiosFlags.CR0();
-		this.CR1 = termiosFlags.CR1();
-		this.CR2 = termiosFlags.CR2();
-		this.CR3 = termiosFlags.CR3();
-		this.TABDLY = termiosFlags.TABDLY();
-		this.TAB0 = termiosFlags.TAB0();
-		this.TAB1 = termiosFlags.TAB1();
-		this.TAB2 = termiosFlags.TAB2();
-		this.TAB3 = termiosFlags.TAB3();
-		this.BSDLY = termiosFlags.BSDLY();
-		this.BS0 = termiosFlags.BS0();
-		this.BS1 = termiosFlags.BS1();
-		this.FFDLY = termiosFlags.FFDLY();
-		this.FF0 = termiosFlags.FF0();
-		this.FF1 = termiosFlags.FF1();
-		this.VTDLY = termiosFlags.VTDLY();
-		this.VT0 = termiosFlags.VT0();
-		this.VT1 = termiosFlags.VT1();
-		this.XTABS = termiosFlags.XTABS();
-		this.CBAUD = termiosFlags.CBAUD();
-		this.B0 = termiosFlags.B0();
-		this.B50 = termiosFlags.B50();
-		this.B75 = termiosFlags.B75();
-		this.B110 = termiosFlags.B110();
-		this.B134 = termiosFlags.B134();
-		this.B150 = termiosFlags.B150();
-		this.B200 = termiosFlags.B200();
-		this.B300 = termiosFlags.B300();
-		this.B600 = termiosFlags.B600();
-		this.B1200 = termiosFlags.B1200();
-		this.B1800 = termiosFlags.B1800();
-		this.B2400 = termiosFlags.B2400();
-		this.B4800 = termiosFlags.B4800();
-		this.B9600 = termiosFlags.B9600();
-		this.B19200 = termiosFlags.B19200();
-		this.B38400 = termiosFlags.B38400();
-		this.EXTA = termiosFlags.EXTA();
-		this.EXTB = termiosFlags.EXTB();
-		this.CSIZE = termiosFlags.CSIZE();
-		this.CS5 = termiosFlags.CS5();
-		this.CS6 = termiosFlags.CS6();
-		this.CS7 = termiosFlags.CS7();
-		this.CS8 = termiosFlags.CS8();
-		this.CSTOPB = termiosFlags.CSTOPB();
-		this.CREAD = termiosFlags.CREAD();
-		this.PARENB = termiosFlags.PARENB();
-		this.PARODD = termiosFlags.PARODD();
-		this.HUPCL = termiosFlags.HUPCL();
-		this.CLOCAL = termiosFlags.CLOCAL();
-		this.CBAUDEX = termiosFlags.CBAUDEX();
-		this.B57600 = termiosFlags.B57600();
-		this.B115200 = termiosFlags.B115200();
-		this.B230400 = termiosFlags.B230400();
-		this.B460800 = termiosFlags.B460800();
-		this.B500000 = termiosFlags.B500000();
-		this.B576000 = termiosFlags.B576000();
-		this.B921600 = termiosFlags.B921600();
-		this.B1000000 = termiosFlags.B1000000();
-		this.B1152000 = termiosFlags.B1152000();
-		this.B1500000 = termiosFlags.B1500000();
-		this.B2000000 = termiosFlags.B2000000();
-		this.B2500000 = termiosFlags.B2500000();
-		this.B3000000 = termiosFlags.B3000000();
-		this.B3500000 = termiosFlags.B3500000();
-		this.B4000000 = termiosFlags.B4000000();
-		this.__MAX_BAUD = termiosFlags.__MAX_BAUD();
-		this.CIBAUD = termiosFlags.CIBAUD();
-		this.CMSPAR = termiosFlags.CMSPAR();
-		this.CRTSCTS = termiosFlags.CRTSCTS();
-		this.ISIG = termiosFlags.ISIG();
-		this.ICANON = termiosFlags.ICANON();
-		this.XCASE = termiosFlags.XCASE();
-		this.ECHO = termiosFlags.ECHO();
-		this.ECHOE = termiosFlags.ECHOE();
-		this.ECHOK = termiosFlags.ECHOK();
-		this.ECHONL = termiosFlags.ECHONL();
-		this.NOFLSH = termiosFlags.NOFLSH();
-		this.TOSTOP = termiosFlags.TOSTOP();
-		this.ECHOCTL = termiosFlags.ECHOCTL();
-		this.ECHOPRT = termiosFlags.ECHOPRT();
-		this.ECHOKE = termiosFlags.ECHOKE();
-		this.FLUSHO = termiosFlags.FLUSHO();
-		this.PENDIN = termiosFlags.PENDIN();
-		this.IEXTEN = termiosFlags.IEXTEN();
-		this.EXTPROC = termiosFlags.EXTPROC();
-		this.TCOOFF = termiosFlags.TCOOFF();
-		this.TCOON = termiosFlags.TCOON();
-		this.TCIOFF = termiosFlags.TCIOFF();
-		this.TCION = termiosFlags.TCION();
-		this.TCIFLUSH = termiosFlags.TCIFLUSH();
-		this.TCOFLUSH = termiosFlags.TCOFLUSH();
-		this.TCIOFLUSH = termiosFlags.TCIOFLUSH();
-		this.TCSANOW = termiosFlags.TCSANOW();
-		this.TCSADRAIN = termiosFlags.TCSADRAIN();
-		this.TCSAFLUSH = termiosFlags.TCSAFLUSH();
-		this.PAREXT = termiosFlags.PAREXT();
-		
+		nativeFunctions = LibraryLoader.create(NativeFunctions.class).load("c");
+		final TermiosDefines termiosDefines = JnrDefines.getInstance(TermiosDefines.class);
+		NCCS = termiosDefines.NCCS();
+		_HAVE_STRUCT_TERMIOS_C_ISPEED = termiosDefines._HAVE_STRUCT_TERMIOS_C_ISPEED();
+		_HAVE_STRUCT_TERMIOS_C_OSPEED = termiosDefines._HAVE_STRUCT_TERMIOS_C_OSPEED();
+		VINTR = termiosDefines.VINTR();
+		VQUIT = termiosDefines.VQUIT();
+		VERASE = termiosDefines.VERASE();
+		VKILL = termiosDefines.VKILL();
+		VEOF = termiosDefines.VEOF();
+		VTIME = termiosDefines.VTIME();
+		VMIN = termiosDefines.VMIN();
+		VSWTC = termiosDefines.VSWTC();
+		VSWTCH = termiosDefines.VSWTCH();
+		VSTART = termiosDefines.VSTART();
+		VSTOP = termiosDefines.VSTOP();
+		VSUSP = termiosDefines.VSUSP();
+		VEOL = termiosDefines.VEOL();
+		VREPRINT = termiosDefines.VREPRINT();
+		VDISCARD = termiosDefines.VDISCARD();
+		VWERASE = termiosDefines.VWERASE();
+		VLNEXT = termiosDefines.VLNEXT();
+		VEOL2 = termiosDefines.VEOL2();
+		IGNBRK = termiosDefines.IGNBRK();
+		BRKINT = termiosDefines.BRKINT();
+		IGNPAR = termiosDefines.IGNPAR();
+		PARMRK = termiosDefines.PARMRK();
+		INPCK = termiosDefines.INPCK();
+		ISTRIP = termiosDefines.ISTRIP();
+		INLCR = termiosDefines.INLCR();
+		IGNCR = termiosDefines.IGNCR();
+		ICRNL = termiosDefines.ICRNL();
+		IUCLC = termiosDefines.IUCLC();
+		IXON = termiosDefines.IXON();
+		IXANY = termiosDefines.IXANY();
+		IXOFF = termiosDefines.IXOFF();
+		IMAXBEL = termiosDefines.IMAXBEL();
+		IUTF8 = termiosDefines.IUTF8();
+		OPOST = termiosDefines.OPOST();
+		OLCUC = termiosDefines.OLCUC();
+		ONLCR = termiosDefines.ONLCR();
+		OCRNL = termiosDefines.OCRNL();
+		ONOCR = termiosDefines.ONOCR();
+		ONLRET = termiosDefines.ONLRET();
+		OFILL = termiosDefines.OFILL();
+		OFDEL = termiosDefines.OFDEL();
+		NLDLY = termiosDefines.NLDLY();
+		NL0 = termiosDefines.NL0();
+		NL1 = termiosDefines.NL1();
+		CRDLY = termiosDefines.CRDLY();
+		CR0 = termiosDefines.CR0();
+		CR1 = termiosDefines.CR1();
+		CR2 = termiosDefines.CR2();
+		CR3 = termiosDefines.CR3();
+		TABDLY = termiosDefines.TABDLY();
+		TAB0 = termiosDefines.TAB0();
+		TAB1 = termiosDefines.TAB1();
+		TAB2 = termiosDefines.TAB2();
+		TAB3 = termiosDefines.TAB3();
+		BSDLY = termiosDefines.BSDLY();
+		BS0 = termiosDefines.BS0();
+		BS1 = termiosDefines.BS1();
+		FFDLY = termiosDefines.FFDLY();
+		FF0 = termiosDefines.FF0();
+		FF1 = termiosDefines.FF1();
+		VTDLY = termiosDefines.VTDLY();
+		VT0 = termiosDefines.VT0();
+		VT1 = termiosDefines.VT1();
+		XTABS = termiosDefines.XTABS();
+		CBAUD = termiosDefines.CBAUD();
+		B0 = termiosDefines.B0();
+		B50 = termiosDefines.B50();
+		B75 = termiosDefines.B75();
+		B110 = termiosDefines.B110();
+		B134 = termiosDefines.B134();
+		B150 = termiosDefines.B150();
+		B200 = termiosDefines.B200();
+		B300 = termiosDefines.B300();
+		B600 = termiosDefines.B600();
+		B1200 = termiosDefines.B1200();
+		B1800 = termiosDefines.B1800();
+		B2400 = termiosDefines.B2400();
+		B4800 = termiosDefines.B4800();
+		B9600 = termiosDefines.B9600();
+		B19200 = termiosDefines.B19200();
+		B38400 = termiosDefines.B38400();
+		EXTA = termiosDefines.EXTA();
+		EXTB = termiosDefines.EXTB();
+		CSIZE = termiosDefines.CSIZE();
+		CS5 = termiosDefines.CS5();
+		CS6 = termiosDefines.CS6();
+		CS7 = termiosDefines.CS7();
+		CS8 = termiosDefines.CS8();
+		CSTOPB = termiosDefines.CSTOPB();
+		CREAD = termiosDefines.CREAD();
+		PARENB = termiosDefines.PARENB();
+		PARODD = termiosDefines.PARODD();
+		HUPCL = termiosDefines.HUPCL();
+		CLOCAL = termiosDefines.CLOCAL();
+		CBAUDEX = termiosDefines.CBAUDEX();
+		B57600 = termiosDefines.B57600();
+		B115200 = termiosDefines.B115200();
+		B230400 = termiosDefines.B230400();
+		B460800 = termiosDefines.B460800();
+		B500000 = termiosDefines.B500000();
+		B576000 = termiosDefines.B576000();
+		B921600 = termiosDefines.B921600();
+		B1000000 = termiosDefines.B1000000();
+		B1152000 = termiosDefines.B1152000();
+		B1500000 = termiosDefines.B1500000();
+		B2000000 = termiosDefines.B2000000();
+		B2500000 = termiosDefines.B2500000();
+		B3000000 = termiosDefines.B3000000();
+		B3500000 = termiosDefines.B3500000();
+		B4000000 = termiosDefines.B4000000();
+		__MAX_BAUD = termiosDefines.__MAX_BAUD();
+		CIBAUD = termiosDefines.CIBAUD();
+		CMSPAR = termiosDefines.CMSPAR();
+		CRTSCTS = termiosDefines.CRTSCTS();
+		ISIG = termiosDefines.ISIG();
+		ICANON = termiosDefines.ICANON();
+		XCASE = termiosDefines.XCASE();
+		ECHO = termiosDefines.ECHO();
+		ECHOE = termiosDefines.ECHOE();
+		ECHOK = termiosDefines.ECHOK();
+		ECHONL = termiosDefines.ECHONL();
+		NOFLSH = termiosDefines.NOFLSH();
+		TOSTOP = termiosDefines.TOSTOP();
+		ECHOCTL = termiosDefines.ECHOCTL();
+		ECHOPRT = termiosDefines.ECHOPRT();
+		ECHOKE = termiosDefines.ECHOKE();
+		FLUSHO = termiosDefines.FLUSHO();
+		PENDIN = termiosDefines.PENDIN();
+		IEXTEN = termiosDefines.IEXTEN();
+		EXTPROC = termiosDefines.EXTPROC();
+		TCOOFF = termiosDefines.TCOOFF();
+		TCOON = termiosDefines.TCOON();
+		TCIOFF = termiosDefines.TCIOFF();
+		TCION = termiosDefines.TCION();
+		TCIFLUSH = termiosDefines.TCIFLUSH();
+		TCOFLUSH = termiosDefines.TCOFLUSH();
+		TCIOFLUSH = termiosDefines.TCIOFLUSH();
+		TCSANOW = termiosDefines.TCSANOW();
+		TCSADRAIN = termiosDefines.TCSADRAIN();
+		TCSAFLUSH = termiosDefines.TCSAFLUSH();
+		PAREXT = termiosDefines.PAREXT();
 	}
 
 	public int cfgetispeed(Termios termios) {
@@ -767,32 +912,41 @@ public class Termios_H {
 		return nativeFunctions.cfsetspeed(termios, speed);
 	}
 
+	/**
+	 * Returns a new struct termios.
+	 * 
+	 * @return
+	 */
+	public Termios createTermios() {
+		return new Termios(Runtime.getRuntime(nativeFunctions));
+	}
+
 	public int tcdrain(int fildes) {
 		return nativeFunctions.tcdrain(fildes);
 	}
 
-	// int tcflow(int fildes, int action);
-	// int tcflush(int fildes, int queue_selector);
+	public int tcflow(int fildes, int action) {
+		return nativeFunctions.tcflow(fildes, action);
+	}
+
+	public int tcflush(int fildes, int queue_selector) {
+		return nativeFunctions.tcflush(fildes, queue_selector);
+	}
+
 	public int tcgetattr(int fildes, @Out @Transient Termios termios) {
 		return nativeFunctions.tcgetattr(fildes, termios);
 	}
 
-	// pid_t tcgetsid(int fildes);
+	public pid_t tcgetsid(int fildes) {
+		return nativeFunctions.tcgetsid(fildes);
+	}
+
 	public int tcsendbreak(int fildes, int duration) {
 		return nativeFunctions.tcsendbreak(fildes, duration);
 	}
 
 	public int tcsetattr(int fildes, int optional_actions, Termios termios) {
 		return nativeFunctions.tcsetattr(fildes, optional_actions, termios);
-	}
-
-	/**
-	 * Returna a new struct termios.
-	 * 
-	 * @return
-	 */
-	public Termios createTermios() {
-		return new Termios(Runtime.getRuntime(nativeFunctions));
 	}
 
 }

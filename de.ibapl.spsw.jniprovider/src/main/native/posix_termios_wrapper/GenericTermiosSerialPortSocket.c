@@ -63,7 +63,7 @@
 #include <errno.h>//-D_TS_ERRNO use for Solaris C++ compiler
 
 #ifdef __linux__
-#include <linux/serial.h>
+#include <linux/serial.h>//RS485 ???
 #endif
 #ifdef __SunOS
 #include <sys/filio.h>//Needed for FIONREAD in Solaris
