@@ -1,0 +1,171 @@
+<?xml version="1.0"?>
+<CastXML format="1.1.0">
+  <Namespace id="_1" name="::" members="_2 _3 _4 _5 _6 _7 _8 _9 _10 _11 _12 _13 _14 _15 _16 _17 _18 _19 _20 _21 _22 _23 _24 _25 _26 _27 _28 _29 _30 _31 _32 _33 _34 _35 _36 _37 _38 _39 _40 _41 _42 _43 _44 _45 _46 _47 _48 _49 _50 _51 _52 _53 _54 _55 _56 _57 _58 _59 _60 _61 _62 _63 _64 _65 _66 _67 _68 _69 _70 _71 _72 _73 _74"/>
+  <Typedef id="_2" name="__int128_t" type="_75" context="_1" location="f0:0" file="f0" line="0"/>
+  <Typedef id="_3" name="__uint128_t" type="_76" context="_1" location="f0:0" file="f0" line="0"/>
+  <Typedef id="_4" name="__NSConstantString" type="_77" context="_1" location="f0:0" file="f0" line="0"/>
+  <Typedef id="_5" name="__builtin_ms_va_list" type="_78" context="_1" location="f0:0" file="f0" line="0"/>
+  <Typedef id="_6" name="__builtin_va_list" type="_79" context="_1" location="f0:0" file="f0" line="0"/>
+  <Typedef id="_7" name="__u_char" type="_80" context="_1" location="f1:30" file="f1" line="30"/>
+  <Typedef id="_8" name="__u_short" type="_81" context="_1" location="f1:31" file="f1" line="31"/>
+  <Typedef id="_9" name="__u_int" type="_82" context="_1" location="f1:32" file="f1" line="32"/>
+  <Typedef id="_10" name="__u_long" type="_83" context="_1" location="f1:33" file="f1" line="33"/>
+  <Typedef id="_11" name="__int8_t" type="_84" context="_1" location="f1:36" file="f1" line="36"/>
+  <Typedef id="_12" name="__uint8_t" type="_80" context="_1" location="f1:37" file="f1" line="37"/>
+  <Typedef id="_13" name="__int16_t" type="_85" context="_1" location="f1:38" file="f1" line="38"/>
+  <Typedef id="_14" name="__uint16_t" type="_81" context="_1" location="f1:39" file="f1" line="39"/>
+  <Typedef id="_15" name="__int32_t" type="_86" context="_1" location="f1:40" file="f1" line="40"/>
+  <Typedef id="_16" name="__uint32_t" type="_82" context="_1" location="f1:41" file="f1" line="41"/>
+  <Typedef id="_17" name="__int64_t" type="_87" context="_1" location="f1:46" file="f1" line="46"/>
+  <Typedef id="_18" name="__uint64_t" type="_88" context="_1" location="f1:47" file="f1" line="47"/>
+  <Typedef id="_19" name="__quad_t" type="_87" context="_1" location="f1:55" file="f1" line="55"/>
+  <Typedef id="_20" name="__u_quad_t" type="_88" context="_1" location="f1:56" file="f1" line="56"/>
+  <Typedef id="_21" name="__intmax_t" type="_87" context="_1" location="f1:64" file="f1" line="64"/>
+  <Typedef id="_22" name="__uintmax_t" type="_88" context="_1" location="f1:65" file="f1" line="65"/>
+  <Typedef id="_23" name="__dev_t" type="_20" context="_1" location="f1:133" file="f1" line="133"/>
+  <Typedef id="_24" name="__uid_t" type="_82" context="_1" location="f1:134" file="f1" line="134"/>
+  <Typedef id="_25" name="__gid_t" type="_82" context="_1" location="f1:135" file="f1" line="135"/>
+  <Typedef id="_26" name="__ino_t" type="_83" context="_1" location="f1:136" file="f1" line="136"/>
+  <Typedef id="_27" name="__ino64_t" type="_20" context="_1" location="f1:137" file="f1" line="137"/>
+  <Typedef id="_28" name="__mode_t" type="_82" context="_1" location="f1:138" file="f1" line="138"/>
+  <Typedef id="_29" name="__nlink_t" type="_82" context="_1" location="f1:139" file="f1" line="139"/>
+  <Typedef id="_30" name="__off_t" type="_89" context="_1" location="f1:140" file="f1" line="140"/>
+  <Typedef id="_31" name="__off64_t" type="_19" context="_1" location="f1:141" file="f1" line="141"/>
+  <Typedef id="_32" name="__pid_t" type="_86" context="_1" location="f1:142" file="f1" line="142"/>
+  <Struct id="_33" name="" context="_1" location="f1:143" file="f1" line="143" members="_90" size="64" align="32"/>
+  <Typedef id="_34" name="__fsid_t" type="_91" context="_1" location="f1:143" file="f1" line="143"/>
+  <Typedef id="_35" name="__clock_t" type="_89" context="_1" location="f1:144" file="f1" line="144"/>
+  <Typedef id="_36" name="__rlim_t" type="_83" context="_1" location="f1:145" file="f1" line="145"/>
+  <Typedef id="_37" name="__rlim64_t" type="_20" context="_1" location="f1:146" file="f1" line="146"/>
+  <Typedef id="_38" name="__id_t" type="_82" context="_1" location="f1:147" file="f1" line="147"/>
+  <Typedef id="_39" name="__time_t" type="_89" context="_1" location="f1:148" file="f1" line="148"/>
+  <Typedef id="_40" name="__useconds_t" type="_82" context="_1" location="f1:149" file="f1" line="149"/>
+  <Typedef id="_41" name="__suseconds_t" type="_89" context="_1" location="f1:150" file="f1" line="150"/>
+  <Typedef id="_42" name="__daddr_t" type="_86" context="_1" location="f1:152" file="f1" line="152"/>
+  <Typedef id="_43" name="__key_t" type="_86" context="_1" location="f1:153" file="f1" line="153"/>
+  <Typedef id="_44" name="__clockid_t" type="_86" context="_1" location="f1:156" file="f1" line="156"/>
+  <Typedef id="_45" name="__timer_t" type="_92" context="_1" location="f1:159" file="f1" line="159"/>
+  <Typedef id="_46" name="__blksize_t" type="_89" context="_1" location="f1:162" file="f1" line="162"/>
+  <Typedef id="_47" name="__blkcnt_t" type="_89" context="_1" location="f1:167" file="f1" line="167"/>
+  <Typedef id="_48" name="__blkcnt64_t" type="_19" context="_1" location="f1:168" file="f1" line="168"/>
+  <Typedef id="_49" name="__fsblkcnt_t" type="_83" context="_1" location="f1:171" file="f1" line="171"/>
+  <Typedef id="_50" name="__fsblkcnt64_t" type="_20" context="_1" location="f1:172" file="f1" line="172"/>
+  <Typedef id="_51" name="__fsfilcnt_t" type="_83" context="_1" location="f1:175" file="f1" line="175"/>
+  <Typedef id="_52" name="__fsfilcnt64_t" type="_20" context="_1" location="f1:176" file="f1" line="176"/>
+  <Typedef id="_53" name="__fsword_t" type="_86" context="_1" location="f1:179" file="f1" line="179"/>
+  <Typedef id="_54" name="__ssize_t" type="_86" context="_1" location="f1:181" file="f1" line="181"/>
+  <Typedef id="_55" name="__syscall_slong_t" type="_89" context="_1" location="f1:184" file="f1" line="184"/>
+  <Typedef id="_56" name="__syscall_ulong_t" type="_83" context="_1" location="f1:186" file="f1" line="186"/>
+  <Typedef id="_57" name="__loff_t" type="_31" context="_1" location="f1:190" file="f1" line="190"/>
+  <Typedef id="_58" name="__caddr_t" type="_78" context="_1" location="f1:191" file="f1" line="191"/>
+  <Typedef id="_59" name="__intptr_t" type="_86" context="_1" location="f1:194" file="f1" line="194"/>
+  <Typedef id="_60" name="__socklen_t" type="_82" context="_1" location="f1:197" file="f1" line="197"/>
+  <Typedef id="_61" name="__sig_atomic_t" type="_86" context="_1" location="f1:202" file="f1" line="202"/>
+  <Struct id="_62" name="flock" context="_1" location="f2:28" file="f2" line="28" members="_93 _94 _95 _96 _97" size="256" align="64"/>
+  <Typedef id="_63" name="mode_t" type="_28" context="_1" location="f3:50" file="f3" line="50"/>
+  <Typedef id="_64" name="off_t" type="_30" context="_1" location="f3:56" file="f3" line="56"/>
+  <Typedef id="_65" name="pid_t" type="_32" context="_1" location="f3:69" file="f3" line="69"/>
+  <Struct id="_66" name="timespec" context="_1" location="f4:8" file="f4" line="8" members="_98 _99" size="128" align="64"/>
+  <Struct id="_67" name="stat" context="_1" location="f5:38" file="f5" line="38" members="_100 _101 _102 _103 _104 _105 _106 _107 _108 _109 _110 _111 _112 _113 _114 _115 _116" size="1152" align="64"/>
+  <Function id="_68" name="fcntl" returns="_86" context="_1" location="f3:147" file="f3" line="147" extern="1" mangled="_Z5fcntl">
+    <Argument name="__fd" type="_86" location="f3:147" file="f3" line="147"/>
+    <Argument name="__cmd" type="_86" location="f3:147" file="f3" line="147"/>
+    <Ellipsis/>
+  </Function>
+  <Function id="_69" name="open" returns="_86" context="_1" location="f3:157" file="f3" line="157" extern="1" mangled="_Z4open">
+    <Argument name="__file" type="_117" location="f3:157" file="f3" line="157"/>
+    <Argument name="__oflag" type="_86" location="f3:157" file="f3" line="157"/>
+    <Ellipsis/>
+  </Function>
+  <Function id="_70" name="openat" returns="_86" context="_1" location="f3:181" file="f3" line="181" extern="1" mangled="_Z6openat">
+    <Argument name="__fd" type="_86" location="f3:181" file="f3" line="181"/>
+    <Argument name="__file" type="_117" location="f3:181" file="f3" line="181"/>
+    <Argument name="__oflag" type="_86" location="f3:181" file="f3" line="181"/>
+    <Ellipsis/>
+  </Function>
+  <Function id="_71" name="creat" returns="_86" context="_1" location="f3:203" file="f3" line="203" extern="1" mangled="_Z5creat">
+    <Argument name="__file" type="_117" location="f3:203" file="f3" line="203"/>
+    <Argument name="__mode" type="_63" location="f3:203" file="f3" line="203"/>
+  </Function>
+  <Function id="_72" name="lockf" returns="_86" context="_1" location="f3:232" file="f3" line="232" extern="1" mangled="_Z5lockf">
+    <Argument name="__fd" type="_86" location="f3:232" file="f3" line="232"/>
+    <Argument name="__cmd" type="_86" location="f3:232" file="f3" line="232"/>
+    <Argument name="__len" type="_64" location="f3:232" file="f3" line="232"/>
+  </Function>
+  <Function id="_73" name="posix_fadvise" returns="_86" context="_1" location="f3:249" file="f3" line="249" extern="1" mangled="_Z13posix_fadvise">
+    <Argument name="__fd" type="_86" location="f3:249" file="f3" line="249"/>
+    <Argument name="__offset" type="_64" location="f3:249" file="f3" line="249"/>
+    <Argument name="__len" type="_64" location="f3:249" file="f3" line="249"/>
+    <Argument name="__advise" type="_86" location="f3:250" file="f3" line="250"/>
+  </Function>
+  <Function id="_74" name="posix_fallocate" returns="_86" context="_1" location="f3:271" file="f3" line="271" extern="1" mangled="_Z15posix_fallocate">
+    <Argument name="__fd" type="_86" location="f3:271" file="f3" line="271"/>
+    <Argument name="__offset" type="_64" location="f3:271" file="f3" line="271"/>
+    <Argument name="__len" type="_64" location="f3:271" file="f3" line="271"/>
+  </Function>
+  <FundamentalType id="_75" name="__int128" size="128" align="128"/>
+  <FundamentalType id="_76" name="unsigned __int128" size="128" align="128"/>
+  <Struct id="_77" name="__NSConstantString_tag" context="_1" location="f0:0" file="f0" line="0" members="_118 _119 _120 _121" size="256" align="64"/>
+  <PointerType id="_78" type="_122" size="64" align="64"/>
+  <ArrayType id="_79" min="0" max="0" type="_123"/>
+  <FundamentalType id="_80" name="unsigned char" size="8" align="8"/>
+  <FundamentalType id="_81" name="short unsigned int" size="16" align="16"/>
+  <FundamentalType id="_82" name="unsigned int" size="32" align="32"/>
+  <FundamentalType id="_83" name="long unsigned int" size="64" align="64"/>
+  <FundamentalType id="_84" name="signed char" size="8" align="8"/>
+  <FundamentalType id="_85" name="short int" size="16" align="16"/>
+  <FundamentalType id="_86" name="int" size="32" align="32"/>
+  <FundamentalType id="_87" name="long long int" size="64" align="64"/>
+  <FundamentalType id="_88" name="long long unsigned int" size="64" align="64"/>
+  <FundamentalType id="_89" name="long int" size="64" align="64"/>
+  <Field id="_90" name="__val" type="_124" context="_33" access="public" location="f1:143" file="f1" line="143" offset="0"/>
+  <ElaboratedType id="_91" type="_33"/>
+  <PointerType id="_92" type="_125" size="64" align="64"/>
+  <Field id="_93" name="l_type" type="_85" context="_62" access="public" location="f2:30" file="f2" line="30" offset="0"/>
+  <Field id="_94" name="l_whence" type="_85" context="_62" access="public" location="f2:31" file="f2" line="31" offset="16"/>
+  <Field id="_95" name="l_start" type="_30" context="_62" access="public" location="f2:33" file="f2" line="33" offset="64"/>
+  <Field id="_96" name="l_len" type="_30" context="_62" access="public" location="f2:34" file="f2" line="34" offset="128"/>
+  <Field id="_97" name="l_pid" type="_32" context="_62" access="public" location="f2:39" file="f2" line="39" offset="192"/>
+  <Field id="_98" name="tv_sec" type="_39" context="_66" access="public" location="f4:10" file="f4" line="10" offset="0"/>
+  <Field id="_99" name="tv_nsec" type="_55" context="_66" access="public" location="f4:11" file="f4" line="11" offset="64"/>
+  <Field id="_100" name="st_dev" type="_23" context="_67" access="public" location="f5:40" file="f5" line="40" offset="0"/>
+  <Field id="_101" name="__pad1" type="_81" context="_67" access="public" location="f5:41" file="f5" line="41" offset="64"/>
+  <Field id="_102" name="st_ino" type="_26" context="_67" access="public" location="f5:43" file="f5" line="43" offset="128"/>
+  <Field id="_103" name="st_mode" type="_28" context="_67" access="public" location="f5:47" file="f5" line="47" offset="192"/>
+  <Field id="_104" name="st_nlink" type="_29" context="_67" access="public" location="f5:48" file="f5" line="48" offset="224"/>
+  <Field id="_105" name="st_uid" type="_24" context="_67" access="public" location="f5:49" file="f5" line="49" offset="256"/>
+  <Field id="_106" name="st_gid" type="_25" context="_67" access="public" location="f5:50" file="f5" line="50" offset="288"/>
+  <Field id="_107" name="st_rdev" type="_23" context="_67" access="public" location="f5:51" file="f5" line="51" offset="320"/>
+  <Field id="_108" name="__pad2" type="_81" context="_67" access="public" location="f5:52" file="f5" line="52" offset="384"/>
+  <Field id="_109" name="st_size" type="_30" context="_67" access="public" location="f5:54" file="f5" line="54" offset="448"/>
+  <Field id="_110" name="st_blksize" type="_46" context="_67" access="public" location="f5:58" file="f5" line="58" offset="512"/>
+  <Field id="_111" name="st_blocks" type="_47" context="_67" access="public" location="f5:61" file="f5" line="61" offset="576"/>
+  <Field id="_112" name="st_atim" type="_126" context="_67" access="public" location="f5:72" file="f5" line="72" offset="640"/>
+  <Field id="_113" name="st_mtim" type="_126" context="_67" access="public" location="f5:73" file="f5" line="73" offset="768"/>
+  <Field id="_114" name="st_ctim" type="_126" context="_67" access="public" location="f5:74" file="f5" line="74" offset="896"/>
+  <Field id="_115" name="__glibc_reserved4" type="_83" context="_67" access="public" location="f5:87" file="f5" line="87" offset="1024"/>
+  <Field id="_116" name="__glibc_reserved5" type="_83" context="_67" access="public" location="f5:88" file="f5" line="88" offset="1088"/>
+  <PointerType id="_117" type="_122c" size="64" align="64"/>
+  <Field id="_118" name="isa" type="_127" context="_77" access="public" offset="0"/>
+  <Field id="_119" name="flags" type="_86" context="_77" access="public" offset="64"/>
+  <Field id="_120" name="str" type="_117" context="_77" access="public" offset="128"/>
+  <Field id="_121" name="length" type="_89" context="_77" access="public" offset="192"/>
+  <CvQualifiedType id="_122c" type="_122" const="1"/>
+  <Struct id="_123" name="__va_list_tag" context="_1" location="f0:0" file="f0" line="0" members="_128 _129 _130 _131" size="192" align="64"/>
+  <ArrayType id="_124" min="0" max="1" type="_86"/>
+  <ElaboratedType id="_126" type="_66"/>
+  <PointerType id="_127" type="_86c" size="64" align="64"/>
+  <CvQualifiedType id="_86c" type="_86" const="1"/>
+  <Field id="_128" name="gp_offset" type="_82" context="_123" access="public" offset="0"/>
+  <Field id="_129" name="fp_offset" type="_82" context="_123" access="public" offset="32"/>
+  <Field id="_130" name="overflow_arg_area" type="_92" context="_123" access="public" offset="64"/>
+  <Field id="_131" name="reg_save_area" type="_92" context="_123" access="public" offset="128"/>
+  <FundamentalType id="_122" name="char" size="8" align="8"/>
+  <FundamentalType id="_125" name="void" size="0" align="8"/>
+  <File id="f0" name="&lt;builtin&gt;"/>
+  <File id="f1" name="/usr/lib/gcc-cross/arm-linux-gnueabi/8/../../../../arm-linux-gnueabi/include/bits/types.h"/>
+  <File id="f2" name="/usr/lib/gcc-cross/arm-linux-gnueabi/8/../../../../arm-linux-gnueabi/include/bits/fcntl.h"/>
+  <File id="f3" name="/usr/lib/gcc-cross/arm-linux-gnueabi/8/../../../../arm-linux-gnueabi/include/fcntl.h"/>
+  <File id="f4" name="/usr/lib/gcc-cross/arm-linux-gnueabi/8/../../../../arm-linux-gnueabi/include/bits/types/struct_timespec.h"/>
+  <File id="f5" name="/usr/lib/gcc-cross/arm-linux-gnueabi/8/../../../../arm-linux-gnueabi/include/bits/stat.h"/>
+</CastXML>
