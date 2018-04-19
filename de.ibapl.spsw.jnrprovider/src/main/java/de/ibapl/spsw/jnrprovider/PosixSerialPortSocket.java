@@ -25,30 +25,42 @@ import java.io.OutputStream;
 import java.util.EnumSet;
 import java.util.Set;
 
+import de.ibapl.jnrheader.JnrHeader;
+import de.ibapl.jnrheader.linux.sys.Eventfd_H;
+import de.ibapl.jnrheader.posix.Errno_H;
+import de.ibapl.jnrheader.posix.Fcntl_H;
+import de.ibapl.jnrheader.posix.Termios_H;
+import de.ibapl.jnrheader.posix.Termios_H.Termios;
+import de.ibapl.jnrheader.posix.Unistd_H;
+import de.ibapl.jnrheader.posix.sys.Ioctl_H;
 import de.ibapl.spsw.api.DataBits;
 import de.ibapl.spsw.api.FlowControl;
 import de.ibapl.spsw.api.Parity;
 import de.ibapl.spsw.api.SerialPortSocket;
 import de.ibapl.spsw.api.Speed;
 import de.ibapl.spsw.api.StopBits;
-import de.ibapl.spsw.jnr.Termios_H;
-import de.ibapl.spsw.jnr.Termios_H.Termios;
-import jnr.constants.platform.Errno;
-import jnr.constants.platform.OpenFlags;
-import jnr.posix.POSIX;
-import jnr.posix.POSIXFactory;
 
 public class PosixSerialPortSocket implements SerialPortSocket {
 
-	private volatile int fd = -1;
-	private POSIX posix;
+	public static final int INVALID_FD  =-1;
+	private volatile int fd = INVALID_FD;
+	private volatile int close_event_fd = INVALID_FD;
 	private final String portname;
 	private Termios_H termios_H;
+	private Errno_H errno_H;
+	private Fcntl_H fcntl_H;
+	private Ioctl_H ioctl_H;
+	private Unistd_H unistd_H;
+	private Eventfd_H eventfd_H;
 
 	public PosixSerialPortSocket(String portname) {
 		this.portname = portname;
-		posix = POSIXFactory.getPOSIX(); // Was new DummyPOSIXHandler(), true);
-		termios_H = new Termios_H();
+		termios_H = JnrHeader.getInstance(Termios_H.class);
+		errno_H = JnrHeader.getInstance(Errno_H.class);
+		fcntl_H = JnrHeader.getInstance(Fcntl_H.class);
+		ioctl_H = JnrHeader.getInstance(Ioctl_H.class);
+		unistd_H = JnrHeader.getInstance(Unistd_H.class);
+		eventfd_H = JnrHeader.getInstance(Eventfd_H.class);
 	}
 
 	@Override
@@ -56,11 +68,11 @@ public class PosixSerialPortSocket implements SerialPortSocket {
 		if (fd != -1) {
 			int tempFd = fd;
 			fd = -1;
-			int err = posix.close(tempFd);
+			int err = unistd_H.close(tempFd);
 			if (err == 0) {
 			} else {
 				fd = tempFd;
-				throw new IOException("close => POSIX errno: " + posix.errno());
+				throw new IOException("close => POSIX errno: " + errno_H.errno());
 			}
 		}
 	}
@@ -72,18 +84,18 @@ public class PosixSerialPortSocket implements SerialPortSocket {
 
 	private DataBits getDatatBits(Termios termios) throws IOException {
 		try {
-			int v = termios.c_cflag.intValue() & termios_H.CSIZE;
-			if (v == termios_H.CS5) {
+			int masked = termios.c_cflag & termios_H.CSIZE;
+			if (masked == termios_H.CS5) {
 				return DataBits.DB_5;
-			} else if (v == termios_H.CS6) {
+			} else if (masked == termios_H.CS6) {
 				return DataBits.DB_6;
-			} else if (v == termios_H.CS7) {
+			} else if (masked == termios_H.CS7) {
 				return DataBits.DB_7;
-			} else if (v == termios_H.CS8) {
+			} else if (masked == termios_H.CS8) {
 				return DataBits.DB_8;
 			} else {
 				throw new IllegalArgumentException(
-						"Unknown databits in termios.c_cflag: " + termios.c_cflag.intValue());
+						"Unknown databits in termios.c_cflag: " + termios.c_cflag);
 			}
 		} catch (IllegalArgumentException iae) {
 			throw iae;
@@ -98,16 +110,14 @@ public class PosixSerialPortSocket implements SerialPortSocket {
 	}
 
 	public Set<FlowControl> getFlowControl(Termios termios) throws IOException {
-		final int c_cflag = termios.c_cflag.intValue();
-		final int c_iflag = termios.c_iflag.intValue();
 		Set<FlowControl> result = EnumSet.noneOf(FlowControl.class);
-		if ((c_cflag & termios_H.CRTSCTS) == termios_H.CRTSCTS) {
+		if ((termios.c_cflag & termios_H.CRTSCTS) == termios_H.CRTSCTS) {
 			result.addAll(FlowControl.getFC_RTS_CTS());
 		}
-		if ((c_iflag & termios_H.IXOFF) == termios_H.IXOFF) {
+		if ((termios.c_iflag & termios_H.IXOFF) == termios_H.IXOFF) {
 			result.add(FlowControl.XON_XOFF_IN);
 		}
-		if ((c_iflag & termios_H.IXON) == termios_H.IXON) {
+		if ((termios.c_iflag & termios_H.IXON) == termios_H.IXON) {
 			result.add(FlowControl.XON_XOFF_OUT);
 		}
 		return result;
@@ -161,18 +171,17 @@ public class PosixSerialPortSocket implements SerialPortSocket {
 	}
 
 	private Parity getParity(Termios termios) throws IOException {
-		final int c_cflag = termios.c_cflag.intValue();
-		if ((c_cflag & termios_H.PARENB) == 0) {
+		if ((termios.c_cflag & termios_H.PARENB) == 0) {
 			return Parity.NONE;
-		} else if ((c_cflag & termios_H.PARODD) == 0) {
+		} else if ((termios.c_cflag & termios_H.PARODD) == 0) {
 			if (termios_H.PAREXT != null) {
-				if ((c_cflag & termios_H.PAREXT) == 0) {
+				if ((termios.c_cflag & termios_H.PAREXT) == 0) {
 					return Parity.EVEN;
 				} else {
 					return Parity.SPACE;
 				}
 			} else if (termios_H.CMSPAR != null) {
-				if ((c_cflag & termios_H.CMSPAR) == 0) {
+				if ((termios.c_cflag & termios_H.CMSPAR) == 0) {
 					return Parity.EVEN;
 				} else {
 					return Parity.SPACE;
@@ -181,13 +190,13 @@ public class PosixSerialPortSocket implements SerialPortSocket {
 		} else {
 			// ODD or MARK
 			if (termios_H.PAREXT != null) {
-				if ((c_cflag & termios_H.PAREXT) == 0) {
+				if ((termios.c_cflag & termios_H.PAREXT) == 0) {
 					return Parity.ODD;
 				} else {
 					return Parity.MARK;
 				}
 			} else if (termios_H.CMSPAR != null) {
-				if ((c_cflag & termios_H.CMSPAR) == 0) {
+				if ((termios.c_cflag & termios_H.CMSPAR) == 0) {
 					return Parity.ODD;
 				} else {
 					return Parity.MARK;
@@ -427,11 +436,10 @@ public class PosixSerialPortSocket implements SerialPortSocket {
 	}
 
 	private StopBits getStopBits(Termios termios) throws IOException {
-		final int c_cflag = termios.c_cflag.intValue();
-		if ((c_cflag & termios_H.CSTOPB) == 0) {
+		if ((termios.c_cflag & termios_H.CSTOPB) == 0) {
 			return StopBits.SB_1;
-		} else if ((c_cflag & termios_H.CSTOPB) == termios_H.CSTOPB) {
-			if ((c_cflag & termios_H.CSIZE) == termios_H.CS5) {
+		} else if ((termios.c_cflag & termios_H.CSTOPB) == termios_H.CSTOPB) {
+			if ((termios.c_cflag & termios_H.CSIZE) == termios_H.CS5) {
 				return StopBits.SB_1_5;
 			} else {
 				return StopBits.SB_2;
@@ -443,13 +451,13 @@ public class PosixSerialPortSocket implements SerialPortSocket {
 	@Override
 	public char getXOFFChar() throws IOException {
 		Termios termios = getTermios();
-		return (char)termios.c_cc[termios_H.VSTOP].byteValue();
+		return (char)termios.c_cc[termios_H.VSTOP];
 	}
 
 	@Override
 	public char getXONChar() throws IOException {
 		Termios termios = getTermios();
-		return (char)termios.c_cc[termios_H.VSTART].byteValue();
+		return (char)termios.c_cc[termios_H.VSTART];
 	}
 
 	@Override
@@ -497,20 +505,20 @@ public class PosixSerialPortSocket implements SerialPortSocket {
 		if (fd != -1) {
 			throw new IOException("Port is already opend");
 		}
-		int tempFd = posix.open(portname,
-				OpenFlags.O_RDWR.intValue() | OpenFlags.O_NOCTTY.intValue() | OpenFlags.O_NONBLOCK.intValue(), 0666);
+		int tempFd = fcntl_H.open(portname, fcntl_H.O_RDWR | fcntl_H.O_NOCTTY | fcntl_H.O_NONBLOCK);
 
 		if (tempFd < 0) {
-			if (posix.errno() == Errno.EBUSY.intValue()) {
+			int errno = errno_H.errno();
+			if (errno == errno_H.EBUSY) {
 				throw new IOException(String.format("Port is busy: (%s)", portname));
-			} else if (posix.errno() == Errno.ENOENT.intValue()) {
+			} else if (errno == errno_H.ENOENT) {
 				throw new IOException(String.format("Port not found: (%s)", portname));
-			} else if (posix.errno() == Errno.EACCES.intValue()) {
+			} else if (errno == errno_H.EACCES) {
 				throw new IOException(String.format("Permission denied: (%s)", portname));
-			} else if (posix.errno() == Errno.EIO.intValue()) {
+			} else if (errno == errno_H.EIO) {
 				throw new IOException(String.format("Not a serial port: (%s)", portname));
 			} else {
-				throw new IOException(String.format("Native port error \"%d:\" open (%s)", posix.errno(), portname));
+				throw new IOException(String.format("Native port error \"%d:\" open (%s)", errno, portname));
 			}
 
 		} else {
@@ -519,16 +527,49 @@ public class PosixSerialPortSocket implements SerialPortSocket {
 
 		Termios_H.Termios termios = termios_H.createTermios();
 		if (termios_H.tcgetattr(fd, termios) != 0) {
-			posix.close(fd);
+			unistd_H.close(fd);
 			fd = -1;
-			if (posix.errno() == Errno.ENOTTY.intValue()) {
+			if (errno_H.errno() == errno_H.ENOTTY) {
 				throw new IOException(String.format("Not a serial port: (%s)", portname));
 			} else {
 				throwClosedOrNativeException("open tcgetattr");
 			}
 		}
+		
+		if (ioctl_H.ioctl(fd, ioctl_H.TIOCEXCL) != 0) {
+			unistd_H.close(fd);
+			fd = INVALID_FD;
+			new IOException("Can't set exclusive access error: " + errno_H.errno());
+		}
 
+		//set basic settings
+		termios.c_cflag |= (termios_H.CREAD | termios_H.CLOCAL);
+		termios.c_lflag = 0;
+		/* Raw input*/
+		termios.c_iflag = 0;
+		/* Raw output */
+		termios.c_oflag = 0;
+		termios.c_cc[termios_H.VMIN] = 0; // If there is not anything just pass
+		termios.c_cc[termios_H.VTIME] = 0;// No timeout
+
+		
 		setParams(termios, speed, dataBits, stopBits, parity, flowControls);
+
+
+		// flush the device
+			if (termios_H.tcflush(fd, termios_H.TCIOFLUSH) != 0) {
+				unistd_H.close(fd);
+				fd = INVALID_FD;
+				throw new IOException("Can't flush device errno: " + errno_H.errno());
+			}
+
+		//on linux to avoid read/close problem maybe this helps?
+
+			close_event_fd = eventfd_H.eventfd(0, eventfd_H.EFD_NONBLOCK);//counter is zero so nothing to read is available
+			if (close_event_fd == INVALID_FD) {
+				unistd_H.close(fd);
+				throw new IOException("Can't create close_event_fd");
+			}
 
 		/*
 		 * struct serial_struct { int type; int line; unsigned int port; int irq; int
@@ -585,14 +626,8 @@ public class PosixSerialPortSocket implements SerialPortSocket {
 	private Termios_H.Termios getTermios() throws IOException {
 		Termios_H.Termios termios = termios_H.createTermios();
 		if (termios_H.tcgetattr(fd, termios) != 0) {
-			for (Errno e : Errno.values()) {
-				if (e.intValue() == posix.errno()) {
-					throw new IOException(
-							String.format("Native port error \"%s\" => open tcgetattr (%s)", e, portname));
-				}
-			}
 			throw new IOException(
-					String.format("Native port error \"%d\" => open tcgetattr (%s)", posix.errno(), portname));
+					String.format("Native port error \"%d\" => open tcgetattr (%s)", errno_H.errno(), portname));
 		}
 		return termios;
 	}
@@ -602,34 +637,26 @@ public class PosixSerialPortSocket implements SerialPortSocket {
 
 		if (speed != null) {
 			int speedValue = speed2speed_t(speed);
-			// TODO check what this extra fields in struct termios mean: ...
-			// #define _HAVE_STRUCT_TERMIOS_C_ISPEED 1
-			// #define _HAVE_STRUCT_TERMIOS_C_OSPEED 1
-
 			// Set standard speed from "termios.h"
 			if (termios_H.cfsetspeed(termios, speedValue) < 0) {
 				throwClosedOrNativeException("Can't set Speed cfsetspeed(settings, speedValue)");
 			}
 		}
 		
-		//Cache values for better readability
-		int c_cflag = termios.c_cflag.intValue();
-		int c_iflag = termios.c_iflag.intValue();
-		
 		if (dataBits != null) {
-			c_cflag &=  ~termios_H.CSIZE;
+			termios.c_cflag &=  ~termios_H.CSIZE;
 			switch (dataBits) {
 			case DB_5:
-				c_cflag |= termios_H.CS5;
+				termios.c_cflag |= termios_H.CS5;
 				break;
 			case DB_6:
-				c_cflag |= termios_H.CS6;
+				termios.c_cflag |= termios_H.CS6;
 				break;
 			case DB_7:
-				c_cflag |= termios_H.CS7;
+				termios.c_cflag |= termios_H.CS7;
 				break;
 			case DB_8:
-				c_cflag |= termios_H.CS8;
+				termios.c_cflag |= termios_H.CS8;
 				break;
 			default:
 				throw new IllegalArgumentException("Wrong databits");
@@ -641,20 +668,20 @@ public class PosixSerialPortSocket implements SerialPortSocket {
 			switch (stopBits) {
 			case SB_1:
 				// 1 stop bit (for info see ->> MSDN)
-				c_cflag &= ~termios_H.CSTOPB;
+				termios.c_cflag &= ~termios_H.CSTOPB;
 				break;
 			case SB_1_5:
-				if ((c_cflag & termios_H.CSIZE) == termios_H.CS5) {
-					c_cflag |= termios_H.CSTOPB;
+				if ((termios.c_cflag & termios_H.CSIZE) == termios_H.CS5) {
+					termios.c_cflag |= termios_H.CSTOPB;
 				} else {
 					throw new IllegalArgumentException("setStopBits 1.5 stop bits are only valid for 5 DataBits");
 				}
 				break;
 			case SB_2:
-				if ((c_cflag & termios_H.CSIZE) == termios_H.CS5) {
+				if ((termios.c_cflag & termios_H.CSIZE) == termios_H.CS5) {
 					throw new IllegalArgumentException("setStopBits 2 stop bits are only valid for 6,7,8 DataBits");
 				} else {
-					c_cflag |= termios_H.CSTOPB;
+					termios.c_cflag |= termios_H.CSTOPB;
 				}
 				break;
 			default:
@@ -665,48 +692,48 @@ public class PosixSerialPortSocket implements SerialPortSocket {
 
 		if (parity != null) {
 			if (termios_H.PAREXT != null) {
-				c_cflag &= ~(termios_H.PARENB
+				termios.c_cflag &= ~(termios_H.PARENB
 						| termios_H.PARODD | termios_H.PAREXT); // Clear parity settings
 			} else if (termios_H.CMSPAR != null) {
-				c_cflag &= ~(termios_H.PARENB
+				termios.c_cflag &= ~(termios_H.PARENB
 						| termios_H.PARODD | termios_H.CMSPAR); // Clear parity settings
 			} else {
-				c_cflag &= ~(termios_H.PARENB | termios_H.PARODD); // Clear
+				termios.c_cflag &= ~(termios_H.PARENB | termios_H.PARODD); // Clear
 																								// parity
 																								// settings
 			}
 			switch (parity) {
 			case NONE:
-				c_iflag &= ~termios_H.INPCK; // switch parity input
+				termios.c_iflag &= ~termios_H.INPCK; // switch parity input
 																									// checking off
 				break;
 			case ODD:
-				c_cflag |= (termios_H.PARENB | termios_H.PARODD);
-				c_iflag |= termios_H.INPCK; // switch parity input
+				termios.c_cflag |= (termios_H.PARENB | termios_H.PARODD);
+				termios.c_iflag |= termios_H.INPCK; // switch parity input
 																									// checking On
 				break;
 			case EVEN:
-				c_cflag |= termios_H.PARENB;
-				c_iflag |= termios_H.INPCK;
+				termios.c_cflag |= termios_H.PARENB;
+				termios.c_iflag |= termios_H.INPCK;
 				break;
 			case MARK:
 				if (termios_H.PAREXT != null) {
-					c_cflag |= (termios_H.PARENB
+					termios.c_cflag |= (termios_H.PARENB
 							| termios_H.PARODD | termios_H.PAREXT);
-					c_iflag |= termios_H.INPCK;
+					termios.c_iflag |= termios_H.INPCK;
 				} else if (termios_H.CMSPAR != null) {
-					c_cflag |= (termios_H.PARENB
+					termios.c_cflag |= (termios_H.PARENB
 							| termios_H.PARODD | termios_H.CMSPAR);
-					c_iflag |= termios_H.INPCK;
+					termios.c_iflag |= termios_H.INPCK;
 				}
 				break;
 			case SPACE:
 				if (termios_H.PAREXT != null) {
-					c_cflag |= (termios_H.PARENB | termios_H.PAREXT);
-					c_iflag |= termios_H.INPCK;
+					termios.c_cflag |= (termios_H.PARENB | termios_H.PAREXT);
+					termios.c_iflag |= termios_H.INPCK;
 				} else if (termios_H.CMSPAR != null) {
-					c_cflag |= (termios_H.PARENB | termios_H.CMSPAR);
-					c_iflag |= termios_H.INPCK;
+					termios.c_cflag |= (termios_H.PARENB | termios_H.CMSPAR);
+					termios.c_iflag |= termios_H.INPCK;
 				}
 				break;
 			default:
@@ -715,11 +742,11 @@ public class PosixSerialPortSocket implements SerialPortSocket {
 		}
 
 		if (flowControls != null) {
-			c_cflag &= ~termios_H.CRTSCTS;
-			c_iflag &= ~(termios_H.IXON | termios_H.IXOFF);
+			termios.c_cflag &= ~termios_H.CRTSCTS;
+			termios.c_iflag &= ~(termios_H.IXON | termios_H.IXOFF);
 			if (flowControls.contains(FlowControl.RTS_CTS_IN)) {
 				if (flowControls.contains(FlowControl.RTS_CTS_OUT)) {
-					c_cflag |= termios_H.CRTSCTS;
+					termios.c_cflag |= termios_H.CRTSCTS;
 				} else {
 					throw new IllegalArgumentException("Can only set RTS/CTS for both in and out");
 				}
@@ -729,25 +756,16 @@ public class PosixSerialPortSocket implements SerialPortSocket {
 				}
 			}
 			if (flowControls.contains(FlowControl.XON_XOFF_IN)) {
-				c_iflag |= termios_H.IXOFF;
+				termios.c_iflag |= termios_H.IXOFF;
 			}
 			if (flowControls.contains(FlowControl.XON_XOFF_OUT)) {
-				c_iflag |= termios_H.IXON;
+				termios.c_iflag |= termios_H.IXON;
 			}
 		}
 
-		termios.c_cflag.set(c_cflag);
-		termios.c_iflag.set(c_iflag);
-		
 		if (termios_H.tcsetattr(fd, termios_H.TCSANOW, termios) != 0) {
-			for (Errno e : Errno.values()) {
-				if (e.intValue() == posix.errno()) {
-					throw new IOException(
-							String.format("Native port error \"%s\" => open tcsetattr (%s)", e, portname));
-				}
-			}
 			throw new IOException(
-					String.format("Native port error \"%d\" => open tcsetattr (%s)", posix.errno(), portname));
+					String.format("Native port error \"%d\" => open tcsetattr (%s)", errno_H.errno(), portname));
 		}
 
 		StringBuilder sb = null;
@@ -836,7 +854,7 @@ public class PosixSerialPortSocket implements SerialPortSocket {
 	@Override
 	public void setXOFFChar(char c) throws IOException {
 		Termios termios = getTermios();
-		termios.c_cc[termios_H.VSTOP].set((byte) c);
+		termios.c_cc[termios_H.VSTOP] = (byte) c;
 
 		if (termios_H.tcsetattr(fd, termios_H.TCSANOW, termios) != 0) {
 			throwClosedOrNativeException("setXOFFChar tcsetattr");
@@ -847,23 +865,20 @@ public class PosixSerialPortSocket implements SerialPortSocket {
 		}
 	}
 
+	private void throwNativeException(String formatString, Object... args) throws IOException {
+		throw new IOException(String.format("Native port error on %s, \"%d\" %s", portname, errno_H.errno(),
+				String.format(formatString, args)));
+	}
+
 	private void throwClosedOrNativeException(String formatString, Object... args) throws IOException {
-		// TODO what does Errno.valueOf( exactly?
-		final int errno = posix.errno();
-		for (Errno e : Errno.values()) {
-			if (e.intValue() == errno) {
-				throw new IOException(String.format("Native port error on %s, \"%s\" %s", portname, e,
-						String.format(formatString, args)));
-			}
-		}
-		throw new IOException(String.format("Native port error on %s, \"%d\" %s", portname, errno,
+		throw new IOException(String.format("Native port error on %s, \"%d\" %s", portname, errno_H.errno(),
 				String.format(formatString, args)));
 	}
 
 	@Override
 	public void setXONChar(char c) throws IOException {
 		Termios termios = getTermios();
-		termios.c_cc[termios_H.VSTART].set((byte) c);
+		termios.c_cc[termios_H.VSTART] = (byte) c;
 
 		if (termios_H.tcsetattr(fd, termios_H.TCSANOW, termios) != 0) {
 			throwClosedOrNativeException("setXONChar tcsetattr");

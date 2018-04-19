@@ -27,7 +27,6 @@ import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 import de.ibapl.spsw.api.DataBits;
@@ -36,7 +35,6 @@ import de.ibapl.spsw.api.Parity;
 import de.ibapl.spsw.api.Speed;
 import de.ibapl.spsw.api.StopBits;
 import de.ibapl.spsw.jnrprovider.PosixSerialPortSocket;
-import jnr.constants.platform.TermiosFlags;
 
 class PosixSerialPortSocketTests {
 
@@ -161,15 +159,5 @@ class PosixSerialPortSocketTests {
 		System.out.println(posixSerialPortSocket.printNative());
 	}
 
-	/**
-	 * TODO what is TermiosFlags.valueOf supposed to return????
-	 */
-	@Disabled
-	@Test 
-	void testTermiosFlags() {
-		for (TermiosFlags tf : TermiosFlags.values()) {
-			assertEquals(tf, TermiosFlags.valueOf(tf.intValue()));
-		}
-	}
 
 }

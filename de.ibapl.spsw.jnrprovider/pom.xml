@@ -47,11 +47,7 @@
 			<groupId>org.junit.jupiter</groupId>
 			<artifactId>junit-jupiter-api</artifactId>
 		</dependency>
-		<dependency>
-			<groupId>com.github.jnr</groupId>
-			<artifactId>jnr-constants</artifactId>
-			<version>0.9.10-SNAPSHOT</version>
-		</dependency>
+
 		<dependency>
 			<groupId>com.github.jnr</groupId>
 			<artifactId>jnr-ffi</artifactId>
@@ -59,9 +55,9 @@
 		</dependency>
 
 		<dependency>
-			<groupId>com.github.jnr</groupId>
-			<artifactId>jnr-posix</artifactId>
-			<version>3.0.44</version>
+			<groupId>org.eclipse.jdt</groupId>
+			<artifactId>org.eclipse.jdt.annotation</artifactId>
+			<version>2.1.100</version>
 		</dependency>
 	</dependencies>
 
