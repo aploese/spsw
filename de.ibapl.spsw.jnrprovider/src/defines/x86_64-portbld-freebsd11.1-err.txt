@@ -1,0 +1,19 @@
+Using built-in specs.
+COLLECT_GCC=gcc8
+Target: x86_64-portbld-freebsd11.1
+Configured with: /wrkdirs/usr/ports/lang/gcc8-devel/work/gcc-8-20180325/configure --with-build-config=bootstrap-debug --disable-nls --enable-gnu-indirect-function --libdir=/usr/local/lib/gcc8 --libexecdir=/usr/local/libexec/gcc8 --program-suffix=8 --with-as=/usr/local/bin/as --with-gmp=/usr/local --with-gxx-include-dir=/usr/local/lib/gcc8/include/c++/ --with-ld=/usr/local/bin/ld --with-pkgversion='FreeBSD Ports Collection' --with-system-zlib --enable-languages=c,c++,objc,fortran --prefix=/usr/local --localstatedir=/var --mandir=/usr/local/man --infodir=/usr/local/info/gcc8 --build=x86_64-portbld-freebsd11.1
+Thread model: posix
+gcc version 8.0.1 20180325 (experimental) (FreeBSD Ports Collection) 
+COLLECT_GCC_OPTIONS='-v' '-dD' '-dI' '-E' '-mtune=generic' '-march=x86-64'
+ /usr/local/libexec/gcc8/gcc/x86_64-portbld-freebsd11.1/8.0.1/cc1 -E -quiet -v - -mtune=generic -march=x86-64 -dD -dI
+ignoring nonexistent directory "/usr/local/lib/gcc8/gcc/x86_64-portbld-freebsd11.1/8.0.1/include-fixed"
+ignoring nonexistent directory "/usr/local/lib/gcc8/gcc/x86_64-portbld-freebsd11.1/8.0.1/../../../../../x86_64-portbld-freebsd11.1/include"
+#include "..." search starts here:
+#include <...> search starts here:
+ /usr/local/lib/gcc8/gcc/x86_64-portbld-freebsd11.1/8.0.1/include
+ /usr/local/include
+ /usr/include
+End of search list.
+COMPILER_PATH=/usr/local/libexec/gcc8/gcc/x86_64-portbld-freebsd11.1/8.0.1/:/usr/local/libexec/gcc8/gcc/x86_64-portbld-freebsd11.1/8.0.1/:/usr/local/libexec/gcc8/gcc/x86_64-portbld-freebsd11.1/:/usr/local/lib/gcc8/gcc/x86_64-portbld-freebsd11.1/8.0.1/:/usr/local/lib/gcc8/gcc/x86_64-portbld-freebsd11.1/:/usr/local/lib/gcc8/gcc/x86_64-portbld-freebsd11.1/8.0.1/../../../../../x86_64-portbld-freebsd11.1/bin/
+LIBRARY_PATH=/usr/local/lib/gcc8/gcc/x86_64-portbld-freebsd11.1/8.0.1/:/usr/local/lib/gcc8/gcc/x86_64-portbld-freebsd11.1/8.0.1/../../../../../x86_64-portbld-freebsd11.1/lib/:/usr/local/lib/gcc8/gcc/x86_64-portbld-freebsd11.1/8.0.1/../../../:/lib/:/usr/lib/
+COLLECT_GCC_OPTIONS='-v' '-dD' '-dI' '-E' '-mtune=generic' '-march=x86-64'
