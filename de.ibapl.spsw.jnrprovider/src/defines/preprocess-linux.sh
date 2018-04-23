@@ -1,24 +1,23 @@
 #!/bin/sh
 
 GCC=gcc
-MULTIARCH=`$GCC --print-multiarch`
 
-for i in "$@" 
+for i in "$@"
 do
-  MULTIARCH=$i
-  GCC="$MULTIARCH-gcc"
+ GCC=$i
 done
+DUMPMACHINE=`$GCC -dumpmachine`
 
 echo $GCC
-echo $MULTIARCH
+echo $DUMPMACHINE
 
 #create all subfolders
-mkdir -p linux/$MULTIARCH/sys/
+mkdir -p linux/$DUMPMACHINE/sys/
 
 for d in "sys/eventfd"
 do
   echo "#include <$d.h>" > c.c
-  $GCC -dD -dI -E c.c > linux/$MULTIARCH/$d-prepocessed.h
+  $GCC -dD -dI -E c.c > linux/$DUMPMACHINE/$d-prepocessed.h
 #  $GCC -dM -E c.c > $MULTIARCH/$d.defines
 #  $GCC -fdump-translation-unit c.c
 #  mv c.c.001t.tu $MULTIARCH/$d.c.001t.tu

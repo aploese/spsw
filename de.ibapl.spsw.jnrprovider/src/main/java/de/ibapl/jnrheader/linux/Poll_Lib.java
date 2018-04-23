@@ -1,23 +1,39 @@
 package de.ibapl.jnrheader.linux;
 
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
+
 import de.ibapl.jnrheader.NativeDataType;
+import jnr.ffi.types.int32_t;
+
 import de.ibapl.jnrheader.NativeFunction;
 import de.ibapl.jnrheader.NativeStruct;
 import de.ibapl.jnrheader.posix.Poll_H;
 import jnr.ffi.LibraryLoader;
 import jnr.ffi.Runtime;
 import jnr.ffi.Struct;
+import jnr.ffi.TypeAlias;
 import jnr.ffi.annotations.Out;
+import jnr.ffi.annotations.TypeDefinition;
 
 public abstract class Poll_Lib extends Poll_H {
+	
+	@Retention(RetentionPolicy.RUNTIME)
+	@Target(value = { ElementType.PARAMETER, ElementType.METHOD, ElementType.FIELD })
+	@TypeDefinition(alias = TypeAlias.int64_t)
+	@NativeDataType("unsigned long int")
+	public @interface nfds_t {
+		
+	}
 
 	@de.ibapl.jnrheader.NativeFunctions
 	protected  interface NativeFunctions {
-		@NativeFunction("int")
-		int poll(@Out PollFdImpl[] fds, @NativeDataType("nfds_t") long nfds, @NativeDataType("int") int timeout);
+		@int32_t int poll(@Out PollFdImpl[] fds, @nfds_t long nfds, @int32_t int timeout);
 	}
 
-	@NativeStruct()
+	@NativeStruct("pollfd")
 	private class PollFdImpl extends Struct {
 		@NativeDataType("int")
 		private final int32_t fd = new int32_t();

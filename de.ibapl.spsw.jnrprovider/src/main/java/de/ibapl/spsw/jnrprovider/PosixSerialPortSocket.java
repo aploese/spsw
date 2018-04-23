@@ -65,11 +65,25 @@ public class PosixSerialPortSocket implements SerialPortSocket {
 
 	@Override
 	public synchronized void close() throws IOException {
-		if (fd != -1) {
+		if (fd != INVALID_FD) {
+			//Mark port as closed...
 			int tempFd = fd;
-			fd = -1;
+			fd = INVALID_FD;
+			byte[] evt_buff = new byte[8];
+			evt_buff[5] = 1;
+			evt_buff[6] = 1;
+			evt_buff[7] = 1;
+			fcntl_H.write(close_event_fd, evt_buff, 8);
+
+			usleep(1000); //1ms
+			if (tcflush(fd, TCIOFLUSH) != 0) {
+				//        perror("NATIVE Error Close - tcflush");
+			}
+
 			int err = unistd_H.close(tempFd);
 			if (err == 0) {
+				unistd_H.close(close_event_fd);
+				close_event_fd = INVALID_FD;
 			} else {
 				fd = tempFd;
 				throw new IOException("close => POSIX errno: " + errno_H.errno());
@@ -502,9 +516,10 @@ public class PosixSerialPortSocket implements SerialPortSocket {
 	@Override
 	public synchronized void open(Speed speed, DataBits dataBits, StopBits stopBits, Parity parity,
 			Set<FlowControl> flowControls) throws IOException {
-		if (fd != -1) {
+		if (fd != INVALID_FD) {
 			throw new IOException("Port is already opend");
 		}
+		
 		int tempFd = fcntl_H.open(portname, fcntl_H.O_RDWR | fcntl_H.O_NOCTTY | fcntl_H.O_NONBLOCK);
 
 		if (tempFd < 0) {
@@ -570,16 +585,6 @@ public class PosixSerialPortSocket implements SerialPortSocket {
 				unistd_H.close(fd);
 				throw new IOException("Can't create close_event_fd");
 			}
-
-		/*
-		 * struct serial_struct { int type; int line; unsigned int port; int irq; int
-		 * flags; int xmit_fifo_size; int custom_divisor; int baud_base; unsigned short
-		 * close_delay; char io_type; char reserved_char[1]; int hub6; unsigned short
-		 * closing_wait; / * time to wait before closing * / unsigned short
-		 * closing_wait2; / * no longer used... * / unsigned char *iomem_base; unsigned
-		 * short iomem_reg_shift; unsigned int port_high; unsigned long iomap_base; / *
-		 * cookie passed into ioremap * / };
-		 */
 	}
 
 	@Override

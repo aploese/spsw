@@ -1,0 +1,20 @@
+Using built-in specs.
+COLLECT_GCC=arm-linux-gnueabi-gcc
+Target: arm-linux-gnueabi
+Configured with: ../src/configure -v --with-pkgversion='Debian 8-20180402-1' --with-bugurl=file:///usr/share/doc/gcc-8/README.Bugs --enable-languages=c,ada,c++,go,d,fortran,objc,obj-c++ --prefix=/usr --with-gcc-major-version-only --program-suffix=-8 --enable-shared --enable-linker-build-id --libexecdir=/usr/lib --without-included-gettext --enable-threads=posix --libdir=/usr/lib --enable-nls --with-sysroot=/ --enable-clocale=gnu --enable-libstdcxx-debug --enable-libstdcxx-time=yes --with-default-libstdcxx-abi=new --enable-gnu-unique-object --disable-libitm --disable-libquadmath --disable-libquadmath-support --enable-plugin --enable-default-pie --with-system-zlib --with-target-system-zlib --enable-multiarch --disable-sjlj-exceptions --with-arch=armv5te --with-float=soft --disable-werror --enable-checking=release --build=x86_64-linux-gnu --host=x86_64-linux-gnu --target=arm-linux-gnueabi --program-prefix=arm-linux-gnueabi- --includedir=/usr/arm-linux-gnueabi/include
+Thread model: posix
+gcc version 8.0.1 20180402 (experimental) [trunk revision 259004] (Debian 8-20180402-1) 
+COLLECT_GCC_OPTIONS='-v' '-dD' '-dI' '-E'  '-mfloat-abi=soft' '-mtls-dialect=gnu' '-marm' '-march=armv5te'
+ /usr/lib/gcc-cross/arm-linux-gnueabi/8/cc1 -E -quiet -v -imultilib . -imultiarch arm-linux-gnueabi - -mfloat-abi=soft -mtls-dialect=gnu -marm -march=armv5te -dD -dI
+ignoring nonexistent directory "/usr/local/include/arm-linux-gnueabi"
+ignoring nonexistent directory "/usr/include/arm-linux-gnueabi"
+#include "..." search starts here:
+#include <...> search starts here:
+ /usr/lib/gcc-cross/arm-linux-gnueabi/8/include
+ /usr/lib/gcc-cross/arm-linux-gnueabi/8/include-fixed
+ /usr/lib/gcc-cross/arm-linux-gnueabi/8/../../../../arm-linux-gnueabi/include
+ /usr/include
+End of search list.
+COMPILER_PATH=/usr/lib/gcc-cross/arm-linux-gnueabi/8/:/usr/lib/gcc-cross/arm-linux-gnueabi/8/:/usr/lib/gcc-cross/arm-linux-gnueabi/:/usr/lib/gcc-cross/arm-linux-gnueabi/8/:/usr/lib/gcc-cross/arm-linux-gnueabi/:/usr/lib/gcc-cross/arm-linux-gnueabi/8/../../../../arm-linux-gnueabi/bin/
+LIBRARY_PATH=/usr/lib/gcc-cross/arm-linux-gnueabi/8/:/usr/lib/gcc-cross/arm-linux-gnueabi/8/../../../../arm-linux-gnueabi/lib/:/lib/:/usr/lib/arm-linux-gnueabi/:/usr/lib/
+COLLECT_GCC_OPTIONS='-v' '-dD' '-dI' '-E'  '-mfloat-abi=soft' '-mtls-dialect=gnu' '-marm' '-march=armv5te'

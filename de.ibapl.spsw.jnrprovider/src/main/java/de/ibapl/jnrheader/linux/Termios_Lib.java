@@ -1,59 +1,104 @@
 package de.ibapl.jnrheader.linux;
 
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
+
 import org.eclipse.jdt.annotation.Nullable;
+
+import jnr.ffi.types.int32_t;
 
 import de.ibapl.jnrheader.NativeDataType;
 import de.ibapl.jnrheader.posix.Termios_H;
 import jnr.ffi.LibraryLoader;
 import jnr.ffi.Runtime;
 import jnr.ffi.Struct;
+import jnr.ffi.TypeAlias;
 import jnr.ffi.annotations.In;
 import jnr.ffi.annotations.Out;
 import jnr.ffi.annotations.Transient;
+import jnr.ffi.annotations.TypeDefinition;
 
 public abstract class Termios_Lib extends Termios_H {
 
+	@Retention(RetentionPolicy.RUNTIME)
+	@Target(value = { ElementType.PARAMETER, ElementType.METHOD, ElementType.FIELD })
+	@TypeDefinition(alias = TypeAlias.int32_t)
+	@NativeDataType("unsigned int")
+	public @interface speed_t {
+
+	}
+
+	@Retention(RetentionPolicy.RUNTIME)
+	@Target(value = { ElementType.PARAMETER, ElementType.METHOD, ElementType.FIELD })
+	@TypeDefinition(alias = TypeAlias.int8_t)
+	@NativeDataType("unsigned char")
+	public @interface cc_t {
+
+	}
+
+	@Retention(RetentionPolicy.RUNTIME)
+	@Target(value = { ElementType.PARAMETER, ElementType.METHOD, ElementType.FIELD })
+	@TypeDefinition(alias = TypeAlias.int32_t)
+	@NativeDataType("unsigned int")
+	public @interface tcflag_t {
+
+	}
+
+	@Retention(RetentionPolicy.RUNTIME)
+	@Target(value = { ElementType.PARAMETER, ElementType.METHOD })
+	@TypeDefinition(alias = TypeAlias.int32_t)
+	@NativeDataType("int")
+	public @interface pid_t {
+
+	}
+
+	@Retention(RetentionPolicy.RUNTIME)
+	@Target(value = { ElementType.PARAMETER, ElementType.METHOD, ElementType.TYPE })
+	@NativeDataType("termios")
+	public @interface termios {
+
+	}
+
 	@de.ibapl.jnrheader.NativeFunctions
-	protected  interface NativeFunctions {
-		@NativeDataType("speed_t")
-		int cfgetispeed(@NativeDataType("termios") TermiosImpl termios);
+	protected interface NativeFunctions {
+		@speed_t
+		int cfgetispeed(@termios TermiosImpl termios);
 
-		@NativeDataType("speed_t")
-		int cfgetospeed(@NativeDataType("termios") TermiosImpl termios);
+		@speed_t
+		int cfgetospeed(@termios TermiosImpl termios);
 
-		@NativeDataType("int")
-		int cfsetispeed(@Out @Transient @NativeDataType("termios") TermiosImpl termios,
-				@NativeDataType("speed_t") int speed);
+		@speed_t
+		int cfsetispeed(@Out @Transient @termios TermiosImpl termios, @speed_t int speed);
 
-		@NativeDataType("int")
-		int cfsetospeed(@Out @Transient @NativeDataType("termios") TermiosImpl termios,
-				@NativeDataType("speed_t") int speed);
+		@int32_t
+		int cfsetospeed(@Out @Transient @termios TermiosImpl termios, @speed_t int speed);
 
 		// TODO POSIX ??? set both in and out
-		@NativeDataType("int")
-		int cfsetspeed(@Out @Transient @NativeDataType("termios") TermiosImpl termios,
-				@NativeDataType("speed_t") int speed);
+		@int32_t
+		int cfsetspeed(@Out @Transient @termios TermiosImpl termios, @speed_t int speed);
 
-		@NativeDataType("int")
-		int tcdrain(int fildes);
+		@int32_t
+		int tcdrain(@int32_t int fildes);
 
-		@NativeDataType("int")
-		int tcflow(int fildes, int action);
+		@int32_t
+		int tcflow(@int32_t int fildes, @int32_t int action);
 
-		@NativeDataType("int")
-		int tcflush(int fildes, int queue_selector);
+		@int32_t
+		int tcflush(@int32_t int fildes, @int32_t int queue_selector);
 
-		@NativeDataType("int")
-		int tcgetattr(int fildes, @NativeDataType("termios") TermiosImpl termios);
+		@int32_t
+		int tcgetattr(@int32_t int fildes, @termios TermiosImpl termios);
 
-		@NativeDataType("pid_t")
-		int tcgetsid(int fildes);
+		@pid_t
+		int tcgetsid(@int32_t int fildes);
 
-		@NativeDataType("int")
-		int tcsendbreak(int fildes, int duration);
+		@int32_t
+		int tcsendbreak(@int32_t int fildes, @int32_t int duration);
 
-		@NativeDataType("int")
-		int tcsetattr(int fildes, int optional_actions, @NativeDataType("termios") TermiosImpl termios);
+		@int32_t
+		int tcsetattr(@int32_t int fildes, @int32_t int optional_actions, @termios TermiosImpl termios);
 	}
 
 	public static final int NCCS = 32;
@@ -204,18 +249,19 @@ public abstract class Termios_Lib extends Termios_H {
 		nativeFunctions = LibraryLoader.create(NativeFunctions.class).load("c");
 	}
 
+	@termios
 	public class TermiosImpl extends Struct {
-		@NativeDataType("tcflag_t")
+		@Termios_Lib.tcflag_t
 		public final int32_t c_iflag = new int32_t(); /* input mode flags */
-		@NativeDataType("tcflag_t")
+		@Termios_Lib.tcflag_t
 		public final int32_t c_oflag = new int32_t(); /* output mode flags */
-		@NativeDataType("tcflag_t")
+		@Termios_Lib.tcflag_t
 		public final int32_t c_cflag = new int32_t(); /* control mode flags */
-		@NativeDataType("tcflag_t")
+		@Termios_Lib.tcflag_t
 		public final int32_t c_lflag = new int32_t(); /* local mode flags */
-		@NativeDataType("cc_t")
+		@Termios_Lib.cc_t
 		public final int8_t c_line = new int8_t(); /* line discipline */
-		@NativeDataType("cc_t")
+		@Termios_Lib.cc_t
 		public final int8_t[] c_cc = createCc_t(); /* control characters */
 
 		// This is termios2 ??? - but linux except mips does define this.
@@ -224,14 +270,14 @@ public abstract class Termios_Lib extends Termios_H {
 		 * defined.
 		 * 
 		 */
-		@NativeDataType("speed_t")
+		@Termios_Lib.speed_t
 		public final int32_t c_ispeed = _HAVE_STRUCT_TERMIOS_C_ISPEED ? new int32_t() : null; /* input speed */
 		/**
 		 * Use this only if {@link TermiosFlags#._HAVE_STRUCT_TERMIOS_C_OSPEED} is
 		 * defined.
 		 * 
 		 */
-		@NativeDataType("speed_t")
+		@Termios_Lib.speed_t
 		public final int32_t c_ospeed = _HAVE_STRUCT_TERMIOS_C_OSPEED ? new int32_t() : null; /* output speed */
 
 		private TermiosImpl(Runtime runtime) {
@@ -489,7 +535,7 @@ public abstract class Termios_Lib extends Termios_H {
 		int result = nativeFunctions.cfsetspeed(termiosImpl, speed);
 		unwrap(termios, termiosImpl);
 		return result;
-				}
+	}
 
 	@Override
 	protected int CIBAUD() {
@@ -883,7 +929,7 @@ public abstract class Termios_Lib extends Termios_H {
 		for (int i = 0; i < NCCS; i++) {
 			result.c_cc[i].set(termios.c_cc[i]);
 		}
-		
+
 		if (result.c_ispeed == null) {
 			if (termios.c_ispeed != null) {
 				throw new IllegalArgumentException();
@@ -894,7 +940,7 @@ public abstract class Termios_Lib extends Termios_H {
 			}
 			result.c_ispeed.set(termios.c_ispeed);
 		}
-		
+
 		if (result.c_ospeed == null) {
 			if (termios.c_ospeed != null) {
 				throw new IllegalArgumentException();
@@ -965,13 +1011,13 @@ public abstract class Termios_Lib extends Termios_H {
 
 	@Override
 	public int tcsendbreak(int fildes, int duration) {
-		return  nativeFunctions.tcsendbreak(fildes, duration);
+		return nativeFunctions.tcsendbreak(fildes, duration);
 	}
 
 	@Override
 	public int tcsetattr(int fildes, int optional_actions, Termios termios) {
 		TermiosImpl termiosImpl = wrap(termios);
-		int result =  nativeFunctions.tcsetattr(fildes, optional_actions, termiosImpl);
+		int result = nativeFunctions.tcsetattr(fildes, optional_actions, termiosImpl);
 		unwrap(termios, termiosImpl);
 		return result;
 	}

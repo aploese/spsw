@@ -1586,7 +1586,13 @@ public abstract class Unistd_H implements JnrHeader {
 
 	protected abstract int L_XTND();
 
+	public abstract long pread(int fildes, byte[] buf, long nbyte, long offset);
+
+	public abstract long pwrite(int fildes, byte[] _buf, long nbyte, long offset);
+
 	protected abstract int R_OK();
+
+	public abstract long read(int fildes, byte[] buf, long nbyte);
 
 	protected abstract int SEEK_CUR();
 
@@ -1596,6 +1602,7 @@ public abstract class Unistd_H implements JnrHeader {
 
 	protected abstract int W_OK();
 
-	protected abstract int X_OK();
+	public abstract long write(int fildes, byte[] buf, long nbyte);
 
+	protected abstract int X_OK();
 }

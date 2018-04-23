@@ -1,21 +1,54 @@
 package de.ibapl.jnrheader.linux;
 
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
+
+import de.ibapl.jnrheader.NativeDataType;
 import de.ibapl.jnrheader.POSIX;
 import de.ibapl.jnrheader.posix.Unistd_H;
 import jnr.ffi.LibraryLoader;
+import jnr.ffi.TypeAlias;
+import jnr.ffi.annotations.TypeDefinition;
+import jnr.ffi.types.int32_t;
+import jnr.ffi.types.int64_t;
 
 //TODO ask for _SC_LONG_BIT etc ...
+//map c long int => java long 
 public class Unistd_Lib extends Unistd_H {
+	
+	@Retention(RetentionPolicy.RUNTIME)
+	@Target(value = { ElementType.PARAMETER, ElementType.METHOD })
+	@TypeDefinition(alias = TypeAlias.int64_t)
+	@NativeDataType
+	public @interface __off_t {
+		
+	}
+	
+	@Retention(RetentionPolicy.RUNTIME)
+	@Target(value = { ElementType.PARAMETER, ElementType.METHOD })
+	@TypeDefinition(alias = TypeAlias.int64_t)
+	@NativeDataType
+	public @interface size_t {
+		
+	}
+
 	@de.ibapl.jnrheader.NativeFunctions
 	protected interface NativeFunctions {
-		int close(int fd);
+		@int32_t int close(@int32_t int fd);
+
+		@size_t long pread(@int32_t int fildes, byte[] buf, @size_t long nbyte, @__off_t long offset);
+
+		@size_t long pwrite(@int32_t int fildes, byte[] _buf, @size_t long nbyte, @__off_t long offset);
+
+		@size_t public long read(@int32_t int fildes, byte[] buf, @size_t long nbyte);
+
+		@size_t public long write(@int32_t int fildes, byte[] buf, @size_t long nbyte);
+
 		/*
 		 * int access (String name, int type); int faccessat (int fd, const char * file,
-		 * int type, int flag); __off_t lseek (int fd, __off_t offset, int whence);
-		 * ssize_t read (int fd, void *buf, size_t nbytes) ; ssize_t write (int fd,
-		 * const void *buf, size_t n) ; ssize_t pread (int fd, void *buf, size_t nbytes,
-		 * __off_t offset) ; ssize_t pwrite (int __fd, const void *__buf, size_t __n,
-		 * __off_t __offset) ; int pipe (int __pipedes[2]); unsigned int alarm (unsigned
+		 * int type, int flag); __off_t lseek (int fd, __off_t offset, int whence); int pipe (int __pipedes[2]); unsigned int alarm (unsigned
 		 * int __seconds); unsigned int sleep (unsigned int __seconds); __useconds_t
 		 * ualarm (__useconds_t __value, __useconds_t __interval); int usleep
 		 * (__useconds_t __useconds); int pause (void); int chown (CharSequence file,
@@ -2626,6 +2659,26 @@ public class Unistd_Lib extends Unistd_H {
 	@Override
 	protected int X_OK() {
 		return Unistd_Lib.X_OK;
+	}
+
+	@Override
+	public long pread(int fildes, byte[] buf, long nbyte, long offset) {
+		return nativeFunctions.pread(fildes, buf, nbyte, offset);
+	}
+
+	@Override
+	public long pwrite(int fildes, byte[] _buf, long nbyte, long offset) {
+		return nativeFunctions.pwrite(fildes, _buf, nbyte, offset);
+	}
+
+	@Override
+	public long read(int fildes, byte[] buf, long nbyte) {
+		return nativeFunctions.read(fildes, buf, nbyte);
+	}
+
+	@Override
+	public long write(int fildes, byte[] buf, long nbyte) {
+		return nativeFunctions.write(fildes, buf, nbyte);
 	}
 
 }
