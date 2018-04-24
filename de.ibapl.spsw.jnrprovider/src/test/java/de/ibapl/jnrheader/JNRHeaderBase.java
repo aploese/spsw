@@ -1,4 +1,4 @@
-package de.ibapl.jnrheader.posix;
+package de.ibapl.jnrheader;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;

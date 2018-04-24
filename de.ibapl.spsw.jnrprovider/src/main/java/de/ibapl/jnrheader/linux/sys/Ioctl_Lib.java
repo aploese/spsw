@@ -2,8 +2,10 @@ package de.ibapl.jnrheader.linux.sys;
 
 import de.ibapl.jnrheader.NativeDataType;
 import de.ibapl.jnrheader.Wrapper;
-import de.ibapl.jnrheader.posix.sys.Ioctl_H;
+import de.ibapl.jnrheader.unix.sys.Ioctl_H;
 import jnr.ffi.LibraryLoader;
+import jnr.ffi.types.int32_t;
+import jnr.ffi.types.u_int64_t;
 
 public abstract class Ioctl_Lib extends Ioctl_H {
 	public static final int TCGETS = 0x5401;
@@ -148,8 +150,7 @@ public abstract class Ioctl_Lib extends Ioctl_H {
 
 	@de.ibapl.jnrheader.NativeFunctions
 	protected interface NativeFunctions {
-		@NativeDataType("int")
-		int ioctl(@NativeDataType("int") int fd, @NativeDataType("unsigned long int") long request);
+		@int32_t int ioctl(@int32_t int fd, @u_int64_t long request);
 	}
 
 	@Override

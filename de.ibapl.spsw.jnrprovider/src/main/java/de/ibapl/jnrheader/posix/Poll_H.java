@@ -8,7 +8,6 @@ import de.ibapl.jnrheader.Wrapper;
 @Wrapper("poll.h")
 public abstract class Poll_H implements JnrHeader {
 
-	@NativeStruct()
 	public class PollFd {
 		public short events;
 

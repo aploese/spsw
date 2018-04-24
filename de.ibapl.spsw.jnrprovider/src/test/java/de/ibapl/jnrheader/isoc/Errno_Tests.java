@@ -1,4 +1,4 @@
-package de.ibapl.jnrheader.posix;
+package de.ibapl.jnrheader.isoc;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -11,6 +11,8 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import de.ibapl.jnrheader.JnrHeader;
+import de.ibapl.jnrheader.posix.Fcntl_H;
+import de.ibapl.jnrheader.JNRHeaderBase;
 
 class Errno_Tests extends JNRHeaderBase {
 

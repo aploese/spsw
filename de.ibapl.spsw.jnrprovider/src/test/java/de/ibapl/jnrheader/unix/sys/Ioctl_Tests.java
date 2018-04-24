@@ -1,4 +1,4 @@
-package de.ibapl.jnrheader.posix.sys;
+package de.ibapl.jnrheader.unix.sys;
 
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.AfterEach;
@@ -6,7 +6,7 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import de.ibapl.jnrheader.posix.JNRHeaderBase;
+import de.ibapl.jnrheader.JNRHeaderBase;
 
 class Ioctl_Tests extends JNRHeaderBase {
 

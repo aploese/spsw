@@ -12,7 +12,6 @@ import jnr.ffi.LibraryLoader;
 import jnr.ffi.TypeAlias;
 import jnr.ffi.annotations.TypeDefinition;
 import jnr.ffi.types.int32_t;
-import jnr.ffi.types.int64_t;
 
 //TODO ask for _SC_LONG_BIT etc ...
 //map c long int => java long 
@@ -21,7 +20,7 @@ public class Unistd_Lib extends Unistd_H {
 	@Retention(RetentionPolicy.RUNTIME)
 	@Target(value = { ElementType.PARAMETER, ElementType.METHOD })
 	@TypeDefinition(alias = TypeAlias.int64_t)
-	@NativeDataType
+	@NativeDataType("long int")
 	public @interface __off_t {
 		
 	}
@@ -29,8 +28,16 @@ public class Unistd_Lib extends Unistd_H {
 	@Retention(RetentionPolicy.RUNTIME)
 	@Target(value = { ElementType.PARAMETER, ElementType.METHOD })
 	@TypeDefinition(alias = TypeAlias.int64_t)
-	@NativeDataType
+	@NativeDataType("long int")
 	public @interface size_t {
+		
+	}
+
+	@Retention(RetentionPolicy.RUNTIME)
+	@Target(value = { ElementType.PARAMETER, ElementType.METHOD })
+	@TypeDefinition(alias = TypeAlias.u_int32_t)
+	@NativeDataType("unsigned int")
+	public @interface __useconds_t {
 		
 	}
 
@@ -45,13 +52,14 @@ public class Unistd_Lib extends Unistd_H {
 		@size_t public long read(@int32_t int fildes, byte[] buf, @size_t long nbyte);
 
 		@size_t public long write(@int32_t int fildes, byte[] buf, @size_t long nbyte);
+		
+		@int32_t int usleep(@__useconds_t int useconds); 
 
 		/*
 		 * int access (String name, int type); int faccessat (int fd, const char * file,
 		 * int type, int flag); __off_t lseek (int fd, __off_t offset, int whence); int pipe (int __pipedes[2]); unsigned int alarm (unsigned
 		 * int __seconds); unsigned int sleep (unsigned int __seconds); __useconds_t
-		 * ualarm (__useconds_t __value, __useconds_t __interval); int usleep
-		 * (__useconds_t __useconds); int pause (void); int chown (CharSequence file,
+		 * ualarm (__useconds_t __value, __useconds_t __interval); int pause (void); int chown (CharSequence file,
 		 * __uid_t __owner, __gid_t __group); int fchown (int __fd, __uid_t __owner,
 		 * __gid_t __group); int lchown (CharSequence file, __uid_t __owner, __gid_t
 		 * __group); int fchownat (int __fd, CharSequence file, __uid_t __owner, __gid_t
@@ -2679,6 +2687,11 @@ public class Unistd_Lib extends Unistd_H {
 	@Override
 	public long write(int fildes, byte[] buf, long nbyte) {
 		return nativeFunctions.write(fildes, buf, nbyte);
+	}
+	
+	@Override
+	public int usleep(int useconds) {
+		return nativeFunctions.usleep(useconds);
 	}
 
 }

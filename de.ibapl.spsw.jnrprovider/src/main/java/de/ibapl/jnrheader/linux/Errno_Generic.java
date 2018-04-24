@@ -2,11 +2,10 @@ package de.ibapl.jnrheader.linux;
 
 import de.ibapl.jnrheader.NativeFunction;
 import de.ibapl.jnrheader.POSIX;
-import de.ibapl.jnrheader.posix.Errno_H;
+import de.ibapl.jnrheader.isoc.Errno_H;
 import jnr.ffi.LibraryLoader;
 import jnr.ffi.Runtime;
 import jnr.ffi.Struct;
-import jnr.ffi.types.intptr_t;
 
 public abstract class Errno_Generic extends Errno_H {
 	

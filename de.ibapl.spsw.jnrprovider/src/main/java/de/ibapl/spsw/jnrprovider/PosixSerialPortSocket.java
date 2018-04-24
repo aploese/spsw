@@ -27,12 +27,12 @@ import java.util.Set;
 
 import de.ibapl.jnrheader.JnrHeader;
 import de.ibapl.jnrheader.linux.sys.Eventfd_H;
-import de.ibapl.jnrheader.posix.Errno_H;
+import de.ibapl.jnrheader.isoc.Errno_H;
 import de.ibapl.jnrheader.posix.Fcntl_H;
 import de.ibapl.jnrheader.posix.Termios_H;
 import de.ibapl.jnrheader.posix.Termios_H.Termios;
 import de.ibapl.jnrheader.posix.Unistd_H;
-import de.ibapl.jnrheader.posix.sys.Ioctl_H;
+import de.ibapl.jnrheader.unix.sys.Ioctl_H;
 import de.ibapl.spsw.api.DataBits;
 import de.ibapl.spsw.api.FlowControl;
 import de.ibapl.spsw.api.Parity;
@@ -73,10 +73,10 @@ public class PosixSerialPortSocket implements SerialPortSocket {
 			evt_buff[5] = 1;
 			evt_buff[6] = 1;
 			evt_buff[7] = 1;
-			fcntl_H.write(close_event_fd, evt_buff, 8);
+			unistd_H.write(close_event_fd, evt_buff, 8);
 
-			usleep(1000); //1ms
-			if (tcflush(fd, TCIOFLUSH) != 0) {
+			unistd_H.usleep(1000); //1ms
+			if (termios_H.tcflush(fd, termios_H.TCIOFLUSH) != 0) {
 				//        perror("NATIVE Error Close - tcflush");
 			}
 

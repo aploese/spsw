@@ -1604,5 +1604,7 @@ public abstract class Unistd_H implements JnrHeader {
 
 	public abstract long write(int fildes, byte[] buf, long nbyte);
 
+	public abstract int usleep(int usleep);
+
 	protected abstract int X_OK();
 }

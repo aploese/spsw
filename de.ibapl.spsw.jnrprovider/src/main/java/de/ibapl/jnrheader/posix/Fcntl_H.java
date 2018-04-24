@@ -8,7 +8,6 @@ import de.ibapl.jnrheader.Wrapper;
 @Wrapper("fcntl.h")
 public abstract class Fcntl_H implements JnrHeader {
 
-	@NativeStruct()
 	public class Flock {
 		public short l_type;
 		public short l_whence;

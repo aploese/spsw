@@ -1,7 +1,16 @@
 package de.ibapl.jnrheader.linux.sys;
 
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
+
 import de.ibapl.jnrheader.NativeDataType;
 import jnr.ffi.LibraryLoader;
+import jnr.ffi.TypeAlias;
+import jnr.ffi.annotations.TypeDefinition;
+import jnr.ffi.types.int32_t;
+import jnr.ffi.types.u_int32_t;
 
 public abstract class Eventfd_Lib extends Eventfd_H {
 
@@ -9,15 +18,22 @@ public abstract class Eventfd_Lib extends Eventfd_H {
 	public static final int EFD_NONBLOCK = 00004000;
 	public static final int EFD_SEMAPHORE = 00000001;
 	
+	@Retention(RetentionPolicy.RUNTIME)
+	@Target(value = { ElementType.PARAMETER, ElementType.METHOD })
+	@TypeDefinition(alias = TypeAlias.u_int64_t)
+	@NativeDataType("uint64_t")
+	public @interface eventfd_t {
+		
+	}
+
+	
+	@de.ibapl.jnrheader.NativeFunctions
 	protected interface NativeFunctions {
-		@NativeDataType("int")
-		int eventfd(@NativeDataType("unsigned int")int count, @NativeDataType("int")int flags);
+		@int32_t int eventfd(@u_int32_t int count, @int32_t int flags);
 
-		@NativeDataType("int")
-		int eventfd_read(@NativeDataType("int")int fd, @NativeDataType("enentfd_t")long value);
+		@int32_t int eventfd_read(@int32_t int fd, @eventfd_t long value);
 
-		@NativeDataType("int")
-		int eventfd_write(@NativeDataType("int")int fd, @NativeDataType("enentfd_t")long value);
+		@int32_t int eventfd_write(@int32_t int fd, @eventfd_t long value);
 	}
 
 

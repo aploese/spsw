@@ -10,7 +10,9 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import de.ibapl.jnrheader.JNRHeaderBase;
 import de.ibapl.jnrheader.JnrHeader;
+import de.ibapl.jnrheader.isoc.Errno_H;
 
 class Unistd_Tests extends JNRHeaderBase {
 
