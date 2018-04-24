@@ -6,6 +6,7 @@ do
  ./preprocess-isoc.sh $d;
  ./preprocess-posix.sh $d;
  ./preprocess-linux.sh $d;
+ ./preprocess-unix.sh $d;
 done
 
 for d in "x86_64-w64-mingw32-gcc" "i686-w64-mingw32-gcc"

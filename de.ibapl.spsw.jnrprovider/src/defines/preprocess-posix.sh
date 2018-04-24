@@ -13,6 +13,9 @@ echo $DUMPMACHINE
 
 #create all subfolders
 mkdir -p posix/$DUMPMACHINE/sys/
+mkdir -p posix/$DUMPMACHINE/arpa/
+mkdir -p posix/$DUMPMACHINE/net/
+mkdir -p posix/$DUMPMACHINE/netinet/
 
 #obsolete "ulimit" 
 
