@@ -1,10 +1,12 @@
 package de.ibapl.jnrheader.unix.sys;
 
-import de.ibapl.jnrheader.Define;
+import de.ibapl.jnrheader.Defined;
+import de.ibapl.jnrheader.DefinedByOS;
 import de.ibapl.jnrheader.JnrHeader;
 import de.ibapl.jnrheader.POSIX;
 import de.ibapl.jnrheader.Wrapper;
 import jnr.ffi.Platform;
+import jnr.ffi.byref.IntByReference;
 
 @Wrapper("sys/ioctl.h")
 public abstract class Ioctl_H implements JnrHeader {
@@ -277,6 +279,105 @@ public abstract class Ioctl_H implements JnrHeader {
 
 	public final int SIOCPROTOPRIVATE = SIOCPROTOPRIVATE();
 
+	public final int TIOCM_LE = TIOCM_LE();
+	public final int TIOCM_DTR = TIOCM_DTR();
+	public final int TIOCM_RTS = TIOCM_RTS();
+	public final int TIOCM_ST = TIOCM_ST();
+	public final int TIOCM_SR = TIOCM_SR();
+	public final int TIOCM_CTS = TIOCM_CTS();
+	public final int TIOCM_CAR = TIOCM_CAR();
+	public final int TIOCM_RNG = TIOCM_RNG();
+	public final int TIOCM_DSR = TIOCM_DSR();
+	public final int TIOCM_CD = TIOCM_CD();
+	public final int TIOCM_RI = TIOCM_RI();
+	public final int N_TTY = N_TTY();
+	public final int N_SLIP = N_SLIP();
+	public final int N_MOUSE = N_MOUSE();
+	public final int N_PPP = N_PPP();
+	public final int N_STRIP = N_STRIP();
+	public final int N_AX25 = N_AX25();
+	public final int N_X25 = N_X25();
+	public final int N_6PACK = N_6PACK();
+	public final int N_MASC = N_MASC();
+	public final int N_R3964 = N_R3964();
+	public final int N_PROFIBUS_FDL = N_PROFIBUS_FDL();
+	public final int N_IRDA = N_IRDA();
+	public final int N_SMSBLOCK = N_SMSBLOCK();
+	public final int N_HDLC = N_HDLC();
+	public final int N_SYNC_PPP = N_SYNC_PPP();
+	public final int N_HCI = N_HCI();
+	public final Defined _SYS_TTYDEFAULTS_H_ = _SYS_TTYDEFAULTS_H_();
+	public final int TTYDEF_IFLAG = TTYDEF_IFLAG();
+	public final int TTYDEF_OFLAG = TTYDEF_OFLAG();
+	public final int TTYDEF_LFLAG = TTYDEF_LFLAG();
+	public final int TTYDEF_CFLAG = TTYDEF_CFLAG();
+	public final int TTYDEF_SPEED = TTYDEF_SPEED();
+	public final int CEOF = CEOF();
+	public final int CEOL = CEOL();
+	public final int CERASE = CERASE();
+	public final int CINTR = CINTR();
+	public final int CSTATUS = CSTATUS();
+	public final int CKILL = CKILL();
+	public final int CMIN = CMIN();
+	public final int CQUIT = CQUIT();
+	public final int CSUSP = CSUSP();
+	public final int CTIME = CTIME();
+	public final int CDSUSP = CDSUSP();
+	public final int CSTART = CSTART();
+	public final int CSTOP = CSTOP();
+	public final int CLNEXT = CLNEXT();
+	public final int CDISCARD = CDISCARD();
+	public final int CWERASE = CWERASE();
+	public final int CREPRINT = CREPRINT();
+	public final int CEOT = CEOT();
+	public final int CBRK = CBRK();
+	public final int CRPRNT = CRPRNT();
+	public final int CFLUSH = CFLUSH();
+
+	protected abstract Defined _SYS_TTYDEFAULTS_H_();
+
+	protected abstract int CBRK();
+
+	protected abstract int CDISCARD();
+
+	protected abstract int CDSUSP();
+
+	protected abstract int CEOF();
+
+	protected abstract int CEOL();
+
+	protected abstract int CEOT();
+
+	protected abstract int CERASE();
+
+	protected abstract int CFLUSH();
+
+	protected abstract int CINTR();
+
+	protected abstract int CKILL();
+
+	protected abstract int CLNEXT();
+
+	protected abstract int CMIN();
+
+	protected abstract int CQUIT();
+
+	protected abstract int CREPRINT();
+
+	protected abstract int CRPRNT();
+
+	protected abstract int CSTART();
+
+	protected abstract int CSTATUS();
+
+	protected abstract int CSTOP();
+
+	protected abstract int CSUSP();
+
+	protected abstract int CTIME();
+
+	protected abstract int CWERASE();
+
 	@POSIX
 	protected abstract int FIOASYNC();
 
@@ -296,6 +397,40 @@ public abstract class Ioctl_H implements JnrHeader {
 	protected abstract int FIOQSIZE();
 
 	public abstract int ioctl(int fd, long request);
+
+	public abstract int ioctl(int fd, long request, IntByReference value);
+	
+	protected abstract int N_6PACK();
+
+	protected abstract int N_AX25();
+
+	protected abstract int N_HCI();
+
+	protected abstract int N_HDLC();
+
+	protected abstract int N_IRDA();
+
+	protected abstract int N_MASC();
+
+	protected abstract int N_MOUSE();
+
+	protected abstract int N_PPP();
+
+	protected abstract int N_PROFIBUS_FDL();
+
+	protected abstract int N_R3964();
+
+	protected abstract int N_SLIP();
+
+	protected abstract int N_SMSBLOCK();
+
+	protected abstract int N_STRIP();
+
+	protected abstract int N_SYNC_PPP();
+
+	protected abstract int N_TTY();
+
+	protected abstract int N_X25();
 
 	@POSIX
 	protected abstract int SIOCADDDLCI();
@@ -492,7 +627,7 @@ public abstract class Ioctl_H implements JnrHeader {
 	@POSIX
 	protected abstract int TCSETSF();
 
-	@Define({Platform.OS.LINUX})
+	@DefinedByOS({ Platform.OS.LINUX })
 	protected abstract Short TCSETSW();
 
 	@POSIX
@@ -564,8 +699,30 @@ public abstract class Ioctl_H implements JnrHeader {
 	@POSIX
 	protected abstract int TIOCINQ();
 
-	@Define({Platform.OS.LINUX})
+	@DefinedByOS({ Platform.OS.LINUX })
 	protected abstract Short TIOCLINUX();
+
+	protected abstract int TIOCM_CAR();
+
+	protected abstract int TIOCM_CD();
+
+	protected abstract int TIOCM_CTS();
+
+	protected abstract int TIOCM_DSR();
+
+	protected abstract int TIOCM_DTR();
+
+	protected abstract int TIOCM_LE();
+
+	protected abstract int TIOCM_RI();
+
+	protected abstract int TIOCM_RNG();
+
+	protected abstract int TIOCM_RTS();
+
+	protected abstract int TIOCM_SR();
+
+	protected abstract int TIOCM_ST();
 
 	@POSIX
 	protected abstract int TIOCMBIC();
@@ -680,5 +837,15 @@ public abstract class Ioctl_H implements JnrHeader {
 
 	@POSIX
 	protected abstract int TIOCVHANGUP();
+
+	protected abstract int TTYDEF_CFLAG();
+
+	protected abstract int TTYDEF_IFLAG();
+
+	protected abstract int TTYDEF_LFLAG();
+
+	protected abstract int TTYDEF_OFLAG();
+
+	protected abstract int TTYDEF_SPEED();
 
 }

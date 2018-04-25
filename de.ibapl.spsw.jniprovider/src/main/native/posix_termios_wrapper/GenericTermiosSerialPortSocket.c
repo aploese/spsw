@@ -1357,13 +1357,19 @@ JNIEXPORT jint JNICALL Java_de_ibapl_spsw_jniprovider_AbstractSerialPortSocket_r
 	if (nread < 0) {
 		if ((*env)->GetIntField(env, sps, spsw_fd) == INVALID_FD) {
 			//Filehandle not valid -> closed.
+			free(lpBuffer);
+			return -1;
+		} else if (EAGAIN == errno) {
+			nread = 0;
 		} else {
 			throw_InterruptedIOExceptionWithError(env, 0,
 					"readBytes: read error during first invocation of read()");
+			free(lpBuffer);
+			return -1;
 		}
-		free(lpBuffer);
-		return -1;
-	} else if (nread == 0) {
+	}
+
+	if (nread == 0) {
 		//Nothing read yet
 
 		const int pollTimeout = (*env)->GetIntField(env, sps,
@@ -1497,11 +1503,12 @@ JNIEXPORT jint JNICALL Java_de_ibapl_spsw_jniprovider_AbstractSerialPortSocket_r
 	} else if (nread < 0) {
 		if ((*env)->GetIntField(env, sps, spsw_fd) == INVALID_FD) {
 			//Filehandle not valid -> closed.
-		} else {
+			return -1;
+		} else if (errno != EAGAIN) {
 			throw_InterruptedIOExceptionWithError(env, 0,
 					"readSingle: read error during first invocation of read()");
+			return -1;
 		}
-		return -1;
 	}
 
 	//Nothing was read so use poll to wait...
@@ -1727,7 +1734,7 @@ JNIEXPORT void JNICALL Java_de_ibapl_spsw_jniprovider_AbstractSerialPortSocket_w
 
 		if (poll_result == 0) {
 			//Timeout occured
-			throw_TimeoutIOException(env, written);
+			throw_TimeoutIOException(env, offset);
 			free(buf);
 			return;
 		} else if ((poll_result < 0)) {
@@ -1805,6 +1812,7 @@ JNIEXPORT void JNICALL Java_de_ibapl_spsw_jniprovider_AbstractSerialPortSocket_w
 	} else if (poll_result < 0) {
 		throw_InterruptedIOExceptionWithError(env, written, "writeSingle poll: Error during poll");
 		return;
+	} else {
 		if (fds[1].revents == POLLIN) {
 			//we can read from close_event_fd => port is closing
 			throw_IO_ClosedException(env, written);

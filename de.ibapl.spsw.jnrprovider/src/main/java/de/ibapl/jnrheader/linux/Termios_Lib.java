@@ -8,7 +8,7 @@ import java.lang.annotation.Target;
 import org.eclipse.jdt.annotation.Nullable;
 
 import jnr.ffi.types.int32_t;
-
+import de.ibapl.jnrheader.Defined;
 import de.ibapl.jnrheader.NativeDataType;
 import de.ibapl.jnrheader.posix.Termios_H;
 import jnr.ffi.LibraryLoader;
@@ -271,14 +271,14 @@ public abstract class Termios_Lib extends Termios_H {
 		 * 
 		 */
 		@Termios_Lib.speed_t
-		public final int32_t c_ispeed = _HAVE_STRUCT_TERMIOS_C_ISPEED ? new int32_t() : null; /* input speed */
+		public final int32_t c_ispeed = Defined.isDefined(_HAVE_STRUCT_TERMIOS_C_ISPEED) ? new int32_t() : null; /* input speed */
 		/**
 		 * Use this only if {@link TermiosFlags#._HAVE_STRUCT_TERMIOS_C_OSPEED} is
 		 * defined.
 		 * 
 		 */
 		@Termios_Lib.speed_t
-		public final int32_t c_ospeed = _HAVE_STRUCT_TERMIOS_C_OSPEED ? new int32_t() : null; /* output speed */
+		public final int32_t c_ospeed = Defined.isDefined(_HAVE_STRUCT_TERMIOS_C_OSPEED) ? new int32_t() : null; /* output speed */
 
 		private TermiosImpl(Runtime runtime) {
 			super(runtime);
@@ -586,8 +586,8 @@ public abstract class Termios_Lib extends Termios_H {
 	public Termios createTermios() {
 		Termios result = new Termios();
 		result.c_cc = new byte[NCCS];
-		result.c_ispeed = _HAVE_STRUCT_TERMIOS_C_ISPEED ? 0 : null;
-		result.c_ospeed = _HAVE_STRUCT_TERMIOS_C_OSPEED ? 0 : null;
+		result.c_ispeed = Defined.isDefined(_HAVE_STRUCT_TERMIOS_C_ISPEED) ? 0 : null;
+		result.c_ospeed = Defined.isDefined(_HAVE_STRUCT_TERMIOS_C_OSPEED) ? 0 : null;
 		return result;
 	}
 

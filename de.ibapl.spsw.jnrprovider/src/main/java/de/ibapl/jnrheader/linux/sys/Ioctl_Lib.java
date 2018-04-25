@@ -1,13 +1,26 @@
 package de.ibapl.jnrheader.linux.sys;
 
-import de.ibapl.jnrheader.NativeDataType;
-import de.ibapl.jnrheader.Wrapper;
+import de.ibapl.jnrheader.Defined;
+import de.ibapl.jnrheader.ExtraInclude;
+import de.ibapl.jnrheader.linux.Termios_Lib;
 import de.ibapl.jnrheader.unix.sys.Ioctl_H;
 import jnr.ffi.LibraryLoader;
+import jnr.ffi.byref.IntByReference;
 import jnr.ffi.types.int32_t;
+import jnr.ffi.types.intptr_t;
 import jnr.ffi.types.u_int64_t;
 
+@ExtraInclude("termios.h")
 public abstract class Ioctl_Lib extends Ioctl_H {
+	@de.ibapl.jnrheader.NativeFunctions
+	protected interface NativeFunctions {
+		@int32_t
+		int ioctl(@int32_t int fd, @u_int64_t long request);
+
+		@int32_t
+		int ioctl(@int32_t int fd, @u_int64_t long request, @intptr_t IntByReference value);
+	}
+
 	public static final int TCGETS = 0x5401;
 	public static final int TCSETS = 0x5402;
 	public static final int TCSETSW = 0x5403;
@@ -147,10 +160,180 @@ public abstract class Ioctl_Lib extends Ioctl_H {
 	public static final int SIOCDELDLCI = 0x8981;
 	public static final int SIOCDEVPRIVATE = 0x89F0;
 	public static final int SIOCPROTOPRIVATE = 0x89E0;
+	public static final int TIOCM_LE = 0x001;
+	public static final int TIOCM_DTR = 0x002;
+	public static final int TIOCM_RTS = 0x004;
+	public static final int TIOCM_ST = 0x008;
+	public static final int TIOCM_SR = 0x010;
+	public static final int TIOCM_CTS = 0x020;
+	public static final int TIOCM_CAR = 0x040;
+	public static final int TIOCM_RNG = 0x080;
+	public static final int TIOCM_DSR = 0x100;
+	public static final int TIOCM_CD = TIOCM_CAR;
+	public static final int TIOCM_RI = TIOCM_RNG;
+	public static final int N_TTY = 0;
+	public static final int N_SLIP = 1;
+	public static final int N_MOUSE = 2;
+	public static final int N_PPP = 3;
+	public static final int N_STRIP = 4;
+	public static final int N_AX25 = 5;
+	public static final int N_X25 = 6;
+	public static final int N_6PACK = 7;
+	public static final int N_MASC = 8;
+	public static final int N_R3964 = 9;
+	public static final int N_PROFIBUS_FDL = 10;
+	public static final int N_IRDA = 11;
+	public static final int N_SMSBLOCK = 12;
+	public static final int N_HDLC = 13;
+	public static final int N_SYNC_PPP = 14;
+	public static final int N_HCI = 15;
+	public static final Defined _SYS_TTYDEFAULTS_H_ = Defined.DEFINED;
+	public static final int TTYDEF_IFLAG = (Termios_Lib.BRKINT | Termios_Lib.ISTRIP | Termios_Lib.ICRNL
+			| Termios_Lib.IMAXBEL | Termios_Lib.IXON | Termios_Lib.IXANY);
+	public static final int TTYDEF_OFLAG = (Termios_Lib.OPOST | Termios_Lib.ONLCR | Termios_Lib.XTABS);
+	public static final int TTYDEF_LFLAG = (Termios_Lib.ECHO | Termios_Lib.ICANON | Termios_Lib.ISIG
+			| Termios_Lib.IEXTEN | Termios_Lib.ECHOE | Termios_Lib.ECHOKE | Termios_Lib.ECHOCTL);
+	public static final int TTYDEF_CFLAG = (Termios_Lib.CREAD | Termios_Lib.CS7 | Termios_Lib.PARENB
+			| Termios_Lib.HUPCL);
+	public static final int TTYDEF_SPEED = Termios_Lib.B9600;
+	private static final int CTRL_AND = 037;
+	public static final int CEOF = 'd' & CTRL_AND;
+	public static final int CEOL = '\0';
+	public static final int CERASE = 0177;
+	public static final int CINTR = 'c' & CTRL_AND;
+	public static final int CSTATUS = '\0';
+	public static final int CKILL = 'u' & CTRL_AND;
+	public static final int CMIN = 1;
+	public static final int CQUIT = 034;
+	public static final int CSUSP = 'z' & CTRL_AND;
+	public static final int CTIME = 0;
+	public static final int CDSUSP = 'y' & CTRL_AND;
+	public static final int CSTART = 'q' & CTRL_AND;
+	public static final int CSTOP = 's' & CTRL_AND;
+	public static final int CLNEXT = 'v' & CTRL_AND;
+	public static final int CDISCARD = 'o' & CTRL_AND;
+	public static final int CWERASE = 'w' & CTRL_AND;
+	public static final int CREPRINT = 'r' & CTRL_AND;
+	public static final int CEOT = CEOF;
+	public static final int CBRK = CEOL;
+	public static final int CRPRNT = CREPRINT;
 
-	@de.ibapl.jnrheader.NativeFunctions
-	protected interface NativeFunctions {
-		@int32_t int ioctl(@int32_t int fd, @u_int64_t long request);
+	public static final int CFLUSH = CDISCARD;
+
+	final private NativeFunctions nativeFunctions;
+
+	public Ioctl_Lib() {
+		nativeFunctions = LibraryLoader.create(NativeFunctions.class).load("c");
+	}
+
+	@Override
+	protected Defined _SYS_TTYDEFAULTS_H_() {
+		return Ioctl_Lib._SYS_TTYDEFAULTS_H_;
+	}
+
+	@Override
+	protected int CBRK() {
+		return Ioctl_Lib.CBRK;
+	}
+
+	@Override
+	protected int CDISCARD() {
+		return Ioctl_Lib.CDISCARD;
+	}
+
+	@Override
+	protected int CDSUSP() {
+		return Ioctl_Lib.CDSUSP;
+	}
+
+	@Override
+	protected int CEOF() {
+		return Ioctl_Lib.CEOF;
+	}
+
+	@Override
+	protected int CEOL() {
+		return Ioctl_Lib.CEOL;
+	}
+
+	@Override
+	protected int CEOT() {
+		return Ioctl_Lib.CEOT;
+	}
+
+	@Override
+	protected int CERASE() {
+		return Ioctl_Lib.CERASE;
+	}
+
+	@Override
+	protected int CFLUSH() {
+		return Ioctl_Lib.CFLUSH;
+	}
+
+	@Override
+	protected int CINTR() {
+		return Ioctl_Lib.CINTR;
+	}
+
+	@Override
+	protected int CKILL() {
+		return Ioctl_Lib.CKILL;
+	}
+
+	@Override
+	protected int CLNEXT() {
+		return Ioctl_Lib.CLNEXT;
+	}
+
+	@Override
+	protected int CMIN() {
+		return Ioctl_Lib.CMIN;
+	}
+
+	@Override
+	protected int CQUIT() {
+		return Ioctl_Lib.CQUIT;
+	}
+
+	@Override
+	protected int CREPRINT() {
+		return Ioctl_Lib.CREPRINT;
+	}
+
+	@Override
+	protected int CRPRNT() {
+		return Ioctl_Lib.CRPRNT;
+	}
+
+	@Override
+	protected int CSTART() {
+		return Ioctl_Lib.CSTART;
+	}
+
+	@Override
+	protected int CSTATUS() {
+		return Ioctl_Lib.CSTATUS;
+	}
+
+	@Override
+	protected int CSTOP() {
+		return Ioctl_Lib.CSTOP;
+	}
+
+	@Override
+	protected int CSUSP() {
+		return Ioctl_Lib.CSUSP;
+	}
+
+	@Override
+	protected int CTIME() {
+		return Ioctl_Lib.CTIME;
+	}
+
+	@Override
+	protected int CWERASE() {
+		return Ioctl_Lib.CWERASE;
 	}
 
 	@Override
@@ -181,6 +364,96 @@ public abstract class Ioctl_Lib extends Ioctl_H {
 	@Override
 	protected int FIOQSIZE() {
 		return Ioctl_Lib.FIOQSIZE;
+	}
+
+	@Override
+	public int ioctl(int fd, long request) {
+		return nativeFunctions.ioctl(fd, request);
+	}
+
+	@Override
+	public int ioctl(int fd, long request, IntByReference value) {
+		return nativeFunctions.ioctl(fd, request, value);
+	}
+
+	@Override
+	protected int N_6PACK() {
+		return Ioctl_Lib.N_6PACK;
+	}
+
+	@Override
+	protected int N_AX25() {
+		return Ioctl_Lib.N_AX25;
+	}
+
+	@Override
+	protected int N_HCI() {
+		return Ioctl_Lib.N_HCI;
+	}
+
+	@Override
+	protected int N_HDLC() {
+		return Ioctl_Lib.N_HDLC;
+	}
+
+	@Override
+	protected int N_IRDA() {
+		return Ioctl_Lib.N_IRDA;
+	}
+
+	@Override
+	protected int N_MASC() {
+		return Ioctl_Lib.N_MASC;
+	}
+
+	@Override
+	protected int N_MOUSE() {
+		return Ioctl_Lib.N_MOUSE;
+	}
+
+	@Override
+	protected int N_PPP() {
+		return Ioctl_Lib.N_PPP;
+	}
+
+	@Override
+	protected int N_PROFIBUS_FDL() {
+		return Ioctl_Lib.N_PROFIBUS_FDL;
+	}
+
+	@Override
+	protected int N_R3964() {
+		return Ioctl_Lib.N_R3964;
+	}
+
+	@Override
+	protected int N_SLIP() {
+		return Ioctl_Lib.N_SLIP;
+	}
+
+	@Override
+	protected int N_SMSBLOCK() {
+		return Ioctl_Lib.N_SMSBLOCK;
+	}
+
+	@Override
+	protected int N_STRIP() {
+		return Ioctl_Lib.N_STRIP;
+	}
+
+	@Override
+	protected int N_SYNC_PPP() {
+		return Ioctl_Lib.N_SYNC_PPP;
+	}
+
+	@Override
+	protected int N_TTY() {
+		return Ioctl_Lib.N_TTY;
+	}
+
+	@Override
+	protected int N_X25() {
+		return Ioctl_Lib.N_X25;
 	}
 
 	@Override
@@ -634,6 +907,61 @@ public abstract class Ioctl_Lib extends Ioctl_H {
 	}
 
 	@Override
+	protected int TIOCM_CAR() {
+		return Ioctl_Lib.TIOCM_CAR;
+	}
+
+	@Override
+	protected int TIOCM_CD() {
+		return Ioctl_Lib.TIOCM_CD;
+	}
+
+	@Override
+	protected int TIOCM_CTS() {
+		return Ioctl_Lib.TIOCM_CTS;
+	}
+
+	@Override
+	protected int TIOCM_DSR() {
+		return Ioctl_Lib.TIOCM_DSR;
+	}
+
+	@Override
+	protected int TIOCM_DTR() {
+		return Ioctl_Lib.TIOCM_DTR;
+	}
+
+	@Override
+	protected int TIOCM_LE() {
+		return Ioctl_Lib.TIOCM_LE;
+	}
+
+	@Override
+	protected int TIOCM_RI() {
+		return Ioctl_Lib.TIOCM_RI;
+	}
+
+	@Override
+	protected int TIOCM_RNG() {
+		return Ioctl_Lib.TIOCM_RNG;
+	}
+
+	@Override
+	protected int TIOCM_RTS() {
+		return Ioctl_Lib.TIOCM_RTS;
+	}
+
+	@Override
+	protected int TIOCM_SR() {
+		return Ioctl_Lib.TIOCM_SR;
+	}
+
+	@Override
+	protected int TIOCM_ST() {
+		return Ioctl_Lib.TIOCM_ST;
+	}
+
+	@Override
 	protected int TIOCMBIC() {
 		return Ioctl_Lib.TIOCMBIC;
 	}
@@ -823,15 +1151,29 @@ public abstract class Ioctl_Lib extends Ioctl_H {
 		return Ioctl_Lib.TIOCVHANGUP;
 	}
 
-	final private NativeFunctions nativeFunctions;
-
-	public Ioctl_Lib() {
-		nativeFunctions = LibraryLoader.create(NativeFunctions.class).load("c");
+	@Override
+	protected int TTYDEF_CFLAG() {
+		return Ioctl_Lib.TTYDEF_CFLAG;
 	}
 
 	@Override
-	public int ioctl(int fd, long request) {
-		return nativeFunctions.ioctl(fd, request);
+	protected int TTYDEF_IFLAG() {
+		return Ioctl_Lib.TTYDEF_IFLAG;
+	}
+
+	@Override
+	protected int TTYDEF_LFLAG() {
+		return Ioctl_Lib.TTYDEF_LFLAG;
+	}
+
+	@Override
+	protected int TTYDEF_OFLAG() {
+		return Ioctl_Lib.TTYDEF_OFLAG;
+	}
+
+	@Override
+	protected int TTYDEF_SPEED() {
+		return Ioctl_Lib.TTYDEF_SPEED;
 	}
 
 }

@@ -4,6 +4,7 @@ import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
+import java.nio.ByteBuffer;
 
 import de.ibapl.jnrheader.NativeDataType;
 import de.ibapl.jnrheader.POSIX;
@@ -51,8 +52,12 @@ public class Unistd_Lib extends Unistd_H {
 
 		@size_t public long read(@int32_t int fildes, byte[] buf, @size_t long nbyte);
 
+		@size_t public long read(@int32_t int fildes, ByteBuffer buf, @size_t long nbyte);
+
 		@size_t public long write(@int32_t int fildes, byte[] buf, @size_t long nbyte);
 		
+		@size_t public long write(@int32_t int fildes, ByteBuffer buf, @size_t long nbyte);
+
 		@int32_t int usleep(@__useconds_t int useconds); 
 
 		/*
@@ -2685,8 +2690,28 @@ public class Unistd_Lib extends Unistd_H {
 	}
 
 	@Override
+	public long read(int fildes, ByteBuffer buf, long nbyte) {
+		final long result = nativeFunctions.read(fildes, buf, nbyte);
+		//Fix buff position
+		if (result > 0) {
+			buf.position(buf.position() + (int)result);
+		}
+		return result;
+	}
+
+	@Override
 	public long write(int fildes, byte[] buf, long nbyte) {
 		return nativeFunctions.write(fildes, buf, nbyte);
+	}
+	
+	@Override
+	public long write(int fildes, ByteBuffer buf, long nbyte) {
+		final long result = nativeFunctions.write(fildes, buf, nbyte);
+		//Fix buff position
+		if (result > 0) {
+			buf.position(buf.position() + (int)result);
+		}
+		return result;
 	}
 	
 	@Override

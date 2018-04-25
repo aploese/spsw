@@ -176,7 +176,7 @@ public class GenerateTemplate {
 		File destAbi = new File(destOS, abi);
 		destAbi.mkdirs();
 		for (Class<?> c : clazz.getClasses()) {
-			if (c.getAnnotation(Define.class) != null) {
+			if (c.getAnnotation(DefinedByOS.class) != null) {
 				final String className = c.getSimpleName() + "Impl";
 				File dest = new File(destAbi, className + ".java");
 				try (FileWriter fw = new FileWriter(dest)) {
@@ -192,7 +192,7 @@ public class GenerateTemplate {
 							.append(" {\n");
 					
 					for (Method m : c.getMethods()) {
-						if (m.getAnnotation(Define.class) != null) {
+						if (m.getAnnotation(DefinedByOS.class) != null) {
 							String name = m.getName();
 							String value = allDefines.get(name);
 							if (value == null) {
@@ -200,7 +200,7 @@ public class GenerateTemplate {
 							}
 							writeMethod(fw, m.getReturnType(), name, value);
 						}
-						if (m.getAnnotation(Define.class) != null) {
+						if (m.getAnnotation(DefinedByOS.class) != null) {
 							String name = m.getName();
 							String value = allDefines.get(name);
 							writeMethod(fw, m.getReturnType(), name, value);

@@ -13,7 +13,7 @@ import jnr.ffi.Platform.OS;
 @Documented
 @Retention(RUNTIME)
 @Target({FIELD, METHOD})
-public @interface Define {
+public @interface DefinedByOS {
 
 	OS[] value();
 }

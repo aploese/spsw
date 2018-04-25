@@ -26,14 +26,20 @@ public abstract class JNRHeaderBase {
 		Map<String, Object> valueMap = new HashMap<>();
 		Set<String> nullSet = new HashSet<>();
 
-		JnrHeader instance = JnrHeader.getInstance(clazz);
+		T instance = JnrHeader.getInstance(clazz);
 
 		File out_file = File.createTempFile(clazz.getSimpleName(), "_Defines");
-		out_file.deleteOnExit();	
+		out_file.deleteOnExit();
 		File c_source = new File(out_file.getAbsolutePath() + ".c");
 		c_source.deleteOnExit();
 		try (Writer w = new FileWriter(c_source)) {
 			w.write("#include <stdio.h>\n");
+			ExtraInclude[] extraIncludes = instance.getClass().getAnnotationsByType(ExtraInclude.class);
+			for (ExtraInclude extraInclude : extraIncludes) {
+				w.write("#include <");
+				w.write(extraInclude.value());
+				w.write(">\n");
+			}
 			w.write("#include <");
 			Wrapper wrapper = clazz.getAnnotation(Wrapper.class);
 			w.write(wrapper.value());
@@ -45,15 +51,16 @@ public abstract class JNRHeaderBase {
 						.append("\\n\");\n");
 				w.append("\t#ifdef ").append(f.getName()).append("\n");
 				if (boolean.class.equals(f.getType())) {
-					w.append("\tprintf(\"").append(f.getName()).append("=%d\\n\",").append(f.getName()).append(");\n");
-					valueMap.put(f.getName(), f.getBoolean(instance) ? "1" : "0");
+					throw new IllegalArgumentException("boolean defines not supported");
+					// valueMap.put(f.getName(), f.getBoolean(instance) ? "1" : "0");
 				} else if (Boolean.class.equals(f.getType())) {
-					if (f.get(instance) == null) {
-						nullSet.add(f.getName());
+					throw new IllegalArgumentException("Boolean defines not supported");
+				} else if (Defined.class.equals(f.getType())) {
+					if (Defined.isDefined((Defined) f.get(instance))) {
+						w.append("\tprintf(\"").append(f.getName()).append("=defined\\n\");\n");
+						valueMap.put(f.getName(), "defined");
 					} else {
-						w.append("\tprintf(\"").append(f.getName()).append("=%d\\n\",").append(f.getName())
-								.append(");\n");
-						valueMap.put(f.getName(), f.getBoolean(instance) ? "1" : "0");
+						nullSet.add(f.getName());
 					}
 				} else if (byte.class.equals(f.getType())) {
 					w.append("\tprintf(\"").append(f.getName()).append("=%d\\n\",").append(f.getName()).append(");\n");
@@ -108,27 +115,29 @@ public abstract class JNRHeaderBase {
 			w.write("}\n");
 			w.flush();
 		}
-		//Run gcc
-		Process gcc = Runtime.getRuntime().exec(new String[] { "gcc", c_source.getName(), "-o", out_file.getAbsolutePath() },
-				null, c_source.getParentFile());
+		// Run gcc
+		Process gcc = Runtime.getRuntime().exec(
+				new String[] { "gcc", c_source.getName(), "-o", out_file.getAbsolutePath() }, null,
+				c_source.getParentFile());
 		int res = gcc.waitFor();
-		
+
 		if (res == 0) {
-			//OK compiled now execute the binary
+			// OK compiled now execute the binary
 			Process exec = Runtime.getRuntime().exec(out_file.getAbsolutePath());
 			InputStream is = exec.getInputStream();
 			Properties props = new Properties();
-			//Load the output of the execute it is expected that that the layout is that of a property file
+			// Load the output of the execute it is expected that that the layout is that of
+			// a property file
 			props.load(is);
-			
-			//First find the undefined values
+
+			// First find the undefined values
 			for (String key : nullSet) {
 				Object value = props.getProperty(key);
 				assertNull(value, "Value for key mismatch " + key);
 				props.remove(key);
 			}
 
-			//Then find the defined values and check the value
+			// Then find the defined values and check the value
 			for (String key : valueMap.keySet()) {
 				Object value = props.getProperty(key);
 				// We expect the same value by gcc
@@ -137,7 +146,7 @@ public abstract class JNRHeaderBase {
 			}
 			assertTrue(props.isEmpty());
 		} else {
-			//Compile error
+			// Compile error
 			StringBuffer sb = new StringBuffer();
 			try (BufferedReader r = new BufferedReader(new InputStreamReader(gcc.getErrorStream()))) {
 				while (r.ready()) {

@@ -21,7 +21,8 @@ package de.ibapl.jnrheader.posix;
 
 import org.eclipse.jdt.annotation.Nullable;
 
-import de.ibapl.jnrheader.Define;
+import de.ibapl.jnrheader.Defined;
+import de.ibapl.jnrheader.DefinedByOS;
 import de.ibapl.jnrheader.IsDefined;
 import de.ibapl.jnrheader.JnrHeader;
 import de.ibapl.jnrheader.POSIX;
@@ -118,9 +119,9 @@ public abstract class Termios_H implements JnrHeader {
 
 	final public int NCCS = NCCS();
 
-	final public boolean _HAVE_STRUCT_TERMIOS_C_ISPEED = _HAVE_STRUCT_TERMIOS_C_ISPEED();
+	final public Defined _HAVE_STRUCT_TERMIOS_C_ISPEED = _HAVE_STRUCT_TERMIOS_C_ISPEED();
 
-	final public boolean _HAVE_STRUCT_TERMIOS_C_OSPEED = _HAVE_STRUCT_TERMIOS_C_OSPEED();
+	final public Defined _HAVE_STRUCT_TERMIOS_C_OSPEED = _HAVE_STRUCT_TERMIOS_C_OSPEED();
 
 	@Nullable
 	final public Integer VINTR = VINTR();
@@ -443,24 +444,24 @@ public abstract class Termios_H implements JnrHeader {
 	protected abstract int __MAX_BAUD();
 
 	@IsDefined()
-	protected abstract boolean _HAVE_STRUCT_TERMIOS_C_ISPEED();
+	protected abstract Defined _HAVE_STRUCT_TERMIOS_C_ISPEED();
 
 	@IsDefined()
-	protected abstract boolean _HAVE_STRUCT_TERMIOS_C_OSPEED();
+	protected abstract Defined _HAVE_STRUCT_TERMIOS_C_OSPEED();
 
 	@POSIX
 	protected abstract int B0();
 
-	@Define({Platform.OS.LINUX})
+	@DefinedByOS({Platform.OS.LINUX})
 	protected abstract int B1000000();
 
 	@POSIX
 	protected abstract int B110();
 
-	@Define({Platform.OS.LINUX})
+	@DefinedByOS({Platform.OS.LINUX})
 	protected abstract int B115200();
 
-	@Define({Platform.OS.LINUX})
+	@DefinedByOS({Platform.OS.LINUX})
 	protected abstract int B1152000();
 
 	@POSIX
@@ -472,7 +473,7 @@ public abstract class Termios_H implements JnrHeader {
 	@POSIX
 	protected abstract int B150();
 
-	@Define({Platform.OS.LINUX})
+	@DefinedByOS({Platform.OS.LINUX})
 	protected abstract int B1500000();
 
 	@POSIX
@@ -484,34 +485,34 @@ public abstract class Termios_H implements JnrHeader {
 	@POSIX
 	protected abstract int B200();
 
-	@Define({Platform.OS.LINUX})
+	@DefinedByOS({Platform.OS.LINUX})
 	protected abstract int B2000000();
 
-	@Define({Platform.OS.LINUX})
+	@DefinedByOS({Platform.OS.LINUX})
 	protected abstract int B230400();
 
 	@POSIX
 	protected abstract int B2400();
 
-	@Define({Platform.OS.LINUX})
+	@DefinedByOS({Platform.OS.LINUX})
 	protected abstract int B2500000();
 
 	@POSIX
 	protected abstract int B300();
 
-	@Define({Platform.OS.LINUX})
+	@DefinedByOS({Platform.OS.LINUX})
 	protected abstract int B3000000();
 
-	@Define({Platform.OS.LINUX})
+	@DefinedByOS({Platform.OS.LINUX})
 	protected abstract int B3500000();
 
 	@POSIX
 	protected abstract int B38400();
 
-	@Define({Platform.OS.LINUX})
+	@DefinedByOS({Platform.OS.LINUX})
 	protected abstract int B4000000();
 
-	@Define({Platform.OS.LINUX})
+	@DefinedByOS({Platform.OS.LINUX})
 	protected abstract int B460800();
 
 	@POSIX
@@ -520,13 +521,13 @@ public abstract class Termios_H implements JnrHeader {
 	@POSIX
 	protected abstract int B50();
 
-	@Define({Platform.OS.LINUX})
+	@DefinedByOS({Platform.OS.LINUX})
 	protected abstract int B500000();
 
-	@Define({Platform.OS.LINUX})
+	@DefinedByOS({Platform.OS.LINUX})
 	protected abstract int B57600();
 
-	@Define({Platform.OS.LINUX})
+	@DefinedByOS({Platform.OS.LINUX})
 	protected abstract int B576000();
 
 	@POSIX
@@ -535,7 +536,7 @@ public abstract class Termios_H implements JnrHeader {
 	@POSIX
 	protected abstract int B75();
 
-	@Define({Platform.OS.LINUX})
+	@DefinedByOS({Platform.OS.LINUX})
 	protected abstract int B921600();
 
 	@POSIX
@@ -575,7 +576,7 @@ public abstract class Termios_H implements JnrHeader {
 	@POSIX
 	protected abstract int CLOCAL();
 
-	@Define({Platform.OS.LINUX})
+	@DefinedByOS({Platform.OS.LINUX})
 	@Nullable
 	protected abstract Integer CMSPAR();
 
@@ -760,7 +761,7 @@ public abstract class Termios_H implements JnrHeader {
 	@POSIX
 	protected abstract int PARENB();
 
-	@Define({Platform.OS.LINUX})
+	@DefinedByOS({Platform.OS.LINUX})
 	protected abstract Integer PAREXT();
 
 	@POSIX
@@ -834,67 +835,67 @@ public abstract class Termios_H implements JnrHeader {
 	@POSIX
 	protected abstract int TOSTOP();
 
-	@Define({Platform.OS.LINUX})
+	@DefinedByOS({Platform.OS.LINUX})
 	@Nullable
 	protected abstract Integer VDISCARD();
 
-	@Define({Platform.OS.LINUX})
+	@DefinedByOS({Platform.OS.LINUX})
 	@Nullable
 	protected abstract Integer VEOF();
 
-	@Define({Platform.OS.LINUX})
+	@DefinedByOS({Platform.OS.LINUX})
 	@Nullable
 	protected abstract Integer VEOL();
 
-	@Define({Platform.OS.LINUX})
+	@DefinedByOS({Platform.OS.LINUX})
 	@Nullable
 	protected abstract Integer VEOL2();
 
-	@Define({Platform.OS.LINUX})
+	@DefinedByOS({Platform.OS.LINUX})
 	@Nullable
 	protected abstract Integer VERASE();
 
-	@Define({Platform.OS.LINUX})
+	@DefinedByOS({Platform.OS.LINUX})
 	@Nullable
 	protected abstract Integer VINTR();
 
-	@Define({Platform.OS.LINUX})
+	@DefinedByOS({Platform.OS.LINUX})
 	@Nullable
 	protected abstract Integer VKILL();
 
-	@Define({Platform.OS.LINUX})
+	@DefinedByOS({Platform.OS.LINUX})
 	@Nullable
 	protected abstract Integer VLNEXT();
 
-	@Define({Platform.OS.LINUX})
+	@DefinedByOS({Platform.OS.LINUX})
 	@Nullable
 	protected abstract Integer VMIN();
 
-	@Define({Platform.OS.LINUX})
+	@DefinedByOS({Platform.OS.LINUX})
 	@Nullable
 	protected abstract Integer VQUIT();
 
-	@Define({Platform.OS.LINUX})
+	@DefinedByOS({Platform.OS.LINUX})
 	@Nullable
 	protected abstract Integer VREPRINT();
 
-	@Define({Platform.OS.LINUX})
+	@DefinedByOS({Platform.OS.LINUX})
 	@Nullable
 	protected abstract Integer VSTART();
 
-	@Define({Platform.OS.LINUX})
+	@DefinedByOS({Platform.OS.LINUX})
 	@Nullable
 	protected abstract Integer VSTOP();
 
-	@Define({Platform.OS.LINUX})
+	@DefinedByOS({Platform.OS.LINUX})
 	@Nullable
 	protected abstract Integer VSUSP();
 
-	@Define({Platform.OS.LINUX})
+	@DefinedByOS({Platform.OS.LINUX})
 	@Nullable
 	protected abstract Integer VSWTC();
 
-	@Define({Platform.OS.LINUX})
+	@DefinedByOS({Platform.OS.LINUX})
 	@Nullable
 	protected abstract Integer VSWTCH();
 
@@ -907,11 +908,11 @@ public abstract class Termios_H implements JnrHeader {
 	@POSIX
 	protected abstract int VTDLY();
 
-	@Define({Platform.OS.LINUX})
+	@DefinedByOS({Platform.OS.LINUX})
 	@Nullable
 	protected abstract Integer VTIME();
 
-	@Define({Platform.OS.LINUX})
+	@DefinedByOS({Platform.OS.LINUX})
 	@Nullable
 	protected abstract Integer VWERASE();
 

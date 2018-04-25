@@ -1,5 +1,7 @@
 package de.ibapl.jnrheader.posix;
 
+import java.nio.ByteBuffer;
+
 import de.ibapl.jnrheader.JnrHeader;
 import de.ibapl.jnrheader.POSIX;
 import de.ibapl.jnrheader.Wrapper;
@@ -1588,11 +1590,13 @@ public abstract class Unistd_H implements JnrHeader {
 
 	public abstract long pread(int fildes, byte[] buf, long nbyte, long offset);
 
-	public abstract long pwrite(int fildes, byte[] _buf, long nbyte, long offset);
+	public abstract long pwrite(int fildes, byte[] buf, long nbyte, long offset);
 
 	protected abstract int R_OK();
 
 	public abstract long read(int fildes, byte[] buf, long nbyte);
+
+	public abstract long read(int fildes, ByteBuffer buf, long nbyte);
 
 	protected abstract int SEEK_CUR();
 
@@ -1603,6 +1607,8 @@ public abstract class Unistd_H implements JnrHeader {
 	protected abstract int W_OK();
 
 	public abstract long write(int fildes, byte[] buf, long nbyte);
+
+	public abstract long write(int fildes, ByteBuffer buf, long nbyte);
 
 	public abstract int usleep(int usleep);
 

@@ -1,7 +1,6 @@
 package de.ibapl.jnrheader.posix;
 
 import de.ibapl.jnrheader.JnrHeader;
-import de.ibapl.jnrheader.NativeStruct;
 import de.ibapl.jnrheader.POSIX;
 import de.ibapl.jnrheader.Wrapper;
 
@@ -49,7 +48,7 @@ public abstract class Poll_H implements JnrHeader {
 
 	public abstract int poll(PollFd[] fds, long nfds, int timeout);
 	
-	public abstract PollFd createPollFd();
+	public abstract PollFd[] createPollFd(int size);
 
 	protected abstract short POLLERR();
 

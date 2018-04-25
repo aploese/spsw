@@ -671,29 +671,29 @@ public abstract class AbstractOnePortTest extends AbstractPortTest {
 		ioe = assertThrows(IOException.class, () -> {
 			readSpc.setSpeed(Speed._9600_BPS);
 		});
-		assertEquals(ioe.getMessage(), SerialPortSocket.PORT_IS_CLOSED);
+		assertEquals(SerialPortSocket.PORT_IS_CLOSED, ioe.getMessage());
 
 		ioe = assertThrows(IOException.class, () -> {
 			readSpc.getSpeed();
 		});
-		assertEquals(ioe.getMessage(), SerialPortSocket.PORT_IS_CLOSED);
+		assertEquals(SerialPortSocket.PORT_IS_CLOSED, ioe.getMessage());
 
 		ioe = assertThrows(IOException.class, () -> {
 			readSpc.getInputStream();
 		});
-		assertEquals(ioe.getMessage(), SerialPortSocket.PORT_IS_CLOSED);
+		assertEquals(SerialPortSocket.PORT_IS_CLOSED, ioe.getMessage());
 
 		ioe = assertThrows(IOException.class, () -> {
 			readSpc.getOutputStream();
 		});
-		assertEquals(ioe.getMessage(), SerialPortSocket.PORT_IS_CLOSED);
+		assertEquals(SerialPortSocket.PORT_IS_CLOSED, ioe.getMessage());
 
 		readSpc.open();
 
 		ioe = assertThrows(IOException.class, () -> {
 			readSpc.open();
 		});
-		assertEquals(ioe.getMessage(), SerialPortSocket.PORT_IS_OPEN);
+		assertEquals(SerialPortSocket.PORT_IS_OPEN, ioe.getMessage());
 
 	}
 

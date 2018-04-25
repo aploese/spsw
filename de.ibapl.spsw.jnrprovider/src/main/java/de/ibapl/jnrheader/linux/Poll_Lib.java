@@ -5,6 +5,10 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
+import javax.management.RuntimeErrorException;
+
+import org.objectweb.asm.commons.GeneratorAdapter;
+
 import de.ibapl.jnrheader.NativeDataType;
 import jnr.ffi.types.int32_t;
 
@@ -12,11 +16,13 @@ import de.ibapl.jnrheader.NativeFunction;
 import de.ibapl.jnrheader.NativeStruct;
 import de.ibapl.jnrheader.posix.Poll_H;
 import jnr.ffi.LibraryLoader;
+import jnr.ffi.Pointer;
 import jnr.ffi.Runtime;
 import jnr.ffi.Struct;
 import jnr.ffi.TypeAlias;
 import jnr.ffi.annotations.Out;
 import jnr.ffi.annotations.TypeDefinition;
+import jnr.ffi.provider.DelegatingMemoryIO;
 
 public abstract class Poll_Lib extends Poll_H {
 	
@@ -30,11 +36,11 @@ public abstract class Poll_Lib extends Poll_H {
 
 	@de.ibapl.jnrheader.NativeFunctions
 	protected  interface NativeFunctions {
-		@int32_t int poll(@Out PollFdImpl[] fds, @nfds_t long nfds, @int32_t int timeout);
+		@int32_t int poll(PollFdImpl[] fds, @nfds_t long nfds, @int32_t int timeout);
 	}
 
 	@NativeStruct("pollfd")
-	private class PollFdImpl extends Struct {
+	protected static class PollFdImpl extends Struct {
 		@NativeDataType("int")
 		private final int32_t fd = new int32_t();
 		@NativeDataType("short int")
@@ -42,8 +48,9 @@ public abstract class Poll_Lib extends Poll_H {
 		@NativeDataType("short int")
 		private final int16_t revents = new int16_t();
 
-		protected PollFdImpl(Runtime runtime) {
+		public PollFdImpl(Runtime runtime) {
 			super(runtime);
+			
 		}
 	}
 
@@ -64,26 +71,20 @@ public abstract class Poll_Lib extends Poll_H {
 		nativeFunctions = LibraryLoader.create(NativeFunctions.class).load("c");
 	}
 
-	private PollFdImpl[] wrap(PollFd[] fds) {
-		PollFdImpl[] result = new PollFdImpl[fds.length];
-		for (int i = 0 ; i < fds.length; i++) {
-			result[i] = wrap(fds[i]);
+	private PollFdImpl[] wrap(PollFd[] pollFd) {
+		PollFdImpl[] result = Struct.arrayOf(Runtime.getRuntime(nativeFunctions), PollFdImpl.class, pollFd.length);
+		for (int i = 0 ; i < pollFd.length; i++) {
+			result[i].events.set(pollFd[i].events);
+			result[i].revents.set(pollFd[i].revents);
+			result[i].fd.set(pollFd[i].fd);
 		}
-		return result;
-	}
-
-	private PollFdImpl wrap(PollFd pollFd) {
-		PollFdImpl result = new PollFdImpl(Runtime.getRuntime(nativeFunctions));
-		result.events.set(pollFd.events);
-		result.revents.set(pollFd.revents);
-		result.fd.set(pollFd.fd);
 		return result;
 	}
 
 	@Override
 	public int poll(PollFd[] fds, long nfds, int timeout) {
 		PollFdImpl[] fdsImpl = wrap(fds);
-		int result = nativeFunctions.poll(fdsImpl, nfds, timeout);
+		final int result = nativeFunctions.poll(fdsImpl, fds.length, timeout);
 		unwrap(fds, fdsImpl);
 		return result;
 	}
@@ -151,7 +152,11 @@ public abstract class Poll_Lib extends Poll_H {
 	}
 
 	@Override
-	public PollFd createPollFd() {
-		return new PollFd();
+	public PollFd[] createPollFd(int size) {
+		PollFd[] result = new PollFd[size];
+		for (int i = 0; i < size; i++) {
+			result[i] =  new PollFd();
+		}
+		return result;
 	}
 }

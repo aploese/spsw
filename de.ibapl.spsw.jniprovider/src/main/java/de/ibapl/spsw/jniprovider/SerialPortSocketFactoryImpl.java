@@ -390,11 +390,11 @@ public class SerialPortSocketFactoryImpl implements SerialPortSocketFactory {
 	}
 
 	@Override
-	public SerialPortSocket open(String portName, Speed baudRate, DataBits dataBits, StopBits stopBits, Parity parity,
+	public SerialPortSocket open(String portName, Speed speed, DataBits dataBits, StopBits stopBits, Parity parity,
 			Set<FlowControl> flowControls) throws IOException, IllegalStateException {
 		final SerialPortSocket result = createSerialPortSocket(portName);
 		try {
-			result.open(baudRate, dataBits, stopBits, parity, flowControls);
+			result.open(speed, dataBits, stopBits, parity, flowControls);
 			return result;
 		} catch (Exception e) {
 			result.close();
