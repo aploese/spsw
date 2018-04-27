@@ -27,9 +27,6 @@
  */
 package de.ibapl.spsw.tests;
 
-import java.time.Instant;
-import java.time.format.DateTimeFormatter;
-
 import de.ibapl.spsw.api.DataBits;
 import de.ibapl.spsw.api.FlowControl;
 import de.ibapl.spsw.api.Parity;
@@ -48,55 +45,92 @@ import de.ibapl.spsw.jniprovider.SerialPortSocketFactoryImpl;
 public class SendDataMain {
 
 	public static void main(String[] args) throws Exception {
+		final boolean readSingle = false;
+		final boolean writeSingle = false;
+		final Object readLock = new Object();
+		final Object writeLock = readLock; 
+		//final Object writeLock = new Object();
+
 		final Object printLock = new Object();
 		final SerialPortSocketFactory spsf = new SerialPortSocketFactoryImpl();
-		try (SerialPortSocket serialPortSocket = spsf.open("/dev/ttyUSB0", Speed._230400_BPS, DataBits.DB_8,
+		try (SerialPortSocket serialPortSocket = spsf.open("/dev/ttyUSB0", Speed._115200_BPS, DataBits.DB_8,
 				StopBits.SB_1, Parity.NONE, FlowControl.getFC_NONE())) {
+
+			// spsf.open("/dev/ttyUSB1", serialPortSocket.getSpeed(),
+			// serialPortSocket.getDatatBits(),serialPortSocket.getStopBits(),
+			// serialPortSocket.getParity(), serialPortSocket.getFlowControl()).close();
+
 			serialPortSocket.setTimeouts(200, 1000, 1000);
-			Thread t = new Thread(() -> {
-				final DateTimeFormatter dtf = DateTimeFormatter.ISO_INSTANT;
+			Thread receiver = new Thread(() -> {
 				byte data[] = new byte[256];
 				while (true) {
 					try {
-						int received = serialPortSocket.getInputStream().read(data);
-						if (received > 0) {
-							char chars[] = new char[received];
-							for (int i = 0; i < received; i++) {
-								chars[i] = (char) data[i];
+						if (readSingle) {
+							int received;
+							synchronized (readLock) {
+								received = serialPortSocket.getInputStream().read();
 							}
-							synchronized (printLock) {
-								System.out.println(dtf.format(Instant.now()) + " DataReceived: >>>\n"
-										+ String.copyValueOf(chars).replace("\"", "\\\"") + "\n<<<");
+							if (received > 0) {
+								System.out.print((char) received);
+							}
+						} else {
+							System.err.print("\nread bytes");
+							int received;
+							synchronized (readLock) {
+								received = serialPortSocket.getInputStream().read(data);
+							}
+							System.err.println(" => bytes read");
+							if (received > 0) {
+								char chars[] = new char[received];
+								for (int i = 0; i < received; i++) {
+									chars[i] = (char) data[i];
+								}
+								System.out.print(chars);
 							}
 						}
+					} catch (TimeoutIOException tioe) {
+						Thread.yield();
+						System.err.println("Read timeout");
+						// ignore
 					} catch (Exception e) {
 						synchronized (printLock) {
 							System.err.println(e.getMessage());
+							e.printStackTrace(System.err);
 						}
 					}
 				}
 			});
-			t.start();
-			long i = 0;
-			while (true) {
-				String s = String.format("%10d The quick brown fox jumps over the lazy dog\n", i++);
-				Thread.sleep(100);
+			receiver.start();
+			Thread transmitter = new Thread(() -> {
 				try {
-					serialPortSocket.getOutputStream().write(s.getBytes());
-				} catch (TimeoutIOException e) {
+					long i = 0;
+					while (true) {
+						String s = String.format("%10d The quick brown fox jumps over the lazy dog\n", i++);
+						Thread.sleep(50);
+						if (writeSingle) {
+							synchronized (writeLock) {
+								for (byte b : s.getBytes()) {
+									serialPortSocket.getOutputStream().write(b);
+								}
+							}
+						} else {
+							System.err.print("\nwrite bytes");
+							synchronized (writeLock) {
+								serialPortSocket.getOutputStream().write(s.getBytes());
+							}
+							System.err.println(" => bytes written");
+						}
+					}
+				} catch (Exception e) {
 					synchronized (printLock) {
-						System.err.println("DataSend: Could only write " + e.bytesTransferred + " bytes");
+						System.err.println(e.getMessage());
+						e.printStackTrace(System.err);
 					}
-					while (serialPortSocket.getOutBufferBytesCount() > 0) {
-						Thread.sleep(10);
-					}
-					serialPortSocket.getOutputStream().write(s.getBytes(), e.bytesTransferred,
-							s.length() - e.bytesTransferred);
 				}
-				synchronized (printLock) {
-					System.out.println("DataSend: " + s);
-				}
-			}
+			});
+			transmitter.start();
+			System.in.read();
+			System.err.println("FINISHED");
 		}
 	}
 }

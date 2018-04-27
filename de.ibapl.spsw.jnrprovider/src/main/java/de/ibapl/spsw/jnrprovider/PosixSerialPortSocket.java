@@ -545,7 +545,7 @@ public class PosixSerialPortSocket extends AbstractSerialPortSocket<PosixSerialP
 			if (errno_H.errno() == errno_H.ENOTTY) {
 				throw new IOException(String.format("Not a serial port: (%s)", portName));
 			} else {
-				throwClosedOrNativeException("open tcgetattr");
+				throw new IOException("open tcgetattr " + errno_H.errno());
 			}
 		}
 
