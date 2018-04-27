@@ -74,6 +74,7 @@ public class LogWriter {
 		this.log = new PrintStream(logStream, false);
 		this.timeStampLogging = timeStampLogging;
 		this.verbose = verbose;
+		this.baseTimeStamp = Instant.now();
 	}
 
 	public void afterAvailable(Instant ts, int available) {

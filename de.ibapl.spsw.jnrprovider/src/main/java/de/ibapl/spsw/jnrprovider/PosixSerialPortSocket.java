@@ -22,6 +22,7 @@ package de.ibapl.spsw.jnrprovider;
 import java.io.IOException;
 import java.io.InterruptedIOException;
 import java.nio.ByteBuffer;
+import java.util.Arrays;
 import java.util.EnumSet;
 import java.util.Set;
 
@@ -555,6 +556,8 @@ public class PosixSerialPortSocket extends AbstractSerialPortSocket<PosixSerialP
 			new IOException("Can't set exclusive access error: " + errno_H.errno());
 		}
 
+//TODO Linux??		termios_H.cfmakeraw(termios);
+
 		// set basic settings
 		termios.c_cflag |= (termios_H.CREAD | termios_H.CLOCAL);
 		termios.c_lflag = 0;
@@ -566,7 +569,7 @@ public class PosixSerialPortSocket extends AbstractSerialPortSocket<PosixSerialP
 		termios.c_cc[termios_H.VTIME] = 0;// No timeout
 
 		setParams(termios, speed, dataBits, stopBits, parity, flowControls);
-
+		termios = getTermios();
 		// flush the device
 		if (termios_H.tcflush(fd, termios_H.TCIOFLUSH) != 0) {
 			unistd_H.close(fd);
@@ -766,7 +769,6 @@ public class PosixSerialPortSocket extends AbstractSerialPortSocket<PosixSerialP
 				termios.c_iflag |= termios_H.IXON;
 			}
 		}
-
 		if (termios_H.tcsetattr(fd, termios_H.TCSANOW, termios) != 0) {
 			throw new IOException(
 					String.format("Native port error \"%d\" => open tcsetattr (%s)", errno_H.errno(), portName));
@@ -1130,7 +1132,7 @@ public class PosixSerialPortSocket extends AbstractSerialPortSocket<PosixSerialP
 						}
 					}
 				} else {
-					throw new InterruptedIOException("readBytes poll: received poll event " + errno_H.errno());
+					throw new InterruptedIOException("readBytes poll: received poll event fds: "  + Arrays.toString(fds) + " errno: " + errno_H.errno());
 				}
 			}
 		}
@@ -1156,7 +1158,7 @@ public class PosixSerialPortSocket extends AbstractSerialPortSocket<PosixSerialP
 				} else if (fds[0].revents == poll_H.POLLIN) {
 					// Happy path
 				} else {
-					throw new InterruptedIOException("readBytes poll: received poll event " + errno_H.errno());
+					throw new InterruptedIOException("readBytes poll: received poll event fds: " + Arrays.toString(fds) + " errono: " + errno_H.errno());
 				}
 			}
 

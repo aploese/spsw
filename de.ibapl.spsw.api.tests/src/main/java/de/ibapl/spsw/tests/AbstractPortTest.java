@@ -29,6 +29,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 import static org.junit.jupiter.api.Assumptions.assumeTrue;
 
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InterruptedIOException;
@@ -60,6 +61,8 @@ import de.ibapl.spsw.api.SerialPortSocketFactory;
 import de.ibapl.spsw.api.Speed;
 import de.ibapl.spsw.api.StopBits;
 import de.ibapl.spsw.api.TimeoutIOException;
+import de.ibapl.spsw.logging.LoggingSerialPortSocket;
+import de.ibapl.spsw.logging.TimeStampLogging;
 
 /**
  * @author Arne Plöse
@@ -103,8 +106,7 @@ public abstract class AbstractPortTest {
 							currentRecOffset++;
 							recBuffer[pos] = (byte) data;
 							assertEquals(sendBuffer[pos], recBuffer[pos], () -> {
-								return String.format("Arrays differ @%d expected but was %02x", pos, sendBuffer[pos],
-										recBuffer[pos]);
+								return String.format("Arrays differ @%d expected %02x but was %02x", pos, sendBuffer[pos], recBuffer[pos]);
 							});
 						} else {
 							throw new RuntimeException("TODO implement me");
@@ -434,6 +436,7 @@ public abstract class AbstractPortTest {
 		LOG.info(MessageFormat.format("do run test : {0}", testInfo.getDisplayName()));
 		if (readSerialPortName != null) {
 			readSpc = getSerialPortSocketFactory().createSerialPortSocket(readSerialPortName);
+//No wrapper			readSpc = LoggingSerialPortSocket.wrapWithHexOutputStream(readSpc, new FileOutputStream("/tmp/test_serial.txt"), true, TimeStampLogging.FROM_OPEN);
 		}
 		if (writeSerialPortName != null) {
 			if (writeSerialPortName.equals(readSerialPortName)) {

@@ -1590,7 +1590,11 @@ public abstract class Unistd_H implements JnrHeader {
 
 	public abstract long pread(int fildes, byte[] buf, long nbyte, long offset);
 
+	public abstract long pread(int fildes, ByteBuffer buf, long nbyte, long offset);
+
 	public abstract long pwrite(int fildes, byte[] buf, long nbyte, long offset);
+
+	public abstract long pwrite(int fildes, ByteBuffer buf, long nbyte, long offset);
 
 	protected abstract int R_OK();
 

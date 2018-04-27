@@ -347,7 +347,7 @@ public class LoggingSerialPortSocket implements SerialPortSocket {
 	public int getInterByteReadTimeout() throws IOException {
 		logWriter.beforeGetInterByteReadTimeout(Instant.now());
 		try {
-			final int result = serialPortSocket.getOverallReadTimeout();
+			final int result = serialPortSocket.getInterByteReadTimeout();
 			logWriter.afterGetInterByteReadTimeout(Instant.now(), result);
 			return result;
 		} catch (IOException e) {

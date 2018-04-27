@@ -13,7 +13,70 @@ public abstract class Poll_H implements JnrHeader {
 		public int fd;
 
 		public short revents;
+		
+		@Override
+		public String toString() {
+			StringBuilder sb = new StringBuilder();
+			sb.append(getClass().getSimpleName()).append(" { \n");
+			sb.append("fd = ").append(fd);
+			sb.append("\n\tevents = \"");
+			event2String(sb, events);
+			sb.append("\"\n\trevents = \"");
+			event2String(sb, revents);
+			sb.append("\"\n");
+			sb.append("}\n");
+			return sb.toString();
+		}
 
+		private void event2String(StringBuilder sb, short event) {
+			if ((POLLIN & event) == POLLIN) {
+				sb.append("POLLIN ");
+				event &= ~POLLIN;
+			}
+			if ((POLLPRI & event) == POLLPRI) {
+				sb.append("POLLPRI ");
+				event &= ~POLLPRI;
+			}
+			if ((POLLOUT & event) == POLLOUT) {
+				sb.append("POLLOUT ");
+				event &= ~POLLOUT;
+			}
+			if ((POLLRDNORM & event) == POLLRDNORM) {
+				sb.append("POLLRDNORM ");
+				event &= ~POLLRDNORM;
+			}
+			if ((POLLRDBAND & event) == POLLRDBAND) {
+				sb.append("POLLRDBAND ");
+				event &= ~POLLRDBAND;
+			}
+			if ((POLLWRNORM & event) == POLLWRNORM) {
+				sb.append("POLLWRNORM ");
+				event &= ~POLLWRNORM;
+			}
+			if ((POLLWRBAND & event) == POLLWRBAND) {
+				sb.append("POLLWRBAND ");
+				event &= ~POLLWRBAND;
+			}
+			if ((POLLERR & event) == POLLERR) {
+				sb.append("POLLERR ");
+				event &= ~POLLERR;
+			}
+			if ((POLLHUP & event) == POLLHUP) {
+				sb.append("POLLHUP ");
+				event &= ~POLLHUP;
+			}
+			if ((POLLIN & event) == POLLIN) {
+				sb.append("POLLIN ");
+				event &= ~POLLIN;
+			}
+			if ((POLLNVAL & event) == POLLNVAL) {
+				sb.append("POLLNVAL ");
+				event &= ~POLLNVAL;
+			}
+			if (event != 0) {
+				sb.append(String.format("0x%04x", event));
+			}
+		}
 	}
 
 	@POSIX

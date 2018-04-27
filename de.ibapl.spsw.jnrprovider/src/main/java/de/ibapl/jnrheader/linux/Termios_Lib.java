@@ -11,6 +11,7 @@ import jnr.ffi.types.int32_t;
 import de.ibapl.jnrheader.Defined;
 import de.ibapl.jnrheader.NativeDataType;
 import de.ibapl.jnrheader.posix.Termios_H;
+import de.ibapl.jnrheader.posix.Termios_H.Termios;
 import jnr.ffi.LibraryLoader;
 import jnr.ffi.Runtime;
 import jnr.ffi.Struct;
@@ -70,14 +71,16 @@ public abstract class Termios_Lib extends Termios_H {
 		int cfgetospeed(@termios TermiosImpl termios);
 
 		@speed_t
-		int cfsetispeed(@Out @Transient @termios TermiosImpl termios, @speed_t int speed);
+		int cfsetispeed(@termios TermiosImpl termios, @speed_t int speed);
 
 		@int32_t
-		int cfsetospeed(@Out @Transient @termios TermiosImpl termios, @speed_t int speed);
+		int cfsetospeed(@termios TermiosImpl termios, @speed_t int speed);
 
 		// TODO POSIX ??? set both in and out
 		@int32_t
-		int cfsetspeed(@Out @Transient @termios TermiosImpl termios, @speed_t int speed);
+		int cfsetspeed(@termios TermiosImpl termios, @speed_t int speed);
+
+		void cfmakeraw(@termios TermiosImpl termios);
 
 		@int32_t
 		int tcdrain(@int32_t int fildes);
@@ -285,7 +288,7 @@ public abstract class Termios_Lib extends Termios_H {
 		}
 
 		private int8_t[] createCc_t() {
-			final int8_t[] result = new int8_t[NCCS];
+			final int8_t[] result = new  int8_t[NCCS];
 			for (int i = 0; i < NCCS; i++) {
 				result[i] = new int8_t();
 			}
@@ -894,6 +897,13 @@ public abstract class Termios_Lib extends Termios_H {
 	@Override
 	protected int TABDLY() {
 		return Termios_Lib.TABDLY;
+	}
+
+	@Override
+	public void cfmakeraw(Termios termios) {
+		TermiosImpl termiosImpl = wrap(termios);
+		nativeFunctions.cfmakeraw(termiosImpl);
+		unwrap(termios, termiosImpl);
 	}
 
 	@Override

@@ -48,7 +48,11 @@ public class Unistd_Lib extends Unistd_H {
 
 		@size_t long pread(@int32_t int fildes, byte[] buf, @size_t long nbyte, @__off_t long offset);
 
-		@size_t long pwrite(@int32_t int fildes, byte[] _buf, @size_t long nbyte, @__off_t long offset);
+		@size_t long pread(@int32_t int fildes, ByteBuffer buf, @size_t long nbyte, @__off_t long offset);
+
+		@size_t long pwrite(@int32_t int fildes, byte[] buf, @size_t long nbyte, @__off_t long offset);
+
+		@size_t long pwrite(@int32_t int fildes, ByteBuffer buf, @size_t long nbyte, @__off_t long offset);
 
 		@size_t public long read(@int32_t int fildes, byte[] buf, @size_t long nbyte);
 
@@ -2680,8 +2684,28 @@ public class Unistd_Lib extends Unistd_H {
 	}
 
 	@Override
-	public long pwrite(int fildes, byte[] _buf, long nbyte, long offset) {
-		return nativeFunctions.pwrite(fildes, _buf, nbyte, offset);
+	public long pread(int fildes, ByteBuffer buf, long nbyte, long offset) {
+		final long result = nativeFunctions.pread(fildes, buf, nbyte, offset);
+		//Fix buff position
+		if (result > 0) {
+			buf.position(buf.position() + (int)result);
+		}
+		return result;
+	}
+
+	@Override
+	public long pwrite(int fildes, byte[] buf, long nbyte, long offset) {
+		return nativeFunctions.pwrite(fildes, buf, nbyte, offset);
+	}
+
+	@Override
+	public long pwrite(int fildes, ByteBuffer buf, long nbyte, long offset) {
+		final long result = nativeFunctions.pwrite(fildes, buf, nbyte, offset);
+		//Fix buff position
+		if (result > 0) {
+			buf.position(buf.position() + (int)result);
+		}
+		return result;
 	}
 
 	@Override

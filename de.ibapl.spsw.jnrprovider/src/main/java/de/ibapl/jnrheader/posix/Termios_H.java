@@ -44,23 +44,28 @@ public abstract class Termios_H implements JnrHeader {
 		public byte c_line;
 
 		public byte[] c_cc;
-		
+
 		@Nullable
 		public Integer c_ispeed;
-		
+
 		@Nullable
 		public Integer c_ospeed;
-		
-		public java.lang.String toString() {
+
+		public String toString() {
 			StringBuilder sb = new StringBuilder();
-			sb.append(getClass().getSimpleName()).append(" { \n");
-			final java.lang.String formatString = "    %s = 0x%08x\n";
-			sb.append(java.lang.String.format(formatString, "c_iflag", c_iflag));
-			sb.append(java.lang.String.format(formatString, "c_oflag", c_oflag));
-			sb.append(java.lang.String.format(formatString, "c_cflag", c_cflag));
-			sb.append(java.lang.String.format(formatString, "c_lflag", c_lflag));
-			sb.append(java.lang.String.format(formatString, "c_line", c_line));
-			final java.lang.String c_ccFormatString = "    c_cc[%s] = 0x%02x\n";
+			sb.append(getClass().getSimpleName()).append(" {");
+			sb.append("\n\tc_iflag = \"");
+			c_iflag2String(sb, c_iflag);
+			sb.append("\"\n\tc_oflag = \"");
+			c_oflag2String(sb, c_oflag);
+			sb.append("\"\n\tc_cflag = \"");
+			c_cflag2String(sb, c_cflag);
+			sb.append("\"\n\tc_lflag = \"");
+			c_lflag2String(sb, c_lflag);
+			sb.append("\"\n\tc_line = \"");
+			c_line2String(sb, c_line);
+
+			final java.lang.String c_ccFormatString = "\"\n\tc_cc[%s] = 0x%02x";
 			for (int i = 0; i < NCCS; i++) {
 				java.lang.String c_ccName = java.lang.String.valueOf(i);
 				if (VINTR != null && VINTR == i) {
@@ -100,7 +105,7 @@ public abstract class Termios_H implements JnrHeader {
 				}
 				sb.append(java.lang.String.format(c_ccFormatString, c_ccName, c_cc[i]));
 			}
-
+			final java.lang.String formatString = "\n\t%s = 0x%08x";
 			if (c_ispeed != null) {
 				sb.append(java.lang.String.format(formatString, "c_ispeed", c_ispeed));
 			} else {
@@ -112,10 +117,237 @@ public abstract class Termios_H implements JnrHeader {
 				sb.append("    c_ospeed not defined\n");
 			}
 
-			sb.append("}\n");
+			sb.append("\n}");
 			return sb.toString();
 		}
-}
+
+		private void c_line2String(StringBuilder sb, byte c_line) {
+			sb.append(String.format("0x%02x", c_line));
+		}
+
+		private void c_lflag2String(StringBuilder sb, int c_lflag) {
+			if ((ECHO & c_lflag) == ECHO) {
+				sb.append("ECHO ");
+				c_lflag &= ~ECHO;
+			}
+			if ((ECHOE & c_lflag) == ECHOE) {
+				sb.append("ECHOE ");
+				c_lflag &= ~ECHOE;
+			}
+			if ((ECHOK & c_lflag) == ECHOK) {
+				sb.append("ECHOK ");
+				c_lflag &= ~ECHOK;
+			}
+			if ((ECHONL & c_lflag) == ECHONL) {
+				sb.append("ECHONL ");
+				c_lflag &= ~ECHONL;
+			}
+			if ((ICANON & c_lflag) == ICANON) {
+				sb.append("ICANON ");
+				c_lflag &= ~ICANON;
+			}
+			if ((IEXTEN & c_lflag) == IEXTEN) {
+				sb.append("IEXTEN ");
+				c_lflag &= ~IEXTEN;
+			}
+			if ((ISIG & c_lflag) == ISIG) {
+				sb.append("ISIG ");
+				c_lflag &= ~ISIG;
+			}
+			if ((NOFLSH & c_lflag) == NOFLSH) {
+				sb.append("NOFLSH ");
+				c_lflag &= ~NOFLSH;
+			}
+			if ((TOSTOP & c_lflag) == TOSTOP) {
+				sb.append("TOSTOP ");
+				c_lflag &= ~TOSTOP;
+			}
+			if (c_lflag != 0) {
+				sb.append(String.format("0x%08x", c_lflag));
+			}
+		}
+
+		private void c_cflag2String(StringBuilder sb, int c_cflag) {
+			if ((CSIZE & c_cflag) == CS5) {
+				sb.append("CS5 ");
+				c_cflag &= ~CS5;
+			} else if ((CSIZE & c_cflag) == CS6) {
+				sb.append("CS6 ");
+				c_cflag &= ~CS6;
+			} else if ((CSIZE & c_cflag) == CS7) {
+				sb.append("CS7 ");
+				c_cflag &= ~CS7;
+			} else if ((CSIZE & c_cflag) == CS8) {
+				sb.append("CS8 ");
+				c_cflag &= ~CS8;
+			}
+			if ((CSTOPB & c_cflag) == CSTOPB) {
+				sb.append("CSTOPB ");
+				c_cflag &= ~CSTOPB;
+			}
+			if ((CREAD & c_cflag) == CREAD) {
+				sb.append("CREAD ");
+				c_cflag &= ~CREAD;
+			}
+			if ((PARENB & c_cflag) == PARENB) {
+				sb.append("PARENB ");
+				c_cflag &= ~PARENB;
+			}
+			if ((OPOST & c_cflag) == PARODD) {
+				sb.append("PARODD ");
+				c_cflag &= ~PARODD;
+			}
+			if ((HUPCL & c_cflag) == HUPCL) {
+				sb.append("HUPCL ");
+				c_cflag &= ~HUPCL;
+			}
+			if ((CLOCAL & c_cflag) == CLOCAL) {
+				sb.append("CLOCAL ");
+				c_cflag &= ~CLOCAL;
+			}
+			if (c_cflag != 0) {
+				sb.append(String.format("0x%08x", c_cflag));
+			}
+		}
+
+		private void c_oflag2String(StringBuilder sb, int c_oflag) {
+			if ((OPOST & c_oflag) == OPOST) {
+				sb.append("OPOST ");
+				c_oflag &= ~OPOST;
+			}
+			if ((ONLCR & c_oflag) == ONLCR) {
+				sb.append("ONLCR ");
+				c_oflag &= ~ONLCR;
+			}
+			if ((OCRNL & c_oflag) == OCRNL) {
+				sb.append("OCRNL ");
+				c_oflag &= ~OCRNL;
+			}
+			if ((ONOCR & c_oflag) == ONOCR) {
+				sb.append("ONOCR ");
+				c_oflag &= ~ONOCR;
+			}
+			if ((ONLRET & c_oflag) == ONLRET) {
+				sb.append("ONLRET ");
+				c_oflag &= ~ONLRET;
+			}
+			if ((OFILL & c_oflag) == OFILL) {
+				sb.append("OFILL ");
+				c_oflag &= ~OFILL;
+			}
+			if ((NLDLY & c_oflag) == NL0) {
+				sb.append("NL0 ");
+				c_oflag &= ~NL0;
+			} else if ((NLDLY & c_oflag) == NL1) {
+				sb.append("NL1 ");
+				c_oflag &= ~NL1;
+			}
+			if ((CRDLY & c_oflag) == CR0) {
+				sb.append("CR0 ");
+				c_oflag &= ~CR0;
+			} else if ((CRDLY & c_oflag) == CR1) {
+				sb.append("CR1 ");
+				c_oflag &= ~CR1;
+			} else if ((CRDLY & c_oflag) == CR2) {
+				sb.append("CR2 ");
+				c_oflag &= ~CR2;
+			} else if ((CRDLY & c_oflag) == CR3) {
+				sb.append("CR3 ");
+				c_oflag &= ~CR3;
+			}
+			if ((TABDLY & c_oflag) == TAB0) {
+				sb.append("TAB0 ");
+				c_oflag &= ~TAB0;
+			} else if ((TABDLY & c_oflag) == TAB1) {
+				sb.append("TAB1 ");
+				c_oflag &= ~TAB1;
+			} else if ((TABDLY & c_oflag) == TAB2) {
+				sb.append("TAB2 ");
+				c_oflag &= ~TAB2;
+			} else if ((TABDLY & c_oflag) == TAB3) {
+				sb.append("TAB3 ");
+				c_oflag &= ~TAB3;
+			}
+			if ((BSDLY & c_oflag) == BS0) {
+				sb.append("BS0 ");
+				c_oflag &= ~BS0;
+			} else if ((BSDLY & c_oflag) == BS1) {
+				sb.append("BS1 ");
+				c_oflag &= ~BS1;
+			}
+			if ((VTDLY & c_oflag) == VT0) {
+				sb.append("VT0 ");
+				c_oflag &= ~VT0;
+			} else if ((VTDLY & c_oflag) == VT1) {
+				sb.append("VT1 ");
+				c_oflag &= ~VT1;
+			}
+			if ((FFDLY & c_oflag) == FF0) {
+				sb.append("FF0 ");
+				c_oflag &= ~FF0;
+			} else if ((FFDLY & c_oflag) == FF1) {
+				sb.append("FF1 ");
+				c_oflag &= ~FF1;
+			}
+			if (c_oflag != 0) {
+				sb.append(String.format("0x%08x", c_oflag));
+			}
+		}
+
+		private void c_iflag2String(StringBuilder sb, int c_iflag) {
+			if ((BRKINT & c_iflag) == BRKINT) {
+				sb.append("BRKINT ");
+				c_iflag &= ~BRKINT;
+			}
+			if ((ICRNL & c_iflag) == ICRNL) {
+				sb.append("ICRNL ");
+				c_iflag &= ~ICRNL;
+			}
+			if ((IGNBRK & c_iflag) == IGNBRK) {
+				sb.append("IGNBRK ");
+				c_iflag &= ~IGNBRK;
+			}
+			if ((IGNCR & c_iflag) == IGNCR) {
+				sb.append("IGNCR ");
+				c_iflag &= ~IGNCR;
+			}
+			if ((IGNPAR & c_iflag) == IGNPAR) {
+				sb.append("IGNPAR ");
+				c_iflag &= ~IGNPAR;
+			}
+			if ((INLCR & c_iflag) == INLCR) {
+				sb.append("INLCR ");
+				c_iflag &= ~INLCR;
+			}
+			if ((INPCK & c_iflag) == INPCK) {
+				sb.append("INPCK ");
+				c_iflag &= ~INPCK;
+			}
+			if ((ISTRIP & c_iflag) == ISTRIP) {
+				sb.append("ISTRIP ");
+				c_iflag &= ~ISTRIP;
+			}
+			if ((IXANY & c_iflag) == IXANY) {
+				sb.append("IXANY ");
+				c_iflag &= ~IXANY;
+			}
+			if ((IXOFF & c_iflag) == IXOFF) {
+				sb.append("IXOFF ");
+				c_iflag &= ~IXOFF;
+			}
+			if ((IXON & c_iflag) == IXON) {
+				sb.append("IXON ");
+				c_iflag &= ~IXON;
+			}
+			if ((PARMRK & c_iflag) == PARMRK) {
+				sb.append("PARMRK ");
+				c_iflag &= ~PARMRK;
+			}
+			if (c_iflag != 0) {
+				sb.append(String.format("0x%08x", c_iflag));
+			}
+		}
+	}
 
 	final public int NCCS = NCCS();
 
@@ -452,16 +684,16 @@ public abstract class Termios_H implements JnrHeader {
 	@POSIX
 	protected abstract int B0();
 
-	@DefinedByOS({Platform.OS.LINUX})
+	@DefinedByOS({ Platform.OS.LINUX })
 	protected abstract int B1000000();
 
 	@POSIX
 	protected abstract int B110();
 
-	@DefinedByOS({Platform.OS.LINUX})
+	@DefinedByOS({ Platform.OS.LINUX })
 	protected abstract int B115200();
 
-	@DefinedByOS({Platform.OS.LINUX})
+	@DefinedByOS({ Platform.OS.LINUX })
 	protected abstract int B1152000();
 
 	@POSIX
@@ -473,7 +705,7 @@ public abstract class Termios_H implements JnrHeader {
 	@POSIX
 	protected abstract int B150();
 
-	@DefinedByOS({Platform.OS.LINUX})
+	@DefinedByOS({ Platform.OS.LINUX })
 	protected abstract int B1500000();
 
 	@POSIX
@@ -485,34 +717,34 @@ public abstract class Termios_H implements JnrHeader {
 	@POSIX
 	protected abstract int B200();
 
-	@DefinedByOS({Platform.OS.LINUX})
+	@DefinedByOS({ Platform.OS.LINUX })
 	protected abstract int B2000000();
 
-	@DefinedByOS({Platform.OS.LINUX})
+	@DefinedByOS({ Platform.OS.LINUX })
 	protected abstract int B230400();
 
 	@POSIX
 	protected abstract int B2400();
 
-	@DefinedByOS({Platform.OS.LINUX})
+	@DefinedByOS({ Platform.OS.LINUX })
 	protected abstract int B2500000();
 
 	@POSIX
 	protected abstract int B300();
 
-	@DefinedByOS({Platform.OS.LINUX})
+	@DefinedByOS({ Platform.OS.LINUX })
 	protected abstract int B3000000();
 
-	@DefinedByOS({Platform.OS.LINUX})
+	@DefinedByOS({ Platform.OS.LINUX })
 	protected abstract int B3500000();
 
 	@POSIX
 	protected abstract int B38400();
 
-	@DefinedByOS({Platform.OS.LINUX})
+	@DefinedByOS({ Platform.OS.LINUX })
 	protected abstract int B4000000();
 
-	@DefinedByOS({Platform.OS.LINUX})
+	@DefinedByOS({ Platform.OS.LINUX })
 	protected abstract int B460800();
 
 	@POSIX
@@ -521,13 +753,13 @@ public abstract class Termios_H implements JnrHeader {
 	@POSIX
 	protected abstract int B50();
 
-	@DefinedByOS({Platform.OS.LINUX})
+	@DefinedByOS({ Platform.OS.LINUX })
 	protected abstract int B500000();
 
-	@DefinedByOS({Platform.OS.LINUX})
+	@DefinedByOS({ Platform.OS.LINUX })
 	protected abstract int B57600();
 
-	@DefinedByOS({Platform.OS.LINUX})
+	@DefinedByOS({ Platform.OS.LINUX })
 	protected abstract int B576000();
 
 	@POSIX
@@ -536,7 +768,7 @@ public abstract class Termios_H implements JnrHeader {
 	@POSIX
 	protected abstract int B75();
 
-	@DefinedByOS({Platform.OS.LINUX})
+	@DefinedByOS({ Platform.OS.LINUX })
 	protected abstract int B921600();
 
 	@POSIX
@@ -576,7 +808,7 @@ public abstract class Termios_H implements JnrHeader {
 	@POSIX
 	protected abstract int CLOCAL();
 
-	@DefinedByOS({Platform.OS.LINUX})
+	@DefinedByOS({ Platform.OS.LINUX })
 	@Nullable
 	protected abstract Integer CMSPAR();
 
@@ -761,7 +993,7 @@ public abstract class Termios_H implements JnrHeader {
 	@POSIX
 	protected abstract int PARENB();
 
-	@DefinedByOS({Platform.OS.LINUX})
+	@DefinedByOS({ Platform.OS.LINUX })
 	protected abstract Integer PAREXT();
 
 	@POSIX
@@ -835,67 +1067,67 @@ public abstract class Termios_H implements JnrHeader {
 	@POSIX
 	protected abstract int TOSTOP();
 
-	@DefinedByOS({Platform.OS.LINUX})
+	@DefinedByOS({ Platform.OS.LINUX })
 	@Nullable
 	protected abstract Integer VDISCARD();
 
-	@DefinedByOS({Platform.OS.LINUX})
+	@DefinedByOS({ Platform.OS.LINUX })
 	@Nullable
 	protected abstract Integer VEOF();
 
-	@DefinedByOS({Platform.OS.LINUX})
+	@DefinedByOS({ Platform.OS.LINUX })
 	@Nullable
 	protected abstract Integer VEOL();
 
-	@DefinedByOS({Platform.OS.LINUX})
+	@DefinedByOS({ Platform.OS.LINUX })
 	@Nullable
 	protected abstract Integer VEOL2();
 
-	@DefinedByOS({Platform.OS.LINUX})
+	@DefinedByOS({ Platform.OS.LINUX })
 	@Nullable
 	protected abstract Integer VERASE();
 
-	@DefinedByOS({Platform.OS.LINUX})
+	@DefinedByOS({ Platform.OS.LINUX })
 	@Nullable
 	protected abstract Integer VINTR();
 
-	@DefinedByOS({Platform.OS.LINUX})
+	@DefinedByOS({ Platform.OS.LINUX })
 	@Nullable
 	protected abstract Integer VKILL();
 
-	@DefinedByOS({Platform.OS.LINUX})
+	@DefinedByOS({ Platform.OS.LINUX })
 	@Nullable
 	protected abstract Integer VLNEXT();
 
-	@DefinedByOS({Platform.OS.LINUX})
+	@DefinedByOS({ Platform.OS.LINUX })
 	@Nullable
 	protected abstract Integer VMIN();
 
-	@DefinedByOS({Platform.OS.LINUX})
+	@DefinedByOS({ Platform.OS.LINUX })
 	@Nullable
 	protected abstract Integer VQUIT();
 
-	@DefinedByOS({Platform.OS.LINUX})
+	@DefinedByOS({ Platform.OS.LINUX })
 	@Nullable
 	protected abstract Integer VREPRINT();
 
-	@DefinedByOS({Platform.OS.LINUX})
+	@DefinedByOS({ Platform.OS.LINUX })
 	@Nullable
 	protected abstract Integer VSTART();
 
-	@DefinedByOS({Platform.OS.LINUX})
+	@DefinedByOS({ Platform.OS.LINUX })
 	@Nullable
 	protected abstract Integer VSTOP();
 
-	@DefinedByOS({Platform.OS.LINUX})
+	@DefinedByOS({ Platform.OS.LINUX })
 	@Nullable
 	protected abstract Integer VSUSP();
 
-	@DefinedByOS({Platform.OS.LINUX})
+	@DefinedByOS({ Platform.OS.LINUX })
 	@Nullable
 	protected abstract Integer VSWTC();
 
-	@DefinedByOS({Platform.OS.LINUX})
+	@DefinedByOS({ Platform.OS.LINUX })
 	@Nullable
 	protected abstract Integer VSWTCH();
 
@@ -908,11 +1140,11 @@ public abstract class Termios_H implements JnrHeader {
 	@POSIX
 	protected abstract int VTDLY();
 
-	@DefinedByOS({Platform.OS.LINUX})
+	@DefinedByOS({ Platform.OS.LINUX })
 	@Nullable
 	protected abstract Integer VTIME();
 
-	@DefinedByOS({Platform.OS.LINUX})
+	@DefinedByOS({ Platform.OS.LINUX })
 	@Nullable
 	protected abstract Integer VWERASE();
 
@@ -921,5 +1153,7 @@ public abstract class Termios_H implements JnrHeader {
 
 	@POSIX
 	protected abstract int XTABS();
+
+	public abstract void cfmakeraw(Termios termios);
 
 }
