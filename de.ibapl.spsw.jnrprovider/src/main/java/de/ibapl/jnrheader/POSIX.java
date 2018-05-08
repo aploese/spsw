@@ -10,7 +10,14 @@ import java.lang.annotation.Target;
 
 @Documented
 @Retention(RUNTIME)
-@Target({FIELD, METHOD})
+@Target({ FIELD, METHOD})
 public @interface POSIX {
+
+	Marker value() default Marker.ISO_C;
+
+	public enum Marker {
+		ISO_C,
+		XSI;
+	}
 
 }

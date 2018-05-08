@@ -13,6 +13,8 @@ import jnr.ffi.LibraryLoader;
 import jnr.ffi.TypeAlias;
 import jnr.ffi.annotations.TypeDefinition;
 import jnr.ffi.types.int32_t;
+import jnr.ffi.types.intptr_t;
+import jnr.ffi.types.uintptr_t;
 
 //TODO ask for _SC_LONG_BIT etc ...
 //map c long int => java long 
@@ -56,11 +58,11 @@ public class Unistd_Lib extends Unistd_H {
 
 		@size_t public long read(@int32_t int fildes, byte[] buf, @size_t long nbyte);
 
-		@size_t public long read(@int32_t int fildes, ByteBuffer buf, @size_t long nbyte);
+		@size_t public long read(@int32_t int fildes, @uintptr_t long address, @size_t long nbyte);
 
 		@size_t public long write(@int32_t int fildes, byte[] buf, @size_t long nbyte);
 		
-		@size_t public long write(@int32_t int fildes, ByteBuffer buf, @size_t long nbyte);
+		@size_t public long write(@int32_t int fildes, @uintptr_t long address, @size_t long nbyte);
 
 		@int32_t int usleep(@__useconds_t int useconds); 
 
@@ -2714,13 +2716,8 @@ public class Unistd_Lib extends Unistd_H {
 	}
 
 	@Override
-	public long read(int fildes, ByteBuffer buf, long nbyte) {
-		final long result = nativeFunctions.read(fildes, buf, nbyte);
-		//Fix buff position
-		if (result > 0) {
-			buf.position(buf.position() + (int)result);
-		}
-		return result;
+	public long read(int fildes, long address, long nbyte) {
+		return nativeFunctions.read(fildes, address, nbyte);
 	}
 
 	@Override
@@ -2729,13 +2726,8 @@ public class Unistd_Lib extends Unistd_H {
 	}
 	
 	@Override
-	public long write(int fildes, ByteBuffer buf, long nbyte) {
-		final long result = nativeFunctions.write(fildes, buf, nbyte);
-		//Fix buff position
-		if (result > 0) {
-			buf.position(buf.position() + (int)result);
-		}
-		return result;
+	public long write(int fildes, long address, long nbyte) {
+		return nativeFunctions.write(fildes, address, nbyte);
 	}
 	
 	@Override

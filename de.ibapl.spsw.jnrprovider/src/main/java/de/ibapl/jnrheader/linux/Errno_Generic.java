@@ -1,29 +1,17 @@
 package de.ibapl.jnrheader.linux;
 
-import de.ibapl.jnrheader.NativeFunction;
 import de.ibapl.jnrheader.POSIX;
 import de.ibapl.jnrheader.isoc.Errno_H;
 import jnr.ffi.LibraryLoader;
 import jnr.ffi.Runtime;
-import jnr.ffi.Struct;
+import jnr.ffi.types.intptr_t;
 
 public abstract class Errno_Generic extends Errno_H {
-	
-	public static class ErrnoPtr extends Struct {
-		
-		int32_t errno = new int32_t();
-		
-		public ErrnoPtr(Runtime runtime) {
-			super(runtime);
-		}
-		
-	}
 	
 	//TODO we can't use this were miles away ???
 	@de.ibapl.jnrheader.NativeFunctions
 	protected interface NativeFunctions {
-		@NativeFunction("int")
-		ErrnoPtr __errno_location();
+		@intptr_t int __errno_location();
 //		int errno(); //TODO was __errno_location ????
 	}
 

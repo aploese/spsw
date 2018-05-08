@@ -5,6 +5,8 @@ import java.nio.ByteBuffer;
 import de.ibapl.jnrheader.JnrHeader;
 import de.ibapl.jnrheader.POSIX;
 import de.ibapl.jnrheader.Wrapper;
+import sun.nio.ch.DirectBuffer;
+import sun.nio.ch.Util;
 
 @Wrapper("unistd.h")
 public abstract class Unistd_H implements JnrHeader {
@@ -1600,7 +1602,40 @@ public abstract class Unistd_H implements JnrHeader {
 
 	public abstract long read(int fildes, byte[] buf, long nbyte);
 
-	public abstract long read(int fildes, ByteBuffer buf, long nbyte);
+	public abstract long read(int fildes, long address, long nbyte);
+
+	public static long read(int fildes, ByteBuffer dst, Unistd_H unistd_H) {
+		if (dst.isReadOnly())
+			throw new IllegalArgumentException("Read-only buffer");
+		if (dst instanceof DirectBuffer)
+			return readIntoNativeBuffer(fildes, dst, unistd_H);
+
+		// Substitute a native buffer
+		ByteBuffer bb = Util.getTemporaryDirectBuffer(dst.remaining());
+		try {
+			final long n = readIntoNativeBuffer(fildes, bb, unistd_H);
+			bb.flip();
+			if (n > 0)
+				dst.put(bb);
+			return n;
+		} finally {
+			Util.releaseTemporaryDirectBuffer(bb);
+		}
+	}
+
+	private static long readIntoNativeBuffer(int fildes, ByteBuffer bb, Unistd_H unistd_H) {
+		int pos = bb.position();
+		int lim = bb.limit();
+		assert (pos <= lim);
+		int rem = (pos <= lim ? lim - pos : 0);
+
+		if (rem == 0)
+			return 0;
+		final long n = unistd_H.read(fildes, ((DirectBuffer) bb).address() + pos, rem);
+		if (n > 0)
+			bb.position((int)(pos + n));
+		return n;
+	}
 
 	protected abstract int SEEK_CUR();
 
@@ -1612,7 +1647,49 @@ public abstract class Unistd_H implements JnrHeader {
 
 	public abstract long write(int fildes, byte[] buf, long nbyte);
 
-	public abstract long write(int fildes, ByteBuffer buf, long nbyte);
+	public abstract long write(int fildes, long address, long nbyte);
+
+	private static long writeFromNativeBuffer(int fildes, ByteBuffer bb, Unistd_H unistd_H) {
+		int pos = bb.position();
+		int lim = bb.limit();
+		assert (pos <= lim);
+		int rem = (pos <= lim ? lim - pos : 0);
+
+		if (rem == 0)
+			return 0;
+		final long written = unistd_H.write(fildes, ((DirectBuffer) bb).address() + pos, rem);
+		if (written > 0)
+			bb.position((int) (pos + written));
+		return written;
+	}
+
+	public static long write(int fildes, ByteBuffer src, Unistd_H unistd_H) {
+		if (src instanceof DirectBuffer)
+			return writeFromNativeBuffer(fildes, src, unistd_H);
+
+		// Substitute a native buffer
+		int pos = src.position();
+		int lim = src.limit();
+		assert (pos <= lim);
+		int rem = (pos <= lim ? lim - pos : 0);
+		ByteBuffer bb = Util.getTemporaryDirectBuffer(rem);
+		try {
+			bb.put(src);
+			bb.flip();
+			// Do not update src until we see how many bytes were written
+			src.position(pos);
+
+			long n = writeFromNativeBuffer(fildes, bb, unistd_H);
+			if (n > 0) {
+				// now update src
+				src.position((int) (pos + n));
+			}
+			return n;
+		} finally {
+			Util.releaseTemporaryDirectBuffer(bb);
+		}
+
+	}
 
 	public abstract int usleep(int usleep);
 
