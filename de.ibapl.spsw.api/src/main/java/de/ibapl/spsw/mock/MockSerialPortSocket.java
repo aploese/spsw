@@ -22,6 +22,7 @@ package de.ibapl.spsw.mock;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.nio.channels.ByteChannel;
 import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.Set;
@@ -647,6 +648,12 @@ public class MockSerialPortSocket implements SerialPortSocket {
 			throw new IOException(PORT_IS_CLOSED);
 		}
 		throw new RuntimeException("Not Implemented");
+	}
+
+	@Override
+	public ByteChannel getChannel() {
+		// TODO Auto-generated method stub
+		return null;
 	}
 
 }

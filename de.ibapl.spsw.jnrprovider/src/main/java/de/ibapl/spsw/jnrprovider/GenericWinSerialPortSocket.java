@@ -241,9 +241,9 @@ public class GenericWinSerialPortSocket extends AbstractSerialPortSocket<Generic
 	}
 
 	@Override
-	protected void writeBytes(ByteBuffer b) throws IOException {
+	protected int writeBytes(ByteBuffer b) throws IOException {
 		// TODO Auto-generated method stub
-		
+		return 0;
 	}
 
 	@Override

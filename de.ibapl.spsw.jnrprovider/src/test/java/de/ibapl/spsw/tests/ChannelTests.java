@@ -25,53 +25,12 @@
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  * #L%
  */
-package de.ibapl.spsw.jniprovider;
-
-import java.io.IOException;
-import java.nio.channels.ByteChannel;
+package de.ibapl.spsw.tests;
 
 /**
-/**
- * JNI wrapper around the Windows DCB structure.
  *
- * @author scream3r
  * @author Arne Plöse
  */
-public class GenericWinSerialPortSocket extends AbstractSerialPortSocket<GenericWinSerialPortSocket> {
+public class ChannelTests extends AbstractChannelTests {
 
-	static native String[] getWindowsBasedPortNames();
-
-	/**
-	 * The file descriptor or handle for this Port
-	 */
-	private volatile long fd = -1;
-
-	public GenericWinSerialPortSocket(String portName) {
-		super(portName);
-	}
-
-	@Override
-	public void drainOutputBuffer() throws IOException {
-		// no-op on overlapped...
-	}
-
-	@Override
-	public native int getInterByteReadTimeout() throws IOException;
-
-	@Override
-	public native int getOverallReadTimeout() throws IOException;
-
-	@Override
-	public native int getOverallWriteTimeout() throws IOException;
-
-	@Override
-	public native void sendXOFF() throws IOException;
-
-	@Override
-	public native void sendXON() throws IOException;
-
-	@Override
-	public native void setTimeouts(int interbyteReadTimeout, int overallReadTimeout, int overallWriteTimeout)
-			throws IOException;
-	
 }

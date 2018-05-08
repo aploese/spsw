@@ -18,6 +18,7 @@
  * #L%
  */
 package de.ibapl.spsw.jnrprovider;
+import static de.ibapl.jnrheader.Defined.isDefined;
 
 import java.io.IOException;
 import java.io.InterruptedIOException;
@@ -33,6 +34,7 @@ import de.ibapl.jnrheader.posix.Fcntl_H;
 import de.ibapl.jnrheader.posix.Poll_H;
 import de.ibapl.jnrheader.posix.Termios_H;
 import de.ibapl.jnrheader.posix.Termios_H.Termios;
+import de.ibapl.jnrheader.posix.Termios_H.cfsetspeed;
 import de.ibapl.jnrheader.posix.Unistd_H;
 import de.ibapl.jnrheader.unix.sys.Ioctl_H;
 import de.ibapl.spsw.api.DataBits;
@@ -48,7 +50,7 @@ public class PosixSerialPortSocket extends AbstractSerialPortSocket<PosixSerialP
 	public static final int INVALID_FD = -1;
 	private volatile int fd = INVALID_FD;
 	private volatile int close_event_fd = INVALID_FD;
-	private Termios_H termios_H;
+	private Termios_H<Termios> termios_H;
 	private Errno_H errno_H;
 	private Fcntl_H fcntl_H;
 	private Ioctl_H ioctl_H;
@@ -196,13 +198,13 @@ public class PosixSerialPortSocket extends AbstractSerialPortSocket<PosixSerialP
 		if ((termios.c_cflag & termios_H.PARENB) == 0) {
 			return Parity.NONE;
 		} else if ((termios.c_cflag & termios_H.PARODD) == 0) {
-			if (termios_H.PAREXT != null) {
+			if (isDefined(termios_H.PAREXT)) {
 				if ((termios.c_cflag & termios_H.PAREXT) == 0) {
 					return Parity.EVEN;
 				} else {
 					return Parity.SPACE;
 				}
-			} else if (termios_H.CMSPAR != null) {
+			} else if (isDefined(termios_H.CMSPAR)) {
 				if ((termios.c_cflag & termios_H.CMSPAR) == 0) {
 					return Parity.EVEN;
 				} else {
@@ -211,13 +213,13 @@ public class PosixSerialPortSocket extends AbstractSerialPortSocket<PosixSerialP
 			}
 		} else {
 			// ODD or MARK
-			if (termios_H.PAREXT != null) {
+			if (isDefined(termios_H.PAREXT)) {
 				if ((termios.c_cflag & termios_H.PAREXT) == 0) {
 					return Parity.ODD;
 				} else {
 					return Parity.MARK;
 				}
-			} else if (termios_H.CMSPAR != null) {
+			} else if (isDefined(termios_H.CMSPAR)) {
 				if ((termios.c_cflag & termios_H.CMSPAR) == 0) {
 					return Parity.ODD;
 				} else {
@@ -282,35 +284,35 @@ public class PosixSerialPortSocket extends AbstractSerialPortSocket<PosixSerialP
 			return Speed._19200_BPS;
 		} else if (speed_t == termios_H.B38400) {
 			return Speed._38400_BPS;
-		} else if (termios_H.B57600 != null && speed_t == termios_H.B57600) {
+		} else if (isDefined(termios_H.B57600) && speed_t == termios_H.B57600) {
 			return Speed._57600_BPS;
-		} else if (termios_H.B115200 != null && speed_t == termios_H.B115200) {
+		} else if (isDefined(termios_H.B115200) && speed_t == termios_H.B115200) {
 			return Speed._115200_BPS;
-		} else if (termios_H.B230400 != null && speed_t == termios_H.B230400) {
+		} else if (isDefined(termios_H.B230400) && speed_t == termios_H.B230400) {
 			return Speed._230400_BPS;
-		} else if (termios_H.B460800 != null && speed_t == termios_H.B460800) {
+		} else if (isDefined(termios_H.B460800) && speed_t == termios_H.B460800) {
 			return Speed._460800_BPS;
-		} else if (termios_H.B500000 != null && speed_t == termios_H.B500000) {
+		} else if (isDefined(termios_H.B500000) && speed_t == termios_H.B500000) {
 			return Speed._500000_BPS;
-		} else if (termios_H.B576000 != null && speed_t == termios_H.B576000) {
+		} else if (isDefined(termios_H.B576000) && speed_t == termios_H.B576000) {
 			return Speed._576000_BPS;
-		} else if (termios_H.B921600 != null && speed_t == termios_H.B921600) {
+		} else if (isDefined(termios_H.B921600) && speed_t == termios_H.B921600) {
 			return Speed._921600_BPS;
-		} else if (termios_H.B1000000 != null && speed_t == termios_H.B1000000) {
+		} else if (isDefined(termios_H.B1000000) && speed_t == termios_H.B1000000) {
 			return Speed._1000000_BPS;
-		} else if (termios_H.B1152000 != null && speed_t == termios_H.B1152000) {
+		} else if (isDefined(termios_H.B1152000) && speed_t == termios_H.B1152000) {
 			return Speed._1152000_BPS;
-		} else if (termios_H.B1500000 != null && speed_t == termios_H.B1500000) {
+		} else if (isDefined(termios_H.B1500000) && speed_t == termios_H.B1500000) {
 			return Speed._1500000_BPS;
-		} else if (termios_H.B2000000 != null && speed_t == termios_H.B2000000) {
+		} else if (isDefined(termios_H.B2000000) && speed_t == termios_H.B2000000) {
 			return Speed._2000000_BPS;
-		} else if (termios_H.B2500000 != null && speed_t == termios_H.B2500000) {
+		} else if (isDefined(termios_H.B2500000) && speed_t == termios_H.B2500000) {
 			return Speed._2500000_BPS;
-		} else if (termios_H.B3000000 != null && speed_t == termios_H.B3000000) {
+		} else if (isDefined(termios_H.B3000000) && speed_t == termios_H.B3000000) {
 			return Speed._3000000_BPS;
-		} else if (termios_H.B3500000 != null && speed_t == termios_H.B3500000) {
+		} else if (isDefined(termios_H.B3500000) && speed_t == termios_H.B3500000) {
 			return Speed._3500000_BPS;
-		} else if (termios_H.B4000000 != null && speed_t == termios_H.B4000000) {
+		} else if (isDefined(termios_H.B4000000) && speed_t == termios_H.B4000000) {
 			return Speed._4000000_BPS;
 		} else {
 			throw new IllegalArgumentException("speed not supported: " + speed_t);
@@ -358,91 +360,91 @@ public class PosixSerialPortSocket extends AbstractSerialPortSocket<PosixSerialP
 		case _38400_BPS:
 			return termios_H.B38400;
 		case _57600_BPS:
-			if (termios_H.B57600 != null) {
+			if (isDefined(termios_H.B57600)) {
 				return termios_H.B57600;
 			} else {
 				throw new IllegalArgumentException("No defined! termios_H.B57600");
 			}
 		case _115200_BPS:
-			if (termios_H.B115200 != null) {
+			if (isDefined(termios_H.B115200)) {
 				return termios_H.B115200;
 			} else {
 				throw new IllegalArgumentException("No defined! termios_H.B115200");
 			}
 		case _230400_BPS:
-			if (termios_H.B230400 != null) {
+			if (isDefined(termios_H.B230400)) {
 				return termios_H.B230400;
 			} else {
 				throw new IllegalArgumentException("No defined! termios_H.B230400");
 			}
 		case _460800_BPS:
-			if (termios_H.B460800 != null) {
+			if (isDefined(termios_H.B460800)) {
 				return termios_H.B460800;
 			} else {
 				throw new IllegalArgumentException("No defined! termios_H.B460800");
 			}
 		case _500000_BPS:
-			if (termios_H.B500000 != null) {
+			if (isDefined(termios_H.B500000)) {
 				return termios_H.B500000;
 			} else {
 				throw new IllegalArgumentException("No defined! termios_H.B500000");
 			}
 		case _576000_BPS:
-			if (termios_H.B576000 != null) {
+			if (isDefined(termios_H.B576000)) {
 				return termios_H.B576000;
 			} else {
 				throw new IllegalArgumentException("No defined! termios_H.B576000");
 			}
 		case _921600_BPS:
-			if (termios_H.B921600 != null) {
+			if (isDefined(termios_H.B921600)) {
 				return termios_H.B921600;
 			} else {
 				throw new IllegalArgumentException("No defined! termios_H.B921600");
 			}
 		case _1000000_BPS:
-			if (termios_H.B1000000 != null) {
+			if (isDefined(termios_H.B1000000)) {
 				return termios_H.B1000000;
 			} else {
 				throw new IllegalArgumentException("No defined! termios_H.B1000000");
 			}
 		case _1152000_BPS:
-			if (termios_H.B1152000 != null) {
+			if (isDefined(termios_H.B1152000)) {
 				return termios_H.B1152000;
 			} else {
 				throw new IllegalArgumentException("No defined! termios_H.B1152000");
 			}
 		case _1500000_BPS:
-			if (termios_H.B1500000 != null) {
+			if (isDefined(termios_H.B1500000)) {
 				return termios_H.B1500000;
 			} else {
 				throw new IllegalArgumentException("No defined! termios_H.B1500000");
 			}
 		case _2000000_BPS:
-			if (termios_H.B2000000 != null) {
+			if (isDefined(termios_H.B2000000)) {
 				return termios_H.B2000000;
 			} else {
 				throw new IllegalArgumentException("No defined! termios_H.B2000000");
 			}
 		case _2500000_BPS:
-			if (termios_H.B2500000 != null) {
+			if (isDefined(termios_H.B2500000)) {
 				return termios_H.B2500000;
 			} else {
 				throw new IllegalArgumentException("No defined! termios_H.B2500000");
 			}
 		case _3000000_BPS:
-			if (termios_H.B3000000 != null) {
+			if (isDefined(termios_H.B3000000)) {
 				return termios_H.B3000000;
 			} else {
 				throw new IllegalArgumentException("No defined! termios_H.B3000000");
 			}
 		case _3500000_BPS:
-			if (termios_H.B3500000 != null) {
+			if (isDefined(termios_H.B3500000)) {
 				return termios_H.B3500000;
 			} else {
 				throw new IllegalArgumentException("No defined! termios_H.B3500000");
 			}
 		case _4000000_BPS:
-			if (termios_H.B4000000 != null) {
+			if (isDefined(termios_H.B4000000)) {
 				return termios_H.B4000000;
 			} else {
 				throw new IllegalArgumentException("No defined! termios_H.B4000000");
@@ -556,7 +558,7 @@ public class PosixSerialPortSocket extends AbstractSerialPortSocket<PosixSerialP
 			new IOException("Can't set exclusive access error: " + errno_H.errno());
 		}
 
-//TODO Linux??		termios_H.cfmakeraw(termios);
+		// TODO Linux?? termios_H.cfmakeraw(termios);
 
 		// set basic settings
 		termios.c_cflag |= (termios_H.CREAD | termios_H.CLOCAL);
@@ -649,8 +651,17 @@ public class PosixSerialPortSocket extends AbstractSerialPortSocket<PosixSerialP
 		if (speed != null) {
 			int speedValue = speed2speed_t(speed);
 			// Set standard speed from "termios.h"
-			if (termios_H.cfsetspeed(termios, speedValue) < 0) {
-				throwClosedOrNativeException("Can't set Speed cfsetspeed(settings, speedValue)");
+			if (termios_H instanceof cfsetspeed) {
+				if (((cfsetspeed) termios_H).cfsetspeed(termios, speedValue) < 0) {
+					throwClosedOrNativeException("Can't set Speed cfsetspeed(settings, speedValue)");
+				}
+			} else {
+				if (termios_H.cfsetospeed(termios, speedValue) < 0) {
+					throwClosedOrNativeException("Can't set Speed cfsetospeed(settings, speedValue)");
+				}
+				if (termios_H.cfsetispeed(termios, speedValue) < 0) {
+					throwClosedOrNativeException("Can't set Speed cfsetispeed(settings, speedValue)");
+				}
 			}
 		}
 
@@ -702,43 +713,39 @@ public class PosixSerialPortSocket extends AbstractSerialPortSocket<PosixSerialP
 		}
 
 		if (parity != null) {
-			if (termios_H.PAREXT != null) {
+			if (isDefined(termios_H.PAREXT)) {
 				termios.c_cflag &= ~(termios_H.PARENB | termios_H.PARODD | termios_H.PAREXT); // Clear parity settings
-			} else if (termios_H.CMSPAR != null) {
+			} else if (isDefined(termios_H.CMSPAR)) {
 				termios.c_cflag &= ~(termios_H.PARENB | termios_H.PARODD | termios_H.CMSPAR); // Clear parity settings
 			} else {
-				termios.c_cflag &= ~(termios_H.PARENB | termios_H.PARODD); // Clear
-																			// parity
-																			// settings
+				termios.c_cflag &= ~(termios_H.PARENB | termios_H.PARODD); // Clear parity settings
 			}
 			switch (parity) {
 			case NONE:
-				termios.c_iflag &= ~termios_H.INPCK; // switch parity input
-														// checking off
+				termios.c_iflag &= ~termios_H.INPCK; // switch parity input checking off
 				break;
 			case ODD:
 				termios.c_cflag |= (termios_H.PARENB | termios_H.PARODD);
-				termios.c_iflag |= termios_H.INPCK; // switch parity input
-													// checking On
+				termios.c_iflag |= termios_H.INPCK; // switch parity input checking On
 				break;
 			case EVEN:
 				termios.c_cflag |= termios_H.PARENB;
 				termios.c_iflag |= termios_H.INPCK;
 				break;
 			case MARK:
-				if (termios_H.PAREXT != null) {
+				if (isDefined(termios_H.PAREXT)) {
 					termios.c_cflag |= (termios_H.PARENB | termios_H.PARODD | termios_H.PAREXT);
 					termios.c_iflag |= termios_H.INPCK;
-				} else if (termios_H.CMSPAR != null) {
+				} else if (isDefined(termios_H.CMSPAR)) {
 					termios.c_cflag |= (termios_H.PARENB | termios_H.PARODD | termios_H.CMSPAR);
 					termios.c_iflag |= termios_H.INPCK;
 				}
 				break;
 			case SPACE:
-				if (termios_H.PAREXT != null) {
+				if (isDefined(termios_H.PAREXT)) {
 					termios.c_cflag |= (termios_H.PARENB | termios_H.PAREXT);
 					termios.c_iflag |= termios_H.INPCK;
-				} else if (termios_H.CMSPAR != null) {
+				} else if (isDefined(termios_H.CMSPAR)) {
 					termios.c_cflag |= (termios_H.PARENB | termios_H.CMSPAR);
 					termios.c_iflag |= termios_H.INPCK;
 				}
@@ -940,16 +947,16 @@ public class PosixSerialPortSocket extends AbstractSerialPortSocket<PosixSerialP
 	}
 
 	@Override
-	protected void writeBytes(ByteBuffer b) throws IOException {
-		//TODO wait infinite...
+	protected int writeBytes(ByteBuffer b) throws IOException {
+		// TODO wait infinite...
 		// See javaTimeNanos() in file src/os/linux/vm/os_linux.cpp of hotspot sources
-		final long endTime = System.nanoTime() + pollWriteTimeout == -1 ? 0 :  pollWriteTimeout * 1000000L;
+		final long endTime = System.nanoTime() + pollWriteTimeout == -1 ? 0 : pollWriteTimeout * 1000000L;
 
-		long written = unistd_H.write(fd, b, b.remaining());
-		
+		long written = Unistd_H.write(fd, b, unistd_H);
+
 		if (!b.hasRemaining()) {
 			// all was written
-			return;
+			return (int)written;
 		}
 
 		if (written < 0) {
@@ -962,7 +969,7 @@ public class PosixSerialPortSocket extends AbstractSerialPortSocket<PosixSerialP
 					throw new InterruptedIOException("unknown port error writeBytes " + errno_H.errno());
 				}
 			}
-		} 
+		}
 
 		Poll_H.PollFd[] fds = poll_H.createPollFd(2);
 		fds[0].fd = fd;
@@ -975,8 +982,9 @@ public class PosixSerialPortSocket extends AbstractSerialPortSocket<PosixSerialP
 
 		do {
 			long currentTime = System.nanoTime();
-			final int currentPollTimeout = pollWriteTimeout == -1 ? pollWriteTimeout : (int) ((endTime - currentTime) / 1000000L);
-			
+			final int currentPollTimeout = pollWriteTimeout == -1 ? pollWriteTimeout
+					: (int) ((endTime - currentTime) / 1000000L);
+
 			int poll_result = poll_H.poll(fds, 2, currentPollTimeout);
 
 			if (poll_result == 0) {
@@ -1005,7 +1013,7 @@ public class PosixSerialPortSocket extends AbstractSerialPortSocket<PosixSerialP
 				}
 			}
 
-			written = unistd_H.write(fd, b, b.remaining());
+			written = Unistd_H.write(fd, b, unistd_H);
 
 			if (written < 0) {
 				if (fd == INVALID_FD) {
@@ -1023,6 +1031,7 @@ public class PosixSerialPortSocket extends AbstractSerialPortSocket<PosixSerialP
 			offset += written;
 
 		} while (b.hasRemaining());
+		return (int)offset;
 	}
 
 	@Override
@@ -1086,24 +1095,24 @@ public class PosixSerialPortSocket extends AbstractSerialPortSocket<PosixSerialP
 
 	@Override
 	protected int readBytes(ByteBuffer b) throws IOException {
-		//TODO hounor overall read timeout
+		// TODO hounor overall read timeout
 		Poll_H.PollFd[] fds = poll_H.createPollFd(2);
 		fds[0].fd = fd;
 		fds[0].events = poll_H.POLLIN;
 		fds[1].fd = close_event_fd;
 		fds[1].events = poll_H.POLLIN;
 
-		long nread = unistd_H.read(fds[0].fd, b, b.remaining());
+		long nread = Unistd_H.read(fds[0].fd, b, unistd_H);
 		if (nread < 0) {
 			if (fd == INVALID_FD) {
 				return -1;
-			} else  if (errno_H.EAGAIN == errno_H.errno()) {
+			} else if (errno_H.EAGAIN == errno_H.errno()) {
 				nread = 0;
 			} else {
 				throw new InterruptedIOException(
 						"readBytes: read error during first invocation of read() " + errno_H.errno());
 			}
-		} 
+		}
 		if (nread == 0) {
 			// Nothing read yet
 
@@ -1120,7 +1129,7 @@ public class PosixSerialPortSocket extends AbstractSerialPortSocket<PosixSerialP
 					return -1;
 				} else if (fds[0].revents == poll_H.POLLIN) {
 					// Happy path just check if its the right event...
-					nread = unistd_H.read(fds[0].fd, b, b.remaining());
+					nread = Unistd_H.read(fds[0].fd, b, unistd_H);
 					if (nread < 0) {
 						if (fd == INVALID_FD) {
 							return -1;
@@ -1132,7 +1141,8 @@ public class PosixSerialPortSocket extends AbstractSerialPortSocket<PosixSerialP
 						}
 					}
 				} else {
-					throw new InterruptedIOException("readBytes poll: received poll event fds: "  + Arrays.toString(fds) + " errno: " + errno_H.errno());
+					throw new InterruptedIOException("readBytes poll: received poll event fds: " + Arrays.toString(fds)
+							+ " errno: " + errno_H.errno());
 				}
 			}
 		}
@@ -1158,14 +1168,15 @@ public class PosixSerialPortSocket extends AbstractSerialPortSocket<PosixSerialP
 				} else if (fds[0].revents == poll_H.POLLIN) {
 					// Happy path
 				} else {
-					throw new InterruptedIOException("readBytes poll: received poll event fds: " + Arrays.toString(fds) + " errono: " + errno_H.errno());
+					throw new InterruptedIOException("readBytes poll: received poll event fds: " + Arrays.toString(fds)
+							+ " errono: " + errno_H.errno());
 				}
 			}
 
 			// OK No timeout and no error, we should read at least one byte without
 			// blocking.
 
-			nread = unistd_H.read(fds[0].fd, b, b.remaining());
+			nread = Unistd_H.read(fds[0].fd, b, unistd_H);
 			if (nread > 0) {
 				overallRead += nread;
 			} else {
@@ -1202,7 +1213,7 @@ public class PosixSerialPortSocket extends AbstractSerialPortSocket<PosixSerialP
 			if (fd == INVALID_FD) {
 				// Filehandle not valid -> closed.
 				return -1;
-			} else  if (errno_H.EAGAIN != errno_H.errno()) {
+			} else if (errno_H.EAGAIN != errno_H.errno()) {
 				throw new InterruptedIOException(
 						"readSingle: read error during first invocation of read() " + errno_H.errno());
 			}

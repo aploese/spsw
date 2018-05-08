@@ -24,6 +24,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.Socket;
 import java.net.SocketTimeoutException;
+import java.nio.channels.ByteChannel;
 import java.util.Set;
 
 import javax.net.SocketFactory;
@@ -407,6 +408,11 @@ public class Ser2NetProvider implements SerialPortSocket {
 			throws IOException {
 		dataSocket.setSoTimeout(overallReadTimeout);
 		// TODO Output Timeout??
+	}
+
+	@Override
+	public ByteChannel getChannel() {
+		return dataSocket.getChannel();
 	}
 
 }

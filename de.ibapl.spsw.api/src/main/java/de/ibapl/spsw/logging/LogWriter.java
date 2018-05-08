@@ -22,6 +22,7 @@ package de.ibapl.spsw.logging;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.PrintStream;
+import java.nio.ByteBuffer;
 import java.time.Duration;
 import java.time.Instant;
 import java.time.format.DateTimeFormatter;
@@ -51,10 +52,12 @@ public class LogWriter {
 	private Instant baseTimeStamp;
 	private final DateTimeFormatter dateTimeFormatter;
 	private final PrintStream log;
-	private Instant readStartTS;
+	private Instant isReadStartTS;
+	private Instant channelReadStartTS;
 	private final TimeStampLogging timeStampLogging;
 	private final boolean verbose;
-	private Instant writeStartTS;
+	private Instant osWriteStartTS;
+	private Instant channelWriteStartTS;
 
 	/**
 	 * 
@@ -363,13 +366,27 @@ public class LogWriter {
 		log.flush();
 	}
 
-	public void afterRead(final Instant ts, int b) {
+	public void afterChannelClose(Instant ts) {
+		if (!verbose) {
+			return;
+		}
+		log.append(formatTs(ts)).append("CH").append(ACION_RETURN).println(" close");
+		log.flush();
+	}
+
+	public void afterChannelClose(Instant ts, IOException e) {
+		log.append(formatTs(ts)).append("CH").append(ACION_RETURN).append(" close:\t").println(e.toString());
+		e.printStackTrace(log);
+		log.flush();
+	}
+
+	public void afterIsRead(final Instant ts, int b) {
 		log.append(formatTs(ts)).append("IS").append(ACION_RETURN).append(" read:\t\"");
 		if (b >= 0) {
 			appendByte((byte) b);
 		}
 		if (timeStampLogging != TimeStampLogging.NONE) {
-			final Duration d = Duration.between(readStartTS, ts);
+			final Duration d = Duration.between(isReadStartTS, ts);
 			if (d.isZero()) {
 				log.append("\"");
 			} else {
@@ -382,13 +399,13 @@ public class LogWriter {
 		log.flush();
 	}
 
-	public void afterRead(final Instant ts, int readLength, byte[] b, int off) {
+	public void afterIsRead(final Instant ts, int readLength, byte[] b, int off) {
 		log.append(formatTs(ts)).append("IS").append(ACION_RETURN).append(" read:\t\"");
 		for (int i = 0; i < readLength; i++) {
 			appendByte(b[off + i]);
 		}
 		if (timeStampLogging != TimeStampLogging.NONE) {
-			final Duration d = Duration.between(readStartTS, ts);
+			final Duration d = Duration.between(isReadStartTS, ts);
 			if (d.isZero()) {
 				log.append("\"");
 			} else {
@@ -401,10 +418,65 @@ public class LogWriter {
 		log.flush();
 	}
 
-	void afterRead(final Instant ts, IOException e) {
+	void afterIsRead(final Instant ts, IOException e) {
 		log.append(formatTs(ts)).append("IS").append(ACION_RETURN).append(" read:\t").print(e.toString());
 		if (timeStampLogging != TimeStampLogging.NONE) {
-			final Duration d = Duration.between(readStartTS, ts);
+			final Duration d = Duration.between(isReadStartTS, ts);
+			if (d.isZero()) {
+				log.println();
+			} else {
+				log.append("\"\tduration: ").println(d.toString());
+			}
+		} else {
+			log.println();
+		}
+
+		e.printStackTrace(log);
+		log.flush();
+	}
+
+	public void afterChannelRead(final Instant ts, int b) {
+		log.append(formatTs(ts)).append("CH").append(ACION_RETURN).append(" read:\t\"");
+		if (b >= 0) {
+			appendByte((byte) b);
+		}
+		if (timeStampLogging != TimeStampLogging.NONE) {
+			final Duration d = Duration.between(channelReadStartTS, ts);
+			if (d.isZero()) {
+				log.append("\"");
+			} else {
+				log.append("\"\tduration: ").println(d.toString());
+			}
+		} else {
+			log.append("\"");
+		}
+		log.println();
+		log.flush();
+	}
+
+	public void afterbuffChannelRead(final Instant ts, ByteBuffer buffer) {
+		log.append(formatTs(ts)).append("CH").append(ACION_RETURN).append(" read:\t\"");
+		for (int i = buffer.position(); i < buffer.limit(); i++) {
+			appendByte(buffer.get(i));
+		}
+		if (timeStampLogging != TimeStampLogging.NONE) {
+			final Duration d = Duration.between(channelReadStartTS, ts);
+			if (d.isZero()) {
+				log.append("\"");
+			} else {
+				log.append("\"\tduration: ").println(d.toString());
+			}
+		} else {
+			log.append("\"");
+		}
+		log.println();
+		log.flush();
+	}
+
+	void afterChannelRead(final Instant ts, IOException e) {
+		log.append(formatTs(ts)).append("CH").append(ACION_RETURN).append(" read:\t").print(e.toString());
+		if (timeStampLogging != TimeStampLogging.NONE) {
+			final Duration d = Duration.between(channelReadStartTS, ts);
 			if (d.isZero()) {
 				log.println();
 			} else {
@@ -632,27 +704,31 @@ public class LogWriter {
 		if (!verbose) {
 			return;
 		}
-		readStartTS = null;
-		writeStartTS = null;
+		isReadStartTS = null;
+		channelReadStartTS = null;
+		osWriteStartTS = null;
+		channelWriteStartTS = null;
 		log.append(formatTs(ts)).append("SP").append(ACION_RETURN).println(" open:\t");
 		log.flush();
 	}
 
 	public void afterSpOpen(final Instant ts, IOException e) {
-		readStartTS = null;
-		writeStartTS = null;
+		isReadStartTS = null;
+		channelReadStartTS = null;
+		osWriteStartTS = null;
+		channelWriteStartTS = null;
 		log.append(formatTs(ts)).append("SP").append(ACION_RETURN).append(" open:\t").println(e.toString());
 		e.printStackTrace(log);
 		log.flush();
 	}
 
-	public void afterWrite(Instant ts) {
+	public void afterOsWrite(Instant ts) {
 		if (!verbose) {
 			return;
 		}
 		log.append(formatTs(ts)).append("OS").append(ACION_RETURN).println(" write");
 		if (timeStampLogging != TimeStampLogging.NONE) {
-			final Duration d = Duration.between(writeStartTS, ts);
+			final Duration d = Duration.between(osWriteStartTS, ts);
 			if (d.isZero()) {
 			} else {
 				log.append("\tduration: ").println(d.toString());
@@ -662,13 +738,48 @@ public class LogWriter {
 		log.flush();
 	}
 
-	void afterWrite(Instant ts, IOException e) {
+	void afterOsWrite(Instant ts, IOException e) {
 		if (!verbose) {
 			return;
 		}
 		log.append(formatTs(ts)).append("OS").append(ACION_RETURN).append(" write:\t").print(e.toString());
 		if (timeStampLogging != TimeStampLogging.NONE) {
-			final Duration d = Duration.between(writeStartTS, ts);
+			final Duration d = Duration.between(osWriteStartTS, ts);
+			if (d.isZero()) {
+				log.println();
+			} else {
+				log.append("\"\tduration: ").println(d.toString());
+			}
+		} else {
+			log.println();
+		}
+		e.printStackTrace(log);
+		log.flush();
+	}
+
+	public void afterChannelWrite(Instant ts) {
+		if (!verbose) {
+			return;
+		}
+		log.append(formatTs(ts)).append("CH").append(ACION_RETURN).println(" write");
+		if (timeStampLogging != TimeStampLogging.NONE) {
+			final Duration d = Duration.between(channelWriteStartTS, ts);
+			if (d.isZero()) {
+			} else {
+				log.append("\tduration: ").println(d.toString());
+			}
+		}
+		log.println();
+		log.flush();
+	}
+
+	void afterChannelWrite(Instant ts, IOException e) {
+		if (!verbose) {
+			return;
+		}
+		log.append(formatTs(ts)).append("CH").append(ACION_RETURN).append(" write:\t").print(e.toString());
+		if (timeStampLogging != TimeStampLogging.NONE) {
+			final Duration d = Duration.between(channelWriteStartTS, ts);
 			if (d.isZero()) {
 				log.println();
 			} else {
@@ -716,9 +827,14 @@ public class LogWriter {
 		}
 	}
 
-	private void appendWritePrefix(Instant ts, String action) {
-		writeStartTS = ts;
+	private void appendOsWritePrefix(Instant ts, String action) {
+		osWriteStartTS = ts;
 		log.append(formatTs(ts)).append("OS").append(action).append(" write:\t\"");
+	}
+
+	private void appendChannelWritePrefix(Instant ts, String action) {
+		osWriteStartTS = ts;
+		log.append(formatTs(ts)).append("CH").append(action).append(" write:\t\"");
 	}
 
 	public void beforeAvailable(Instant ts) {
@@ -875,8 +991,22 @@ public class LogWriter {
 		log.flush();
 	}
 
-	public void beforeRead(Instant ts) {
-		readStartTS = ts;
+	public void beforeChannelClose(Instant ts) {
+		log.append(formatTs(ts)).append("CH").append(ACION_CALL).println(" close");
+		log.flush();
+	}
+
+	public void beforeIsRead(Instant ts) {
+		isReadStartTS = ts;
+		if (!verbose) {
+			return;
+		}
+		log.append(formatTs(ts)).append("IS").append(ACION_CALL).println(" read");
+		log.flush();
+	}
+
+	public void beforeChannelRead(Instant ts) {
+		channelReadStartTS = ts;
 		if (!verbose) {
 			return;
 		}
@@ -964,23 +1094,25 @@ public class LogWriter {
 	}
 
 	public void beforeSpOpen(final Instant ts, String portname, String args) {
-		readStartTS = null;
-		writeStartTS = null;
+		isReadStartTS = null;
+		channelReadStartTS = null;
+		osWriteStartTS = null;
+		channelWriteStartTS = null;
 		baseTimeStamp = Instant.now();
 		log.append("@").append(dateTimeFormatter.format(ts)).append("\tSP").append(ACION_CALL).append(" open:\t\"")
 				.append(portname).append("\" (").append(args).println(")");
 		log.flush();
 	}
 
-	public void beforeWrite(Instant ts, byte b) {
-		appendWritePrefix(ts, ACION_CALL);
+	public void beforeOsWrite(Instant ts, byte b) {
+		appendOsWritePrefix(ts, ACION_CALL);
 		appendByte(b);
 		log.println("\"");
 		log.flush();
 	}
 
-	public void beforeWrite(Instant ts, byte[] b) {
-		appendWritePrefix(ts, ACION_CALL);
+	public void beforeOsWrite(Instant ts, byte[] b) {
+		appendOsWritePrefix(ts, ACION_CALL);
 		for (byte b0 : b) {
 			appendByte(b0);
 		}
@@ -988,10 +1120,19 @@ public class LogWriter {
 		log.flush();
 	}
 
-	public void beforeWrite(Instant ts, byte[] b, int offset, int len) {
-		appendWritePrefix(ts, ACION_CALL);
+	public void beforeOsWrite(Instant ts, byte[] b, int offset, int len) {
+		appendOsWritePrefix(ts, ACION_CALL);
 		for (int i = 0; i < len; i++) {
 			appendByte(b[offset + i]);
+		}
+		log.println("\"");
+		log.flush();
+	}
+
+	public void beforeChannelWrite(Instant ts, ByteBuffer buffer) {
+		appendChannelWritePrefix(ts, ACION_CALL);
+		for (int i = buffer.position(); i < buffer.limit(); i++) {
+			appendByte(buffer.get(i));
 		}
 		log.println("\"");
 		log.flush();
@@ -1012,6 +1153,28 @@ public class LogWriter {
 		default:
 			throw new RuntimeException("Unknown timestamp logging: " + timeStampLogging);
 		}
+	}
+
+	public void beforeChannelIsOpen(Instant ts) {
+		if (!verbose) {
+			return;
+		}
+		log.append(formatTs(ts)).append("CH").append(ACION_CALL).println(" isOpen");
+		log.flush();
+	}
+
+	public void afterChannelIsOpen(Instant ts, boolean result) {
+		if (!verbose) {
+			return;
+		}
+		log.append(formatTs(ts)).append("CH").append(ACION_RETURN).append(" isOpen:\t").println(result);
+		log.flush();
+	}
+
+	public void afterChannelIsOpen(Instant ts, Throwable t) {
+		log.append(formatTs(ts)).append("Ch").append(ACION_RETURN).append(" isOpen:\t").println(t.toString());
+		t.printStackTrace(log);
+		log.flush();
 	}
 
 }

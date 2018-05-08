@@ -23,6 +23,8 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.nio.ByteBuffer;
+import java.nio.channels.ByteChannel;
 import java.time.Instant;
 import java.util.Set;
 
@@ -83,39 +85,39 @@ public class LoggingSerialPortSocket implements SerialPortSocket {
 
 		@Override
 		public int read() throws IOException {
-			logWriter.beforeRead(Instant.now());
+			logWriter.beforeIsRead(Instant.now());
 			try {
 				final int result = is.read();
-				logWriter.afterRead(Instant.now(), result);
+				logWriter.afterIsRead(Instant.now(), result);
 				return result;
 			} catch (IOException e) {
-				logWriter.afterRead(Instant.now(), e);
+				logWriter.afterIsRead(Instant.now(), e);
 				throw e;
 			}
 		}
 
 		@Override
 		public int read(byte b[]) throws IOException {
-			logWriter.beforeRead(Instant.now());
+			logWriter.beforeIsRead(Instant.now());
 			try {
 				final int result = is.read(b);
-				logWriter.afterRead(Instant.now(), result, b, 0);
+				logWriter.afterIsRead(Instant.now(), result, b, 0);
 				return result;
 			} catch (IOException e) {
-				logWriter.afterRead(Instant.now(), e);
+				logWriter.afterIsRead(Instant.now(), e);
 				throw e;
 			}
 		}
 
 		@Override
 		public int read(byte b[], int off, int len) throws IOException {
-			logWriter.beforeRead(Instant.now());
+			logWriter.beforeIsRead(Instant.now());
 			try {
 				final int result = is.read(b, off, len);
-				logWriter.afterRead(Instant.now(), result, b, off);
+				logWriter.afterIsRead(Instant.now(), result, b, off);
 				return result;
 			} catch (IOException e) {
-				logWriter.afterRead(Instant.now(), e);
+				logWriter.afterIsRead(Instant.now(), e);
 				throw e;
 			}
 
@@ -123,6 +125,69 @@ public class LoggingSerialPortSocket implements SerialPortSocket {
 
 	}
 
+	
+	private class LBC implements ByteChannel {
+
+		private final ByteChannel bc;
+
+		LBC(ByteChannel bc) {
+			this.bc = bc;
+		}
+
+
+		@Override
+		public int read(ByteBuffer dst) throws IOException {
+			logWriter.beforeChannelRead(Instant.now());
+			try {
+				final int result = bc.read(dst);
+				logWriter.afterChannelRead(Instant.now(), result);
+				return result;
+			} catch (IOException e) {
+				logWriter.afterChannelRead(Instant.now(), e);
+				throw e;
+			}
+		}
+
+		@Override
+		public boolean isOpen() {
+			logWriter.beforeChannelIsOpen(Instant.now());
+			try {
+				final boolean result = bc.isOpen();
+				logWriter.afterChannelIsOpen(Instant.now(), result);
+				return result;
+			} catch (Throwable e) {
+				logWriter.afterChannelIsOpen(Instant.now(), e);
+				throw e;
+			}
+		}
+
+		@Override
+		public void close() throws IOException {
+			logWriter.beforeChannelClose(Instant.now());
+			try {
+				bc.close();
+				logWriter.afterChannelClose(Instant.now());
+			} catch (IOException e) {
+				logWriter.afterChannelClose(Instant.now(), e);
+				throw e;
+			}
+		}
+
+		@Override
+		public int write(ByteBuffer src) throws IOException {
+			logWriter.beforeChannelWrite(Instant.now(), src);
+			try {
+				final int result = bc.write(src);
+				logWriter.afterChannelWrite(Instant.now());
+				return result;
+			} catch (IOException e) {
+				logWriter.afterChannelWrite(Instant.now(), e);
+				throw e;
+			}
+		}
+		
+	}
+	
 	private class LOS extends OutputStream {
 
 		private final OutputStream os;
@@ -157,36 +222,36 @@ public class LoggingSerialPortSocket implements SerialPortSocket {
 
 		@Override
 		public void write(byte b[]) throws IOException {
-			logWriter.beforeWrite(Instant.now(), b);
+			logWriter.beforeOsWrite(Instant.now(), b);
 			try {
 				os.write(b);
-				logWriter.afterWrite(Instant.now());
+				logWriter.afterOsWrite(Instant.now());
 			} catch (IOException e) {
-				logWriter.afterWrite(Instant.now(), e);
+				logWriter.afterOsWrite(Instant.now(), e);
 				throw e;
 			}
 		}
 
 		@Override
 		public void write(byte b[], int off, int len) throws IOException {
-			logWriter.beforeWrite(Instant.now(), b, off, len);
+			logWriter.beforeOsWrite(Instant.now(), b, off, len);
 			try {
 				os.write(b, off, len);
-				logWriter.afterWrite(Instant.now());
+				logWriter.afterOsWrite(Instant.now());
 			} catch (IOException e) {
-				logWriter.afterWrite(Instant.now(), e);
+				logWriter.afterOsWrite(Instant.now(), e);
 				throw e;
 			}
 		}
 
 		@Override
 		public void write(int b) throws IOException {
-			logWriter.beforeWrite(Instant.now(), (byte) b);
+			logWriter.beforeOsWrite(Instant.now(), (byte) b);
 			try {
 				os.write(b);
-				logWriter.afterWrite(Instant.now());
+				logWriter.afterOsWrite(Instant.now());
 			} catch (IOException e) {
-				logWriter.afterWrite(Instant.now(), e);
+				logWriter.afterOsWrite(Instant.now(), e);
 				throw e;
 			}
 		}
@@ -230,6 +295,7 @@ public class LoggingSerialPortSocket implements SerialPortSocket {
 	private final LogWriter logWriter;
 
 	private LOS los;
+	private LBC lbc;
 	final private SerialPortSocket serialPortSocket;
 
 	/**
@@ -257,6 +323,7 @@ public class LoggingSerialPortSocket implements SerialPortSocket {
 	public void close() throws IOException {
 		los = null;
 		lis = null;
+		lbc = null;
 		logWriter.beforeSpClose(Instant.now());
 		try {
 			serialPortSocket.close();
@@ -721,6 +788,15 @@ public class LoggingSerialPortSocket implements SerialPortSocket {
 			logWriter.afterSetXONChar(Instant.now(), e);
 			throw e;
 		}
+	}
+
+	@Override
+	public ByteChannel getChannel() throws IOException {
+		final ByteChannel bch = serialPortSocket.getChannel();
+		if (lbc == null) {
+			lbc = new LBC(bch);
+		}
+		return lbc;
 	}
 
 }

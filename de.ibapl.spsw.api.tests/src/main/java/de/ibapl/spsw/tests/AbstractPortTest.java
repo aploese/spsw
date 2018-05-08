@@ -24,6 +24,7 @@ import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTimeout;
 import static org.junit.jupiter.api.Assertions.assertTimeoutPreemptively;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
@@ -34,6 +35,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InterruptedIOException;
 import java.io.OutputStream;
+import java.nio.ByteBuffer;
 import java.text.MessageFormat;
 import java.time.Duration;
 import java.util.Iterator;
@@ -73,72 +75,111 @@ public abstract class AbstractPortTest {
 
 	public class Receiver implements Runnable {
 
-		final boolean readSingle;
-		final InputStream is;
+		final SocketIoType socketIoType;
+		final SerialPortSocket sps;
 		boolean done;
 		final Object LOCK = new Object();
-		byte[] recBuffer;
-		final byte[] sendBuffer;
+		ByteBuffer recBuffer;
+		final ByteBuffer sendBuffer;
 		int currentRecOffset;
 
 		Exception ex;
 		Error err;
+		public Receiver(SocketIoType socketIoType, SerialPortSocket sps, ByteBuffer sendBuffer) {
+			this(socketIoType, sps, sendBuffer, socketIoType == SocketIoType.CHANNEL ? ByteBuffer.allocateDirect(sendBuffer.capacity()) : ByteBuffer.allocate(sendBuffer.capacity()));
+		}
 
-		public Receiver(boolean readSingle, InputStream is, byte[] sendBuffer) {
-			this.readSingle = readSingle;
-			this.is = is;
+		public Receiver(SocketIoType socketIoType, SerialPortSocket sps, ByteBuffer sendBuffer, ByteBuffer recBuffer) {
+			this.socketIoType = socketIoType;
+			this.sps = sps;
 			this.sendBuffer = sendBuffer;
+			this.recBuffer = recBuffer;
 		}
 
 		@Override
 		public void run() {
-			this.recBuffer = new byte[sendBuffer.length];
 			currentRecOffset = 0;
 			ex = null;
 			err = null;
 			done = false;
 			try {
-				while (true) {
-					if (readSingle) {
-						final int data = is.read();
+				while (sendBuffer.limit() > currentRecOffset) {
+					switch (socketIoType) {
+					case SINGLE_BYTE: {
+						
+					final InputStream is = sps.getInputStream();
+					final int data = is.read();
 						if (data >= 0) {
-							final int pos = currentRecOffset;
-							currentRecOffset++;
-							recBuffer[pos] = (byte) data;
-							assertEquals(sendBuffer[pos], recBuffer[pos], () -> {
-								return String.format("Arrays differ @%d expected %02x but was %02x", pos, sendBuffer[pos], recBuffer[pos]);
+							recBuffer.put((byte) data);
+							assertEquals(sendBuffer.get(currentRecOffset), recBuffer.get(currentRecOffset), () -> {
+								return String.format("Arrays differ @%d expected %02x, but was %02x", currentRecOffset, sendBuffer.get(currentRecOffset), recBuffer.get(currentRecOffset));
 							});
+							currentRecOffset++;
 						} else {
-							throw new RuntimeException("TODO implement me");
+							throw new RuntimeException("TODO implement me is.read returns: " + data );
 						}
-						if (currentRecOffset == recBuffer.length) {
+						if (currentRecOffset == recBuffer.capacity()) {
 							break;
 						}
-					} else {
-						final int count = is.read(recBuffer, currentRecOffset, recBuffer.length - currentRecOffset);
+					} 
+					break;
+					case STREAM: {
+						byte[] buf = new byte[recBuffer.remaining()];
+						final int count = sps.getInputStream().read(buf);
+						recBuffer.put(buf);
 						if (count > 0) {
 							for (int i = 0; i < count; i++) {
 								final int pos = currentRecOffset + i;
-								assertEquals(sendBuffer[currentRecOffset], recBuffer[currentRecOffset], () -> {
-									return String.format("Arrays differ @%d expected but was %02x", pos,
-											sendBuffer[pos], recBuffer[pos]);
+								assertEquals(sendBuffer.get(currentRecOffset), recBuffer.get(currentRecOffset), () -> {
+									return String.format("Arrays differ @%d expected %02x, but was %02x", pos,
+											sendBuffer.get(pos), recBuffer.get(pos));
 								});
 							}
 							currentRecOffset += count;
-							if (currentRecOffset == recBuffer.length) {
+							if (currentRecOffset == recBuffer.capacity()) {
 								break;
 							}
 						}
 						LOG.log(Level.FINEST, "Bytes read: {0}", count);
 						if (count <= 0) {
-							if (currentRecOffset < recBuffer.length) {
-								LOG.log(Level.SEVERE, "Bytes missing: {0}", recBuffer.length - currentRecOffset);
+							if (currentRecOffset < recBuffer.capacity()) {
+								LOG.log(Level.SEVERE, "Bytes missing: {0}", recBuffer.capacity() - currentRecOffset);
 								// TODO printArrays("Too short");
 							}
 							break;
 						}
 					}
+						break;
+					case CHANNEL: {
+						final int count = sps.getChannel().read(recBuffer);
+						if (count > 0) {
+							for (int i = 0; i < count; i++) {
+								final int pos = currentRecOffset + i;
+								assertEquals(sendBuffer.get(pos), recBuffer.get(pos), () -> {
+									return String.format("Arrays differ @%d expected %02x, but was %02x", pos,
+											sendBuffer.get(pos), recBuffer.get(pos));
+								});
+							}
+							currentRecOffset += count;
+							if (currentRecOffset == recBuffer.capacity()) {
+								break;
+							}
+						}
+						LOG.log(Level.FINEST, "Bytes read: {0}", count);
+						if (count <= 0) {
+							if (currentRecOffset < recBuffer.capacity()) {
+								LOG.log(Level.SEVERE, "Bytes missing: {0}", recBuffer.capacity() - currentRecOffset);
+								// TODO printArrays("Too short");
+							}
+							break;
+						}
+					}
+						break;
+						//TODO assert ByteBuffer position limit
+						
+					}
 				}
+				
 				LOG.log(Level.INFO, "Byte total read: {0}", currentRecOffset);
 				synchronized (LOCK) {
 					done = true;
@@ -146,6 +187,7 @@ public abstract class AbstractPortTest {
 					LOG.log(Level.INFO, "Send Thread finished");
 				}
 			} catch (Exception ex) {
+				ex.printStackTrace();
 				synchronized (LOCK) {
 					done = true;
 					this.ex = ex;
@@ -153,6 +195,7 @@ public abstract class AbstractPortTest {
 					LOCK.notifyAll();
 				}
 			} catch (Error err) {
+				err.printStackTrace();
 				synchronized (LOCK) {
 					done = true;
 					this.err = err;
@@ -173,13 +216,14 @@ public abstract class AbstractPortTest {
 		 * 
 		 */
 		public void assertStateAfterExecution() {
-			assertNull(err);
+			assertNull(err, err != null ? err.getMessage() : "");
 			assertAll("Receive Exception", () -> {
 				// Where is the missing byte
-				assertArrayEquals(sendBuffer, recBuffer);
+				assertEquals(sendBuffer.position(), recBuffer.position(), "Position");
+				assertEquals(sendBuffer.limit(), recBuffer.limit(), "Limit");
 			}, () -> {
 				// How much bytes are missing
-				assertEquals(sendBuffer.length, currentRecOffset, "Received not enough");
+				assertEquals(sendBuffer.limit(), currentRecOffset, "Received not enough");
 			}, () -> {
 				if (ex instanceof TimeoutIOException) {
 					// if bytesTransferred == 0 then in the second attempt nothing was read.
@@ -200,18 +244,26 @@ public abstract class AbstractPortTest {
 	}
 
 	public class Sender implements Runnable {
-		final boolean writeSingle;
+		final SocketIoType socketIoType;
 		boolean done;
 		final Object LOCK = new Object();
-		final byte[] sendBuffer;
+		final ByteBuffer sendBuffer;
 		Exception ex;
 		Error err;
-		final OutputStream os;
+		final SerialPortSocket sps;
 
-		public Sender(boolean writeSingle, OutputStream os, byte[] sendBuffer) {
-			this.writeSingle = writeSingle;
-			this.os = os;
+		public Sender(SocketIoType socketIoType, SerialPortSocket sps, int bufferSize) {
+			this(socketIoType, sps, socketIoType == SocketIoType.CHANNEL ? ByteBuffer.allocateDirect(bufferSize) : ByteBuffer.allocate(bufferSize));
+		}
+
+		public Sender(SocketIoType socketIoType, SerialPortSocket sps, ByteBuffer sendBuffer) {
+			this.socketIoType = socketIoType;
+			this.sps = sps;
 			this.sendBuffer = sendBuffer;
+			for (int i = 0; i < sendBuffer.capacity(); i++) {
+				sendBuffer.put((byte) i);
+			}
+			sendBuffer.flip();
 		}
 
 		@Override
@@ -219,21 +271,37 @@ public abstract class AbstractPortTest {
 			done = false;
 			ex = null;
 			err = null;
+			int bytesWritten = 0;
 			try {
-				if (writeSingle) {
-					for (int i = 0; i < sendBuffer.length; i++) {
-						os.write(sendBuffer[i]);
+				switch (socketIoType) {
+				case SINGLE_BYTE: {
+					final OutputStream os = sps.getOutputStream();
+					while (sendBuffer.hasRemaining()) {
+						os.write(sendBuffer.get());
+						bytesWritten = 1;
 					}
-				} else {
-					os.write(sendBuffer);
 				}
-				LOG.log(Level.INFO, "Bytes written: {0}", sendBuffer.length);
+					break;
+				case STREAM:
+					byte[] b = new byte[sendBuffer.remaining()];
+					sendBuffer.get(b);
+					sps.getOutputStream().write(b);
+					bytesWritten = b.length;
+					break;
+				case CHANNEL:
+					bytesWritten = sps.getChannel().write(sendBuffer);
+				break;
+
+				}
+				LOG.log(Level.INFO, "Bytes written: {0}", bytesWritten);
+				
 				synchronized (LOCK) {
 					done = true;
 					LOCK.notifyAll();
 					LOG.log(Level.INFO, "Send Thread finished");
 				}
 			} catch (Exception ex) {
+				ex.printStackTrace();
 				synchronized (LOCK) {
 					done = true;
 					this.ex = ex;
@@ -241,6 +309,7 @@ public abstract class AbstractPortTest {
 					LOCK.notifyAll();
 				}
 			} catch (Error err) {
+				err.printStackTrace();
 				synchronized (LOCK) {
 					done = true;
 					this.err = err;
@@ -267,14 +336,6 @@ public abstract class AbstractPortTest {
 				}
 			});
 		}
-	}
-
-	protected byte[] initBuffer(final int size) {
-		final byte[] result = new byte[size];
-		for (int i = 0; i < size; i++) {
-			result[i] = (byte) i;
-		}
-		return result;
 	}
 
 	protected static final int PORT_RECOVERY_TIME_MS = 200;
@@ -482,7 +543,7 @@ public abstract class AbstractPortTest {
 
 	public void runNonThreaded(Sender sender, Receiver receiver, long timeout) throws Exception {
 		assertAll("After ", () -> {
-			assertTimeoutPreemptively(Duration.ofMillis(timeout), () -> {
+			assertTimeout(Duration.ofMillis(timeout), () -> {
 				sender.run();
 				receiver.run();
 			});
@@ -493,39 +554,15 @@ public abstract class AbstractPortTest {
 		});
 	}
 
-	public void writeBytes_ReadBytes(PortConfiguration pc) throws Exception {
+	public void write_Read_nonThreaded(SocketIoType sendType, SocketIoType receiveType, PortConfiguration pc) throws Exception {
 		open(pc);
-		final Sender sender = new Sender(true, writeSpc.getOutputStream(), initBuffer(pc.getBufferSize()));
-		final Receiver receiver = new Receiver(false, readSpc.getInputStream(), sender.sendBuffer);
+		final Sender sender = new Sender(sendType, writeSpc, pc.getBufferSize());
+		final Receiver receiver = new Receiver(receiveType, readSpc, sender.sendBuffer);
 
 		runNonThreaded(sender, receiver, pc.getTestTimeout());
 	}
 
-	public void writeBytes_ReadSingle(PortConfiguration pc) throws Exception {
-		open(pc);
-		final Sender sender = new Sender(false, writeSpc.getOutputStream(), initBuffer(pc.getBufferSize()));
-		final Receiver receiver = new Receiver(true, readSpc.getInputStream(), sender.sendBuffer);
-
-		runNonThreaded(sender, receiver, pc.getTestTimeout());
-	}
-
-	public void writeSingle_ReadBytes(PortConfiguration pc) throws Exception {
-		open(pc);
-		final Sender sender = new Sender(true, writeSpc.getOutputStream(), initBuffer(pc.getBufferSize()));
-		final Receiver receiver = new Receiver(false, readSpc.getInputStream(), sender.sendBuffer);
-
-		runNonThreaded(sender, receiver, pc.getTestTimeout());
-	}
-
-	public void writeSingle_ReadSingle(PortConfiguration pc) throws Exception {
-		open(pc);
-		final Sender sender = new Sender(true, writeSpc.getOutputStream(), initBuffer(pc.getBufferSize()));
-		final Receiver receiver = new Receiver(true, readSpc.getInputStream(), sender.sendBuffer);
-
-		runNonThreaded(sender, receiver, pc.getTestTimeout());
-	}
-
-	public void runThreaded(Sender sender, Receiver receiver, long timeout) throws Exception {
+	private void runThreaded(Sender sender, Receiver receiver, long timeout) throws Exception {
 		new Thread(receiver).start();
 		new Thread(sender).start();
 		assertAll("Treaded Test Run ", () -> {
@@ -554,36 +591,11 @@ public abstract class AbstractPortTest {
 
 	}
 
-	public void writeBytes_ReadBytes_Threaded(PortConfiguration pc) throws Exception {
+	public void write_Read_Threaded(SocketIoType sendType, SocketIoType receiveType, PortConfiguration pc) throws Exception {
 		open(pc);
-		final Sender sender = new Sender(false, writeSpc.getOutputStream(), initBuffer(pc.getBufferSize()));
-		final Receiver receiver = new Receiver(false, readSpc.getInputStream(), sender.sendBuffer);
+		final Sender sender = new Sender(sendType, writeSpc, pc.getBufferSize());
+		final Receiver receiver = new Receiver(receiveType, readSpc, sender.sendBuffer);
 
 		runThreaded(sender, receiver, pc.getTestTimeout());
 	}
-
-	public void writeBytes_ReadSingle_Threaded(PortConfiguration pc) throws Exception {
-		open(pc);
-		final Sender sender = new Sender(false, writeSpc.getOutputStream(), initBuffer(pc.getBufferSize()));
-		final Receiver receiver = new Receiver(true, readSpc.getInputStream(), sender.sendBuffer);
-
-		runThreaded(sender, receiver, pc.getTestTimeout());
-	}
-
-	public void writeSingle_ReadBytes_Threaded(PortConfiguration pc) throws Exception {
-		open(pc);
-		final Sender sender = new Sender(true, writeSpc.getOutputStream(), initBuffer(pc.getBufferSize()));
-		final Receiver receiver = new Receiver(false, readSpc.getInputStream(), sender.sendBuffer);
-
-		runThreaded(sender, receiver, pc.getTestTimeout());
-	}
-
-	public void writeSingle_ReadSingle_Threaded(PortConfiguration pc) throws Exception {
-		open(pc);
-		final Sender sender = new Sender(true, writeSpc.getOutputStream(), initBuffer(pc.getBufferSize()));
-		final Receiver receiver = new Receiver(false, readSpc.getInputStream(), sender.sendBuffer);
-
-		runThreaded(sender, receiver, pc.getTestTimeout());
-	}
-
 }

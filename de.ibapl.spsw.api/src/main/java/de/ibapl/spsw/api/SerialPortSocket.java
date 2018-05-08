@@ -24,6 +24,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.lang.annotation.Native;
+import java.nio.channels.ByteChannel;
 import java.util.Set;
 
 import org.osgi.annotation.versioning.ProviderType;
@@ -173,6 +174,15 @@ public interface SerialPortSocket extends AutoCloseable {
 	@Override
 	void close() throws IOException;
 
+	/**
+	 * Returns the ByteChannel for this port.
+	 * 
+	 * @return the ByteChannel.
+	 * @throws IOException
+	 *             if port is closed or an error at OS level occurs.
+	 */
+	ByteChannel getChannel() throws IOException;
+	
 	/**
 	 * Read the number of data bits from the port.
 	 * 

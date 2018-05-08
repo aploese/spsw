@@ -46,7 +46,9 @@ import de.ibapl.spsw.api.Parity;
 import de.ibapl.spsw.api.Speed;
 import de.ibapl.spsw.api.StopBits;
 import de.ibapl.spsw.api.TimeoutIOException;
+import de.ibapl.spsw.tests.tags.ByteChannelTest;
 import de.ibapl.spsw.tests.tags.DtrDsrTest;
+import de.ibapl.spsw.tests.tags.IOStreamTest;
 import de.ibapl.spsw.tests.tags.RtsCtsTest;
 
 /**
@@ -59,62 +61,115 @@ public abstract class AbstractReadWriteRtsCtsTests extends AbstractReadWriteTest
 				.getSpeedIterator(Speed._1200_BPS, Speed._115200_BPS);
 	}
 
+	@IOStreamTest
 	@RtsCtsTest
 	@ParameterizedTest
 	@MethodSource({ "getBaselinePortConfigurations" })
 	public void test_WriteBytes_ReadBytes(PortConfiguration pc) throws Exception {
-		writeBytes_ReadBytes(pc);
+		write_Read_nonThreaded(SocketIoType.STREAM, SocketIoType.STREAM, pc);
 	}
 
+	@IOStreamTest
 	@RtsCtsTest
 	@ParameterizedTest
 	@MethodSource({ "getBaselinePortConfigurations" })
 	public void test_WriteBytes_ReadSingle(PortConfiguration pc) throws Exception {
-		writeBytes_ReadSingle(pc);
+		write_Read_nonThreaded(SocketIoType.STREAM, SocketIoType.SINGLE_BYTE, pc);
 	}
 
+	@IOStreamTest
 	@RtsCtsTest
 	@ParameterizedTest
 	@MethodSource({ "getBaselinePortConfigurations" })
 	public void test_WriteSingle_ReadBytes(PortConfiguration pc) throws Exception {
-		writeSingle_ReadBytes(pc);
+		write_Read_nonThreaded(SocketIoType.SINGLE_BYTE, SocketIoType.STREAM, pc);
 	}
 
 	@RtsCtsTest
 	@ParameterizedTest
 	@MethodSource({ "getBaselinePortConfigurations" })
 	public void test_WriteSingle_ReadSingle(PortConfiguration pc) throws Exception {
-		writeSingle_ReadSingle(pc);
+		write_Read_nonThreaded(SocketIoType.SINGLE_BYTE, SocketIoType.SINGLE_BYTE, pc);
 	}
 
+	@IOStreamTest
 	@RtsCtsTest
 	@ParameterizedTest
 	@MethodSource({ "getBaselinePortConfigurations" })
 	public void test_WriteBytes_ReadBytes_Threaded(PortConfiguration pc) throws Exception {
-		writeBytes_ReadBytes_Threaded(pc);
+		write_Read_Threaded(SocketIoType.STREAM, SocketIoType.STREAM, pc);
 	}
 
+	@IOStreamTest
 	@RtsCtsTest
 	@ParameterizedTest
 	@MethodSource({ "getBaselinePortConfigurations" })
 	public void test_WriteBytes_ReadSingle_Threaded(PortConfiguration pc) throws Exception {
-		writeBytes_ReadSingle_Threaded(pc);
+		write_Read_Threaded(SocketIoType.STREAM, SocketIoType.SINGLE_BYTE, pc);
 	}
 
+	@IOStreamTest
 	@RtsCtsTest
 	@ParameterizedTest
 	@MethodSource({ "getBaselinePortConfigurations" })
 	public void test_WriteSingle_ReadBytes_Threaded(PortConfiguration pc) throws Exception {
-		writeSingle_ReadBytes_Threaded(pc);
+		write_Read_Threaded(SocketIoType.SINGLE_BYTE, SocketIoType.STREAM, pc);
 	}
 
 	@RtsCtsTest
 	@ParameterizedTest
 	@MethodSource({ "getBaselinePortConfigurations" })
 	public void test_WriteSingle_ReadSingle_Threaded(PortConfiguration pc) throws Exception {
-		writeSingle_ReadSingle_Threaded(pc);
+		write_Read_Threaded(SocketIoType.SINGLE_BYTE, SocketIoType.SINGLE_BYTE, pc);
 	}
 
+	@ByteChannelTest
+	@RtsCtsTest
+	@ParameterizedTest
+	@MethodSource({ "getBaselinePortConfigurations" })
+	public void test_Channel_WriteBytes_ReadBytes(PortConfiguration pc) throws Exception {
+		write_Read_nonThreaded(SocketIoType.CHANNEL, SocketIoType.CHANNEL, pc);
+	}
+
+	@ByteChannelTest
+	@RtsCtsTest
+	@ParameterizedTest
+	@MethodSource({ "getBaselinePortConfigurations" })
+	public void test_Channel_WriteBytes_ReadSingle(PortConfiguration pc) throws Exception {
+		write_Read_nonThreaded(SocketIoType.CHANNEL, SocketIoType.SINGLE_BYTE, pc);
+	}
+
+	@ByteChannelTest
+	@RtsCtsTest
+	@ParameterizedTest
+	@MethodSource({ "getBaselinePortConfigurations" })
+	public void test_Channel_WriteSingle_ReadBytes(PortConfiguration pc) throws Exception {
+		write_Read_nonThreaded(SocketIoType.SINGLE_BYTE, SocketIoType.CHANNEL, pc);
+	}
+
+	@ByteChannelTest
+	@RtsCtsTest
+	@ParameterizedTest
+	@MethodSource({ "getBaselinePortConfigurations" })
+	public void test_Channel_WriteBytes_ReadBytes_Threaded(PortConfiguration pc) throws Exception {
+		write_Read_Threaded(SocketIoType.CHANNEL, SocketIoType.CHANNEL, pc);
+	}
+
+	@ByteChannelTest
+	@RtsCtsTest
+	@ParameterizedTest
+	@MethodSource({ "getBaselinePortConfigurations" })
+	public void test_Channel_WriteBytes_ReadSingle_Threaded(PortConfiguration pc) throws Exception {
+		write_Read_Threaded(SocketIoType.CHANNEL, SocketIoType.SINGLE_BYTE, pc);
+	}
+
+	@ByteChannelTest
+	@RtsCtsTest
+	@ParameterizedTest
+	@MethodSource({ "getBaselinePortConfigurations" })
+	public void test_Channel_WriteSingle_ReadBytes_Threaded(PortConfiguration pc) throws Exception {
+		write_Read_Threaded(SocketIoType.SINGLE_BYTE, SocketIoType.CHANNEL, pc);
+	}
 	// TODO does not work as expected Linux Kernel fills in buffer size?
 	@Disabled
 	@Test

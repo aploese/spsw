@@ -4,10 +4,46 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.ByteBuffer;
+import java.nio.channels.ByteChannel;
+
+import org.junit.jupiter.params.shadow.com.univocity.parsers.conversions.ByteConversion;
 
 import de.ibapl.spsw.api.SerialPortSocket;
 
 public abstract class AbstractSerialPortSocket<T extends AbstractSerialPortSocket<T>> implements SerialPortSocket {
+	
+	protected class SerialChannel implements ByteChannel {
+		
+		private final Object readLock = new Object();
+		private final Object writeLock = new Object();
+		
+
+		@Override
+		public int read(ByteBuffer dst) throws IOException {
+			synchronized (readLock) {
+				return AbstractSerialPortSocket.this.readBytes(dst);
+			}
+		}
+
+		@Override
+		public boolean isOpen() {
+			return AbstractSerialPortSocket.this.isOpen();
+		}
+
+		@Override
+		public void close() throws IOException {
+			AbstractSerialPortSocket.this.close();
+		}
+
+		@Override
+		public int write(ByteBuffer src) throws IOException {
+			synchronized (writeLock) {
+				return AbstractSerialPortSocket.this.writeBytes(src);
+			}
+		}
+		
+	}
+	
 	protected class SerialInputStream extends InputStream {
 
 		@Override
@@ -100,6 +136,8 @@ public abstract class AbstractSerialPortSocket<T extends AbstractSerialPortSocke
 
 	protected SerialInputStream is;
 	protected SerialOutputStream os;
+	protected SerialChannel ch;
+	
 
 	protected final String portName;
 
@@ -216,8 +254,21 @@ public abstract class AbstractSerialPortSocket<T extends AbstractSerialPortSocke
 	 * @throws java.io.IOException
 	 *
 	 */
-	protected abstract void writeBytes(ByteBuffer b) throws IOException;
+	protected abstract int writeBytes(ByteBuffer b) throws IOException;
 
 	protected abstract void writeSingle(int b) throws IOException;
+	
+	@Override
+	public synchronized ByteChannel getChannel() throws IOException {
+		if (!isOpen()) {
+			throw new IOException(PORT_IS_CLOSED);
+		}
+		if (ch == null) {
+			ch = new SerialChannel();
+		}
+		return ch;
+	}
+
+
 
 }
