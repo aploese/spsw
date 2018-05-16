@@ -80,7 +80,7 @@ public class SerialPortSocketFactoryImpl implements SerialPortSocketFactory {
 		final Pattern pattern = getPortnamesRegExp();
 		switch (MULTIARCH_TUPEL_BUILDER.getSimpleOsName()) {
 		case "windows":
-			String[] portNames = getWindowsBasedPortNames();
+			List<String> portNames = getWindowsBasedPortNames();
 			if (portNames == null) {
 				return;
 			}
@@ -224,12 +224,12 @@ public class SerialPortSocketFactoryImpl implements SerialPortSocketFactory {
 		return result;
 	}
 
-	protected String[] getWindowsBasedPortNames() {
+	protected List<String> getWindowsBasedPortNames() {
 		return GenericWinSerialPortSocket.getWindowsBasedPortNames();
 	}
 
 	protected List<String> getWindowsPortNames(String portToInclude, boolean hideBusyPorts) {
-		String[] portNames = getWindowsBasedPortNames();
+		List<String> portNames = getWindowsBasedPortNames();
 		if (portNames == null) {
 			return Collections.emptyList();
 		}
