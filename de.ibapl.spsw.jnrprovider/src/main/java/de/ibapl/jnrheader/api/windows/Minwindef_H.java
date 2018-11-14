@@ -5,144 +5,100 @@ import java.nio.charset.Charset;
 
 import de.ibapl.jnrheader.JnrHeader;
 import de.ibapl.jnrheader.Wrapper;
+import java.nio.ByteBuffer;
+import java.nio.CharBuffer;
+import java.nio.charset.CharacterCodingException;
+import java.nio.charset.CharsetDecoder;
+import java.nio.charset.CharsetEncoder;
+import java.nio.charset.CodingErrorAction;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 @Wrapper("minwindef.h")
 public abstract class Minwindef_H implements JnrHeader {
-	
-	public static class LPVOID {
-		
-	}
-	
-	public static class HKEY extends HANDLE {
-		
-		private HKEY(long value) {
-			super(value);
-		}
-		
-		public static HKEY ofLong(long value) {
-			return new HKEY(value);
-		}
 
-	}
-	
-	public static class PHKEY extends Pointer<HKEY>{
-		
-		public PHKEY() {
-			super(null);
-		}
+    public static class LPVOID {
 
-		public PHKEY(HKEY hkey) {
-			super(hkey);
-		}
-		
-	}
+    }
 
-	public static class HRESULT {
+    public static class HKEY extends HANDLE {
 
-		public static HRESULT of(int hresult) {
-			return new HRESULT(hresult);
-		}
+        private HKEY(long value) {
+            super(value);
+        }
 
-		public final int hresult;
+        public static HKEY ofLong(long value) {
+            return new HKEY(value);
+        }
 
-		private HRESULT(int hresult) {
-			this.hresult = hresult;
-		}
+    }
 
-	}
+    public static class PHKEY extends Pointer<HKEY> {
 
-	public static class LPBYTE {
-		
-		public byte[] value;
-		
-		private LPBYTE(int size) {
-			this.value = new byte[size];
-		}
+        public PHKEY() {
+            super(null);
+        }
 
-		public static final LPBYTE ofSize(int size) {
-			return new LPBYTE(size);
-		}
-		
-		public static final LPBYTE ofValue(byte value) {
-			final LPBYTE result = new LPBYTE(1);
-			result.value[0] = value;
-			return result;
-		}
+        public PHKEY(HKEY hkey) {
+            super(hkey);
+        }
 
-		public int length() {
-			return value.length;
-		}
+    }
 
-	}
+    public static class HRESULT {
 
-	
-	public static class LPDWORD {
-		
-		public int[] value;
-		
-		private LPDWORD(int size) {
-			this.value = new int[size];
-		}
+        public static HRESULT of(int hresult) {
+            return new HRESULT(hresult);
+        }
 
-		public static final LPDWORD ofSize(int size) {
-			return new LPDWORD(size);
-		}
-		
-		public static final LPDWORD ofValue(int value) {
-			final LPDWORD result = new LPDWORD(1);
-			result.value[0] = value;
-			return result;
-		}
-		
-		public int length() {
-			return value.length;
-		}
+        public final int hresult;
 
-	}
+        private HRESULT(int hresult) {
+            this.hresult = hresult;
+        }
 
-	public static class HANDLE {
-		public long value;
+    }
 
-		protected HANDLE(long value) {
-			this.value = value;
-		}
+    
+    public static class LPBYTE {
 
-		public static HANDLE of(long value) {
-			return new HANDLE(value);
-		}
-	}
+        public byte value;
 
-	public static class LPTSTR {
-		
-		public final static Charset CS_UTF_16LE = Charset.forName("UTF-16LE");
+    }
+    
+    public static class LPDWORD {
 
-		public byte[] value;
-		
-		private LPTSTR(int size) {
-			value = new byte[size]; 
-		}
-		
-		private LPTSTR(String value) {
-			this.value = value.getBytes(CS_UTF_16LE); 
-		}
-		
-		public static final LPTSTR ofSize(int size) {
-			return new LPTSTR(size);
-		}
-		
-		public static final LPTSTR ofValue(String value) {
-			return new LPTSTR(value);
-		}
-		
+        public int value;
+        
+        public static LPDWORD ofValue(int value) {
+        	LPDWORD result = new LPDWORD();
+        	result.value = value;
+        	return result;
+        }
 
-		public int length() {
-			return value.length;
-		}
+    }
 
-		public String toString(int size) {
-			return new String(value, 0, size, CS_UTF_16LE);
-		}
+    public static class HANDLE {
 
-	}
+        public long value;
 
-}
+        protected HANDLE(long value) {
+            this.value = value;
+        }
+
+        public static HANDLE of(long value) {
+            return new HANDLE(value);
+        }
+    }
+
+    /*
+         *Naming of Strings:
+        LP == Long Pointer. Just think pointer or char*
+
+C = Const, in this case, I think they mean the character string is a const, not the pointer being const.
+
+STR is string
+
+the T is for a wide character or char (TCHAR) depending on compile options.
+     */
+ }

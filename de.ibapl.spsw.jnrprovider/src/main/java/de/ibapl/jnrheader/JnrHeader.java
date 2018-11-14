@@ -19,6 +19,8 @@
  */
 package de.ibapl.jnrheader;
 
+import java.nio.charset.Charset;
+
 public interface JnrHeader {
 	
 	static <T extends JnrHeader> T getInstance(Class<T> clazz) {
@@ -60,5 +62,15 @@ public interface JnrHeader {
 	static boolean isDefined(Double d) {
 		return d != null;
 	}
+        
+        
+        public static final String UTF8_ENCODING = "UTF-8";
+        
+        /**
+         * Windows wide char encoding
+         */
+        public static final String UTF16_LE_ENCODING = "UTF-16LE";
+        
+        public static final Charset CS_UTF_16LE = Charset.forName(UTF16_LE_ENCODING);
 
 }

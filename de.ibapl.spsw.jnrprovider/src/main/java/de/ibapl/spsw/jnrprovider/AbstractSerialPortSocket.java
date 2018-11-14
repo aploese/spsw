@@ -6,8 +6,6 @@ import java.io.OutputStream;
 import java.nio.ByteBuffer;
 import java.nio.channels.ByteChannel;
 
-import org.junit.jupiter.params.shadow.com.univocity.parsers.conversions.ByteConversion;
-
 import de.ibapl.spsw.api.SerialPortSocket;
 
 public abstract class AbstractSerialPortSocket<T extends AbstractSerialPortSocket<T>> implements SerialPortSocket {

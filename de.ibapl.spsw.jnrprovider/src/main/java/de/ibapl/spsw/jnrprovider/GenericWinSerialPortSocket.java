@@ -7,9 +7,9 @@ import java.util.List;
 import java.util.Set;
 
 import de.ibapl.jnrheader.JnrHeader;
+import de.ibapl.jnrheader.api.windows.Minwindef_H;
 import de.ibapl.jnrheader.api.windows.Minwindef_H.LPBYTE;
 import de.ibapl.jnrheader.api.windows.Minwindef_H.LPDWORD;
-import de.ibapl.jnrheader.api.windows.Minwindef_H.LPTSTR;
 import de.ibapl.jnrheader.api.windows.Minwindef_H.PHKEY;
 import de.ibapl.jnrheader.api.windows.Winbase_H;
 import de.ibapl.jnrheader.api.windows.Winerr_H;
@@ -34,22 +34,22 @@ public class GenericWinSerialPortSocket extends AbstractSerialPortSocket<Generic
 		
 		PHKEY phkResult = new PHKEY();
 		REGSAM samDesired = REGSAM.of(Winnt_H.KEY_READ);
-		LPTSTR lpSubKey = LPTSTR.ofValue("HARDWARE\\DEVICEMAP\\SERIALCOMM\\");
-		if (winreg_H.RegOpenKeyEx(Winreg_H.HKEY_LOCAL_MACHINE, lpSubKey, 0, samDesired, phkResult)
+		          String lpSubKey = "HARDWARE\\DEVICEMAP\\SERIALCOMM\\";
+		if (winreg_H.RegOpenKeyExW(Winreg_H.HKEY_LOCAL_MACHINE, lpSubKey, 0, samDesired, phkResult)
 				== Winerr_H.ERROR_SUCCESS) {
 			int dwIndex = 0;
-			LPTSTR lpValueName = LPTSTR.ofSize(256);
-			LPDWORD lpcchValueName = LPDWORD.ofValue(lpValueName.length());
-			LPBYTE lpData = LPBYTE.ofSize(256);
-			LPDWORD lpcbData = LPDWORD.ofSize(lpValueName.length());
+			char[] lpValueName = new char[256];
+			LPDWORD lpcchValueName = LPDWORD.ofValue(lpValueName.length);
+			byte[] lpData = new byte[256];
+			LPDWORD lpcbData = LPDWORD.ofValue(lpValueName.length);
 			long enumResult;
 			do {
-				lpcchValueName.value[0] = lpValueName.length();
-				lpcbData.value[0] =  lpData.length();
-				enumResult = winreg_H.RegEnumValue(phkResult.value, dwIndex, lpValueName,
+				lpcchValueName.value = lpValueName.length;
+				lpcbData.value =  lpData.length;
+				enumResult = winreg_H.RegEnumValueW(phkResult.value, dwIndex, lpValueName,
 						lpcchValueName, null, null, lpData, lpcbData);
 				if (enumResult == Winerr_H.ERROR_SUCCESS) {
-					result.add(new String(lpData.value, 0, lpcbData.value[0], LPTSTR.CS_UTF_16LE));
+					result.add(new String(lpData, 0, lpcbData.value, JnrHeader.CS_UTF_16LE));
 					dwIndex++;
 				} 
 			} while (enumResult != Winerr_H.ERROR_SUCCESS);

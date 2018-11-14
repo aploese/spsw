@@ -50,7 +50,7 @@ public class PosixSerialPortSocket extends AbstractSerialPortSocket<PosixSerialP
 	public static final int INVALID_FD = -1;
 	private volatile int fd = INVALID_FD;
 	private volatile int close_event_fd = INVALID_FD;
-	private Termios_H<Termios> termios_H;
+	private Termios_H termios_H;
 	private Errno_H errno_H;
 	private Fcntl_H fcntl_H;
 	private Ioctl_H ioctl_H;
