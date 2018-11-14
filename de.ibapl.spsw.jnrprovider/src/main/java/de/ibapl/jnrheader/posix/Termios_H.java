@@ -43,10 +43,10 @@ import de.ibapl.jnrheader.Wrapper;
  *
  */
 @Wrapper("termios.h")
-public abstract class Termios_H<T extends Termios_H<T>.Termios> implements JnrHeader {
+public abstract class Termios_H implements JnrHeader {
 
 	@NativeFunction
-	public interface cfmakeraw<T extends Termios_H<T>.Termios> {
+	public interface cfmakeraw {
 		/**
 		 * Set the terminal to something like the "raw" mode of the old Version 7
 		 * terminal driver.
@@ -54,11 +54,11 @@ public abstract class Termios_H<T extends Termios_H<T>.Termios> implements JnrHe
 		 * @param termios
 		 *            the {@link Termios_H.Termios} structure.
 		 */
-		void cfmakeraw(T termios);
+		void cfmakeraw(Termios termios);
 	}
 
 	@NativeFunction
-	public interface cfsetspeed<T extends Termios_H<T>.Termios> {
+	public interface cfsetspeed {
 		/**
 		 * is a 4.4BSD extension. It takes the same arguments as
 		 * {@link Termios_H#cfsetispeed(Termios, int)}, and sets both input and output
@@ -69,7 +69,7 @@ public abstract class Termios_H<T extends Termios_H<T>.Termios> implements JnrHe
 		 * @param speed
 		 * @return
 		 */
-		int cfsetspeed(T termios, int speed);
+		int cfsetspeed(Termios termios, int speed);
 	}
 
 	/**
@@ -1376,7 +1376,7 @@ public abstract class Termios_H<T extends Termios_H<T>.Termios> implements JnrHe
 	 * @return the speed encoded in the B* constants.
 	 */
 	@POSIX
-	public abstract int cfgetispeed(T termios);
+	public abstract int cfgetispeed(Termios termios);
 
 	/**
 	 * Returns the output speed stored in the termios structure.
@@ -1386,7 +1386,7 @@ public abstract class Termios_H<T extends Termios_H<T>.Termios> implements JnrHe
 	 * @return the speed encoded in the B* constants.
 	 */
 	@POSIX
-	public abstract int cfgetospeed(T termios);
+	public abstract int cfgetospeed(Termios termios);
 
 	/**
 	 * sets the input speed stored in the termios structure pointed to by termios_p
@@ -1411,7 +1411,7 @@ public abstract class Termios_H<T extends Termios_H<T>.Termios> implements JnrHe
 	 * @return 0 on success -1 otherwise.
 	 */
 	@POSIX
-	public abstract int cfsetispeed(T termios, int speed);
+	public abstract int cfsetispeed(Termios termios, int speed);
 
 	/**
 	 * sets the output speed stored in the termios structure pointed to by termios_p
@@ -1437,7 +1437,7 @@ public abstract class Termios_H<T extends Termios_H<T>.Termios> implements JnrHe
 	 * @return 0 on success -1 otherwise.
 	 */
 	@POSIX
-	public abstract int cfsetospeed(T termios, int speed);
+	public abstract int cfsetospeed(Termios termios, int speed);
 
 	protected abstract Integer CIBAUD();
 
@@ -1462,7 +1462,7 @@ public abstract class Termios_H<T extends Termios_H<T>.Termios> implements JnrHe
 	 * 
 	 * @return
 	 */
-	public abstract T createTermios();
+	public abstract Termios createTermios();
 
 	protected abstract int CRTSCTS();
 
@@ -1720,7 +1720,7 @@ public abstract class Termios_H<T extends Termios_H<T>.Termios> implements JnrHe
 	 * @return 0 on success -1 otherwise.
 	 */
 	@POSIX
-	public abstract int tcgetattr(int fildes, T termios);
+	public abstract int tcgetattr(int fildes, Termios termios);
 
 	/**
 	 * The function tcgetsid() returns the session ID of the current session that
@@ -1871,7 +1871,7 @@ public abstract class Termios_H<T extends Termios_H<T>.Termios> implements JnrHe
 	 * @return 0 on success -1 otherwise.
 	 */
 	@POSIX
-	public abstract int tcsetattr(int fildes, int optional_actions, T termios);
+	public abstract int tcsetattr(int fildes, int optional_actions, Termios termios);
 
 	protected abstract int TOSTOP();
 

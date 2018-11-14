@@ -21,7 +21,7 @@ import jnr.ffi.Struct;
 import jnr.ffi.TypeAlias;
 import jnr.ffi.annotations.TypeDefinition;
 
-public abstract class Termios_Lib extends Termios_H<Termios_Lib.LinuxTermios> implements cfsetspeed<Termios_Lib.LinuxTermios>, cfmakeraw<Termios_Lib.LinuxTermios> {
+public abstract class Termios_Lib extends Termios_H implements cfsetspeed, cfmakeraw {
 
 	@Retention(RetentionPolicy.RUNTIME)
 	@Target(value = { ElementType.PARAMETER, ElementType.METHOD, ElementType.FIELD })
@@ -31,8 +31,6 @@ public abstract class Termios_Lib extends Termios_H<Termios_Lib.LinuxTermios> im
 
 	}
 
-	//TODO is there a way to fix this properly - rawtypes?
-	@SuppressWarnings("rawtypes")
 	public class LinuxTermios extends Termios_H.Termios {
 		/**
 		 *  Line discipline.
@@ -549,7 +547,7 @@ public abstract class Termios_Lib extends Termios_H<Termios_Lib.LinuxTermios> im
 	}
 
 	@Override
-	public int cfgetispeed(LinuxTermios termios) {
+	public int cfgetispeed(Termios termios) {
 		TermiosImpl termiosImpl = wrap(termios);
 		int result = nativeFunctions.cfgetispeed(termiosImpl);
 		unwrap(termios, termiosImpl);
@@ -557,7 +555,7 @@ public abstract class Termios_Lib extends Termios_H<Termios_Lib.LinuxTermios> im
 	}
 
 	@Override
-	public int cfgetospeed(LinuxTermios termios) {
+	public int cfgetospeed(Termios termios) {
 		TermiosImpl termiosImpl = wrap(termios);
 		int result = nativeFunctions.cfgetospeed(termiosImpl);
 		unwrap(termios, termiosImpl);
@@ -565,14 +563,14 @@ public abstract class Termios_Lib extends Termios_H<Termios_Lib.LinuxTermios> im
 	}
 
 	@Override
-	public void cfmakeraw(LinuxTermios termios) {
+	public void cfmakeraw(Termios termios) {
 		TermiosImpl termiosImpl = wrap(termios);
 		nativeFunctions.cfmakeraw(termiosImpl);
 		unwrap(termios, termiosImpl);
 	}
 
 	@Override
-	public int cfsetispeed(LinuxTermios termios, int speed) {
+	public int cfsetispeed(Termios termios, int speed) {
 		TermiosImpl termiosImpl = wrap(termios);
 		int result = nativeFunctions.cfsetispeed(termiosImpl, speed);
 		unwrap(termios, termiosImpl);
@@ -580,7 +578,7 @@ public abstract class Termios_Lib extends Termios_H<Termios_Lib.LinuxTermios> im
 	}
 
 	@Override
-	public int cfsetospeed(LinuxTermios termios, int speed) {
+	public int cfsetospeed(Termios termios, int speed) {
 		TermiosImpl termiosImpl = wrap(termios);
 		int result = nativeFunctions.cfsetospeed(termiosImpl, speed);
 		unwrap(termios, termiosImpl);
@@ -588,7 +586,7 @@ public abstract class Termios_Lib extends Termios_H<Termios_Lib.LinuxTermios> im
 	}
 
 	@Override
-	public int cfsetspeed(LinuxTermios termios, int speed) {
+	public int cfsetspeed(Termios termios, int speed) {
 		TermiosImpl termiosImpl = wrap(termios);
 		int result = nativeFunctions.cfsetspeed(termiosImpl, speed);
 		unwrap(termios, termiosImpl);
@@ -983,7 +981,7 @@ public abstract class Termios_Lib extends Termios_H<Termios_Lib.LinuxTermios> im
 	}
 
 	@Override
-	public int tcgetattr(int fildes, LinuxTermios termios) {
+	public int tcgetattr(int fildes, Termios termios) {
 		TermiosImpl termiosImpl = new TermiosImpl(Runtime.getRuntime(nativeFunctions));
 		int result = nativeFunctions.tcgetattr(fildes, termiosImpl);
 		unwrap(termios, termiosImpl);
@@ -1051,7 +1049,7 @@ public abstract class Termios_Lib extends Termios_H<Termios_Lib.LinuxTermios> im
 	}
 
 	@Override
-	public int tcsetattr(int fildes, int optional_actions, LinuxTermios termios) {
+	public int tcsetattr(int fildes, int optional_actions, Termios termios) {
 		TermiosImpl termiosImpl = wrap(termios);
 		int result = nativeFunctions.tcsetattr(fildes, optional_actions, termiosImpl);
 		unwrap(termios, termiosImpl);
@@ -1063,17 +1061,21 @@ public abstract class Termios_Lib extends Termios_H<Termios_Lib.LinuxTermios> im
 		return Termios_Lib.TOSTOP;
 	}
 
-	private void unwrap(LinuxTermios termios, TermiosImpl termiosImpl) {
-		termios.c_iflag = termiosImpl.c_iflag.intValue();
-		termios.c_oflag = termiosImpl.c_oflag.intValue();
-		termios.c_cflag = termiosImpl.c_cflag.intValue();
-		termios.c_lflag = termiosImpl.c_lflag.intValue();
-		termios.c_line = termiosImpl.c_line.byteValue();
+	private void unwrap(Termios termios, TermiosImpl termiosImpl) {
+		if (!(termios instanceof LinuxTermios)) {
+			throw new IllegalArgumentException("termios mus be a LinuxTermios");
+		} 
+		final LinuxTermios linuxTermios = (LinuxTermios)termios;
+		linuxTermios.c_iflag = termiosImpl.c_iflag.intValue();
+		linuxTermios.c_oflag = termiosImpl.c_oflag.intValue();
+		linuxTermios.c_cflag = termiosImpl.c_cflag.intValue();
+		linuxTermios.c_lflag = termiosImpl.c_lflag.intValue();
+		linuxTermios.c_line = termiosImpl.c_line.byteValue();
 		for (int i = 0; i < NCCS; i++) {
-			termios.c_cc[i] = termiosImpl.c_cc[i].byteValue();
+			linuxTermios.c_cc[i] = termiosImpl.c_cc[i].byteValue();
 		}
-		termios.c_ispeed = termiosImpl.c_ispeed == null ? null : termiosImpl.c_ispeed.intValue();
-		termios.c_ospeed = termiosImpl.c_ospeed == null ? null : termiosImpl.c_ospeed.intValue();
+		linuxTermios.c_ispeed = termiosImpl.c_ispeed == null ? null : termiosImpl.c_ispeed.intValue();
+		linuxTermios.c_ospeed = termiosImpl.c_ospeed == null ? null : termiosImpl.c_ospeed.intValue();
 	}
 
 	@Override
@@ -1191,29 +1193,33 @@ public abstract class Termios_Lib extends Termios_H<Termios_Lib.LinuxTermios> im
 		return Termios_Lib.VWERASE;
 	}
 
-	private TermiosImpl wrap(LinuxTermios termios) {
+	private TermiosImpl wrap(Termios termios) {
+		if (!(termios instanceof LinuxTermios)) {
+			throw new IllegalArgumentException("termios mus be a LinuxTermios");
+		} 
+		final LinuxTermios linuxTermios = (LinuxTermios)termios;
 		TermiosImpl result = new TermiosImpl(Runtime.getRuntime(nativeFunctions));
-		result.c_iflag.set(termios.c_iflag);
-		result.c_oflag.set(termios.c_oflag);
-		result.c_cflag.set(termios.c_cflag);
-		result.c_lflag.set(termios.c_lflag);
-		result.c_line.set(termios.c_line);
+		result.c_iflag.set(linuxTermios.c_iflag);
+		result.c_oflag.set(linuxTermios.c_oflag);
+		result.c_cflag.set(linuxTermios.c_cflag);
+		result.c_lflag.set(linuxTermios.c_lflag);
+		result.c_line.set(linuxTermios.c_line);
 		for (int i = 0; i < NCCS; i++) {
-			result.c_cc[i].set(termios.c_cc[i]);
+			result.c_cc[i].set(linuxTermios.c_cc[i]);
 		}
 
 		if (isDefined(_HAVE_STRUCT_TERMIOS_C_ISPEED())) {
-			result.c_ispeed.set(termios.c_ispeed);
+			result.c_ispeed.set(linuxTermios.c_ispeed);
 		} else {
-			if (termios.c_ispeed != 0) {
+			if (linuxTermios.c_ispeed != 0) {
 				throw new IllegalArgumentException();
 			}
 		}
 
 		if (isDefined(_HAVE_STRUCT_TERMIOS_C_OSPEED)) {
-			result.c_ospeed.set(termios.c_ospeed);
+			result.c_ospeed.set(linuxTermios.c_ospeed);
 		} else {
-			if (termios.c_ospeed == 0) {
+			if (linuxTermios.c_ospeed == 0) {
 				throw new IllegalArgumentException();
 			}
 		}
