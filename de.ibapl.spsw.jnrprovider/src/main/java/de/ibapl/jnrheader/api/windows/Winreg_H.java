@@ -154,7 +154,20 @@ public abstract class Winreg_H implements JnrHeader {
   //TODO	public abstract long RegEnumKeyExA(HKEY hKey,DWORD dwIndex,LPSTR lpName,LPDWORD lpcchName,LPDWORD lpReserved,LPSTR lpClass,LPDWORD lpcchClass,PFILETIME lpftLastWriteTime);
   //TODO	public abstract long RegEnumKeyExW(HKEY hKey,DWORD dwIndex,LPWSTR lpName,LPDWORD lpcchName,LPDWORD lpReserved,LPWSTR lpClass,LPDWORD lpcchClass,PFILETIME lpftLastWriteTime);
   //TODO	public abstract long RegEnumValueA(HKEY hKey,DWORD dwIndex,LPSTR lpValueName,LPDWORD lpcchValueName,LPDWORD lpReserved,LPDWORD lpType,LPBYTE lpData,LPDWORD lpcbData);
-  	public abstract long RegEnumValueW(HKEY hKey,int dwIndex,char[] lpValueName,LPDWORD lpcchValueName,LPDWORD lpReserved,LPDWORD lpType,byte[] lpData,LPDWORD lpcbData);
+  /**
+   *  <a href="https://docs.microsoft.com/en-us/windows/desktop/api/winreg/nf-winreg-regenumvaluew" >nf-winreg-regenumvaluew</a>
+   * 
+   * @param hKey
+   * @param dwIndex
+   * @param lpValueName
+   * @param lpcchValueName
+   * @param lpReserved
+   * @param lpType
+   * @param lpData
+   * @param lpcbData
+   * @return 
+   */
+        public abstract long RegEnumValueW(HKEY hKey,int dwIndex,char[] lpValueName,LPDWORD lpcchValueName,LPDWORD lpReserved,LPDWORD lpType,byte[] lpData,LPDWORD lpcbData);
   //TODO	public abstract long RegFlushKey(HKEY hKey);
   //TODO	public abstract long RegGetKeySecurity(HKEY hKey,SECURITY_INFORMATION SecurityInformation,PSECURITY_DESCRIPTOR pSecurityDescriptor,LPDWORD lpcbSecurityDescriptor);
   //TODO	public abstract long RegLoadKeyA(HKEY hKey,LPCSTR lpSubKey,LPCSTR lpFile);

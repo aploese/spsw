@@ -1,9 +1,7 @@
 package de.ibapl.jnrheader.spi.windows.x86_64.pe32_plus;
 
 import static de.ibapl.jnrheader.JnrHeader.UTF16_LE_ENCODING;
-import de.ibapl.jnrheader.api.windows.Minwindef_H;
 import de.ibapl.jnrheader.api.windows.Minwindef_H.HKEY;
-import de.ibapl.jnrheader.api.windows.Minwindef_H.LPBYTE;
 import de.ibapl.jnrheader.api.windows.Minwindef_H.LPDWORD;
 import de.ibapl.jnrheader.api.windows.Minwindef_H.PHKEY;
 import jnr.ffi.LibraryLoader;
@@ -11,13 +9,8 @@ import jnr.ffi.annotations.StdCall;
 import jnr.ffi.byref.IntByReference;
 import jnr.ffi.byref.LongLongByReference;
 import de.ibapl.jnrheader.api.windows.Winreg_H;
-import java.nio.ByteBuffer;
-import java.nio.CharBuffer;
-import java.nio.charset.Charset;
-import java.nio.charset.CodingErrorAction;
 import jnr.ffi.annotations.Encoding;
 import jnr.ffi.annotations.In;
-import sun.nio.cs.ThreadLocalCoders;
 
 public class Winreg_Lib extends Winreg_H {
 

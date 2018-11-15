@@ -19,58 +19,84 @@
  */
 package de.ibapl.jnrheader;
 
+import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
 
 public interface JnrHeader {
-	
-	static <T extends JnrHeader> T getInstance(Class<T> clazz) {
-		MultiarchTupelBuilder mtb = new MultiarchTupelBuilder();
-		String[] s = mtb.getMultiarchTupels().iterator().next().split("-");
-		Class<T> implClass;
-		if (!clazz.getSimpleName().endsWith("_H")) {
-			throw new IllegalArgumentException("Wrong name, expect to end with _H");
-		}
-		String className =  clazz.getSimpleName().substring(0, clazz.getSimpleName().length() -1);
-		try {
-			implClass = (Class<T>)clazz.getClassLoader().loadClass(String.format("de.ibapl.jnrheader.%s.%s.%s.%sImpl", s[1], s[0], s[2], className));
-			return (T)implClass.newInstance(); 
-		} catch (ClassNotFoundException | InstantiationException | IllegalAccessException e) {
-			throw new RuntimeException(e);
-		}
-	}
-	
-	static boolean isDefined(Byte b) {
-		return b != null;
-	}
 
-	static boolean isDefined(Short s) {
-		return s != null;
-	}
+    static <T extends JnrHeader> T getInstance(Class<T> clazz) {
+        MultiarchTupelBuilder mtb = new MultiarchTupelBuilder();
+        String[] s = mtb.getMultiarchTupels().iterator().next().split("-");
+        Class<T> implClass;
+        if (!clazz.getSimpleName().endsWith("_H")) {
+            throw new IllegalArgumentException("Wrong name, expect to end with _H");
+        }
+        String className = clazz.getSimpleName().substring(0, clazz.getSimpleName().length() - 1);
+        try {
+            implClass = (Class<T>) clazz.getClassLoader().loadClass(String.format("de.ibapl.jnrheader.%s.%s.%s.%sImpl", s[1], s[0], s[2], className));
+            return (T) implClass.newInstance();
+        } catch (ClassNotFoundException | InstantiationException | IllegalAccessException e) {
+            throw new RuntimeException(e);
+        }
+    }
 
-	static boolean isDefined(Integer i) {
-		return i != null;
-	}
+    static boolean isDefined(Byte b) {
+        return b != null;
+    }
 
-	static boolean isDefined(Long l) {
-		return l != null;
-	}
+    static boolean isDefined(Short s) {
+        return s != null;
+    }
 
-	static boolean isDefined(Float f) {
-		return f != null;
-	}
+    static boolean isDefined(Integer i) {
+        return i != null;
+    }
 
-	static boolean isDefined(Double d) {
-		return d != null;
-	}
-        
-        
-        public static final String UTF8_ENCODING = "UTF-8";
-        
-        /**
-         * Windows wide char encoding
-         */
-        public static final String UTF16_LE_ENCODING = "UTF-16LE";
-        
-        public static final Charset CS_UTF_16LE = Charset.forName(UTF16_LE_ENCODING);
+    static boolean isDefined(Long l) {
+        return l != null;
+    }
+
+    static boolean isDefined(Float f) {
+        return f != null;
+    }
+
+    static boolean isDefined(Double d) {
+        return d != null;
+    }
+
+    public static final String UTF8_ENCODING = "UTF-8";
+
+    /**
+     * Windows wide char encoding
+     */
+    public static final String UTF16_LE_ENCODING = "UTF-16LE";
+
+    public static final Charset CS_UTF_16LE = Charset.forName(UTF16_LE_ENCODING);
+
+    default int calcBufferWriteBytes(ByteBuffer buffer) {
+        if (buffer.isReadOnly()) {
+            throw new IllegalArgumentException("Read-only buffer");
+        }
+        final int remaining = buffer.remaining();
+        if (remaining < 0) {
+            throw new IllegalArgumentException("buffer.remaining must not < 0");
+        }
+        return remaining;
+    }
+
+    default int calcBufferReadBytes(ByteBuffer buffer) {
+        final int remaining = buffer.remaining();
+        if (remaining < 0) {
+            throw new IllegalArgumentException("buffer.remaining must not < 0");
+        }
+        return remaining;
+    }
+
+    default long fixBufferPos(final ByteBuffer buffer, final long byteTransferred) {
+        if (byteTransferred > 0) {
+            buffer.position((int) (buffer.position() + byteTransferred));
+        }
+        return byteTransferred;
+    }
 
 }

@@ -952,7 +952,7 @@ public class PosixSerialPortSocket extends AbstractSerialPortSocket<PosixSerialP
 		// See javaTimeNanos() in file src/os/linux/vm/os_linux.cpp of hotspot sources
 		final long endTime = System.nanoTime() + pollWriteTimeout == -1 ? 0 : pollWriteTimeout * 1000000L;
 
-		long written = Unistd_H.write(fd, b, unistd_H);
+		long written = unistd_H.write(fd, b);
 
 		if (!b.hasRemaining()) {
 			// all was written
@@ -1013,7 +1013,7 @@ public class PosixSerialPortSocket extends AbstractSerialPortSocket<PosixSerialP
 				}
 			}
 
-			written = Unistd_H.write(fd, b, unistd_H);
+			written = unistd_H.write(fd, b);
 
 			if (written < 0) {
 				if (fd == INVALID_FD) {
@@ -1102,7 +1102,7 @@ public class PosixSerialPortSocket extends AbstractSerialPortSocket<PosixSerialP
 		fds[1].fd = close_event_fd;
 		fds[1].events = poll_H.POLLIN;
 
-		long nread = Unistd_H.read(fds[0].fd, b, unistd_H);
+		long nread = unistd_H.read(fds[0].fd, b);
 		if (nread < 0) {
 			if (fd == INVALID_FD) {
 				return -1;
@@ -1129,7 +1129,7 @@ public class PosixSerialPortSocket extends AbstractSerialPortSocket<PosixSerialP
 					return -1;
 				} else if (fds[0].revents == poll_H.POLLIN) {
 					// Happy path just check if its the right event...
-					nread = Unistd_H.read(fds[0].fd, b, unistd_H);
+					nread = unistd_H.read(fds[0].fd, b);
 					if (nread < 0) {
 						if (fd == INVALID_FD) {
 							return -1;
@@ -1176,7 +1176,7 @@ public class PosixSerialPortSocket extends AbstractSerialPortSocket<PosixSerialP
 			// OK No timeout and no error, we should read at least one byte without
 			// blocking.
 
-			nread = Unistd_H.read(fds[0].fd, b, unistd_H);
+			nread = unistd_H.read(fds[0].fd, b);
 			if (nread > 0) {
 				overallRead += nread;
 			} else {
