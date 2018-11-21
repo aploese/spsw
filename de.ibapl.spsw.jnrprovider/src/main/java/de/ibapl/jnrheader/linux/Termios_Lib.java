@@ -7,8 +7,6 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
-import org.eclipse.jdt.annotation.Nullable;
-
 import jnr.ffi.types.int32_t;
 import de.ibapl.jnrheader.Defined;
 import de.ibapl.jnrheader.NativeDataType;
@@ -20,6 +18,7 @@ import jnr.ffi.Runtime;
 import jnr.ffi.Struct;
 import jnr.ffi.TypeAlias;
 import jnr.ffi.annotations.TypeDefinition;
+import org.eclipse.jdt.annotation.Nullable;
 
 public abstract class Termios_Lib extends Termios_H implements cfsetspeed, cfmakeraw {
 
@@ -35,7 +34,6 @@ public abstract class Termios_Lib extends Termios_H implements cfsetspeed, cfmak
 		/**
 		 *  Line discipline.
 		 */
-		@Nullable
 		public byte c_line;
 		
 		/**
@@ -550,6 +548,7 @@ public abstract class Termios_Lib extends Termios_H implements cfsetspeed, cfmak
 	public int cfgetispeed(Termios termios) {
 		TermiosImpl termiosImpl = wrap(termios);
 		int result = nativeFunctions.cfgetispeed(termiosImpl);
+//TODO need to unwrap???		unwrap(termios, termiosImpl);
 		unwrap(termios, termiosImpl);
 		return result;
 	}
@@ -558,7 +557,7 @@ public abstract class Termios_Lib extends Termios_H implements cfsetspeed, cfmak
 	public int cfgetospeed(Termios termios) {
 		TermiosImpl termiosImpl = wrap(termios);
 		int result = nativeFunctions.cfgetospeed(termiosImpl);
-		unwrap(termios, termiosImpl);
+//TODO need to unwrap???		unwrap(termios, termiosImpl);
 		return result;
 	}
 
@@ -604,7 +603,7 @@ public abstract class Termios_Lib extends Termios_H implements cfsetspeed, cfmak
 	}
 
 	@Override
-	protected @Nullable Integer CMSPAR() {
+	protected Integer CMSPAR() {
 		return Termios_Lib.CMSPAR;
 	}
 

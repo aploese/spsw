@@ -1,16 +1,19 @@
 package de.ibapl.jnrheader.spi.windows.x86_64.pe32_plus;
 
 import static de.ibapl.jnrheader.JnrHeader.UTF16_LE_ENCODING;
+import de.ibapl.jnrheader.api.windows.Minwindef_H.LPWSTR;
 import de.ibapl.jnrheader.api.windows.Minwindef_H.HKEY;
 import de.ibapl.jnrheader.api.windows.Minwindef_H.LPDWORD;
 import de.ibapl.jnrheader.api.windows.Minwindef_H.PHKEY;
 import jnr.ffi.LibraryLoader;
 import jnr.ffi.annotations.StdCall;
-import jnr.ffi.byref.IntByReference;
 import jnr.ffi.byref.LongLongByReference;
 import de.ibapl.jnrheader.api.windows.Winreg_H;
+import java.nio.Buffer;
+import java.nio.ByteBuffer;
 import jnr.ffi.annotations.Encoding;
 import jnr.ffi.annotations.In;
+import jnr.ffi.byref.IntByReference;
 
 public class Winreg_Lib extends Winreg_H {
 
@@ -18,13 +21,13 @@ public class Winreg_Lib extends Winreg_H {
 	protected interface NativeFunctions {
 
 		@StdCall
-		long RegEnumValueW(long hKey, int dwIndex, @Encoding(UTF16_LE_ENCODING) char[] lpValueName,
-				IntByReference lpcchValueName, IntByReference lpReserved, IntByReference lpType, byte[] lpData,
+		long RegEnumValueW(long hKey, int dwIndex, Buffer lpValueName,
+				IntByReference lpcchValueName, LPDWORD lpReserved, LPDWORD lpType, ByteBuffer lpData,
 				IntByReference lpcbData);
 
 		@StdCall
 		long RegOpenKeyExW(long hKey, @In @Encoding(UTF16_LE_ENCODING) String lpSubKey, int ulOptions, int samDesired,
-				LongLongByReference phkResult);
+				PHKEY phkResult);
 	}
 
 	final private NativeFunctions nativeFunctions;
@@ -34,34 +37,26 @@ public class Winreg_Lib extends Winreg_H {
 	}
 
 	@Override
-	public long RegEnumValueW(HKEY hKey, int dwIndex, char[] lpValueName, LPDWORD lpcchValueName, LPDWORD lpReserved,
-			LPDWORD lpType, byte[] lpData, LPDWORD lpcbData) {
-		IntByReference lpcchValueNameRef = new IntByReference(lpcchValueName.value);
-		IntByReference lpcbDataRef = lpcbData != null ? new IntByReference(lpcbData.value) : null;
-		IntByReference lpReservedRef = lpReserved != null ? new IntByReference(lpReserved.value) : null;
-		IntByReference lpTypeRef = lpType != null ? new IntByReference(lpType.value) : null;
+	public long RegEnumValueW(HKEY hKey, int dwIndex, LPWSTR lpValueName, LPDWORD lpType, ByteBuffer lpData) {
 
-		long result = nativeFunctions.RegEnumValueW(hKey.value, dwIndex, lpValueName, lpcchValueNameRef, lpReservedRef,
-				lpTypeRef, lpData, lpcbDataRef);
-		lpcchValueName.value = lpcchValueNameRef.intValue();
-		if (lpcbData != null) {
-			lpcbData.value = lpcbDataRef.intValue();
-		}
-		if (lpReserved != null) {
-			lpReserved.value = lpReservedRef.intValue();
-		}
-		if (lpType != null) {
-			lpType.value = lpTypeRef.intValue();
-		}
-		return result;
+            //TODO drop assert
+            assert lpValueName.backingBuffer().position() == 0;
+            assert lpData.position() == 0;
+            
+            IntByReference lpcchValueName = new IntByReference(lpValueName.backingBuffer().limit());
+            IntByReference lpcbData = new IntByReference(lpData.limit());
+                    
+            final long result = nativeFunctions.RegEnumValueW(hKey.value, dwIndex, lpValueName.backingBuffer(), lpcchValueName, null,
+				lpType, lpData, lpcbData);
+            lpValueName.backingBuffer().limit(lpValueName.backingBuffer().position() + lpcchValueName.intValue());
+            lpData.limit(lpData.position() + lpcbData.intValue());
+            return result;
 	}
 
 	@Override
 	public long RegOpenKeyExW(HKEY hKey, String lpSubKey, int ulOptions, REGSAM samDesired, PHKEY phkResult) {
-		final LongLongByReference phkResultRef = new LongLongByReference();
 		final long result = nativeFunctions.RegOpenKeyExW(hKey.value, lpSubKey, ulOptions, samDesired.value,
-				phkResultRef);
-		phkResult.value = HKEY.ofLong(phkResultRef.longValue());
+				phkResult);
 		return result;
 	}
 

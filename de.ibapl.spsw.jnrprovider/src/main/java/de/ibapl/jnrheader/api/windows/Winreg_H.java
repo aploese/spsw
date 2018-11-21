@@ -4,11 +4,12 @@ import de.ibapl.jnrheader.Defined;
 import de.ibapl.jnrheader.JnrHeader;
 import de.ibapl.jnrheader.Wrapper;
 import de.ibapl.jnrheader.api.windows.Minwindef_H.HKEY;
-import de.ibapl.jnrheader.api.windows.Minwindef_H.LPBYTE;
+import de.ibapl.jnrheader.api.windows.Minwindef_H.LPWSTR;
 import de.ibapl.jnrheader.api.windows.Minwindef_H.LPDWORD;
 import de.ibapl.jnrheader.api.windows.Minwindef_H.LPVOID;
 import de.ibapl.jnrheader.api.windows.Minwindef_H.PHKEY;
 import de.ibapl.jnrheader.api.windows.Winnt_H.ACCESS_MASK;
+import java.nio.ByteBuffer;
 
 @Wrapper("winreg.h")
 public abstract class Winreg_H implements JnrHeader {
@@ -159,15 +160,12 @@ public abstract class Winreg_H implements JnrHeader {
    * 
    * @param hKey
    * @param dwIndex
-   * @param lpValueName
-   * @param lpcchValueName
-   * @param lpReserved
+   * @param lpValueName the registry name returnd.
    * @param lpType
-   * @param lpData
-   * @param lpcbData
+   * @param lpData the raw regitry value returnd. Position must be 0 prior to call.
    * @return 
    */
-        public abstract long RegEnumValueW(HKEY hKey,int dwIndex,char[] lpValueName,LPDWORD lpcchValueName,LPDWORD lpReserved,LPDWORD lpType,byte[] lpData,LPDWORD lpcbData);
+        public abstract long RegEnumValueW(HKEY hKey,int dwIndex,LPWSTR lpValueName, LPDWORD lpType, ByteBuffer lpData);
   //TODO	public abstract long RegFlushKey(HKEY hKey);
   //TODO	public abstract long RegGetKeySecurity(HKEY hKey,SECURITY_INFORMATION SecurityInformation,PSECURITY_DESCRIPTOR pSecurityDescriptor,LPDWORD lpcbSecurityDescriptor);
   //TODO	public abstract long RegLoadKeyA(HKEY hKey,LPCSTR lpSubKey,LPCSTR lpFile);

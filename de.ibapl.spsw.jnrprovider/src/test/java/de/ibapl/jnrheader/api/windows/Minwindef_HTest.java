@@ -7,12 +7,15 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import de.ibapl.jnrheader.api.windows.Minwindef_H.LPWSTR;
+import java.nio.ByteBuffer;
 
 /**
  *
  * @author aploese
  */
 public class Minwindef_HTest {
+    private static final String _A2Z_ = "abcdefghijklmnopqrstuvwxyz".toUpperCase(); 
 
     @BeforeAll
     static void setUpBeforeClass() throws Exception {
@@ -31,8 +34,25 @@ public class Minwindef_HTest {
     }
 
     @Test
-    public void testSomeMethod() throws Exception {
-//TODO        fail("The test case is a prototype.");
+    public void testLPWSTR() throws Exception {
+        LPWSTR lpwstr = LPWSTR.of(_A2Z_);
+        
+        assertEquals(_A2Z_, lpwstr.toString());
+        assertEquals(_A2Z_, lpwstr.toString());
+        final byte[] data = new byte[lpwstr.backingBuffer().remaining()];
+        assertEquals(_A2Z_.length() * 2, data.length);
+        ((ByteBuffer)lpwstr.backingBuffer()).get(data);
+        lpwstr.backingBuffer().position(0);
+        
+        lpwstr = LPWSTR.allocate(1024);
+        ((ByteBuffer)lpwstr.backingBuffer()).put(data);
+        lpwstr.backingBuffer().position(0);
+        lpwstr.backingBuffer().limit(data.length);
+        //data null terminated???
+
+        assertEquals(_A2Z_, lpwstr.toString());
+        
+        fail("Handle or Check Null termination ???.");
     }
 
 }
