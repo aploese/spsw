@@ -5,24 +5,17 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
-import javax.management.RuntimeErrorException;
-
-import org.objectweb.asm.commons.GeneratorAdapter;
 
 import de.ibapl.jnrheader.NativeDataType;
 import jnr.ffi.types.int32_t;
 
-import de.ibapl.jnrheader.NativeFunction;
 import de.ibapl.jnrheader.NativeStruct;
 import de.ibapl.jnrheader.posix.Poll_H;
 import jnr.ffi.LibraryLoader;
-import jnr.ffi.Pointer;
 import jnr.ffi.Runtime;
 import jnr.ffi.Struct;
 import jnr.ffi.TypeAlias;
-import jnr.ffi.annotations.Out;
 import jnr.ffi.annotations.TypeDefinition;
-import jnr.ffi.provider.DelegatingMemoryIO;
 
 public abstract class Poll_Lib extends Poll_H {
 	

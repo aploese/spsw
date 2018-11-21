@@ -1,411 +1,654 @@
 package de.ibapl.jnrheader.isoc;
 
 import de.ibapl.jnrheader.JnrHeader;
+import de.ibapl.jnrheader.LINUX;
 import de.ibapl.jnrheader.POSIX;
 import de.ibapl.jnrheader.Wrapper;
 
 @Wrapper("errno.h")
 public abstract class Errno_H implements JnrHeader {
 
+    /**
+     * Operation not permitted.
+     */
 	@POSIX()
 	public final int EPERM = EPERM();
 
+        /**
+         * No such file or directory.
+         */
 	@POSIX()
 	public final int ENOENT = ENOENT();
 
-	@POSIX()
+	/**
+         * No such process.
+         */
+        @POSIX()
 	public final int ESRCH = ESRCH();
 
-	@POSIX()
+	/**
+         * Interrupted function.
+         */
+        @POSIX()
 	public final int EINTR = EINTR();
 
+        /**
+         * I/O error.
+         */
 	@POSIX()
 	public final int EIO = EIO();
 
-	@POSIX()
+	/**
+         * No such device or address.
+         */
+        @POSIX()
 	public final int ENXIO = ENXIO();
 
+        /**
+         * Argument list too long.
+         */
 	@POSIX()
 	public final int E2BIG = E2BIG();
 
+        /**
+         * Executable file format error.
+         */
 	@POSIX()
 	public final int ENOEXEC = ENOEXEC();
 
+        /**
+         * Bad file descriptor.
+         */
 	@POSIX()
 	public final int EBADF = EBADF();
 
+        /**
+         * No child processes.
+         */
 	@POSIX()
 	public final int ECHILD = ECHILD();
 
+        /**
+         * Resource unavailable, try again (may be the same value as [EWOULDBLOCK]).
+         */
 	@POSIX()
 	public final int EAGAIN = EAGAIN();
 
+        /**
+         * Not enough space.
+         */
 	@POSIX()
 	public final int ENOMEM = ENOMEM();
 
+        /**
+         * Permission denied.
+         */
 	@POSIX()
 	public final int EACCES = EACCES();
 
-	@POSIX()
+	/**
+         * Bad address.
+         */
+        @POSIX()
 	public final int EFAULT = EFAULT();
 
 	@POSIX()
 	public final int ENOTBLK = ENOTBLK();
 
+        /**
+         * Device or resource busy.
+         */
 	@POSIX()
 	public final int EBUSY = EBUSY();
 
+        /**
+         * File exists.
+         */
 	@POSIX()
 	public final int EEXIST = EEXIST();
 
+        /**
+         * Cross-device link.
+         */
 	@POSIX()
 	public final int EXDEV = EXDEV();
 
+        /**
+         * No such device.
+         */
 	@POSIX()
 	public final int ENODEV = ENODEV();
 
-	@POSIX()
+	/**
+         * Not a directory or a symbolic link to a directory.
+         */
+        @POSIX()
 	public final int ENOTDIR = ENOTDIR();
 
+        /**
+         * Is a directory.
+         */
 	@POSIX()
 	public final int EISDIR = EISDIR();
 
+        /**
+         * Invalid argument.
+         */
 	@POSIX()
 	public final int EINVAL = EINVAL();
 
+        /**
+         * Too many files open in system.
+         */
 	@POSIX()
 	public final int ENFILE = ENFILE();
 
-	@POSIX()
+	/**
+         * File descriptor value too large.
+         */
+        @POSIX()
 	public final int EMFILE = EMFILE();
 
-	@POSIX()
+	/**
+         * Inappropriate I/O control operation.
+         */
+        @POSIX()
 	public final int ENOTTY = ENOTTY();
 
+        /**
+         * Text file busy.
+         */
 	@POSIX()
 	public final int ETXTBSY = ETXTBSY();
 
+        /**
+         * File too large.
+         */
 	@POSIX()
 	public final int EFBIG = EFBIG();
 
+        /**
+         * No space left on device.
+         */
 	@POSIX()
 	public final int ENOSPC = ENOSPC();
 
-	@POSIX()
+	/**
+         * Invalid seek.
+         */
+        @POSIX()
 	public final int ESPIPE = ESPIPE();
 
-	@POSIX()
+	/**
+         * Read-only file system.
+         */
+        @POSIX()
 	public final int EROFS = EROFS();
 
+        /**
+         * Too many links.
+         */
 	@POSIX()
 	public final int EMLINK = EMLINK();
 
+        /**
+         * Broken pipe.
+         */
 	@POSIX()
 	public final int EPIPE = EPIPE();
 
+        /**
+         * Mathematics argument out of domain of function.
+         */
 	@POSIX()
 	public final int EDOM = EDOM();
 
-	@POSIX()
+	/**
+         * Result too large.
+         */
+        @POSIX()
 	public final int ERANGE = ERANGE();
 
+        /**
+         * Resource deadlock would occur.
+         */
 	@POSIX()
 	public final int EDEADLK = EDEADLK();
 
+        /**
+         * Filename too long.
+         */
 	@POSIX()
 	public final int ENAMETOOLONG = ENAMETOOLONG();
 
+        /**
+         * No locks available.
+         */
 	@POSIX()
 	public final int ENOLCK = ENOLCK();
 
+        /**
+         * Functionality not supported.
+         */
 	@POSIX()
 	public final int ENOSYS = ENOSYS();
 
+        /**
+         * Directory not empty.
+         */
 	@POSIX()
 	public final int ENOTEMPTY = ENOTEMPTY();
 
+        /**
+         * Too many levels of symbolic links.
+         */
 	@POSIX()
 	public final int ELOOP = ELOOP();
 
+        /**
+         * Operation would block (may be the same value as [@see EAGAIN]).
+         */
 	@POSIX()
 	public final int EWOULDBLOCK = EWOULDBLOCK();
 
+        /**
+         * No message of the desired type.
+         */
 	@POSIX()
 	public final int ENOMSG = ENOMSG();
 
-	@POSIX()
+	/**
+         * Identifier removed.
+         */
+        @POSIX()
 	public final int EIDRM = EIDRM();
 
-	@POSIX()
+	@LINUX()
 	public final int ECHRNG = ECHRNG();
 
-	@POSIX()
+	@LINUX()
 	public final int EL2NSYNC = EL2NSYNC();
 
-	@POSIX()
+	@LINUX()
 	public final int EL3HLT = EL3HLT();
 
-	@POSIX()
+	@LINUX()
 	public final int EL3RST = EL3RST();
 
-	@POSIX()
+	@LINUX()
 	public final int ELNRNG = ELNRNG();
 
-	@POSIX()
+	@LINUX()
 	public final int EUNATCH = EUNATCH();
 
-	@POSIX()
+	@LINUX()
 	public final int ENOCSI = ENOCSI();
 
-	@POSIX()
+	@LINUX()
 	public final int EL2HLT = EL2HLT();
 
-	@POSIX()
+	@LINUX()
 	public final int EBADE = EBADE();
 
-	@POSIX()
+	@LINUX()
 	public final int EBADR = EBADR();
 
-	@POSIX()
+	@LINUX()
 	public final int EXFULL = EXFULL();
 
-	@POSIX()
+	@LINUX()
 	public final int ENOANO = ENOANO();
 
-	@POSIX()
+	@LINUX()
 	public final int EBADRQC = EBADRQC();
 
-	@POSIX()
+	@LINUX()
 	public final int EBADSLT = EBADSLT();
 
-	@POSIX()
+	@LINUX()
 	public final int EDEADLOCK = EDEADLOCK();
 
-	@POSIX()
+	@LINUX()
 	public final int EBFONT = EBFONT();
 
-	@POSIX()
+	/**
+         *  Not a STREAM. 
+         */
+        @POSIX(POSIX.Marker.XSI)
 	public final int ENOSTR = ENOSTR();
 
-	@POSIX()
+        /**
+         * No message is available on the STREAM head read queue.
+         */
+	@POSIX(POSIX.Marker.XSI)
 	public final int ENODATA = ENODATA();
 
+        /**
+         * Stream @see ioctl_H.ioctl() timeout.
+         */
 	@POSIX()
 	public final int ETIME = ETIME();
 
-	@POSIX()
+        /**
+         * No STREAM resources.
+         */
+	@POSIX(POSIX.Marker.XSI)
 	public final int ENOSR = ENOSR();
 
-	@POSIX()
+	@LINUX()
 	public final int ENONET = ENONET();
 
-	@POSIX()
+	@LINUX()
 	public final int ENOPKG = ENOPKG();
 
-	@POSIX()
+	@LINUX()
 	public final int EREMOTE = EREMOTE();
 
+        /**
+         * Reserved.
+         */
 	@POSIX()
 	public final int ENOLINK = ENOLINK();
 
-	@POSIX()
 	public final int EADV = EADV();
 
-	@POSIX()
+	@LINUX()
 	public final int ESRMNT = ESRMNT();
 
-	@POSIX()
+	@LINUX()
 	public final int ECOMM = ECOMM();
 
+        /**
+         * Protocol error.
+         */
 	@POSIX()
 	public final int EPROTO = EPROTO();
 
+        /**
+         * Reserved.
+         */
 	@POSIX()
 	public final int EMULTIHOP = EMULTIHOP();
 
-	@POSIX()
+	@LINUX()
 	public final int EDOTDOT = EDOTDOT();
 
+        /**
+         * Bad message.
+         */
 	@POSIX()
 	public final int EBADMSG = EBADMSG();
 
-	@POSIX()
+	/**
+         * Value too large to be stored in data type.
+         */
+        @POSIX()
 	public final int EOVERFLOW = EOVERFLOW();
 
-	@POSIX()
+	@LINUX()
 	public final int ENOTUNIQ = ENOTUNIQ();
 
-	@POSIX()
+	@LINUX()
 	public final int EBADFD = EBADFD();
 
-	@POSIX()
+	@LINUX()
 	public final int EREMCHG = EREMCHG();
 
-	@POSIX()
+	@LINUX()
 	public final int ELIBACC = ELIBACC();
 
-	@POSIX()
+	@LINUX()
 	public final int ELIBBAD = ELIBBAD();
 
-	@POSIX()
+	@LINUX()
 	public final int ELIBSCN = ELIBSCN();
 
-	@POSIX()
+	@LINUX()
 	public final int ELIBMAX = ELIBMAX();
 
-	@POSIX()
+	@LINUX()
 	public final int ELIBEXEC = ELIBEXEC();
 
+        /**
+         * Illegal byte sequence.
+         */
 	@POSIX()
 	public final int EILSEQ = EILSEQ();
 
-	@POSIX()
+	@LINUX()
 	public final int ERESTART = ERESTART();
 
-	@POSIX()
+	@LINUX()
 	public final int ESTRPIPE = ESTRPIPE();
 
-	@POSIX()
+	@LINUX()
 	public final int EUSERS = EUSERS();
 
-	@POSIX()
+	/**
+         * Not a socket.
+         */
+        @POSIX()
 	public final int ENOTSOCK = ENOTSOCK();
 
+        /**
+         * Destination address required.
+         */
 	@POSIX()
 	public final int EDESTADDRREQ = EDESTADDRREQ();
 
+        /**
+         * Message too large.
+         */
 	@POSIX()
 	public final int EMSGSIZE = EMSGSIZE();
 
-	@POSIX()
+	/**
+         * Protocol wrong type for socket.
+         */
+        @POSIX()
 	public final int EPROTOTYPE = EPROTOTYPE();
 
+        /**
+         * Protocol not available.
+         */
 	@POSIX()
 	public final int ENOPROTOOPT = ENOPROTOOPT();
 
+        /**
+         * Protocol not supported.
+         */
 	@POSIX()
 	public final int EPROTONOSUPPORT = EPROTONOSUPPORT();
 
-	@POSIX()
+	@LINUX()
 	public final int ESOCKTNOSUPPORT = ESOCKTNOSUPPORT();
 
+        /**
+         * Operation not supported on socket (may be the same value as [@see ENOTSUP]).
+         */
 	@POSIX()
 	public final int EOPNOTSUPP = EOPNOTSUPP();
 
-	@POSIX()
+	@LINUX()
 	public final int EPFNOSUPPORT = EPFNOSUPPORT();
 
+        /**
+         * Address family not supported.
+         */
 	@POSIX()
 	public final int EAFNOSUPPORT = EAFNOSUPPORT();
 
+        /**
+         * Address in use.
+         */
 	@POSIX()
 	public final int EADDRINUSE = EADDRINUSE();
 
+        /**
+         * Address not available.
+         */
 	@POSIX()
 	public final int EADDRNOTAVAIL = EADDRNOTAVAIL();
 
+        /**
+         * Network is down.
+         */
 	@POSIX()
 	public final int ENETDOWN = ENETDOWN();
 
+        /**
+         * Network unreachable.
+         */
 	@POSIX()
 	public final int ENETUNREACH = ENETUNREACH();
 
+        /**
+         * Connection aborted by network.
+         */
 	@POSIX()
 	public final int ENETRESET = ENETRESET();
 
+        /**
+         * Connection aborted.
+         */
 	@POSIX()
 	public final int ECONNABORTED = ECONNABORTED();
 
+        /**
+         * Connection reset.
+         */
 	@POSIX()
 	public final int ECONNRESET = ECONNRESET();
 
+        /**
+         * No buffer space available.
+         */
 	@POSIX()
 	public final int ENOBUFS = ENOBUFS();
 
+        /**
+         * Socket is connected.
+         */
 	@POSIX()
 	public final int EISCONN = EISCONN();
 
+        /**
+         * The socket is not connected.
+         */
 	@POSIX()
 	public final int ENOTCONN = ENOTCONN();
 
-	@POSIX()
+	@LINUX()
 	public final int ESHUTDOWN = ESHUTDOWN();
 
-	@POSIX()
+	@LINUX()
 	public final int ETOOMANYREFS = ETOOMANYREFS();
 
-	@POSIX()
+        /**
+         * Connection timed out.
+         */
+	@POSIX(POSIX.Marker.XSI)
 	public final int ETIMEDOUT = ETIMEDOUT();
 
+        /**
+         * Connection refused.
+         */
 	@POSIX()
 	public final int ECONNREFUSED = ECONNREFUSED();
 
-	@POSIX()
+	@LINUX()
 	public final int EHOSTDOWN = EHOSTDOWN();
 
+        /**
+         * Host is unreachable.
+         */
 	@POSIX()
 	public final int EHOSTUNREACH = EHOSTUNREACH();
 
+        /**
+         *     Connection already in progress.
+         */
 	@POSIX()
 	public final int EALREADY = EALREADY();
 
+        /**
+         * Operation in progress.
+         */
 	@POSIX()
 	public final int EINPROGRESS = EINPROGRESS();
 
+        /**
+         * Reserved.
+         */
 	@POSIX()
 	public final int ESTALE = ESTALE();
 
-	@POSIX()
+	@LINUX()
 	public final int EUCLEAN = EUCLEAN();
 
-	@POSIX()
+	@LINUX()
 	public final int ENOTNAM = ENOTNAM();
 
-	@POSIX()
+	@LINUX()
 	public final int ENAVAIL = ENAVAIL();
 
-	@POSIX()
+	@LINUX()
 	public final int EISNAM = EISNAM();
 
-	@POSIX()
+	@LINUX()
 	public final int EREMOTEIO = EREMOTEIO();
 
+        /**
+         * Reserved.
+         */
 	@POSIX()
 	public final int EDQUOT = EDQUOT();
 
-	@POSIX()
+	@LINUX()
 	public final int ENOMEDIUM = ENOMEDIUM();
 
-	@POSIX()
+	@LINUX()
 	public final int EMEDIUMTYPE = EMEDIUMTYPE();
 
+        /**
+         * Operation canceled.
+         */
 	@POSIX()
 	public final int ECANCELED = ECANCELED();
 
-	@POSIX()
+	@LINUX()
 	public final int ENOKEY = ENOKEY();
 
-	@POSIX()
+	@LINUX()
 	public final int EKEYEXPIRED = EKEYEXPIRED();
 
-	@POSIX()
+	@LINUX()
 	public final int EKEYREVOKED = EKEYREVOKED();
 
-	@POSIX()
+	@LINUX()
 	public final int EKEYREJECTED = EKEYREJECTED();
 
+        /**
+         * Previous owner died.
+         */
 	@POSIX()
 	public final int EOWNERDEAD = EOWNERDEAD();
 
+        /**
+         * State not recoverable.
+         */
 	@POSIX()
 	public final int ENOTRECOVERABLE = ENOTRECOVERABLE();
 
-	@POSIX()
+	@LINUX()
 	public final int ERFKILL = ERFKILL();
 
-	@POSIX()
+	@LINUX()
 	public final int EHWPOISON = EHWPOISON();
 
+        /**
+         * Not supported (may be the same value as [@see EOPNOTSUPP]).
+         */
 	@POSIX()
 	public final int ENOTSUP = ENOTSUP();
 

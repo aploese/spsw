@@ -5,7 +5,7 @@ import jnr.ffi.LibraryLoader;
 import jnr.ffi.annotations.StdCall;
 import de.ibapl.jnrheader.api.windows.Winbase_H;
 
-public class Winbase_Lib extends Winbase_H {
+public class Winbase_Impl extends Winbase_H {
 
 	@de.ibapl.jnrheader.NativeFunctions
 	protected interface NativeFunctions {
@@ -15,7 +15,7 @@ public class Winbase_Lib extends Winbase_H {
 
 	final private NativeFunctions nativeFunctions;
 
-	public Winbase_Lib() {
+	public Winbase_Impl() {
 		nativeFunctions = LibraryLoader.create(NativeFunctions.class).load("Kernel32");
 	}
 

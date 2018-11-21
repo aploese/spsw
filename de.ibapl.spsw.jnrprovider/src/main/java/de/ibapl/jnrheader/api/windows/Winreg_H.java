@@ -4,12 +4,12 @@ import de.ibapl.jnrheader.Defined;
 import de.ibapl.jnrheader.JnrHeader;
 import de.ibapl.jnrheader.Wrapper;
 import de.ibapl.jnrheader.api.windows.Minwindef_H.HKEY;
-import de.ibapl.jnrheader.api.windows.Minwindef_H.LPBYTE;
+import de.ibapl.jnrheader.api.windows.Minwindef_H.LPWSTR;
 import de.ibapl.jnrheader.api.windows.Minwindef_H.LPDWORD;
-import de.ibapl.jnrheader.api.windows.Minwindef_H.LPTSTR;
 import de.ibapl.jnrheader.api.windows.Minwindef_H.LPVOID;
 import de.ibapl.jnrheader.api.windows.Minwindef_H.PHKEY;
 import de.ibapl.jnrheader.api.windows.Winnt_H.ACCESS_MASK;
+import java.nio.ByteBuffer;
 
 @Wrapper("winreg.h")
 public abstract class Winreg_H implements JnrHeader {
@@ -128,46 +128,84 @@ public abstract class Winreg_H implements JnrHeader {
 	public static final int REASON_PLANNED_FLAG = SHTDN_REASON_FLAG_PLANNED;
 	public static final int MAX_SHUTDOWN_TIMEOUT = (10*365*24*60*60);
 
-	//TODO	  public abstract long RegCloseKey(HKEY hKey);
-//TODO	  public abstract long RegOverridePredefKey(HKEY hKey,HKEY hNewHKey);
-	//TODO	  public abstract long RegOpenUserClassesRoot(HANDLE hToken,int dwOptions,REGSAM samDesired,PHKEY phkResult);
-	//TODO	  public abstract long RegOpenCurrentUser(REGSAM samDesired,PHKEY phkResult);
-	//TODO	  public abstract long RegDisablePredefinedCache(void);
-	//TODO	  public abstract long RegConnectRegistry(String lpMachineName,HKEY hKey,PHKEY phkResult);
-	//TODO	public abstract long RegConnectRegistryEx(String lpMachineName,HKEY hKey,ULONG Flags,PHKEY phkResult);
-	//TODO		public abstract long RegCreateKey(HKEY hKey,String lpSubKey,PHKEY phkResult);
-	//TODO	  public abstract long RegCreateKeyEx(HKEY hKey,String lpSubKey,int Reserved,String lpClass,int dwOptions,REGSAM samDesired,LPSECURITY_ATTRIBUTES lpSecurityAttributes,PHKEY phkResult,LPDWORD lpdwDisposition);
-	//TODO	  public abstract long RegDeleteKey(HKEY hKey,String lpSubKey);
-	//TODO	  public abstract long RegDeleteKeyEx(HKEY hKey,String lpSubKey,REGSAM samDesired,int Reserved);
-	//TODO	  public abstract long RegDisableReflectionKey(HKEY hBase);
-	//TODO	  public abstract long RegEnableReflectionKey(HKEY hBase);
-	//TODO	  public abstract long RegQueryReflectionKey(HKEY hBase,boolean bIsReflectionDisabled);
-	//TODO	  public abstract long RegDeleteValue(HKEY hKey,String lpValueName);
-	//TODO	  public abstract long RegEnumKey(HKEY hKey,int dwIndex,String lpName,int cchName);
-	//TODO	  public abstract long RegEnumKeyEx(HKEY hKey,int dwIndex,String lpName,int lpcchName,int lpReserved,String lpClass,int lpcchClass,PFILETIME lpftLastWriteTime);
-	public abstract long RegEnumValue(HKEY hKey,int dwIndex,LPTSTR lpValueName, LPDWORD lpcchValueName, LPDWORD lpReserved, LPDWORD lpType,LPBYTE lpData,LPDWORD lpcbData);
-	//TODO	  public abstract long RegFlushKey(HKEY hKey);
-	//TODO	  public abstract long RegGetKeySecurity(HKEY hKey,SECURITY_INFORMATION SecurityInformation,PSECURITY_DESCRIPTOR pSecurityDescriptor,LPDWORD lpcbSecurityDescriptor);
-	//TODO	  public abstract long RegLoadKey(HKEY hKey,String lpSubKey,String lpFile);
-	//TODO	  public abstract long RegNotifyChangeKeyValue(HKEY hKey,boolean bWatchSubtree,int dwNotifyFilter,HANDLE hEvent,boolean fAsynchronous);
-	//TODO	  public abstract long RegOpenKey(HKEY hKey,String lpSubKey,PHKEY phkResult);
-	public abstract long RegOpenKeyEx(HKEY hKey,LPTSTR lpSubKey,int ulOptions,REGSAM samDesired,PHKEY phkResult);
-	//TODO	  public abstract long RegQueryInfoKey(HKEY hKey,String lpClass,int lpcchClass,int lpReserved,int lpcSubKeys,int lpcbMaxSubKeyLen,LPDWORD lpcbMaxClassLen,LPDWORD lpcValues,LPDWORD lpcbMaxValueNameLen,LPDWORD lpcbMaxValueLen,LPDWORD lpcbSecurityDescriptor,PFILETIME lpftLastWriteTime);
-	//TODO	  public abstract long RegQueryValue(HKEY hKey,String lpSubKey,String lpData,long lpcbData);
-	//TODO	  public abstract long RegQueryMultipleValues(HKEY hKey,PVALENT val_list,int num_vals,String lpValueBuf,int ldwTotsize);
-	//TODO	  public abstract long RegQueryValueEx(HKEY hKey,String lpValueName,int lpReserved,int lpType,byte lpData,int lpcbData);
-	//TODO	  public abstract long RegReplaceKey(HKEY hKey,String lpSubKey,String lpNewFile,String lpOldFile);
-	//TODO	  public abstract long RegRestoreKey(HKEY hKey,String lpFile,int dwFlags);
-	//TODO	  public abstract long RegSaveKey(HKEY hKey,String lpFile,LPSECURITY_ATTRIBUTES lpSecurityAttributes);
-	//TODO	  public abstract long RegSetKeySecurity(HKEY hKey,SECURITY_INFORMATION SecurityInformation,PSECURITY_DESCRIPTOR pSecurityDescriptor);
-	//TODO	  public abstract long RegSetValue(HKEY hKey,String lpSubKey,int dwType,String lpData,int cbData);
-	//TODO	  public abstract long RegSetValueEx(HKEY hKey,String lpValueName,int Reserved,int dwType,byte lpData,int cbData);
-	//TODO	  public abstract long RegUnLoadKey(HKEY hKey,String lpSubKey);
-	//TODO	  public abstract long RegGetValue(HKEY hkey,String lpSubKey,String lpValue,int dwFlags,int pdwType,PVOID pvData,int pcbData);
-	//TODO	  public abstract boolean InitiateSystemShutdown(String lpMachineName,String lpMessage,int dwTimeout,boolean bForceAppsClosed,boolean bRebootAfterShutdown);
-	//TODO	  public abstract boolean AbortSystemShutdown(String lpMachineName);
-	  
-	//TODO	  boolean InitiateSystemShutdownEx(String lpMachineName,String lpMessage,int dwTimeout,boolean bForceAppsClosed,boolean bRebootAfterShutdown,int dwReason);
-	//TODO	  public abstract long RegSaveKeyEx(HKEY hKey,String lpFile,LPSECURITY_ATTRIBUTES lpSecurityAttributes,int Flags);
-	//TODO	  public abstract long Wow64Win32ApiEntry (int dwFuncNumber,int dwFlag,int dwRes);
+          //TODO	public abstract long RegCloseKey(HKEY hKey);
+  //TODO	public abstract long RegOverridePredefKey(HKEY hKey,HKEY hNewHKey);
+  //TODO	public abstract long RegOpenUserClassesRoot(HANDLE hToken,DWORD dwOptions,REGSAM samDesired,PHKEY phkResult);
+  //TODO	public abstract long RegOpenCurrentUser(REGSAM samDesired,PHKEY phkResult);
+  //TODO	public abstract long RegDisablePredefinedCache(void);
+  //TODO	public abstract long RegConnectRegistryA(LPCSTR lpMachineName,HKEY hKey,PHKEY phkResult);
+  //TODO	public abstract long RegConnectRegistryW(LPCWSTR lpMachineName,HKEY hKey,PHKEY phkResult);
+  //TODO	public abstract long RegConnectRegistryExA(LPCSTR lpMachineName,HKEY hKey,ULONG Flags,PHKEY phkResult);
+  //TODO	public abstract long RegConnectRegistryExW(LPCWSTR lpMachineName,HKEY hKey,ULONG Flags,PHKEY phkResult);
+  //TODO	public abstract long RegCreateKeyA(HKEY hKey,LPCSTR lpSubKey,PHKEY phkResult);
+  //TODO	public abstract long RegCreateKeyW(HKEY hKey,LPCWSTR lpSubKey,PHKEY phkResult);
+  //TODO	public abstract long RegCreateKeyExA(HKEY hKey,LPCSTR lpSubKey,DWORD Reserved,LPSTR lpClass,DWORD dwOptions,REGSAM samDesired,LPSECURITY_ATTRIBUTES lpSecurityAttributes,PHKEY phkResult,LPDWORD lpdwDisposition);
+  //TODO	public abstract long RegCreateKeyExW(HKEY hKey,LPCWSTR lpSubKey,DWORD Reserved,LPWSTR lpClass,DWORD dwOptions,REGSAM samDesired,LPSECURITY_ATTRIBUTES lpSecurityAttributes,PHKEY phkResult,LPDWORD lpdwDisposition);
+  //TODO	public abstract long RegDeleteKeyA(HKEY hKey,LPCSTR lpSubKey);
+  //TODO	public abstract long RegDeleteKeyW(HKEY hKey,LPCWSTR lpSubKey);
+  //TODO	public abstract long RegDeleteKeyExA(HKEY hKey,LPCSTR lpSubKey,REGSAM samDesired,DWORD Reserved);
+  //TODO	public abstract long RegDeleteKeyExW(HKEY hKey,LPCWSTR lpSubKey,REGSAM samDesired,DWORD Reserved);
+  //TODO	public abstract long RegDisableReflectionKey(HKEY hBase);
+  //TODO	public abstract long RegEnableReflectionKey(HKEY hBase);
+  //TODO	public abstract long RegQueryReflectionKey(HKEY hBase,WINBOOL *bIsReflectionDisabled);
+  //TODO	public abstract long RegDeleteValueA(HKEY hKey,LPCSTR lpValueName);
+  //TODO	public abstract long RegDeleteValueW(HKEY hKey,LPCWSTR lpValueName);
+  //TODO	public abstract long RegEnumKeyA(HKEY hKey,DWORD dwIndex,LPSTR lpName,DWORD cchName);
+  //TODO	public abstract long RegEnumKeyW(HKEY hKey,DWORD dwIndex,LPWSTR lpName,DWORD cchName);
+  //TODO	public abstract long RegEnumKeyExA(HKEY hKey,DWORD dwIndex,LPSTR lpName,LPDWORD lpcchName,LPDWORD lpReserved,LPSTR lpClass,LPDWORD lpcchClass,PFILETIME lpftLastWriteTime);
+  //TODO	public abstract long RegEnumKeyExW(HKEY hKey,DWORD dwIndex,LPWSTR lpName,LPDWORD lpcchName,LPDWORD lpReserved,LPWSTR lpClass,LPDWORD lpcchClass,PFILETIME lpftLastWriteTime);
+  //TODO	public abstract long RegEnumValueA(HKEY hKey,DWORD dwIndex,LPSTR lpValueName,LPDWORD lpcchValueName,LPDWORD lpReserved,LPDWORD lpType,LPBYTE lpData,LPDWORD lpcbData);
+  /**
+   *  <a href="https://docs.microsoft.com/en-us/windows/desktop/api/winreg/nf-winreg-regenumvaluew" >nf-winreg-regenumvaluew</a>
+   * 
+   * @param hKey
+   * @param dwIndex
+   * @param lpValueName the registry name returnd.
+   * @param lpType
+   * @param lpData the raw regitry value returnd. Position must be 0 prior to call.
+   * @return 
+   */
+        public abstract long RegEnumValueW(HKEY hKey,int dwIndex,LPWSTR lpValueName, LPDWORD lpType, ByteBuffer lpData);
+  //TODO	public abstract long RegFlushKey(HKEY hKey);
+  //TODO	public abstract long RegGetKeySecurity(HKEY hKey,SECURITY_INFORMATION SecurityInformation,PSECURITY_DESCRIPTOR pSecurityDescriptor,LPDWORD lpcbSecurityDescriptor);
+  //TODO	public abstract long RegLoadKeyA(HKEY hKey,LPCSTR lpSubKey,LPCSTR lpFile);
+  //TODO	public abstract long RegLoadKeyW(HKEY hKey,LPCWSTR lpSubKey,LPCWSTR lpFile);
+  //TODO	public abstract long RegNotifyChangeKeyValue(HKEY hKey,WINBOOL bWatchSubtree,DWORD dwNotifyFilter,HANDLE hEvent,WINBOOL fAsynchronous);
+  //TODO	public abstract long RegOpenKeyA(HKEY hKey,LPCSTR lpSubKey,PHKEY phkResult);
+  //TODO	public abstract long RegOpenKeyW(HKEY hKey,LPCWSTR lpSubKey,PHKEY phkResult);
+  //TODO	public abstract long RegOpenKeyExA(HKEY hKey,LPCSTR lpSubKey,DWORD ulOptions,REGSAM samDesired,PHKEY phkResult);
+  	public abstract long RegOpenKeyExW(HKEY hKey,String lpSubKey,int ulOptions,REGSAM samDesired,PHKEY phkResult);
+  //TODO	public abstract long RegQueryInfoKeyA(HKEY hKey,LPSTR lpClass,LPDWORD lpcchClass,LPDWORD lpReserved,LPDWORD lpcSubKeys,LPDWORD lpcbMaxSubKeyLen,LPDWORD lpcbMaxClassLen,LPDWORD lpcValues,LPDWORD lpcbMaxValueNameLen,LPDWORD lpcbMaxValueLen,LPDWORD lpcbSecurityDescriptor,PFILETIME lpftLastWriteTime);
+  //TODO	public abstract long RegQueryInfoKeyW(HKEY hKey,LPWSTR lpClass,LPDWORD lpcchClass,LPDWORD lpReserved,LPDWORD lpcSubKeys,LPDWORD lpcbMaxSubKeyLen,LPDWORD lpcbMaxClassLen,LPDWORD lpcValues,LPDWORD lpcbMaxValueNameLen,LPDWORD lpcbMaxValueLen,LPDWORD lpcbSecurityDescriptor,PFILETIME lpftLastWriteTime);
+  //TODO	public abstract long RegQueryValueA(HKEY hKey,LPCSTR lpSubKey,LPSTR lpData,PLONG lpcbData);
+  //TODO	public abstract long RegQueryValueW(HKEY hKey,LPCWSTR lpSubKey,LPWSTR lpData,PLONG lpcbData);
+  //TODO	public abstract long RegQueryMultipleValuesA(HKEY hKey,PVALENTA val_list,DWORD num_vals,LPSTR lpValueBuf,LPDWORD ldwTotsize);
+  //TODO	public abstract long RegQueryMultipleValuesW(HKEY hKey,PVALENTW val_list,DWORD num_vals,LPWSTR lpValueBuf,LPDWORD ldwTotsize);
+  //TODO	public abstract long RegQueryValueExA(HKEY hKey,LPCSTR lpValueName,LPDWORD lpReserved,LPDWORD lpType,LPBYTE lpData,LPDWORD lpcbData);
+  //TODO	public abstract long RegQueryValueExW(HKEY hKey,LPCWSTR lpValueName,LPDWORD lpReserved,LPDWORD lpType,LPBYTE lpData,LPDWORD lpcbData);
+  //TODO	public abstract long RegReplaceKeyA(HKEY hKey,LPCSTR lpSubKey,LPCSTR lpNewFile,LPCSTR lpOldFile);
+  //TODO	public abstract long RegReplaceKeyW(HKEY hKey,LPCWSTR lpSubKey,LPCWSTR lpNewFile,LPCWSTR lpOldFile);
+  //TODO	public abstract long RegRestoreKeyA(HKEY hKey,LPCSTR lpFile,DWORD dwFlags);
+  //TODO	public abstract long RegRestoreKeyW(HKEY hKey,LPCWSTR lpFile,DWORD dwFlags);
+  //TODO	public abstract long RegSaveKeyA(HKEY hKey,LPCSTR lpFile,LPSECURITY_ATTRIBUTES lpSecurityAttributes);
+  //TODO	//TODO	public abstract long RegSaveKeyW(HKEY hKey,LPCWSTR lpFile,LPSECURITY_ATTRIBUTES lpSecurityAttributes);
+  //TODO	public abstract long RegSetKeySecurity(HKEY hKey,SECURITY_INFORMATION SecurityInformation,PSECURITY_DESCRIPTOR pSecurityDescriptor);
+  //TODO	public abstract long RegSetValueA(HKEY hKey,LPCSTR lpSubKey,DWORD dwType,LPCSTR lpData,DWORD cbData);
+  //TODO	public abstract long RegSetValueW(HKEY hKey,LPCWSTR lpSubKey,DWORD dwType,LPCWSTR lpData,DWORD cbData);
+  //TODO	public abstract long RegSetValueExA(HKEY hKey,LPCSTR lpValueName,DWORD Reserved,DWORD dwType,CONST BYTE *lpData,DWORD cbData);
+  //TODO	public abstract long RegSetValueExW(HKEY hKey,LPCWSTR lpValueName,DWORD Reserved,DWORD dwType,CONST BYTE *lpData,DWORD cbData);
+  //TODO	public abstract long RegUnLoadKeyA(HKEY hKey,LPCSTR lpSubKey);
+  //TODO	public abstract long RegUnLoadKeyW(HKEY hKey,LPCWSTR lpSubKey);
+  //TODO	public abstract long RegGetValueA(HKEY hkey,LPCSTR lpSubKey,LPCSTR lpValue,DWORD dwFlags,LPDWORD pdwType,PVOID pvData,LPDWORD pcbData);
+  //TODO	public abstract long RegGetValueW(HKEY hkey,LPCWSTR lpSubKey,LPCWSTR lpValue,DWORD dwFlags,LPDWORD pdwType,PVOID pvData,LPDWORD pcbData);
+//TODO	public abstract boolean InitiateSystemShutdownA(LPSTR lpMachineName,LPSTR lpMessage,DWORD dwTimeout,WINBOOL bForceAppsClosed,WINBOOL bRebootAfterShutdown);
+  //TODO	public abstract boolean  InitiateSystemShutdownW(LPWSTR lpMachineName,LPWSTR lpMessage,DWORD dwTimeout,WINBOOL bForceAppsClosed,WINBOOL bRebootAfterShutdown);
+  //TODO	public abstract boolean  AbortSystemShutdownA(LPSTR lpMachineName);
+  //TODO	public abstract boolean  AbortSystemShutdownW(LPWSTR lpMachineName);
+  //TODO	public abstract boolean  InitiateSystemShutdownExA(LPSTR lpMachineName,LPSTR lpMessage,DWORD dwTimeout,WINBOOL bForceAppsClosed,WINBOOL bRebootAfterShutdown,DWORD dwReason);
+  //TODO	public abstract boolean  InitiateSystemShutdownExW(LPWSTR lpMachineName,LPWSTR lpMessage,DWORD dwTimeout,WINBOOL bForceAppsClosed,WINBOOL bRebootAfterShutdown,DWORD dwReason);
+  //TODO	public abstract long RegSaveKeyExA(HKEY hKey,LPCSTR lpFile,LPSECURITY_ATTRIBUTES lpSecurityAttributes,DWORD Flags);
+  //TODO	public abstract long RegSaveKeyExW(HKEY hKey,LPCWSTR lpFile,LPSECURITY_ATTRIBUTES lpSecurityAttributes,DWORD Flags);
+  //TODO	public abstract long Wow64Win32ApiEntry (DWORD dwFuncNumber,DWORD dwFlag,DWORD dwRes);
+
 }

@@ -5,144 +5,275 @@ import java.nio.charset.Charset;
 
 import de.ibapl.jnrheader.JnrHeader;
 import de.ibapl.jnrheader.Wrapper;
+import java.lang.ref.SoftReference;
+import java.nio.Buffer;
+import java.nio.ByteBuffer;
+import java.nio.CharBuffer;
+import java.nio.charset.CharacterCodingException;
+import java.nio.charset.CharsetDecoder;
+import java.nio.charset.CharsetEncoder;
+import java.nio.charset.CodingErrorAction;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import jnr.ffi.Pointer;
+import jnr.ffi.Runtime;
+import jnr.ffi.byref.ByReference;
+import jnr.ffi.util.EnumMapper.IntegerEnum;
 
 @Wrapper("minwindef.h")
 public abstract class Minwindef_H implements JnrHeader {
-	
-	public static class LPVOID {
-		
-	}
-	
-	public static class HKEY extends HANDLE {
-		
-		private HKEY(long value) {
-			super(value);
+
+    private final static ThreadLocal<SoftReference<CharsetEncoder>> WIDE_ENCODER = new ThreadLocal<>();
+    private final static ThreadLocal<SoftReference<CharsetDecoder>> WIDE_DECODER = new ThreadLocal<>();
+    
+    private static CharsetEncoder getWideEncoder() {
+        SoftReference<CharsetEncoder> cse = WIDE_ENCODER.get();
+        if (cse == null) {
+            cse = new SoftReference<>(Charset.forName(JnrHeader.UTF16_LE_ENCODING).newEncoder());
+            WIDE_ENCODER.set(cse);
+        }
+        return cse.get();
+    }
+    
+    private static CharsetDecoder getWideDecoder() {
+        SoftReference<CharsetDecoder> csd = WIDE_DECODER.get();
+        if (csd == null) {
+            csd = new SoftReference<>(Charset.forName(JnrHeader.UTF16_LE_ENCODING).newDecoder());
+            WIDE_DECODER.set(csd);
+        }
+        return csd.get();
+    }
+    
+    
+    
+    public static class LPVOID {
+
+    }
+
+    public static class HKEY extends HANDLE {
+
+        private HKEY(long value) {
+            super(value);
+        }
+
+        public HKEY() {
+        	super();
 		}
-		
+
 		public static HKEY ofLong(long value) {
-			return new HKEY(value);
-		}
+            return new HKEY(value);
+        }
 
-	}
-	
-	public static class PHKEY extends Pointer<HKEY>{
-		
-		public PHKEY() {
-			super(null);
-		}
+    }
 
-		public PHKEY(HKEY hkey) {
-			super(hkey);
-		}
-		
-	}
+    public static class PHKEY {
 
-	public static class HRESULT {
+        public HKEY value = new HKEY();
+        
+        public PHKEY() {
+        }
+  
+        
+        //TODO needed ??? public HKEY getHKEY() { return HKEY.ofLong(value); }
+        
+    }
 
-		public static HRESULT of(int hresult) {
-			return new HRESULT(hresult);
-		}
+    public static class HRESULT {
 
-		public final int hresult;
+        public static HRESULT of(int hresult) {
+            return new HRESULT(hresult);
+        }
 
-		private HRESULT(int hresult) {
-			this.hresult = hresult;
-		}
+        public final int hresult;
 
-	}
+        private HRESULT(int hresult) {
+            this.hresult = hresult;
+        }
 
-	public static class LPBYTE {
-		
-		public byte[] value;
-		
-		private LPBYTE(int size) {
-			this.value = new byte[size];
-		}
+    }
 
-		public static final LPBYTE ofSize(int size) {
-			return new LPBYTE(size);
-		}
-		
-		public static final LPBYTE ofValue(byte value) {
-			final LPBYTE result = new LPBYTE(1);
-			result.value[0] = value;
-			return result;
-		}
+    private static class LPByteImpl extends LPBYTE implements ByReference<Byte>{
 
-		public int length() {
-			return value.length;
-		}
+        @Override
+        public int nativeSize(Runtime runtime) {
+            return 1;
+        }
 
-	}
+        @Override
+        public void toNative(Runtime runtime, jnr.ffi.Pointer memory, long offset) {
+            memory.putByte(offset, value);
+        }
 
-	
-	public static class LPDWORD {
-		
-		public int[] value;
-		
-		private LPDWORD(int size) {
-			this.value = new int[size];
-		}
+        @Override
+        public void fromNative(Runtime runtime, jnr.ffi.Pointer memory, long offset) {
+            value = memory.getByte(offset);
+        }
 
-		public static final LPDWORD ofSize(int size) {
-			return new LPDWORD(size);
-		}
-		
-		public static final LPDWORD ofValue(int value) {
-			final LPDWORD result = new LPDWORD(1);
-			result.value[0] = value;
-			return result;
-		}
-		
-		public int length() {
-			return value.length;
-		}
+        @Override
+        public Byte getValue() {
+            return Byte.valueOf(value);
+        }
+        
+    }
+    
+    public static class LPBYTE {
 
-	}
+        public byte value;
 
-	public static class HANDLE {
-		public long value;
+        private LPBYTE() {
+        }
+        
+        public static LPBYTE ofValue(byte value) {
+            final LPBYTE result = new LPByteImpl();
+            result.value = value;
+            return result;
+        }
+        
+        
+    }
+    
+    private static class LPDWord_impl extends LPDWORD implements ByReference<Long> {
+        
+        @Override
+        public int nativeSize(Runtime runtime) {
+            return 4;
+        }
 
-		protected HANDLE(long value) {
-			this.value = value;
+        @Override
+        public void toNative(Runtime runtime, jnr.ffi.Pointer memory, long offset) {
+            memory.putInt(offset, ((int)value) & 0xFFFFFFFF);
+        }
+
+        @Override
+        public void fromNative(Runtime runtime, jnr.ffi.Pointer memory, long offset) {
+            value = memory.getInt(offset) & 0xFFFFFFFF;
+        }
+
+        @Override
+        public Long getValue() {
+            return Long.valueOf(value);
+        }
+        
+    }
+    
+    
+    public static class LPDWORD {
+
+        
+        public long value;
+        
+        private LPDWORD () {
+            
+        }
+
+        public static LPDWORD ofValue(long value) {
+        	LPDWord_impl result = new LPDWord_impl();
+        	result.value = value;
+        	return result;
+        }
+
+    }
+
+    public static class HANDLE {
+
+        public long value;
+
+        protected HANDLE(long value) {
+            this.value = value;
+        }
+
+        protected HANDLE() {
 		}
 
 		public static HANDLE of(long value) {
-			return new HANDLE(value);
-		}
-	}
+            return new HANDLE(value);
+        }
+    }
 
-	public static class LPTSTR {
-		
-		public final static Charset CS_UTF_16LE = Charset.forName("UTF-16LE");
+    
+        /**
+         * 
+         * The wrapper for a ByteBuffer.
+         * The position of the buffer is always 0! It must be reset to 0 if changed.
+         * The limit of the buffer is always amount of valid bytes in the buffer and must be set if the amount of valid bytes changed.
+         */
+    public static class LPWSTR {
+        
+        private ByteBuffer buffer;
+        
+        private LPWSTR () {
+        }
+        
+        
+        public static LPWSTR of(String value) {
+            LPWSTR result = new LPWSTR();
+            CharsetEncoder cse = getWideEncoder();
+            assert (int)Math.ceil(cse.maxBytesPerChar()) == 2;
+            result.buffer = ByteBuffer.allocateDirect(value.length() * 2);
+            CharBuffer cb = CharBuffer.wrap(value);
+            cse.encode(cb, result.buffer, true);
+            result.buffer.flip();
+            return result;
+        }
+        
+        public static LPWSTR allocate(int capacity) {
+            LPWSTR result = new LPWSTR();
+            result.buffer = ByteBuffer.allocateDirect(capacity);
+            return result;
+        }
+        
+        
+        public String toString() {
+            CharsetDecoder csd = getWideDecoder();
+            CharBuffer cb;
+            try {
+                cb = csd.decode(buffer);
+                buffer.position(0);
+                return cb.toString();
+            } catch (CharacterCodingException ex) {
+                Logger.getLogger(Minwindef_H.class.getName()).log(Level.SEVERE, null, ex);
+                throw new RuntimeException(ex);
+            }
+        }
 
-		public byte[] value;
-		
-		private LPTSTR(int size) {
-			value = new byte[size]; 
-		}
-		
-		private LPTSTR(String value) {
-			this.value = value.getBytes(CS_UTF_16LE); 
-		}
-		
-		public static final LPTSTR ofSize(int size) {
-			return new LPTSTR(size);
-		}
-		
-		public static final LPTSTR ofValue(String value) {
-			return new LPTSTR(value);
-		}
-		
+        public Buffer backingBuffer() {
+            return buffer;
+        }
 
-		public int length() {
-			return value.length;
+
+		public void clear() {
+			buffer.clear();
 		}
 
-		public String toString(int size) {
-			return new String(value, 0, size, CS_UTF_16LE);
+
+		public static String buffer2String(ByteBuffer buffer, boolean nullTerminationIncluded) {
+            final int oldPosition = buffer.position();
+            if (nullTerminationIncluded) {
+            	buffer.limit(buffer.limit() - 2);
+            }
+			CharsetDecoder csd = getWideDecoder();
+            CharBuffer cb;
+            try {
+                cb = csd.decode(buffer);
+                buffer.position(oldPosition);
+                if (nullTerminationIncluded) {
+                	buffer.limit(buffer.limit() + 2);
+                }
+                return cb.toString();
+            } catch (CharacterCodingException ex) {
+                Logger.getLogger(Minwindef_H.class.getName()).log(Level.SEVERE, null, ex);
+                throw new RuntimeException(ex);
+            }
 		}
+    }
+    /*
+         *Naming of Strings:
+        LP == Long Pointer. Just think pointer or char*
 
-	}
+C = Const, in this case, I think they mean the character string is a const, not the pointer being const.
 
-}
+STR is string
+
+the T is for a wide character or char (TCHAR) depending on compile options.
+     */
+ }

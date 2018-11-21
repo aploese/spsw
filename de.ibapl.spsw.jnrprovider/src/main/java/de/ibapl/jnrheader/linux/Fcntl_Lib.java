@@ -1,22 +1,25 @@
 package de.ibapl.jnrheader.linux;
 
+import static de.ibapl.jnrheader.JnrHeader.UTF8_ENCODING;
 import de.ibapl.jnrheader.POSIX;
 import de.ibapl.jnrheader.posix.Fcntl_H;
 import jnr.ffi.LibraryLoader;
+import jnr.ffi.annotations.Encoding;
+import jnr.ffi.annotations.In;
 
 public abstract class Fcntl_Lib extends Fcntl_H {
 
 	@de.ibapl.jnrheader.NativeFunctions
 	protected interface NativeFunctions {
-		int creat(CharSequence file, int mode);
+		int creat(@In @Encoding(UTF8_ENCODING) CharSequence file, int mode);
 
 		int fcntl(int fd, int cmd);
 
 		int lockf(int fd, int cmd, long len);
 
-		int open(CharSequence file, int oflag);;
+		int open(@In @Encoding(UTF8_ENCODING) CharSequence file, int oflag);;
 
-		int openat(int fd, CharSequence file, int oflag);
+		int openat(int fd, @In @Encoding(UTF8_ENCODING)CharSequence file, int oflag);
 
 		int posix_fadvise(int fd, long offset, long len, int advise);
 
