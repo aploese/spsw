@@ -1,9 +1,9 @@
-package de.ibapl.jnrheader.linux.sys;
+package de.ibapl.jnrheader.spi.linux.sys;
 
 import de.ibapl.jnrheader.Defined;
 import de.ibapl.jnrheader.ExtraInclude;
-import de.ibapl.jnrheader.linux.Termios_Lib;
-import de.ibapl.jnrheader.unix.sys.Ioctl_H;
+import de.ibapl.jnrheader.spi.linux.Termios_Lib;
+import de.ibapl.jnrheader.api.unix.sys.Ioctl_H;
 import jnr.ffi.LibraryLoader;
 import jnr.ffi.byref.IntByReference;
 import jnr.ffi.types.int32_t;

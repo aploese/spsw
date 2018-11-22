@@ -1,8 +1,8 @@
-package de.ibapl.jnrheader.linux;
+package de.ibapl.jnrheader.spi.linux;
 
 import static de.ibapl.jnrheader.JnrHeader.UTF8_ENCODING;
 import de.ibapl.jnrheader.POSIX;
-import de.ibapl.jnrheader.posix.Fcntl_H;
+import de.ibapl.jnrheader.api.posix.Fcntl_H;
 import jnr.ffi.LibraryLoader;
 import jnr.ffi.annotations.Encoding;
 import jnr.ffi.annotations.In;

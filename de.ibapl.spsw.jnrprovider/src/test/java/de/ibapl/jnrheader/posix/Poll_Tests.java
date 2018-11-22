@@ -1,5 +1,8 @@
 package de.ibapl.jnrheader.posix;
 
+import de.ibapl.jnrheader.api.posix.Fcntl_H;
+import de.ibapl.jnrheader.api.posix.Poll_H;
+import de.ibapl.jnrheader.api.posix.Unistd_H;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.io.File;
@@ -12,7 +15,7 @@ import org.junit.jupiter.api.Test;
 
 import de.ibapl.jnrheader.JNRHeaderBase;
 import de.ibapl.jnrheader.JnrHeader;
-import de.ibapl.jnrheader.posix.Poll_H.PollFd;
+import de.ibapl.jnrheader.api.posix.Poll_H.PollFd;
 
 class Poll_Tests extends JNRHeaderBase {
 

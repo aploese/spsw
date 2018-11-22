@@ -17,7 +17,7 @@
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  * #L%
  */
-package de.ibapl.jnrheader.posix;
+package de.ibapl.jnrheader.api.posix;
 
 import static de.ibapl.jnrheader.POSIX.Marker.XSI;
 import static de.ibapl.jnrheader.POSIX_Removed.Issue.ISSUE_6;

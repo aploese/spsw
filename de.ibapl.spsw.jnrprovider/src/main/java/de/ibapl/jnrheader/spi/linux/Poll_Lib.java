@@ -1,4 +1,4 @@
-package de.ibapl.jnrheader.linux;
+package de.ibapl.jnrheader.spi.linux;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
@@ -10,7 +10,7 @@ import de.ibapl.jnrheader.NativeDataType;
 import jnr.ffi.types.int32_t;
 
 import de.ibapl.jnrheader.NativeStruct;
-import de.ibapl.jnrheader.posix.Poll_H;
+import de.ibapl.jnrheader.api.posix.Poll_H;
 import jnr.ffi.LibraryLoader;
 import jnr.ffi.Runtime;
 import jnr.ffi.Struct;

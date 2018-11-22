@@ -6,9 +6,12 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import de.ibapl.jnrheader.linux.sys.Eventfd_H;
+import de.ibapl.jnrheader.api.linux.sys.Eventfd_H;
 import de.ibapl.jnrheader.JNRHeaderBase;
+import org.junit.jupiter.api.condition.EnabledOnOs;
+import org.junit.jupiter.api.condition.OS;
 
+@EnabledOnOs({ OS.LINUX })
 class Eventfd_Tests extends JNRHeaderBase {
 
 	@BeforeAll

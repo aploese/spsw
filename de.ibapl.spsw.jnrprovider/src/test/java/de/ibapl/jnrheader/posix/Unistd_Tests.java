@@ -1,5 +1,7 @@
 package de.ibapl.jnrheader.posix;
 
+import de.ibapl.jnrheader.api.posix.Fcntl_H;
+import de.ibapl.jnrheader.api.posix.Unistd_H;
 import static org.junit.jupiter.api.Assertions.*;
 
 import java.io.File;
@@ -12,7 +14,7 @@ import org.junit.jupiter.api.Test;
 
 import de.ibapl.jnrheader.JNRHeaderBase;
 import de.ibapl.jnrheader.JnrHeader;
-import de.ibapl.jnrheader.isoc.Errno_H;
+import de.ibapl.jnrheader.api.isoc.Errno_H;
 import java.nio.ByteBuffer;
 import java.nio.CharBuffer;
 import java.nio.channels.FileChannel;

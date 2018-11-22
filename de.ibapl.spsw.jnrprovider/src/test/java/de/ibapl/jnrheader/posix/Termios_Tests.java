@@ -1,5 +1,6 @@
 package de.ibapl.jnrheader.posix;
 
+import de.ibapl.jnrheader.api.posix.Termios_H;
 import static org.junit.jupiter.api.Assertions.*;
 
 import org.junit.jupiter.api.AfterAll;
@@ -10,8 +11,8 @@ import org.junit.jupiter.api.Test;
 
 import de.ibapl.jnrheader.JNRHeaderBase;
 import de.ibapl.jnrheader.JnrHeader;
-import de.ibapl.jnrheader.isoc.Errno_H;
-import de.ibapl.jnrheader.posix.Termios_H.Termios;
+import de.ibapl.jnrheader.api.isoc.Errno_H;
+import de.ibapl.jnrheader.api.posix.Termios_H.Termios;
 
 class Termios_Tests extends JNRHeaderBase {
 

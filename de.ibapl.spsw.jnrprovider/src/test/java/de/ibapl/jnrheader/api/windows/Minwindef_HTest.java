@@ -9,11 +9,14 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import de.ibapl.jnrheader.api.windows.Minwindef_H.LPWSTR;
 import java.nio.ByteBuffer;
+import org.junit.jupiter.api.condition.EnabledOnOs;
+import org.junit.jupiter.api.condition.OS;
 
 /**
  *
  * @author aploese
  */
+@EnabledOnOs({ OS.WINDOWS })
 public class Minwindef_HTest {
     private static final String _A2Z_ = "abcdefghijklmnopqrstuvwxyz".toUpperCase(); 
 

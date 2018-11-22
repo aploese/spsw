@@ -8,21 +8,20 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import com.sun.jna.platform.win32.WinReg.HKEY;
-
 import de.ibapl.jnrheader.JnrHeader;
-import de.ibapl.jnrheader.api.windows.Minwindef_H.LPWSTR;
 import de.ibapl.jnrheader.api.windows.Minwindef_H.PHKEY;
 import de.ibapl.jnrheader.api.windows.Winreg_H.REGSAM;
 import de.ibapl.spsw.jnrprovider.GenericWinSerialPortSocket;
 
-import java.nio.ByteBuffer;
 import java.util.List;
+import org.junit.jupiter.api.condition.EnabledOnOs;
+import org.junit.jupiter.api.condition.OS;
 
 /**
  *
  * @author aploese
  */
+@EnabledOnOs({ OS.WINDOWS })
 public class Winreg_HTest {
 
     @BeforeAll

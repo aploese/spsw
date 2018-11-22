@@ -29,7 +29,7 @@ import java.lang.reflect.Method;
 import java.util.HashMap;
 import java.util.Map;
 
-import de.ibapl.jnrheader.posix.Termios_H;
+import de.ibapl.jnrheader.api.posix.Termios_H;
 
 public class GenerateTemplate {
 

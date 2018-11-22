@@ -1,4 +1,4 @@
-package de.ibapl.jnrheader.linux;
+package de.ibapl.jnrheader.spi.linux;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
@@ -8,7 +8,7 @@ import java.nio.ByteBuffer;
 
 import de.ibapl.jnrheader.NativeDataType;
 import de.ibapl.jnrheader.POSIX;
-import de.ibapl.jnrheader.posix.Unistd_H;
+import de.ibapl.jnrheader.api.posix.Unistd_H;
 import jnr.ffi.LibraryLoader;
 import jnr.ffi.TypeAlias;
 import jnr.ffi.annotations.In;

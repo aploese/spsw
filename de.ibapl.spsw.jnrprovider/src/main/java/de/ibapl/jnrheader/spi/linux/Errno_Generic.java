@@ -1,7 +1,7 @@
-package de.ibapl.jnrheader.linux;
+package de.ibapl.jnrheader.spi.linux;
 
 import de.ibapl.jnrheader.POSIX;
-import de.ibapl.jnrheader.isoc.Errno_H;
+import de.ibapl.jnrheader.api.isoc.Errno_H;
 import jnr.ffi.LibraryLoader;
 import jnr.ffi.Runtime;
 import jnr.ffi.types.intptr_t;

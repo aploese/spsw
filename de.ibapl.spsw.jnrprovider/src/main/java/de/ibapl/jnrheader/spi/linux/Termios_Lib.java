@@ -1,4 +1,4 @@
-package de.ibapl.jnrheader.linux;
+package de.ibapl.jnrheader.spi.linux;
 
 import static de.ibapl.jnrheader.Defined.isDefined;
 
@@ -10,9 +10,9 @@ import java.lang.annotation.Target;
 import jnr.ffi.types.int32_t;
 import de.ibapl.jnrheader.Defined;
 import de.ibapl.jnrheader.NativeDataType;
-import de.ibapl.jnrheader.posix.Termios_H;
-import de.ibapl.jnrheader.posix.Termios_H.cfmakeraw;
-import de.ibapl.jnrheader.posix.Termios_H.cfsetspeed;
+import de.ibapl.jnrheader.api.posix.Termios_H;
+import de.ibapl.jnrheader.api.posix.Termios_H.cfmakeraw;
+import de.ibapl.jnrheader.api.posix.Termios_H.cfsetspeed;
 import jnr.ffi.LibraryLoader;
 import jnr.ffi.Runtime;
 import jnr.ffi.Struct;

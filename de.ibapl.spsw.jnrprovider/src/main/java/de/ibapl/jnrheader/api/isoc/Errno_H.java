@@ -1,4 +1,4 @@
-package de.ibapl.jnrheader.isoc;
+package de.ibapl.jnrheader.api.isoc;
 
 import de.ibapl.jnrheader.JnrHeader;
 import de.ibapl.jnrheader.LINUX;

@@ -1,4 +1,4 @@
-package de.ibapl.jnrheader.linux.sys;
+package de.ibapl.jnrheader.api.linux.sys;
 
 import de.ibapl.jnrheader.DefinedByOS;
 import de.ibapl.jnrheader.JnrHeader;

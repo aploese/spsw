@@ -1,4 +1,4 @@
-package de.ibapl.jnrheader.posix;
+package de.ibapl.jnrheader.api.posix;
 
 import de.ibapl.jnrheader.JnrHeader;
 import de.ibapl.jnrheader.NativeStruct;
