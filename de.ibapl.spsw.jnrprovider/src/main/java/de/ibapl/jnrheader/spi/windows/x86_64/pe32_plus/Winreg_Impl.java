@@ -23,6 +23,7 @@ public class Winreg_Impl extends Winreg_H {
 	@de.ibapl.jnrheader.NativeFunctions
 	protected interface NativeFunctions {
 
+            
 		@StdCall
 		long RegEnumValueW(long hKey, int dwIndex, Buffer lpValueName,
 				IntByReference lpcchValueName, IntByReference lpReserved, IntByReference lpType, ByteBuffer lpData,
@@ -61,7 +62,7 @@ public class Winreg_Impl extends Winreg_H {
 		NativeLongByReference phkResultRef = new NativeLongByReference(0);
 		final long result = nativeFunctions.RegOpenKeyExW(hKey.value, lpSubKey, ulOptions, samDesired.value,
 				phkResultRef);
-		phkResult.value.value = phkResultRef.longValue();
+		phkResult.indirection.value = phkResultRef.longValue();
 		return result;
 	}
 

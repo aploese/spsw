@@ -615,7 +615,8 @@ static int getParams(JNIEnv *env, jobject sps, jint* paramBitSet) {
 
 	jint result = 0;
 	DCB dcb;
-
+        dcb.DCBlength = sizeof(DCB);
+        
 	HANDLE hFile = GET_FILEDESCRIPTOR(env, sps);
 
 	if (!GetCommState(hFile, &dcb)) {
@@ -1014,7 +1015,8 @@ JNIEXPORT jint JNICALL Java_de_ibapl_spsw_jniprovider_AbstractSerialPortSocket_g
 JNIEXPORT jchar JNICALL Java_de_ibapl_spsw_jniprovider_AbstractSerialPortSocket_getXOFFChar(
 		JNIEnv *env, jobject sps) {
 	DCB dcb;
-
+        dcb.DCBlength = sizeof(DCB);
+        
 	HANDLE hFile = GET_FILEDESCRIPTOR(env, sps);
 
 	if (!GetCommState(hFile, &dcb)) {
@@ -1032,6 +1034,7 @@ JNIEXPORT jchar JNICALL Java_de_ibapl_spsw_jniprovider_AbstractSerialPortSocket_
 JNIEXPORT jchar JNICALL Java_de_ibapl_spsw_jniprovider_AbstractSerialPortSocket_getXONChar(
 		JNIEnv *env, jobject sps) {
 	DCB dcb;
+        dcb.DCBlength = sizeof(DCB);
 
 	HANDLE hFile = GET_FILEDESCRIPTOR(env, sps);
 
@@ -1132,6 +1135,7 @@ JNIEXPORT void JNICALL Java_de_ibapl_spsw_jniprovider_AbstractSerialPortSocket_o
 	SET_FILEDESCRIPTOR(env, sps, hFile);
 
 	DCB dcb;
+        dcb.DCBlength = sizeof(DCB);
 	if (!GetCommState(hFile, &dcb)) {
 		CloseHandle(hFile);
 
@@ -1347,12 +1351,13 @@ JNIEXPORT jint JNICALL Java_de_ibapl_spsw_jniprovider_AbstractSerialPortSocket_r
  */
 JNIEXPORT void JNICALL Java_de_ibapl_spsw_jniprovider_AbstractSerialPortSocket_sendBreak
 (JNIEnv *env, jobject sps, jint duration) {
-	HANDLE hFile = GET_FILEDESCRIPTOR(env, sps);
 
-	if (duration < 0) {
-		throw_IOException_NativeError(env, "sendBreak duration must be grater than 0");
+	if (duration <= 0) {
+		throw_Illegal_Argument_Exception(env, "sendBreak duration must be grater than 0");
 		return;
 	}
+
+	HANDLE hFile = GET_FILEDESCRIPTOR(env, sps);
 
 	if (!SetCommBreak(hFile)) {
 		throw_ClosedOrNativeException(env, sps, "sendBreak SetCommBreak");
@@ -1418,6 +1423,7 @@ JNIEXPORT void JNICALL Java_de_ibapl_spsw_jniprovider_AbstractSerialPortSocket_s
 	HANDLE hFile = GET_FILEDESCRIPTOR(env, sps);
 
 	DCB dcb;
+        dcb.DCBlength = sizeof(DCB);
 
 	if (!GetCommState(hFile, &dcb)) {
 		throw_ClosedOrNativeException(env, sps, "setXOFFChar GetCommState");
@@ -1455,6 +1461,7 @@ JNIEXPORT void JNICALL Java_de_ibapl_spsw_jniprovider_AbstractSerialPortSocket_s
 JNIEXPORT void JNICALL Java_de_ibapl_spsw_jniprovider_AbstractSerialPortSocket_setXOFFChar
 (JNIEnv *env, jobject sps, jchar c) {
 	DCB dcb;
+        dcb.DCBlength = sizeof(DCB);
 
 	HANDLE hFile = GET_FILEDESCRIPTOR(env, sps);
 
@@ -1487,6 +1494,7 @@ JNIEXPORT void JNICALL Java_de_ibapl_spsw_jniprovider_AbstractSerialPortSocket_s
 JNIEXPORT void JNICALL Java_de_ibapl_spsw_jniprovider_AbstractSerialPortSocket_setXONChar
 (JNIEnv *env, jobject sps, jchar c) {
 	DCB dcb;
+        dcb.DCBlength = sizeof(DCB);
 
 	HANDLE hFile = GET_FILEDESCRIPTOR(env, sps);
 
@@ -1750,7 +1758,7 @@ JNIEXPORT jint JNICALL Java_de_ibapl_spsw_jniprovider_GenericWinSerialPortSocket
  */
 JNIEXPORT void JNICALL Java_de_ibapl_spsw_jniprovider_GenericWinSerialPortSocket_sendXOFF
 (JNIEnv *env, jobject sps) {
-	throw_IOException_NativeError(env, "setXOFF not implemented yet");
+	throw_IOException_NativeError(env, "sendXOFF not implemented yet");
 }
 
 /*
@@ -1760,7 +1768,7 @@ JNIEXPORT void JNICALL Java_de_ibapl_spsw_jniprovider_GenericWinSerialPortSocket
  */
 JNIEXPORT void JNICALL Java_de_ibapl_spsw_jniprovider_GenericWinSerialPortSocket_sendXON
 (JNIEnv *env, jobject sps) {
-	throw_IOException_NativeError(env, "setXON not implemented yet");
+	throw_IOException_NativeError(env, "sendXON not implemented yet");
 }
 
 /*

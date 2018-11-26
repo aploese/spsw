@@ -118,6 +118,7 @@ public class PosixSerialPortSocket extends AbstractSerialPortSocket<PosixSerialP
 			} else if (masked == termios_H.CS8) {
 				return DataBits.DB_8;
 			} else {
+                            //TODO throw something other than a IllegalArgumentException
 				throw new IllegalArgumentException("Unknown databits in termios.c_cflag: " + termios.c_cflag);
 			}
 		} catch (IllegalArgumentException iae) {
@@ -570,7 +571,14 @@ public class PosixSerialPortSocket extends AbstractSerialPortSocket<PosixSerialP
 		termios.c_cc[termios_H.VMIN] = 0; // If there is not anything just pass
 		termios.c_cc[termios_H.VTIME] = 0;// No timeout
 
-		setParams(termios, speed, dataBits, stopBits, parity, flowControls);
+                try {
+                    setParams(termios, speed, dataBits, stopBits, parity, flowControls);
+                } catch (Throwable t) {
+			unistd_H.close(fd);
+			fd = INVALID_FD;
+                        throw t;
+                }
+                
 		termios = getTermios();
 		// flush the device
 		if (termios_H.tcflush(fd, termios_H.TCIOFLUSH) != 0) {
@@ -590,6 +598,9 @@ public class PosixSerialPortSocket extends AbstractSerialPortSocket<PosixSerialP
 
 	@Override
 	public void sendBreak(int duration) throws IOException {
+            if (duration <= 0) {
+                throw new IllegalArgumentException("sendBreak duration must be grater than 0)");
+            }
 		if (termios_H.tcsendbreak(fd, duration) != 0) {
 			throwClosedOrNativeException("Can't sendBreak");
 		}
@@ -597,12 +608,12 @@ public class PosixSerialPortSocket extends AbstractSerialPortSocket<PosixSerialP
 
 	@Override
 	public void sendXOFF() throws IOException {
-		throw new IllegalArgumentException("setXOFF not implemented yet");
+		throw new IllegalArgumentException("sendXOFF not implemented yet");
 	}
 
 	@Override
 	public void sendXON() throws IOException {
-		throw new IllegalArgumentException("setXON not implemented yet");
+		throw new IllegalArgumentException("sendXON not implemented yet");
 	}
 
 	@Override
@@ -776,7 +787,8 @@ public class PosixSerialPortSocket extends AbstractSerialPortSocket<PosixSerialP
 				termios.c_iflag |= termios_H.IXON;
 			}
 		}
-		if (termios_H.tcsetattr(fd, termios_H.TCSANOW, termios) != 0) {
+
+                if (termios_H.tcsetattr(fd, termios_H.TCSANOW, termios) != 0) {
 			throw new IOException(
 					String.format("Native port error \"%d\" => open tcsetattr (%s)", errno_H.errno(), portName));
 		}

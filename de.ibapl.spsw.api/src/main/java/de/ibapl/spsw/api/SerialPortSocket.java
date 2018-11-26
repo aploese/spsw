@@ -63,6 +63,7 @@ import org.osgi.annotation.versioning.ProviderType;
  * 
  * @author Arne Plöse
  */
+//TODO make SerialportSocket implement ByteChannel itself???	
 @ProviderType
 public interface SerialPortSocket extends AutoCloseable {
 

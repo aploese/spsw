@@ -1559,7 +1559,12 @@ JNIEXPORT jint JNICALL Java_de_ibapl_spsw_jniprovider_AbstractSerialPortSocket_r
  */
 JNIEXPORT void JNICALL Java_de_ibapl_spsw_jniprovider_AbstractSerialPortSocket_sendBreak(
 		JNIEnv *env, jobject sps, jint duration) {
-	const int fd = (*env)->GetIntField(env, sps, spsw_fd);
+	if (duration <= 0) {
+		throw_Illegal_Argument_Exception(env, "sendBreak duration must be grater than 0");
+		return;
+	}
+
+    const int fd = (*env)->GetIntField(env, sps, spsw_fd);
 	if (tcsendbreak(fd, duration) != 0) {
 		throw_ClosedOrNativeException(env, sps, "Can't sendBreak");
 	}
@@ -1904,7 +1909,7 @@ JNIEXPORT jboolean JNICALL Java_de_ibapl_spsw_jniprovider_GenericTermiosSerialPo
  */
 JNIEXPORT void JNICALL Java_de_ibapl_spsw_jniprovider_GenericTermiosSerialPortSocket_sendXOFF
 (JNIEnv *env, jobject sps) {
-	throw_Illegal_Argument_Exception(env, "setXOFF not implemented yet");
+	throw_Illegal_Argument_Exception(env, "sendXOFF not implemented yet");
 }
 
 /*
@@ -1915,5 +1920,5 @@ JNIEXPORT void JNICALL Java_de_ibapl_spsw_jniprovider_GenericTermiosSerialPortSo
 JNIEXPORT void JNICALL Java_de_ibapl_spsw_jniprovider_GenericTermiosSerialPortSocket_sendXON
 (JNIEnv *env, jobject sps) {
 //TODO How ??? tcflow ?
-	throw_Illegal_Argument_Exception(env, "setXON not implemented yet");
+	throw_Illegal_Argument_Exception(env, "sendXON not implemented yet");
 }

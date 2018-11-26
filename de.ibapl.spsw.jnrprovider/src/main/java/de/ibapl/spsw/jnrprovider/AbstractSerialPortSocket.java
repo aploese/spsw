@@ -10,7 +10,8 @@ import de.ibapl.spsw.api.SerialPortSocket;
 
 public abstract class AbstractSerialPortSocket<T extends AbstractSerialPortSocket<T>> implements SerialPortSocket {
 	
-	protected class SerialChannel implements ByteChannel {
+//TODO make SerialportSocket implement ByteChannel itself???	
+    protected class SerialChannel implements ByteChannel {
 		
 		private final Object readLock = new Object();
 		private final Object writeLock = new Object();
