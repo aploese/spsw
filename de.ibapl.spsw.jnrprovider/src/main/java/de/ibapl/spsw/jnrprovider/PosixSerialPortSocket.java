@@ -50,13 +50,13 @@ public class PosixSerialPortSocket extends AbstractSerialPortSocket<PosixSerialP
 	public static final int INVALID_FD = -1;
 	private volatile int fd = INVALID_FD;
 	private volatile int close_event_fd = INVALID_FD;
-	private Termios_H termios_H;
-	private Errno_H errno_H;
-	private Fcntl_H fcntl_H;
-	private Ioctl_H ioctl_H;
-	private Unistd_H unistd_H;
-	private Eventfd_H eventfd_H;
-	private Poll_H poll_H;
+	private final Termios_H termios_H;
+	private final Errno_H errno_H;
+	private final Fcntl_H fcntl_H;
+	private final Ioctl_H ioctl_H;
+	private final Unistd_H unistd_H;
+	private final Eventfd_H eventfd_H;
+	private final Poll_H poll_H;
 	private int interByteReadTimeout = 100;
 	private int pollReadTimeout = -1;
 	private int pollWriteTimeout = -1;
@@ -959,7 +959,7 @@ public class PosixSerialPortSocket extends AbstractSerialPortSocket<PosixSerialP
 	}
 
 	@Override
-	protected int writeBytes(ByteBuffer b) throws IOException {
+	public int write(ByteBuffer b) throws IOException {
 		// TODO wait infinite...
 		// See javaTimeNanos() in file src/os/linux/vm/os_linux.cpp of hotspot sources
 		final long endTime = System.nanoTime() + pollWriteTimeout == -1 ? 0 : pollWriteTimeout * 1000000L;
@@ -1106,8 +1106,8 @@ public class PosixSerialPortSocket extends AbstractSerialPortSocket<PosixSerialP
 	}
 
 	@Override
-	protected int readBytes(ByteBuffer b) throws IOException {
-		// TODO hounor overall read timeout
+	public int read(ByteBuffer b) throws IOException {
+		// TODO honor overall read timeout
 		Poll_H.PollFd[] fds = poll_H.createPollFd(2);
 		fds[0].fd = fd;
 		fds[0].events = poll_H.POLLIN;

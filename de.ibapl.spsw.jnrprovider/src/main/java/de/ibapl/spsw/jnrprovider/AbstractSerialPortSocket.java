@@ -4,44 +4,10 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.ByteBuffer;
-import java.nio.channels.ByteChannel;
 
 import de.ibapl.spsw.api.SerialPortSocket;
 
 public abstract class AbstractSerialPortSocket<T extends AbstractSerialPortSocket<T>> implements SerialPortSocket {
-	
-//TODO make SerialportSocket implement ByteChannel itself???	
-    protected class SerialChannel implements ByteChannel {
-		
-		private final Object readLock = new Object();
-		private final Object writeLock = new Object();
-		
-
-		@Override
-		public int read(ByteBuffer dst) throws IOException {
-			synchronized (readLock) {
-				return AbstractSerialPortSocket.this.readBytes(dst);
-			}
-		}
-
-		@Override
-		public boolean isOpen() {
-			return AbstractSerialPortSocket.this.isOpen();
-		}
-
-		@Override
-		public void close() throws IOException {
-			AbstractSerialPortSocket.this.close();
-		}
-
-		@Override
-		public int write(ByteBuffer src) throws IOException {
-			synchronized (writeLock) {
-				return AbstractSerialPortSocket.this.writeBytes(src);
-			}
-		}
-		
-	}
 	
 	protected class SerialInputStream extends InputStream {
 
@@ -67,9 +33,12 @@ public abstract class AbstractSerialPortSocket<T extends AbstractSerialPortSocke
 			} else if (b.length == 0) {
 				return 0;
 			}
-			ByteBuffer buf = ByteBuffer.wrap(b);
+			ByteBuffer buf = ByteBuffer.allocateDirect(b.length);
 
-			return AbstractSerialPortSocket.this.readBytes(buf);
+			int result = AbstractSerialPortSocket.this.read(buf);
+                        buf.flip();
+                        buf.get(b, 0, result);
+                        return result;
 		}
 
 		@Override
@@ -81,9 +50,12 @@ public abstract class AbstractSerialPortSocket<T extends AbstractSerialPortSocke
 			} else if (len == 0) {
 				return 0;
 			}
-			ByteBuffer buf = ByteBuffer.wrap(b, off, len);
-
-			return AbstractSerialPortSocket.this.readBytes(buf);
+			ByteBuffer buf = ByteBuffer.allocateDirect(len);
+                        
+			int result = AbstractSerialPortSocket.this.read(buf);
+                        buf.flip();
+                        buf.get(b, off, result);
+                        return result;
 		}
 
 	}
@@ -107,9 +79,10 @@ public abstract class AbstractSerialPortSocket<T extends AbstractSerialPortSocke
 			} else if (b.length == 0) {
 				return;
 			}
-			ByteBuffer buf = ByteBuffer.wrap(b);
-
-			AbstractSerialPortSocket.this.writeBytes(buf);
+			ByteBuffer buf = ByteBuffer.allocateDirect(b.length);
+                        buf.put(b);
+                        buf.flip();
+			AbstractSerialPortSocket.this.write(buf);
 		}
 
 		@Override
@@ -121,9 +94,10 @@ public abstract class AbstractSerialPortSocket<T extends AbstractSerialPortSocke
 			} else if (len == 0) {
 				return;
 			}
-			ByteBuffer buf = ByteBuffer.wrap(b, off, len);
-
-			AbstractSerialPortSocket.this.writeBytes(buf);
+			ByteBuffer buf = ByteBuffer.allocateDirect(len);
+                        buf.put(b, off, len);
+                        buf.flip();
+			AbstractSerialPortSocket.this.write(buf);
 		}
 
 		@Override
@@ -135,7 +109,6 @@ public abstract class AbstractSerialPortSocket<T extends AbstractSerialPortSocke
 
 	protected SerialInputStream is;
 	protected SerialOutputStream os;
-	protected SerialChannel ch;
 	
 
 	protected final String portName;
@@ -223,17 +196,6 @@ public abstract class AbstractSerialPortSocket<T extends AbstractSerialPortSocke
 		return portName;
 	}
 
-	/**
-	 * Read data from port
-	 *
-	 * @param b
-	 *            the data to be written
-	 * @return the readed bytes
-	 * @exception IOException
-	 *                If an I/O error has occurred.
-	 */
-	protected abstract int readBytes(ByteBuffer b) throws IOException;
-
 	protected abstract int readSingle() throws IOException;
 
 	@Override
@@ -246,28 +208,6 @@ public abstract class AbstractSerialPortSocket<T extends AbstractSerialPortSocke
 		}
 	}
 
-	/**
-	 * Write data to port
-	 *
-	 * @param b
-	 * @throws java.io.IOException
-	 *
-	 */
-	protected abstract int writeBytes(ByteBuffer b) throws IOException;
-
 	protected abstract void writeSingle(int b) throws IOException;
 	
-	@Override
-	public synchronized ByteChannel getChannel() throws IOException {
-		if (!isOpen()) {
-			throw new IOException(PORT_IS_CLOSED);
-		}
-		if (ch == null) {
-			ch = new SerialChannel();
-		}
-		return ch;
-	}
-
-
-
 }

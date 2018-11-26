@@ -33,6 +33,7 @@ import de.ibapl.spsw.api.Parity;
 import de.ibapl.spsw.api.SerialPortSocket;
 import de.ibapl.spsw.api.Speed;
 import de.ibapl.spsw.api.StopBits;
+import java.nio.ByteBuffer;
 
 /**
  * Helper class for test that interact with a SerialPortSocket. The behavior of
@@ -63,6 +64,18 @@ import de.ibapl.spsw.api.StopBits;
  * @author Arne Plöse
  */
 public class MockSerialPortSocket implements SerialPortSocket {
+
+    @Override
+    public int read(ByteBuffer dst) throws IOException {
+        //TODO
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    @Override
+    public int write(ByteBuffer src) throws IOException {
+        //TODO
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
 
 	public class DataRequest extends Request<byte[]> {
 
@@ -648,12 +661,6 @@ public class MockSerialPortSocket implements SerialPortSocket {
 			throw new IOException(PORT_IS_CLOSED);
 		}
 		throw new RuntimeException("Not Implemented");
-	}
-
-	@Override
-	public ByteChannel getChannel() {
-		// TODO Auto-generated method stub
-		return null;
 	}
 
 }

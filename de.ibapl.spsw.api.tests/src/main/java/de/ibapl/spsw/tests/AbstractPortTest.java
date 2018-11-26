@@ -151,7 +151,7 @@ public abstract class AbstractPortTest {
 					}
 						break;
 					case CHANNEL: {
-						final int count = sps.getChannel().read(recBuffer);
+						final int count = sps.read(recBuffer);
 						if (count > 0) {
 							for (int i = 0; i < count; i++) {
 								final int pos = currentRecOffset + i;
@@ -289,7 +289,7 @@ public abstract class AbstractPortTest {
 					bytesWritten = b.length;
 					break;
 				case CHANNEL:
-					bytesWritten = sps.getChannel().write(sendBuffer);
+					bytesWritten = sps.write(sendBuffer);
 				break;
 
 				}

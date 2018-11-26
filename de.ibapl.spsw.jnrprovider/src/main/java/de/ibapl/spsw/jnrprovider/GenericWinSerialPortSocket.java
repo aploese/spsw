@@ -738,7 +738,7 @@ public class GenericWinSerialPortSocket extends AbstractSerialPortSocket<Generic
     }
 
     @Override
-    protected int readBytes(ByteBuffer b) throws IOException {
+    public int read(ByteBuffer b) throws IOException {
 
         OVERLAPPED overlapped = OVERLAPPED.newOLWithUnionPointer();
 
@@ -864,7 +864,7 @@ public class GenericWinSerialPortSocket extends AbstractSerialPortSocket<Generic
     }
 
     @Override
-    protected int writeBytes(ByteBuffer b) throws IOException {
+    public int write(ByteBuffer b) throws IOException {
 
         OVERLAPPED overlapped = OVERLAPPED.newOLWithUnionPointer();
         overlapped.hEvent = synchapi_H.CreateEventW(null, true, false, null);

@@ -435,17 +435,17 @@ public class LogWriter {
 		log.flush();
 	}
 
-	public void afterChannelRead(final Instant ts, int b) {
+	public void afterChannelRead(final Instant ts, ByteBuffer buffer, int position) {
 		log.append(formatTs(ts)).append("CH").append(ACION_RETURN).append(" read:\t\"");
-		if (b >= 0) {
-			appendByte((byte) b);
+		for (int i = position; i < buffer.position(); i++) {
+			appendByte(buffer.get(i));
 		}
 		if (timeStampLogging != TimeStampLogging.NONE) {
 			final Duration d = Duration.between(channelReadStartTS, ts);
 			if (d.isZero()) {
 				log.append("\"");
 			} else {
-				log.append("\"\tduration: ").println(d.toString());
+				log.append("\"\tduration: ").append(d.toString());
 			}
 		} else {
 			log.append("\"");
@@ -464,7 +464,7 @@ public class LogWriter {
 			if (d.isZero()) {
 				log.append("\"");
 			} else {
-				log.append("\"\tduration: ").println(d.toString());
+				log.append("\"\tduration: ").append(d.toString());
 			}
 		} else {
 			log.append("\"");
@@ -731,7 +731,7 @@ public class LogWriter {
 			final Duration d = Duration.between(osWriteStartTS, ts);
 			if (d.isZero()) {
 			} else {
-				log.append("\tduration: ").println(d.toString());
+				log.append("\tduration: ").append(d.toString());
 			}
 		}
 		log.println();
@@ -766,7 +766,7 @@ public class LogWriter {
 			final Duration d = Duration.between(channelWriteStartTS, ts);
 			if (d.isZero()) {
 			} else {
-				log.append("\tduration: ").println(d.toString());
+				log.append("\tduration: ").append(d.toString());
 			}
 		}
 		log.println();

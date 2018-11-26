@@ -32,7 +32,6 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.lang.annotation.Native;
 import java.nio.ByteBuffer;
-import java.nio.channels.ByteChannel;
 import java.util.EnumSet;
 import java.util.Set;
 
@@ -53,41 +52,23 @@ import de.ibapl.spsw.api.StopBits;
  */
 public abstract class AbstractSerialPortSocket<T extends AbstractSerialPortSocket<T>> implements SerialPortSocket {
 
-	protected class SerialChannel implements ByteChannel {
-
-		private final Object readLock = new Object();
-		private final Object writeLock = new Object();
-
 		@Override
 		public int read(ByteBuffer dst) throws IOException {
-			synchronized (readLock) {
 				if (dst.isReadOnly()) {
 					throw new IllegalArgumentException("Read-only buffer");
 				}
 
 				// Substitute a native buffer
 				byte[] bb = new byte[dst.remaining()];
-				int written = AbstractSerialPortSocket.this.readBytes(bb, 0, bb.length);
+				int written = readBytes(bb, 0, bb.length);
 				if (written > 0) {
 					dst.put(bb);
 				}
 				return written;
-			}
-		}
-
-		@Override
-		public boolean isOpen() {
-			return AbstractSerialPortSocket.this.isOpen();
-		}
-
-		@Override
-		public void close() throws IOException {
-			AbstractSerialPortSocket.this.close();
 		}
 
 		@Override
 		public int write(ByteBuffer src) throws IOException {
-			synchronized (writeLock) {
 				// Substitute a native buffer
 				int pos = src.position();
 				int lim = src.limit();
@@ -98,14 +79,12 @@ public abstract class AbstractSerialPortSocket<T extends AbstractSerialPortSocke
 				// Do not update src until we see how many bytes were written
 				src.position(pos);
 
-				AbstractSerialPortSocket.this.writeBytes(bb, 0, rem);
+				writeBytes(bb, 0, rem);
 				// now update src
 				src.position((int) (pos + rem));
 				return rem;
 			}
-		}
-
-	}
+		
 
 	protected class SerialInputStream extends InputStream {
 
@@ -585,7 +564,6 @@ public abstract class AbstractSerialPortSocket<T extends AbstractSerialPortSocke
 
 	protected SerialInputStream is;
 	protected SerialOutputStream os;
-	protected SerialChannel ch;
 
 	private final String portName;
 
@@ -624,7 +602,6 @@ public abstract class AbstractSerialPortSocket<T extends AbstractSerialPortSocke
 		open = false;
 		is = null;
 		os = null;
-		ch = null;
 		close0();
 	}
 
@@ -898,16 +875,5 @@ public abstract class AbstractSerialPortSocket<T extends AbstractSerialPortSocke
 	protected native void writeBytes(byte[] b, int off, int len) throws IOException;
 
 	protected native void writeSingle(int b) throws IOException;
-
-	@Override
-	public ByteChannel getChannel() throws IOException {
-		if (!isOpen()) {
-			throw new IOException(PORT_IS_CLOSED);
-		}
-		if (ch == null) {
-			ch = new SerialChannel();
-		}
-		return ch;
-	}
 
 }

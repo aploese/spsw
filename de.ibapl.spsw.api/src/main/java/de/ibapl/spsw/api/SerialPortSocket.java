@@ -65,7 +65,7 @@ import org.osgi.annotation.versioning.ProviderType;
  */
 //TODO make SerialportSocket implement ByteChannel itself???	
 @ProviderType
-public interface SerialPortSocket extends AutoCloseable {
+public interface SerialPortSocket extends ByteChannel {
 
 	/**
 	 * {@value #PORT_IS_CLOSED}. This should be the message of the IOException, if
@@ -175,15 +175,6 @@ public interface SerialPortSocket extends AutoCloseable {
 	@Override
 	void close() throws IOException;
 
-	/**
-	 * Returns the ByteChannel for this port.
-	 * 
-	 * @return the ByteChannel.
-	 * @throws IOException
-	 *             if port is closed or an error at OS level occurs.
-	 */
-	ByteChannel getChannel() throws IOException;
-	
 	/**
 	 * Read the number of data bits from the port.
 	 * 
@@ -636,5 +627,8 @@ public interface SerialPortSocket extends AutoCloseable {
 	 *             occurred.
 	 */
 	void setXONChar(char c) throws IOException;
+
+        
+        //TODO flush out ???
 
 }
