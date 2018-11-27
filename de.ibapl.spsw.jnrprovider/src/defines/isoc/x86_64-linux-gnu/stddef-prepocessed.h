@@ -1,14 +1,14 @@
 # 1 "c.c"
 # 1 "<built-in>"
 #define __STDC__ 1
-#define __STDC_VERSION__ 201112L
+#define __STDC_VERSION__ 201710L
 #define __STDC_UTF_16__ 1
 #define __STDC_UTF_32__ 1
 #define __STDC_HOSTED__ 1
-#define __GNUC__ 7
-#define __GNUC_MINOR__ 3
+#define __GNUC__ 8
+#define __GNUC_MINOR__ 2
 #define __GNUC_PATCHLEVEL__ 0
-#define __VERSION__ "7.3.0"
+#define __VERSION__ "8.2.0"
 #define __ATOMIC_RELAXED 0
 #define __ATOMIC_SEQ_CST 5
 #define __ATOMIC_ACQUIRE 2
@@ -75,7 +75,7 @@
 #define __UINTPTR_TYPE__ long unsigned int
 #define __has_include(STR) __has_include__(STR)
 #define __has_include_next(STR) __has_include_next__(STR)
-#define __GXX_ABI_VERSION 1011
+#define __GXX_ABI_VERSION 1013
 #define __SCHAR_MAX__ 0x7f
 #define __SHRT_MAX__ 0x7fff
 #define __INT_MAX__ 0x7fffffff
@@ -365,13 +365,13 @@
 # 1 "c.c"
 #include <stddef.h>
 # 1 "c.c"
-# 1 "/usr/lib/gcc/x86_64-linux-gnu/7/include/stddef.h" 1 3 4
-# 39 "/usr/lib/gcc/x86_64-linux-gnu/7/include/stddef.h" 3 4
+# 1 "/usr/lib/gcc/x86_64-linux-gnu/8/include/stddef.h" 1 3 4
+# 39 "/usr/lib/gcc/x86_64-linux-gnu/8/include/stddef.h" 3 4
 #define _STDDEF_H 
 #define _STDDEF_H_ 
 
 #define _ANSI_STDDEF_H 
-# 137 "/usr/lib/gcc/x86_64-linux-gnu/7/include/stddef.h" 3 4
+# 137 "/usr/lib/gcc/x86_64-linux-gnu/8/include/stddef.h" 3 4
 #define _PTRDIFF_T 
 #define _T_PTRDIFF_ 
 #define _T_PTRDIFF 
@@ -385,11 +385,11 @@
 
 
 
-# 149 "/usr/lib/gcc/x86_64-linux-gnu/7/include/stddef.h" 3 4
+# 149 "/usr/lib/gcc/x86_64-linux-gnu/8/include/stddef.h" 3 4
 typedef long int ptrdiff_t;
-# 161 "/usr/lib/gcc/x86_64-linux-gnu/7/include/stddef.h" 3 4
+# 161 "/usr/lib/gcc/x86_64-linux-gnu/8/include/stddef.h" 3 4
 #undef __need_ptrdiff_t
-# 187 "/usr/lib/gcc/x86_64-linux-gnu/7/include/stddef.h" 3 4
+# 187 "/usr/lib/gcc/x86_64-linux-gnu/8/include/stddef.h" 3 4
 #define __size_t__ 
 #define __SIZE_T__ 
 #define _SIZE_T 
@@ -420,9 +420,9 @@ typedef long int ptrdiff_t;
 
 
 typedef long unsigned int size_t;
-# 238 "/usr/lib/gcc/x86_64-linux-gnu/7/include/stddef.h" 3 4
+# 238 "/usr/lib/gcc/x86_64-linux-gnu/8/include/stddef.h" 3 4
 #undef __need_size_t
-# 267 "/usr/lib/gcc/x86_64-linux-gnu/7/include/stddef.h" 3 4
+# 267 "/usr/lib/gcc/x86_64-linux-gnu/8/include/stddef.h" 3 4
 #define __wchar_t__ 
 #define __WCHAR_T__ 
 #define _WCHAR_T 
@@ -438,13 +438,13 @@ typedef long unsigned int size_t;
 #define __INT_WCHAR_T_H 
 #define _GCC_WCHAR_T 
 #define _WCHAR_T_DECLARED 
-# 294 "/usr/lib/gcc/x86_64-linux-gnu/7/include/stddef.h" 3 4
+# 294 "/usr/lib/gcc/x86_64-linux-gnu/8/include/stddef.h" 3 4
 #undef _BSD_WCHAR_T_
-# 328 "/usr/lib/gcc/x86_64-linux-gnu/7/include/stddef.h" 3 4
+# 328 "/usr/lib/gcc/x86_64-linux-gnu/8/include/stddef.h" 3 4
 typedef int wchar_t;
-# 347 "/usr/lib/gcc/x86_64-linux-gnu/7/include/stddef.h" 3 4
+# 347 "/usr/lib/gcc/x86_64-linux-gnu/8/include/stddef.h" 3 4
 #undef __need_wchar_t
-# 401 "/usr/lib/gcc/x86_64-linux-gnu/7/include/stddef.h" 3 4
+# 401 "/usr/lib/gcc/x86_64-linux-gnu/8/include/stddef.h" 3 4
 #undef NULL
 
 
@@ -473,6 +473,6 @@ typedef int wchar_t;
 typedef struct {
   long long __max_align_ll __attribute__((__aligned__(__alignof__(long long))));
   long double __max_align_ld __attribute__((__aligned__(__alignof__(long double))));
-# 437 "/usr/lib/gcc/x86_64-linux-gnu/7/include/stddef.h" 3 4
+# 437 "/usr/lib/gcc/x86_64-linux-gnu/8/include/stddef.h" 3 4
 } max_align_t;
 # 1 "c.c" 2

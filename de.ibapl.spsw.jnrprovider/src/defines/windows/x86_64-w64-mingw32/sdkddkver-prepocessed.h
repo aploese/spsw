@@ -8,7 +8,7 @@
 #define __GNUC__ 7
 #define __GNUC_MINOR__ 3
 #define __GNUC_PATCHLEVEL__ 0
-#define __VERSION__ "7.3-win32 20180318"
+#define __VERSION__ "7.3-win32 20180506"
 #define __ATOMIC_RELAXED 0
 #define __ATOMIC_SEQ_CST 5
 #define __ATOMIC_ACQUIRE 2
@@ -376,6 +376,8 @@
 #define _WIN32_WINNT_WIN7 0x0601
 #define _WIN32_WINNT_WIN8 0x0602
 #define _WIN32_WINNT_WINBLUE 0x0603
+#define _WIN32_WINNT_WINTHRESHOLD 0x0A00
+#define _WIN32_WINNT_WIN10 0x0A00
 
 
 #define _WIN32_IE_IE20 0x0200
@@ -481,6 +483,13 @@
 #define NTDDI_WIN7 0x06010000
 #define NTDDI_WIN8 0x06020000
 #define NTDDI_WINBLUE 0x06030000
+#define NTDDI_WINTHRESHOLD 0x0A000000
+#define NTDDI_WIN10 0x0A000000
+#define NTDDI_WIN10_TH2 0x0A000001
+#define NTDDI_WIN10_RS1 0x0A000002
+#define NTDDI_WIN10_RS2 0x0A000003
+#define NTDDI_WIN10_RS3 0x0A000004
+
 
 
 #define OSVERSION_MASK 0xFFFF0000U
@@ -505,8 +514,8 @@
 
 
 #define NTDDI_VERSION NTDDI_VERSION_FROM_WIN32_WINNT(_WIN32_WINNT)
-# 162 "/usr/share/mingw-w64/include/sdkddkver.h" 3
+# 171 "/usr/share/mingw-w64/include/sdkddkver.h" 3
 #define WINVER _WIN32_WINNT
-# 178 "/usr/share/mingw-w64/include/sdkddkver.h" 3
+# 187 "/usr/share/mingw-w64/include/sdkddkver.h" 3
 #define _WIN32_IE _WIN32_IE_WS03
 # 1 "c.c" 2

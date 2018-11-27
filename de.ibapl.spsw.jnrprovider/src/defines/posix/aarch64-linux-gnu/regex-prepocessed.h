@@ -6,9 +6,9 @@
 #define __STDC_UTF_32__ 1
 #define __STDC_HOSTED__ 1
 #define __GNUC__ 8
-#define __GNUC_MINOR__ 0
-#define __GNUC_PATCHLEVEL__ 1
-#define __VERSION__ "8.0.1 20180402 (experimental) [trunk revision 259004]"
+#define __GNUC_MINOR__ 2
+#define __GNUC_PATCHLEVEL__ 0
+#define __VERSION__ "8.2.0"
 #define __ATOMIC_RELAXED 0
 #define __ATOMIC_SEQ_CST 5
 #define __ATOMIC_ACQUIRE 2
@@ -75,7 +75,7 @@
 #define __UINTPTR_TYPE__ long unsigned int
 #define __has_include(STR) __has_include__(STR)
 #define __has_include_next(STR) __has_include_next__(STR)
-#define __GXX_ABI_VERSION 1012
+#define __GXX_ABI_VERSION 1013
 #define __SCHAR_MAX__ 0x7f
 #define __SHRT_MAX__ 0x7fff
 #define __INT_MAX__ 0x7fffffff
@@ -1481,7 +1481,8 @@ struct timeval
 # 39 "/usr/aarch64-linux-gnu/include/sys/select.h" 3
 # 1 "/usr/aarch64-linux-gnu/include/bits/types/struct_timespec.h" 1 3
 
-#define __timespec_defined 1
+
+#define _STRUCT_TIMESPEC 1
 
 #include <bits/types.h>
 

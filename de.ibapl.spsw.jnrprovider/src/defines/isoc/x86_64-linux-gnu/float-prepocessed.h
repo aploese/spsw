@@ -1,14 +1,14 @@
 # 1 "c.c"
 # 1 "<built-in>"
 #define __STDC__ 1
-#define __STDC_VERSION__ 201112L
+#define __STDC_VERSION__ 201710L
 #define __STDC_UTF_16__ 1
 #define __STDC_UTF_32__ 1
 #define __STDC_HOSTED__ 1
-#define __GNUC__ 7
-#define __GNUC_MINOR__ 3
+#define __GNUC__ 8
+#define __GNUC_MINOR__ 2
 #define __GNUC_PATCHLEVEL__ 0
-#define __VERSION__ "7.3.0"
+#define __VERSION__ "8.2.0"
 #define __ATOMIC_RELAXED 0
 #define __ATOMIC_SEQ_CST 5
 #define __ATOMIC_ACQUIRE 2
@@ -75,7 +75,7 @@
 #define __UINTPTR_TYPE__ long unsigned int
 #define __has_include(STR) __has_include__(STR)
 #define __has_include_next(STR) __has_include_next__(STR)
-#define __GXX_ABI_VERSION 1011
+#define __GXX_ABI_VERSION 1013
 #define __SCHAR_MAX__ 0x7f
 #define __SHRT_MAX__ 0x7fff
 #define __INT_MAX__ 0x7fffffff
@@ -365,8 +365,8 @@
 # 1 "c.c"
 #include <float.h>
 # 1 "c.c"
-# 1 "/usr/lib/gcc/x86_64-linux-gnu/7/include/float.h" 1 3 4
-# 29 "/usr/lib/gcc/x86_64-linux-gnu/7/include/float.h" 3 4
+# 1 "/usr/lib/gcc/x86_64-linux-gnu/8/include/float.h" 1 3 4
+# 29 "/usr/lib/gcc/x86_64-linux-gnu/8/include/float.h" 3 4
 #define _FLOAT_H___ 
 
 
@@ -380,7 +380,7 @@
 #define FLT_MANT_DIG __FLT_MANT_DIG__
 #define DBL_MANT_DIG __DBL_MANT_DIG__
 #define LDBL_MANT_DIG __LDBL_MANT_DIG__
-# 50 "/usr/lib/gcc/x86_64-linux-gnu/7/include/float.h" 3 4
+# 50 "/usr/lib/gcc/x86_64-linux-gnu/8/include/float.h" 3 4
 #undef FLT_DIG
 #undef DBL_DIG
 #undef LDBL_DIG
@@ -460,13 +460,13 @@
 
 #undef FLT_ROUNDS
 #define FLT_ROUNDS 1
-# 193 "/usr/lib/gcc/x86_64-linux-gnu/7/include/float.h" 3 4
+# 193 "/usr/lib/gcc/x86_64-linux-gnu/8/include/float.h" 3 4
 #undef FLT_EVAL_METHOD
 
 
 
 #define FLT_EVAL_METHOD __FLT_EVAL_METHOD__
-# 208 "/usr/lib/gcc/x86_64-linux-gnu/7/include/float.h" 3 4
+# 208 "/usr/lib/gcc/x86_64-linux-gnu/8/include/float.h" 3 4
 #undef DECIMAL_DIG
 #define DECIMAL_DIG __DECIMAL_DIG__
 

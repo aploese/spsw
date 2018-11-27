@@ -1,14 +1,14 @@
 # 1 "c.c"
 # 1 "<built-in>"
 #define __STDC__ 1
-#define __STDC_VERSION__ 201112L
+#define __STDC_VERSION__ 201710L
 #define __STDC_UTF_16__ 1
 #define __STDC_UTF_32__ 1
 #define __STDC_HOSTED__ 1
-#define __GNUC__ 7
-#define __GNUC_MINOR__ 3
+#define __GNUC__ 8
+#define __GNUC_MINOR__ 2
 #define __GNUC_PATCHLEVEL__ 0
-#define __VERSION__ "7.3.0"
+#define __VERSION__ "8.2.0"
 #define __ATOMIC_RELAXED 0
 #define __ATOMIC_SEQ_CST 5
 #define __ATOMIC_ACQUIRE 2
@@ -75,7 +75,7 @@
 #define __UINTPTR_TYPE__ long unsigned int
 #define __has_include(STR) __has_include__(STR)
 #define __has_include_next(STR) __has_include_next__(STR)
-#define __GXX_ABI_VERSION 1011
+#define __GXX_ABI_VERSION 1013
 #define __SCHAR_MAX__ 0x7f
 #define __SHRT_MAX__ 0x7fff
 #define __INT_MAX__ 0x7fffffff
@@ -665,8 +665,8 @@
 # 393 "/usr/include/x86_64-linux-gnu/sys/cdefs.h" 3 4
 #define __glibc_unlikely(cond) __builtin_expect ((cond), 0)
 #define __glibc_likely(cond) __builtin_expect ((cond), 1)
-# 416 "/usr/include/x86_64-linux-gnu/sys/cdefs.h" 3 4
-#define __attribute_nonstring__ 
+# 414 "/usr/include/x86_64-linux-gnu/sys/cdefs.h" 3 4
+#define __attribute_nonstring__ __attribute__ ((__nonstring__))
 # 427 "/usr/include/x86_64-linux-gnu/sys/cdefs.h" 3 4
 #include <bits/wordsize.h>
 # 427 "/usr/include/x86_64-linux-gnu/sys/cdefs.h" 3 4
@@ -734,8 +734,8 @@
 #define __need_size_t 
 #include <stddef.h>
 # 23 "/usr/include/iconv.h" 3 4
-# 1 "/usr/lib/gcc/x86_64-linux-gnu/7/include/stddef.h" 1 3 4
-# 187 "/usr/lib/gcc/x86_64-linux-gnu/7/include/stddef.h" 3 4
+# 1 "/usr/lib/gcc/x86_64-linux-gnu/8/include/stddef.h" 1 3 4
+# 187 "/usr/lib/gcc/x86_64-linux-gnu/8/include/stddef.h" 3 4
 #define __size_t__ 
 #define __SIZE_T__ 
 #define _SIZE_T 
@@ -766,11 +766,11 @@
 
 
 
-# 216 "/usr/lib/gcc/x86_64-linux-gnu/7/include/stddef.h" 3 4
+# 216 "/usr/lib/gcc/x86_64-linux-gnu/8/include/stddef.h" 3 4
 typedef long unsigned int size_t;
-# 238 "/usr/lib/gcc/x86_64-linux-gnu/7/include/stddef.h" 3 4
+# 238 "/usr/lib/gcc/x86_64-linux-gnu/8/include/stddef.h" 3 4
 #undef __need_size_t
-# 412 "/usr/lib/gcc/x86_64-linux-gnu/7/include/stddef.h" 3 4
+# 412 "/usr/lib/gcc/x86_64-linux-gnu/8/include/stddef.h" 3 4
 #undef __need_NULL
 # 24 "/usr/include/iconv.h" 2 3 4
 

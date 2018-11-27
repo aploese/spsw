@@ -8,7 +8,7 @@
 #define __GNUC__ 7
 #define __GNUC_MINOR__ 3
 #define __GNUC_PATCHLEVEL__ 0
-#define __VERSION__ "7.3-win32 20180318"
+#define __VERSION__ "7.3-win32 20180506"
 #define __ATOMIC_RELAXED 0
 #define __ATOMIC_SEQ_CST 5
 #define __ATOMIC_ACQUIRE 2
@@ -408,10 +408,14 @@
 
 
 
+
+
+#define SPECSTRINGS_H 
+
 #define __specstrings 
 
 #include <sal.h>
-# 8 "/usr/share/mingw-w64/include/specstrings.h" 3
+# 12 "/usr/share/mingw-w64/include/specstrings.h" 3
 # 1 "/usr/share/mingw-w64/include/sal.h" 1 3
 
 
@@ -462,6 +466,9 @@
 #define _Out_writes_to_ptr_z(p) 
 
 
+#define __in_opt 
+#define __out_opt 
+#define __inout_opt 
 #define _In_opt_ 
 #define _Out_opt_ 
 #define _Inout_opt_ 
@@ -619,10 +626,38 @@
 #define _When_(e,a) 
 
 
+#define _Printf_format_string_ 
+#define _Scanf_format_string_ 
+#define _Scanf_s_format_string_ 
+#define _Format_string_impl_(kind,where) 
+#define _Printf_format_string_params_(x) 
+#define _Scanf_format_string_params_(x) 
+#define _Scanf_s_format_string_params_(x) 
+
+
 #define _Analysis_assume_(expr) 
 #define _Analysis_assume_nullterminated_(expr) 
-# 9 "/usr/share/mingw-w64/include/specstrings.h" 2 3
-# 17 "/usr/share/mingw-w64/include/specstrings.h" 3
+
+
+
+
+
+#define __in 
+#define __out 
+
+
+#define __in_bcount(size) 
+#define __in_ecount(size) 
+
+#define __out_bcount(size) 
+#define __out_bcount_part(size,length) 
+#define __out_ecount(size) 
+
+#define __inout 
+
+#define __deref_out_ecount(size) 
+# 13 "/usr/share/mingw-w64/include/specstrings.h" 2 3
+# 21 "/usr/share/mingw-w64/include/specstrings.h" 3
 #define __nothrow 
 
 
@@ -931,6 +966,24 @@
 
 
 #define DECLSPEC_ADDRSAFE 
+
+
+
+
+
+
+
+#include <driverspecs.h>
+# 336 "/usr/share/mingw-w64/include/specstrings.h" 3
+# 1 "/usr/share/mingw-w64/include/driverspecs.h" 1 3
+# 12 "/usr/share/mingw-w64/include/driverspecs.h" 3
+#define __drv_dispatchType(x) 
+#define __drv_dispatchType_other 
+
+#define __drv_aliasesMem 
+#define __drv_allocatesMem(kind) 
+#define __drv_freesMem(kind) 
+# 337 "/usr/share/mingw-w64/include/specstrings.h" 2 3
 # 12 "/usr/share/mingw-w64/include/shellapi.h" 2 3
 
 

@@ -8,7 +8,7 @@
 #define __GNUC__ 7
 #define __GNUC_MINOR__ 3
 #define __GNUC_PATCHLEVEL__ 0
-#define __VERSION__ "7.3-win32 20180318"
+#define __VERSION__ "7.3-win32 20180506"
 #define __ATOMIC_RELAXED 0
 #define __ATOMIC_SEQ_CST 5
 #define __ATOMIC_ACQUIRE 2
@@ -411,8 +411,9 @@
 #define __MINGW64_STRINGIFY(x) __STRINGIFY(x)
 
 
-#define __MINGW64_VERSION_MAJOR 5
+#define __MINGW64_VERSION_MAJOR 6
 #define __MINGW64_VERSION_MINOR 0
+#define __MINGW64_VERSION_BUGFIX 0
 
 
 
@@ -422,7 +423,9 @@
 
 #define __MINGW64_VERSION_RC 0
 
-#define __MINGW64_VERSION_STR __MINGW64_STRINGIFY(__MINGW64_VERSION_MAJOR) "." __MINGW64_STRINGIFY(__MINGW64_VERSION_MINOR)
+#define __MINGW64_VERSION_STR __MINGW64_STRINGIFY(__MINGW64_VERSION_MAJOR) "." __MINGW64_STRINGIFY(__MINGW64_VERSION_MINOR) "." __MINGW64_STRINGIFY(__MINGW64_VERSION_BUGFIX)
+
+
 
 
 
@@ -435,10 +438,10 @@
 
 #define __MINGW32_MAJOR_VERSION 3
 #define __MINGW32_MINOR_VERSION 11
-# 59 "/usr/share/mingw-w64/include/_mingw_mac.h" 3
+# 62 "/usr/share/mingw-w64/include/_mingw_mac.h" 3
 #define _M_AMD64 100
 #define _M_X64 100
-# 88 "/usr/share/mingw-w64/include/_mingw_mac.h" 3
+# 98 "/usr/share/mingw-w64/include/_mingw_mac.h" 3
              
 #undef _
 #define _ 1
@@ -449,12 +452,12 @@
 
 #undef _
              
-# 109 "/usr/share/mingw-w64/include/_mingw_mac.h" 3
+# 119 "/usr/share/mingw-w64/include/_mingw_mac.h" 3
 #define __MINGW_IMP_SYMBOL(sym) __imp_ ##sym
 #define __MINGW_IMP_LSYMBOL(sym) __imp_ ##sym
 #define __MINGW_USYMBOL(sym) sym
 #define __MINGW_LSYMBOL(sym) _ ##sym
-# 144 "/usr/share/mingw-w64/include/_mingw_mac.h" 3
+# 154 "/usr/share/mingw-w64/include/_mingw_mac.h" 3
 #undef __MINGW_EXTENSION
 
 
@@ -523,9 +526,9 @@
 
 
 #define __MINGW_GNUC_PREREQ(major,minor) (__GNUC__ > (major) || (__GNUC__ == (major) && __GNUC_MINOR__ >= (minor)))
-# 222 "/usr/share/mingw-w64/include/_mingw_mac.h" 3
+# 232 "/usr/share/mingw-w64/include/_mingw_mac.h" 3
 #define __MINGW_MSC_PREREQ(major,minor) 0
-# 234 "/usr/share/mingw-w64/include/_mingw_mac.h" 3
+# 244 "/usr/share/mingw-w64/include/_mingw_mac.h" 3
 #define __MINGW_ATTRIB_DEPRECATED_STR(X) 
 
 
@@ -562,11 +565,15 @@
 
 
 #undef __mingw_ovr
+#undef __mingw_static_ovr
+
 
 
 
 
 #define __mingw_ovr static __attribute__ ((__unused__)) __inline__ __cdecl
+
+#define __mingw_static_ovr __mingw_ovr
 # 13 "/usr/share/mingw-w64/include/_mingw.h" 2 3
 #include "_mingw_secapi.h"
 # 13 "/usr/share/mingw-w64/include/_mingw.h" 3
@@ -675,7 +682,9 @@
 
 #define __MINGW_ATTRIB_USED __attribute__ ((__used__))
 #define __MINGW_ATTRIB_DEPRECATED __attribute__ ((__deprecated__))
-# 193 "/usr/share/mingw-w64/include/_mingw.h" 3
+
+#define __MINGW_ATTRIB_DEPRECATED_MSG(x) __attribute__ ((__deprecated__(x)))
+# 200 "/usr/share/mingw-w64/include/_mingw.h" 3
 #define __MINGW_NOTHROW __attribute__ ((__nothrow__))
 
 
@@ -703,7 +712,7 @@
 
 
 
-#define __MSVCRT_VERSION__ 0x0700
+#define __MSVCRT_VERSION__ 0x700
 
 
 
@@ -718,7 +727,7 @@
 #define __int16 short
 #define __int32 int
 #define __int64 long long
-# 248 "/usr/share/mingw-w64/include/_mingw.h" 3
+# 255 "/usr/share/mingw-w64/include/_mingw.h" 3
 #define __ptr32 
 #define __ptr64 
 
@@ -731,13 +740,13 @@
 
 
 #define __forceinline extern __inline__ __attribute__((__always_inline__,__gnu_inline__))
-# 271 "/usr/share/mingw-w64/include/_mingw.h" 3
+# 278 "/usr/share/mingw-w64/include/_mingw.h" 3
 #define __nothrow 
 
 
 
 #include <vadefs.h>
-# 275 "/usr/share/mingw-w64/include/_mingw.h" 3
+# 282 "/usr/share/mingw-w64/include/_mingw.h" 3
 # 1 "/usr/share/mingw-w64/include/vadefs.h" 1 3
 
 
@@ -750,7 +759,7 @@
 #include <_mingw.h>
 # 9 "/usr/share/mingw-w64/include/vadefs.h" 3
 # 1 "/usr/share/mingw-w64/include/_mingw.h" 1 3
-# 557 "/usr/share/mingw-w64/include/_mingw.h" 3
+# 587 "/usr/share/mingw-w64/include/_mingw.h" 3
 #define MINGW_SDK_INIT 
 
 
@@ -760,7 +769,7 @@
 
 
 #include "sdks/_mingw_directx.h"
-# 565 "/usr/share/mingw-w64/include/_mingw.h" 3
+# 595 "/usr/share/mingw-w64/include/_mingw.h" 3
 # 1 "/usr/share/mingw-w64/include/sdks/_mingw_directx.h" 1 3
 
 
@@ -769,15 +778,15 @@
 
 #define MINGW_HAS_DDRAW_H 1
 #define MINGW_DDRAW_VERSION 7
-# 566 "/usr/share/mingw-w64/include/_mingw.h" 2 3
+# 596 "/usr/share/mingw-w64/include/_mingw.h" 2 3
 #include "sdks/_mingw_ddk.h"
-# 566 "/usr/share/mingw-w64/include/_mingw.h" 3
+# 596 "/usr/share/mingw-w64/include/_mingw.h" 3
 # 1 "/usr/share/mingw-w64/include/sdks/_mingw_ddk.h" 1 3
 
 #define MINGW_DDK_H 
 
 #define MINGW_HAS_DDK_H 1
-# 567 "/usr/share/mingw-w64/include/_mingw.h" 2 3
+# 597 "/usr/share/mingw-w64/include/_mingw.h" 2 3
 # 10 "/usr/share/mingw-w64/include/vadefs.h" 2 3
 
 
@@ -809,7 +818,7 @@
 #define _crt_va_copy(d,s) __builtin_va_copy(d,s)
 # 103 "/usr/share/mingw-w64/include/vadefs.h" 3
 #pragma pack(pop)
-# 276 "/usr/share/mingw-w64/include/_mingw.h" 2 3
+# 283 "/usr/share/mingw-w64/include/_mingw.h" 2 3
 
 
 #define __CRT_STRINGIZE(_Value) #_Value
@@ -844,7 +853,7 @@
 
 
 #define _MRTIMP2 _CRTIMP
-# 318 "/usr/share/mingw-w64/include/_mingw.h" 3
+# 325 "/usr/share/mingw-w64/include/_mingw.h" 3
 #define _DLL 
 
 
@@ -885,14 +894,14 @@
 
 
 #define _CRT_OBSOLETE(_NewItem) 
-# 369 "/usr/share/mingw-w64/include/_mingw.h" 3
+# 376 "/usr/share/mingw-w64/include/_mingw.h" 3
 #define _CONST_RETURN 
 
 
 
 
 #define UNALIGNED __unaligned
-# 384 "/usr/share/mingw-w64/include/_mingw.h" 3
+# 391 "/usr/share/mingw-w64/include/_mingw.h" 3
 #define _CRT_ALIGN(x) __attribute__ ((__aligned__ (x)))
 
 
@@ -911,17 +920,17 @@
 
 
 #define _CRT_UNUSED(x) (void)x
-# 437 "/usr/share/mingw-w64/include/_mingw.h" 3
+# 444 "/usr/share/mingw-w64/include/_mingw.h" 3
 #undef _CRT_glob
 #define _CRT_glob _dowildcard
-# 454 "/usr/share/mingw-w64/include/_mingw.h" 3
+# 461 "/usr/share/mingw-w64/include/_mingw.h" 3
 #define __ANONYMOUS_DEFINED 
 #define _ANONYMOUS_UNION __MINGW_EXTENSION
 #define _ANONYMOUS_STRUCT __MINGW_EXTENSION
 
 #define _UNION_NAME(x) 
 #define _STRUCT_NAME(x) 
-# 479 "/usr/share/mingw-w64/include/_mingw.h" 3
+# 486 "/usr/share/mingw-w64/include/_mingw.h" 3
 #define DUMMYUNIONNAME 
 #define DUMMYUNIONNAME1 
 #define DUMMYUNIONNAME2 
@@ -932,16 +941,19 @@
 #define DUMMYUNIONNAME7 
 #define DUMMYUNIONNAME8 
 #define DUMMYUNIONNAME9 
-# 501 "/usr/share/mingw-w64/include/_mingw.h" 3
+# 508 "/usr/share/mingw-w64/include/_mingw.h" 3
 #define DUMMYSTRUCTNAME 
 #define DUMMYSTRUCTNAME1 
 #define DUMMYSTRUCTNAME2 
 #define DUMMYSTRUCTNAME3 
 #define DUMMYSTRUCTNAME4 
 #define DUMMYSTRUCTNAME5 
-# 529 "/usr/share/mingw-w64/include/_mingw.h" 3
+# 553 "/usr/share/mingw-w64/include/_mingw.h" 3
 #define __CRT_UUID_DECL(type,l,w1,w2,b1,b2,b3,b4,b5,b6,b7,b8) 
-# 539 "/usr/share/mingw-w64/include/_mingw.h" 3
+# 566 "/usr/share/mingw-w64/include/_mingw.h" 3
+#define __MINGW_DEBUGBREAK_IMPL 1
+
+
 void __attribute__((__cdecl__)) __debugbreak(void);
 extern __inline__ __attribute__((__always_inline__,__gnu_inline__)) void __attribute__((__cdecl__)) __debugbreak(void)
 {
@@ -1180,6 +1192,9 @@ typedef struct threadlocaleinfostruct {
 # 43 "/usr/share/mingw-w64/include/excpt.h" 3
   struct _EXCEPTION_RECORD;
   struct _CONTEXT;
+  struct _DISPATCHER_CONTEXT;
+
+  __extension__ __attribute__ ((__dllimport__)) int __attribute__((__cdecl__)) __C_specific_handler (struct _EXCEPTION_RECORD *_ExceptionRecord, void *_EstablisherFrame, struct _CONTEXT *_ContextRecord, struct _DISPATCHER_CONTEXT *_DispatcherContext);
 
 
 #define GetExceptionCode _exception_code
@@ -1220,7 +1235,7 @@ typedef struct threadlocaleinfostruct {
 
 
   typedef int (*PEXCEPTION_HANDLER)(struct _EXCEPTION_RECORD*, void*, struct _CONTEXT*, void*);
-# 108 "/usr/share/mingw-w64/include/excpt.h" 3
+# 111 "/usr/share/mingw-w64/include/excpt.h" 3
 #define __try1(pHandler) __asm__ __volatile__ ("\t.l_startw:\n" "\t.seh_handler __C_specific_handler, @except\n" "\t.seh_handlerdata\n" "\t.long 1\n" "\t.rva .l_startw, .l_endw, " __MINGW64_STRINGIFY(__MINGW_USYMBOL(pHandler)) " ,.l_endw\n" "\t.text" );
 
 
@@ -1230,6 +1245,6 @@ typedef struct threadlocaleinfostruct {
 
 
 #define __except1 asm ("\tnop\n" "\t.l_endw: nop\n");
-# 128 "/usr/share/mingw-w64/include/excpt.h" 3
+# 131 "/usr/share/mingw-w64/include/excpt.h" 3
 #pragma pack(pop)
 # 1 "c.c" 2

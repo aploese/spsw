@@ -8,7 +8,7 @@
 #define __GNUC__ 7
 #define __GNUC_MINOR__ 3
 #define __GNUC_PATCHLEVEL__ 0
-#define __VERSION__ "7.3-win32 20180318"
+#define __VERSION__ "7.3-win32 20180506"
 #define __ATOMIC_RELAXED 0
 #define __ATOMIC_SEQ_CST 5
 #define __ATOMIC_ACQUIRE 2
@@ -403,8 +403,9 @@
 #define __MINGW64_STRINGIFY(x) __STRINGIFY(x)
 
 
-#define __MINGW64_VERSION_MAJOR 5
+#define __MINGW64_VERSION_MAJOR 6
 #define __MINGW64_VERSION_MINOR 0
+#define __MINGW64_VERSION_BUGFIX 0
 
 
 
@@ -414,7 +415,9 @@
 
 #define __MINGW64_VERSION_RC 0
 
-#define __MINGW64_VERSION_STR __MINGW64_STRINGIFY(__MINGW64_VERSION_MAJOR) "." __MINGW64_STRINGIFY(__MINGW64_VERSION_MINOR)
+#define __MINGW64_VERSION_STR __MINGW64_STRINGIFY(__MINGW64_VERSION_MAJOR) "." __MINGW64_STRINGIFY(__MINGW64_VERSION_MINOR) "." __MINGW64_STRINGIFY(__MINGW64_VERSION_BUGFIX)
+
+
 
 
 
@@ -427,17 +430,17 @@
 
 #define __MINGW32_MAJOR_VERSION 3
 #define __MINGW32_MINOR_VERSION 11
-# 53 "/usr/share/mingw-w64/include/_mingw_mac.h" 3
+# 54 "/usr/share/mingw-w64/include/_mingw_mac.h" 3
 #define _M_IX86 600
-# 104 "/usr/share/mingw-w64/include/_mingw_mac.h" 3
+# 114 "/usr/share/mingw-w64/include/_mingw_mac.h" 3
 #undef __MINGW_USE_UNDERSCORE_PREFIX
 #define __MINGW_USE_UNDERSCORE_PREFIX 1
-# 114 "/usr/share/mingw-w64/include/_mingw_mac.h" 3
+# 124 "/usr/share/mingw-w64/include/_mingw_mac.h" 3
 #define __MINGW_IMP_SYMBOL(sym) _imp__ ##sym
 #define __MINGW_IMP_LSYMBOL(sym) __imp__ ##sym
 #define __MINGW_USYMBOL(sym) _ ##sym
 #define __MINGW_LSYMBOL(sym) sym
-# 144 "/usr/share/mingw-w64/include/_mingw_mac.h" 3
+# 154 "/usr/share/mingw-w64/include/_mingw_mac.h" 3
 #undef __MINGW_EXTENSION
 
 
@@ -506,9 +509,9 @@
 
 
 #define __MINGW_GNUC_PREREQ(major,minor) (__GNUC__ > (major) || (__GNUC__ == (major) && __GNUC_MINOR__ >= (minor)))
-# 222 "/usr/share/mingw-w64/include/_mingw_mac.h" 3
+# 232 "/usr/share/mingw-w64/include/_mingw_mac.h" 3
 #define __MINGW_MSC_PREREQ(major,minor) 0
-# 234 "/usr/share/mingw-w64/include/_mingw_mac.h" 3
+# 244 "/usr/share/mingw-w64/include/_mingw_mac.h" 3
 #define __MINGW_ATTRIB_DEPRECATED_STR(X) 
 
 
@@ -545,11 +548,15 @@
 
 
 #undef __mingw_ovr
+#undef __mingw_static_ovr
+
 
 
 
 
 #define __mingw_ovr static __attribute__ ((__unused__)) __inline__ __cdecl
+
+#define __mingw_static_ovr __mingw_ovr
 # 13 "/usr/share/mingw-w64/include/_mingw.h" 2 3
 #include "_mingw_secapi.h"
 # 13 "/usr/share/mingw-w64/include/_mingw.h" 3
@@ -648,7 +655,9 @@
 
 #define __MINGW_ATTRIB_USED __attribute__ ((__used__))
 #define __MINGW_ATTRIB_DEPRECATED __attribute__ ((__deprecated__))
-# 193 "/usr/share/mingw-w64/include/_mingw.h" 3
+
+#define __MINGW_ATTRIB_DEPRECATED_MSG(x) __attribute__ ((__deprecated__(x)))
+# 200 "/usr/share/mingw-w64/include/_mingw.h" 3
 #define __MINGW_NOTHROW __attribute__ ((__nothrow__))
 
 
@@ -676,7 +685,7 @@
 
 
 
-#define __MSVCRT_VERSION__ 0x0700
+#define __MSVCRT_VERSION__ 0x700
 
 
 
@@ -691,7 +700,7 @@
 #define __int16 short
 #define __int32 int
 #define __int64 long long
-# 248 "/usr/share/mingw-w64/include/_mingw.h" 3
+# 255 "/usr/share/mingw-w64/include/_mingw.h" 3
 #define __ptr32 
 #define __ptr64 
 
@@ -704,13 +713,13 @@
 
 
 #define __forceinline extern __inline__ __attribute__((__always_inline__,__gnu_inline__))
-# 271 "/usr/share/mingw-w64/include/_mingw.h" 3
+# 278 "/usr/share/mingw-w64/include/_mingw.h" 3
 #define __nothrow 
 
 
 
 #include <vadefs.h>
-# 275 "/usr/share/mingw-w64/include/_mingw.h" 3
+# 282 "/usr/share/mingw-w64/include/_mingw.h" 3
 # 1 "/usr/share/mingw-w64/include/vadefs.h" 1 3
 
 
@@ -723,7 +732,7 @@
 #include <_mingw.h>
 # 9 "/usr/share/mingw-w64/include/vadefs.h" 3
 # 1 "/usr/share/mingw-w64/include/_mingw.h" 1 3
-# 557 "/usr/share/mingw-w64/include/_mingw.h" 3
+# 587 "/usr/share/mingw-w64/include/_mingw.h" 3
 #define MINGW_SDK_INIT 
 
 
@@ -733,7 +742,7 @@
 
 
 #include "sdks/_mingw_directx.h"
-# 565 "/usr/share/mingw-w64/include/_mingw.h" 3
+# 595 "/usr/share/mingw-w64/include/_mingw.h" 3
 # 1 "/usr/share/mingw-w64/include/sdks/_mingw_directx.h" 1 3
 
 
@@ -742,15 +751,15 @@
 
 #define MINGW_HAS_DDRAW_H 1
 #define MINGW_DDRAW_VERSION 7
-# 566 "/usr/share/mingw-w64/include/_mingw.h" 2 3
+# 596 "/usr/share/mingw-w64/include/_mingw.h" 2 3
 #include "sdks/_mingw_ddk.h"
-# 566 "/usr/share/mingw-w64/include/_mingw.h" 3
+# 596 "/usr/share/mingw-w64/include/_mingw.h" 3
 # 1 "/usr/share/mingw-w64/include/sdks/_mingw_ddk.h" 1 3
 
 #define MINGW_DDK_H 
 
 #define MINGW_HAS_DDK_H 1
-# 567 "/usr/share/mingw-w64/include/_mingw.h" 2 3
+# 597 "/usr/share/mingw-w64/include/_mingw.h" 2 3
 # 10 "/usr/share/mingw-w64/include/vadefs.h" 2 3
 
 
@@ -782,7 +791,7 @@
 #define _crt_va_copy(d,s) __builtin_va_copy(d,s)
 # 103 "/usr/share/mingw-w64/include/vadefs.h" 3
 #pragma pack(pop)
-# 276 "/usr/share/mingw-w64/include/_mingw.h" 2 3
+# 283 "/usr/share/mingw-w64/include/_mingw.h" 2 3
 
 
 #define __CRT_STRINGIZE(_Value) #_Value
@@ -817,7 +826,7 @@
 
 
 #define _MRTIMP2 _CRTIMP
-# 318 "/usr/share/mingw-w64/include/_mingw.h" 3
+# 325 "/usr/share/mingw-w64/include/_mingw.h" 3
 #define _DLL 
 
 
@@ -902,17 +911,17 @@
 
 
 #define _CRT_UNUSED(x) (void)x
-# 437 "/usr/share/mingw-w64/include/_mingw.h" 3
+# 444 "/usr/share/mingw-w64/include/_mingw.h" 3
 #undef _CRT_glob
 #define _CRT_glob _dowildcard
-# 454 "/usr/share/mingw-w64/include/_mingw.h" 3
+# 461 "/usr/share/mingw-w64/include/_mingw.h" 3
 #define __ANONYMOUS_DEFINED 
 #define _ANONYMOUS_UNION __MINGW_EXTENSION
 #define _ANONYMOUS_STRUCT __MINGW_EXTENSION
 
 #define _UNION_NAME(x) 
 #define _STRUCT_NAME(x) 
-# 479 "/usr/share/mingw-w64/include/_mingw.h" 3
+# 486 "/usr/share/mingw-w64/include/_mingw.h" 3
 #define DUMMYUNIONNAME 
 #define DUMMYUNIONNAME1 
 #define DUMMYUNIONNAME2 
@@ -923,16 +932,19 @@
 #define DUMMYUNIONNAME7 
 #define DUMMYUNIONNAME8 
 #define DUMMYUNIONNAME9 
-# 501 "/usr/share/mingw-w64/include/_mingw.h" 3
+# 508 "/usr/share/mingw-w64/include/_mingw.h" 3
 #define DUMMYSTRUCTNAME 
 #define DUMMYSTRUCTNAME1 
 #define DUMMYSTRUCTNAME2 
 #define DUMMYSTRUCTNAME3 
 #define DUMMYSTRUCTNAME4 
 #define DUMMYSTRUCTNAME5 
-# 529 "/usr/share/mingw-w64/include/_mingw.h" 3
+# 553 "/usr/share/mingw-w64/include/_mingw.h" 3
 #define __CRT_UUID_DECL(type,l,w1,w2,b1,b2,b3,b4,b5,b6,b7,b8) 
-# 539 "/usr/share/mingw-w64/include/_mingw.h" 3
+# 566 "/usr/share/mingw-w64/include/_mingw.h" 3
+#define __MINGW_DEBUGBREAK_IMPL 1
+
+
 void __attribute__((__cdecl__)) __debugbreak(void);
 extern __inline__ __attribute__((__always_inline__,__gnu_inline__)) void __attribute__((__cdecl__)) __debugbreak(void)
 {
@@ -978,10 +990,14 @@ const char *__mingw_get_crt_info (void);
 
 
 
+
+
+#define SPECSTRINGS_H 
+
 #define __specstrings 
 
 #include <sal.h>
-# 8 "/usr/share/mingw-w64/include/specstrings.h" 3
+# 12 "/usr/share/mingw-w64/include/specstrings.h" 3
 # 1 "/usr/share/mingw-w64/include/sal.h" 1 3
 
 
@@ -1032,6 +1048,9 @@ const char *__mingw_get_crt_info (void);
 #define _Out_writes_to_ptr_z(p) 
 
 
+#define __in_opt 
+#define __out_opt 
+#define __inout_opt 
 #define _In_opt_ 
 #define _Out_opt_ 
 #define _Inout_opt_ 
@@ -1189,10 +1208,38 @@ const char *__mingw_get_crt_info (void);
 #define _When_(e,a) 
 
 
+#define _Printf_format_string_ 
+#define _Scanf_format_string_ 
+#define _Scanf_s_format_string_ 
+#define _Format_string_impl_(kind,where) 
+#define _Printf_format_string_params_(x) 
+#define _Scanf_format_string_params_(x) 
+#define _Scanf_s_format_string_params_(x) 
+
+
 #define _Analysis_assume_(expr) 
 #define _Analysis_assume_nullterminated_(expr) 
-# 9 "/usr/share/mingw-w64/include/specstrings.h" 2 3
-# 21 "/usr/share/mingw-w64/include/specstrings.h" 3
+
+
+
+
+
+#define __in 
+#define __out 
+
+
+#define __in_bcount(size) 
+#define __in_ecount(size) 
+
+#define __out_bcount(size) 
+#define __out_bcount_part(size,length) 
+#define __out_ecount(size) 
+
+#define __inout 
+
+#define __deref_out_ecount(size) 
+# 13 "/usr/share/mingw-w64/include/specstrings.h" 2 3
+# 25 "/usr/share/mingw-w64/include/specstrings.h" 3
 #define SAL__deref_in 
 #define SAL__deref_in_ecount(size) 
 #define SAL__deref_in_bcount(size) 
@@ -1478,8 +1525,26 @@ const char *__mingw_get_crt_info (void);
 
 
 #define _CRT_SECURE_NO_DEPRECATE 
-# 324 "/usr/share/mingw-w64/include/specstrings.h" 3
+# 328 "/usr/share/mingw-w64/include/specstrings.h" 3
 #define DECLSPEC_ADDRSAFE 
+
+
+
+
+
+
+
+#include <driverspecs.h>
+# 336 "/usr/share/mingw-w64/include/specstrings.h" 3
+# 1 "/usr/share/mingw-w64/include/driverspecs.h" 1 3
+# 12 "/usr/share/mingw-w64/include/driverspecs.h" 3
+#define __drv_dispatchType(x) 
+#define __drv_dispatchType_other 
+
+#define __drv_aliasesMem 
+#define __drv_allocatesMem(kind) 
+#define __drv_freesMem(kind) 
+# 337 "/usr/share/mingw-w64/include/specstrings.h" 2 3
 # 7 "/usr/share/mingw-w64/include/minwindef.h" 2 3
 
 
@@ -1910,23 +1975,14 @@ typedef struct threadlocaleinfostruct {
 
 
 
+
+
+
 #define __pctype_func() (* __MINGW_IMP_SYMBOL(_pctype))
-
-
-
-
-
-
-
+# 43 "/usr/share/mingw-w64/include/ctype.h" 3
   extern unsigned short ** _imp___pctype;
 #define _pctype (* __MINGW_IMP_SYMBOL(_pctype))
-
-
-
-
-
-
-
+# 53 "/usr/share/mingw-w64/include/ctype.h" 3
 #define _CRT_WCTYPEDATA_DEFINED 
 
 
@@ -1935,7 +1991,7 @@ typedef struct threadlocaleinfostruct {
 
   extern unsigned short ** _imp___wctype;
 #define _wctype (* __MINGW_IMP_SYMBOL(_wctype))
-# 61 "/usr/share/mingw-w64/include/ctype.h" 3
+# 69 "/usr/share/mingw-w64/include/ctype.h" 3
 #define __pwctype_func() (* __MINGW_IMP_SYMBOL(_pwctype))
 
   extern unsigned short ** _imp___pwctype;
@@ -2069,15 +2125,17 @@ int __attribute__((__cdecl__)) iswblank(wint_t _C);
 
 
 
+
   extern int * _imp____mb_cur_max;
-#define __mb_cur_max (* __MINGW_IMP_SYMBOL(__mb_cur_max))
+
+#define __mb_cur_max (___mb_cur_max_func())
 
 
-#define ___mb_cur_max_func() (__mb_cur_max)
+__attribute__ ((__dllimport__)) int __attribute__((__cdecl__)) ___mb_cur_max_func(void);
 
 
-#define __chvalidchk(a,b) (__PCTYPE_FUNC[(a)] & (b))
-#define _chvalidchk_l(_Char,_Flag,_Locale) (!_Locale ? __chvalidchk(_Char,_Flag) : ((_locale_t)_Locale)->locinfo->pctype[_Char] & (_Flag))
+#define __chvalidchk(a,b) (__PCTYPE_FUNC[(unsigned char)(a)] & (b))
+#define _chvalidchk_l(_Char,_Flag,_Locale) (!_Locale ? __chvalidchk(_Char,_Flag) : ((_locale_t)_Locale)->locinfo->pctype[(unsigned char)(_Char)] & (_Flag))
 #define _ischartype_l(_Char,_Flag,_Locale) (((_Locale)!=NULL && (((_locale_t)(_Locale))->locinfo->mb_cur_max) > 1) ? _isctype_l(_Char,(_Flag),_Locale) : _chvalidchk_l(_Char,_Flag,_Locale))
 #define _isalpha_l(_Char,_Locale) _ischartype_l(_Char,_ALPHA,_Locale)
 #define _isupper_l(_Char,_Locale) _ischartype_l(_Char,_UPPER,_Locale)
@@ -2134,7 +2192,7 @@ int __attribute__((__cdecl__)) iswblank(wint_t _C);
 #define _iscsym_l(_c,_p) (_isalnum_l(_c,_p) || ((_c)=='_'))
 #define _iswcsymf_l(_c,_p) (_iswalpha_l(_c,_p) || ((_c)=='_'))
 #define _iswcsym_l(_c,_p) (_iswalnum_l(_c,_p) || ((_c)=='_'))
-# 268 "/usr/share/mingw-w64/include/ctype.h" 3
+# 278 "/usr/share/mingw-w64/include/ctype.h" 3
 #define isascii __isascii
 #define toascii __toascii
 #define iscsymf __iscsymf
@@ -2175,7 +2233,7 @@ int __attribute__((__cdecl__)) iswblank(wint_t _C);
   struct _CONTEXT;
 
   int __attribute__((__cdecl__)) _except_handler(struct _EXCEPTION_RECORD *_ExceptionRecord,void *_EstablisherFrame,struct _CONTEXT *_ContextRecord,void *_DispatcherContext);
-# 47 "/usr/share/mingw-w64/include/excpt.h" 3
+# 50 "/usr/share/mingw-w64/include/excpt.h" 3
 #define GetExceptionCode _exception_code
 #define exception_code _exception_code
 #define GetExceptionInformation (struct _EXCEPTION_POINTERS *)_exception_info
@@ -2214,12 +2272,12 @@ int __attribute__((__cdecl__)) iswblank(wint_t _C);
 
 
   typedef int (*PEXCEPTION_HANDLER)(struct _EXCEPTION_RECORD*, void*, struct _CONTEXT*, void*);
-# 101 "/usr/share/mingw-w64/include/excpt.h" 3
+# 104 "/usr/share/mingw-w64/include/excpt.h" 3
 #define __try1(pHandler) __asm__ __volatile__ ("pushl %0;pushl %%fs:0;movl %%esp,%%fs:0;" : : "g" (pHandler));
 
 
 #define __except1 __asm__ __volatile__ ("movl (%%esp),%%eax;movl %%eax,%%fs:0;addl $8,%%esp;" : : : "%eax");
-# 128 "/usr/share/mingw-w64/include/excpt.h" 3
+# 131 "/usr/share/mingw-w64/include/excpt.h" 3
 #pragma pack(pop)
 # 18 "/usr/share/mingw-w64/include/winnt.h" 2 3
 #include <winapifamily.h>
@@ -2288,306 +2346,34 @@ int __attribute__((__cdecl__)) iswblank(wint_t _C);
 #define ANYSIZE_ARRAY 1
 
 #include <specstrings.h>
-# 23 "/usr/share/mingw-w64/include/winnt.h" 3
-# 1 "/usr/share/mingw-w64/include/specstrings.h" 1 3
-
-
-
-
-
-#define __specstrings 
-
-#include <sal.h>
-# 21 "/usr/share/mingw-w64/include/specstrings.h" 3
-#define SAL__deref_in 
-#define SAL__deref_in_ecount(size) 
-#define SAL__deref_in_bcount(size) 
-
-#define SAL__deref_in_opt 
-#define SAL__deref_in_ecount_opt(size) 
-#define SAL__deref_in_bcount_opt(size) 
-
-#define SAL__deref_opt_in 
-#define SAL__deref_opt_in_ecount(size) 
-#define SAL__deref_opt_in_bcount(size) 
-
-#define SAL__deref_opt_in_opt 
-#define SAL__deref_opt_in_ecount_opt(size) 
-#define SAL__deref_opt_in_bcount_opt(size) 
-
-#define SAL__out_awcount(expr,size) 
-#define SAL__in_awcount(expr,size) 
-
-
-
-#define SAL__null 
-#define SAL__notnull 
-#define SAL__maybenull 
-#define SAL__readonly 
-#define SAL__notreadonly 
-#define SAL__maybereadonly 
-#define SAL__valid 
-#define SAL__notvalid 
-#define SAL__maybevalid 
-#define SAL__readableTo(extent) 
-#define SAL__elem_readableTo(size) 
-#define SAL__byte_readableTo(size) 
-#define SAL__writableTo(size) 
-#define SAL__elem_writableTo(size) 
-#define SAL__byte_writableTo(size) 
-#define SAL__deref 
-#define SAL__pre 
-#define SAL__post 
-#define SAL__precond(expr) 
-#define SAL__postcond(expr) 
-#define SAL__exceptthat 
-#define SAL__execeptthat 
-#define SAL__inner_success(expr) 
-#define SAL__inner_checkReturn 
-#define SAL__inner_typefix(ctype) 
-#define SAL__inner_override 
-#define SAL__inner_callback 
-#define SAL__inner_blocksOn(resource) 
-#define SAL__inner_fallthrough_dec 
-#define SAL__inner_fallthrough 
-#define __refparam 
-#define SAL__inner_control_entrypoint(category) 
-#define SAL__inner_data_entrypoint(category) 
-
-#define SAL__ecount(size) 
-#define SAL__bcount(size) 
-
-#define SAL__in 
-#define SAL__in_opt 
-#define SAL__in_nz 
-#define SAL__in_nz_opt 
-#define SAL__in_z 
-#define SAL__in_z_opt 
-#define SAL__in_ecount(size) 
-#define SAL__in_ecount_nz(size) 
-#define SAL__in_ecount_z(size) 
-#define SAL__in_bcount(size) 
-#define SAL__in_bcount_z(size) 
-#define SAL__in_bcount_nz(size) 
-#define SAL__in_ecount_opt(size) 
-#define SAL__in_bcount_opt(size) 
-#define SAL__in_ecount_z_opt(size) 
-#define SAL__in_bcount_z_opt(size) 
-#define SAL__in_ecount_nz_opt(size) 
-#define SAL__in_bcount_nz_opt(size) 
-
-#define SAL__out 
-#define SAL__out_ecount(size) 
-#define SAL__out_z 
-#define SAL__out_nz 
-#define SAL__out_nz_opt 
-#define SAL__out_z_opt 
-#define SAL__out_ecount_part(size,length) 
-#define SAL__out_ecount_full(size) 
-#define SAL__out_ecount_nz(size) 
-#define SAL__out_ecount_z(size) 
-#define SAL__out_ecount_part_z(size,length) 
-#define SAL__out_ecount_full_z(size) 
-#define SAL__out_bcount(size) 
-#define SAL__out_bcount_part(size,length) 
-#define SAL__out_bcount_full(size) 
-#define SAL__out_bcount_z(size) 
-#define SAL__out_bcount_part_z(size,length) 
-#define SAL__out_bcount_full_z(size) 
-#define SAL__out_bcount_nz(size) 
-
-#define SAL__inout 
-#define SAL__inout_ecount(size) 
-#define SAL__inout_bcount(size) 
-#define SAL__inout_ecount_part(size,length) 
-#define SAL__inout_bcount_part(size,length) 
-#define SAL__inout_ecount_full(size) 
-#define SAL__inout_bcount_full(size) 
-#define SAL__inout_z 
-#define SAL__inout_ecount_z(size) 
-#define SAL__inout_bcount_z(size) 
-#define SAL__inout_nz 
-#define SAL__inout_ecount_nz(size) 
-#define SAL__inout_bcount_nz(size) 
-#define SAL__ecount_opt(size) 
-#define SAL__bcount_opt(size) 
-#define SAL__out_opt 
-#define SAL__out_ecount_opt(size) 
-#define SAL__out_bcount_opt(size) 
-#define SAL__out_ecount_part_opt(size,length) 
-#define SAL__out_bcount_part_opt(size,length) 
-#define SAL__out_ecount_full_opt(size) 
-#define SAL__out_bcount_full_opt(size) 
-#define SAL__out_ecount_z_opt(size) 
-#define SAL__out_bcount_z_opt(size) 
-#define SAL__out_ecount_part_z_opt(size,length) 
-#define SAL__out_bcount_part_z_opt(size,length) 
-#define SAL__out_ecount_full_z_opt(size) 
-#define SAL__out_bcount_full_z_opt(size) 
-#define SAL__out_ecount_nz_opt(size) 
-#define SAL__out_bcount_nz_opt(size) 
-#define SAL__inout_opt 
-#define SAL__inout_ecount_opt(size) 
-#define SAL__inout_bcount_opt(size) 
-#define SAL__inout_ecount_part_opt(size,length) 
-#define SAL__inout_bcount_part_opt(size,length) 
-#define SAL__inout_ecount_full_opt(size) 
-#define SAL__inout_bcount_full_opt(size) 
-#define SAL__inout_z_opt 
-#define SAL__inout_ecount_z_opt(size) 
-#define SAL__inout_bcount_z_opt(size) 
-#define SAL__inout_nz_opt 
-#define SAL__inout_ecount_nz_opt(size) 
-#define SAL__inout_bcount_nz_opt(size) 
-#define SAL__deref_ecount(size) 
-#define SAL__deref_bcount(size) 
-#define SAL__deref_out 
-#define SAL__deref_out_ecount(size) 
-#define SAL__deref_out_bcount(size) 
-#define SAL__deref_out_ecount_part(size,length) 
-#define SAL__deref_out_bcount_part(size,length) 
-#define SAL__deref_out_ecount_full(size) 
-#define SAL__deref_out_bcount_full(size) 
-#define SAL__deref_out_z 
-#define SAL__deref_out_ecount_z(size) 
-#define SAL__deref_out_bcount_z(size) 
-#define SAL__deref_out_nz 
-#define SAL__deref_out_ecount_nz(size) 
-#define SAL__deref_out_bcount_nz(size) 
-#define SAL__deref_inout 
-#define SAL__deref_inout_ecount(size) 
-#define SAL__deref_inout_bcount(size) 
-#define SAL__deref_inout_ecount_part(size,length) 
-#define SAL__deref_inout_bcount_part(size,length) 
-#define SAL__deref_inout_ecount_full(size) 
-#define SAL__deref_inout_bcount_full(size) 
-#define SAL__deref_inout_z 
-#define SAL__deref_inout_ecount_z(size) 
-#define SAL__deref_inout_bcount_z(size) 
-#define SAL__deref_inout_nz 
-#define SAL__deref_inout_ecount_nz(size) 
-#define SAL__deref_inout_bcount_nz(size) 
-#define SAL__deref_ecount_opt(size) 
-#define SAL__deref_bcount_opt(size) 
-#define SAL__deref_out_opt 
-#define SAL__deref_out_ecount_opt(size) 
-#define SAL__deref_out_bcount_opt(size) 
-#define SAL__deref_out_ecount_part_opt(size,length) 
-#define SAL__deref_out_bcount_part_opt(size,length) 
-#define SAL__deref_out_ecount_full_opt(size) 
-#define SAL__deref_out_bcount_full_opt(size) 
-#define SAL__deref_out_z_opt 
-#define SAL__deref_out_ecount_z_opt(size) 
-#define SAL__deref_out_bcount_z_opt(size) 
-#define SAL__deref_out_nz_opt 
-#define SAL__deref_out_ecount_nz_opt(size) 
-#define SAL__deref_out_bcount_nz_opt(size) 
-#define SAL__deref_inout_opt 
-#define SAL__deref_inout_ecount_opt(size) 
-#define SAL__deref_inout_bcount_opt(size) 
-#define SAL__deref_inout_ecount_part_opt(size,length) 
-#define SAL__deref_inout_bcount_part_opt(size,length) 
-#define SAL__deref_inout_ecount_full_opt(size) 
-#define SAL__deref_inout_bcount_full_opt(size) 
-#define SAL__deref_inout_z_opt 
-#define SAL__deref_inout_ecount_z_opt(size) 
-#define SAL__deref_inout_bcount_z_opt(size) 
-#define SAL__deref_inout_nz_opt 
-#define SAL__deref_inout_ecount_nz_opt(size) 
-#define SAL__deref_inout_bcount_nz_opt(size) 
-#define SAL__deref_opt_ecount(size) 
-#define SAL__deref_opt_bcount(size) 
-#define SAL__deref_opt_out 
-#define SAL__deref_opt_out_z 
-#define SAL__deref_opt_out_ecount(size) 
-#define SAL__deref_opt_out_bcount(size) 
-#define SAL__deref_opt_out_ecount_part(size,length) 
-#define SAL__deref_opt_out_bcount_part(size,length) 
-#define SAL__deref_opt_out_ecount_full(size) 
-#define SAL__deref_opt_out_bcount_full(size) 
-#define SAL__deref_opt_inout 
-#define SAL__deref_opt_inout_ecount(size) 
-#define SAL__deref_opt_inout_bcount(size) 
-#define SAL__deref_opt_inout_ecount_part(size,length) 
-#define SAL__deref_opt_inout_bcount_part(size,length) 
-#define SAL__deref_opt_inout_ecount_full(size) 
-#define SAL__deref_opt_inout_bcount_full(size) 
-#define SAL__deref_opt_inout_z 
-#define SAL__deref_opt_inout_ecount_z(size) 
-#define SAL__deref_opt_inout_bcount_z(size) 
-#define SAL__deref_opt_inout_nz 
-#define SAL__deref_opt_inout_ecount_nz(size) 
-#define SAL__deref_opt_inout_bcount_nz(size) 
-#define SAL__deref_opt_ecount_opt(size) 
-#define SAL__deref_opt_bcount_opt(size) 
-#define SAL__deref_opt_out_opt 
-#define SAL__deref_opt_out_ecount_opt(size) 
-#define SAL__deref_opt_out_bcount_opt(size) 
-#define SAL__deref_opt_out_ecount_part_opt(size,length) 
-#define SAL__deref_opt_out_bcount_part_opt(size,length) 
-#define SAL__deref_opt_out_ecount_full_opt(size) 
-#define SAL__deref_opt_out_bcount_full_opt(size) 
-#define SAL__deref_opt_out_z_opt 
-#define SAL__deref_opt_out_ecount_z_opt(size) 
-#define SAL__deref_opt_out_bcount_z_opt(size) 
-#define SAL__deref_opt_out_nz_opt 
-#define SAL__deref_opt_out_ecount_nz_opt(size) 
-#define SAL__deref_opt_out_bcount_nz_opt(size) 
-#define SAL__deref_opt_inout_opt 
-#define SAL__deref_opt_inout_ecount_opt(size) 
-#define SAL__deref_opt_inout_bcount_opt(size) 
-#define SAL__deref_opt_inout_ecount_part_opt(size,length) 
-#define SAL__deref_opt_inout_bcount_part_opt(size,length) 
-#define SAL__deref_opt_inout_ecount_full_opt(size) 
-#define SAL__deref_opt_inout_bcount_full_opt(size) 
-#define SAL__deref_opt_inout_z_opt 
-#define SAL__deref_opt_inout_ecount_z_opt(size) 
-#define SAL__deref_opt_inout_bcount_z_opt(size) 
-#define SAL__deref_opt_inout_nz_opt 
-#define SAL__deref_opt_inout_ecount_nz_opt(size) 
-#define SAL__deref_opt_inout_bcount_nz_opt(size) 
-
-#define SAL__success(expr) 
-#define SAL__nullterminated 
-#define SAL__nullnullterminated 
-#define SAL__reserved 
-#define SAL__checkReturn 
-#define SAL__typefix(ctype) 
-#define SAL__override 
-#define SAL__callback 
-#define SAL__format_string 
-#define SAL__blocksOn(resource) 
-#define SAL__control_entrypoint(category) 
-#define SAL__data_entrypoint(category) 
-
-#define __encoded_pointer 
-# 24 "/usr/share/mingw-w64/include/winnt.h" 2 3
 
 
 #define __INTRINSIC_GROUP_WINNT 
 #include <psdk_inc/intrin-impl.h>
 # 27 "/usr/share/mingw-w64/include/winnt.h" 3
 # 1 "/usr/share/mingw-w64/include/psdk_inc/intrin-impl.h" 1 3
-# 67 "/usr/share/mingw-w64/include/psdk_inc/intrin-impl.h" 3
+# 65 "/usr/share/mingw-w64/include/psdk_inc/intrin-impl.h" 3
+       
+
+#define __has_builtin(x) 0
+
+
+
+
+
 #define _INTRIN_MAC_ 
-# 77 "/usr/share/mingw-w64/include/psdk_inc/intrin-impl.h" 3
+# 83 "/usr/share/mingw-w64/include/psdk_inc/intrin-impl.h" 3
 #define __FLAGCONSTRAINT "=@ccc"
 #define __FLAGSET 
 #define __FLAGCLOBBER1 
 #define __FLAGCLOBBER2 
-
-
-
-       
-
-#define __has_builtin(x) 0
 # 98 "/usr/share/mingw-w64/include/psdk_inc/intrin-impl.h" 3
 #define __buildstos(x,y,z) void x(y *Dest, y Data, size_t Count) { __asm__ __volatile__ ("rep stos{" z "}" : "+D" (Dest), "+c" (Count) : [Data] "a" (Data) : "memory"); }
 # 112 "/usr/share/mingw-w64/include/psdk_inc/intrin-impl.h" 3
 #define __buildlogicali(x,y,o) y x(volatile y *Destination, y Value) { return __sync_fetch_and_ ## o(Destination, Value); }
-# 128 "/usr/share/mingw-w64/include/psdk_inc/intrin-impl.h" 3
-#define __buildbittesti(x,y,z,a,b) unsigned char x(y *Base, b Offset) { unsigned char old; __asm__ __volatile__ (z : [old] __FLAGCONSTRAINT (old), [Base] "+m" (*Base) : [Offset] a "r" (Offset) : "memory" __FLAGCLOBBER1); return old; }
-# 159 "/usr/share/mingw-w64/include/psdk_inc/intrin-impl.h" 3
+# 127 "/usr/share/mingw-w64/include/psdk_inc/intrin-impl.h" 3
+#define __buildbittesti(x,y,z,a) unsigned char x(y volatile *Base, y Offset) { unsigned char old; __asm__ __volatile__ (z : [old] __FLAGCONSTRAINT (old), [Base] "+m" (*Base) : [Offset] a "r" (Offset) : "memory" __FLAGCLOBBER1); return old; }
+# 194 "/usr/share/mingw-w64/include/psdk_inc/intrin-impl.h" 3
 #define __buildpause() __asm__ __volatile__("rep nop")
 
 
@@ -2599,42 +2385,42 @@ int __attribute__((__cdecl__)) iswblank(wint_t _C);
 
 
 #define __buildmemorybarrier() { unsigned char Barrier; __asm__ __volatile__("xchg{b %%| }al, %0" :"=m" (Barrier) : : "eax", "memory"); }
-# 185 "/usr/share/mingw-w64/include/psdk_inc/intrin-impl.h" 3
+# 220 "/usr/share/mingw-w64/include/psdk_inc/intrin-impl.h" 3
 #define __buildreadseg(x,y,z,a) y x(unsigned __LONG32 Offset) { y ret; __asm__ ("mov{" a " %%" z ":%[offset], %[ret] | %[ret], %%" z ":%[offset]}" : [ret] "=r" (ret) : [offset] "m" ((*(y *) (size_t) Offset))); return ret; }
-# 203 "/usr/share/mingw-w64/include/psdk_inc/intrin-impl.h" 3
+# 238 "/usr/share/mingw-w64/include/psdk_inc/intrin-impl.h" 3
 #define __buildwriteseg(x,y,z,a) void x(unsigned __LONG32 Offset, y Data) { __asm__ ("mov{" a " %[Data], %%" z ":%[offset] | %%" z ":%[offset], %[Data]}" : [offset] "=m" ((*(y *) (size_t) Offset)) : [Data] "ri" (Data)); }
-# 230 "/usr/share/mingw-w64/include/psdk_inc/intrin-impl.h" 3
+# 265 "/usr/share/mingw-w64/include/psdk_inc/intrin-impl.h" 3
 #define __buildbitscan(x,y,z) unsigned char x(unsigned __LONG32 *Index, y Mask) { y n; unsigned char old; __asm__ (z : "=@ccnz" (old), [Index] "=r" (n) : [Mask] "r" (Mask)); *Index = n; return old; }
-# 251 "/usr/share/mingw-w64/include/psdk_inc/intrin-impl.h" 3
+# 286 "/usr/share/mingw-w64/include/psdk_inc/intrin-impl.h" 3
 #define __buildbittest(x,y,z,a) unsigned char x(const y *Base, y Offset) { unsigned char old; __asm__ ("bt{" z " %[Offset],%[Base] | %[Base],%[Offset]}" __FLAGSET : [old] __FLAGCONSTRAINT (old) : [Offset] a "r" (Offset), [Base] "rm" (*Base) : __FLAGCLOBBER2); return old; }
-# 271 "/usr/share/mingw-w64/include/psdk_inc/intrin-impl.h" 3
+# 306 "/usr/share/mingw-w64/include/psdk_inc/intrin-impl.h" 3
 #define __buildbittestand(x,y,z,a,b) unsigned char x(y *Base, y Offset) { unsigned char old; __asm__ (z "{" b " %[Offset],%[Base] | %[Base],%[Offset]}" __FLAGSET : [old] __FLAGCONSTRAINT (old), [Base] "+rm" (*Base) : [Offset] a "r" (Offset) : __FLAGCLOBBER2); return old; }
-# 288 "/usr/share/mingw-w64/include/psdk_inc/intrin-impl.h" 3
+# 323 "/usr/share/mingw-w64/include/psdk_inc/intrin-impl.h" 3
 #define __build_inport(x,y,z) y x(unsigned short Port) { y value; __asm__ __volatile__ ("in{" z " %w[port],%[value]| %[value],%w[port]}" : [value] "=a" (value) : [port] "Nd" (Port)); return value; }
-# 303 "/usr/share/mingw-w64/include/psdk_inc/intrin-impl.h" 3
+# 338 "/usr/share/mingw-w64/include/psdk_inc/intrin-impl.h" 3
 #define __build_outport(x,y,z) void x(unsigned short Port, y Data) { __asm__ __volatile__ ("out{" z " %[data],%w[port]| %w[port],%[data]}" : : [data] "a" (Data), [port] "Nd" (Port)); }
-# 317 "/usr/share/mingw-w64/include/psdk_inc/intrin-impl.h" 3
+# 352 "/usr/share/mingw-w64/include/psdk_inc/intrin-impl.h" 3
 #define __build_inportstring(x,y,z,a) void x(unsigned short Port, y *Buffer, unsigned __LONG32 Count) { __asm__ __volatile__ ("cld ; rep ins{" z "|" a "}" : "=D" (Buffer), "=c" (Count) : "d"(Port), "0"(Buffer), "1" (Count) : "memory"); }
-# 333 "/usr/share/mingw-w64/include/psdk_inc/intrin-impl.h" 3
+# 368 "/usr/share/mingw-w64/include/psdk_inc/intrin-impl.h" 3
 #define __build_outportstring(x,y,z,a) void x(unsigned short Port, y *Buffer, unsigned __LONG32 Count) { __asm__ __volatile__ ("cld ; rep outs{" z "|" a "}" : "=S" (Buffer), "=c" (Count) : "d"(Port), "0"(Buffer), "1" (Count) : "memory"); }
-# 348 "/usr/share/mingw-w64/include/psdk_inc/intrin-impl.h" 3
+# 383 "/usr/share/mingw-w64/include/psdk_inc/intrin-impl.h" 3
 #define __build_readcr(x,y,z) y x(void) { y value; __asm__ __volatile__ ("mov {%%cr" z ", %[value] | %[value], %%cr" z "}" : [value] "=q" (value)); return value; }
-# 363 "/usr/share/mingw-w64/include/psdk_inc/intrin-impl.h" 3
+# 398 "/usr/share/mingw-w64/include/psdk_inc/intrin-impl.h" 3
 #define __build_writecr(x,y,z) void x(y Data) { __asm__ __volatile__ ("mov {%[Data], %%cr" z "|%%cr" z ", %[Data]}" : : [Data] "q" (Data) : "memory"); }
-# 378 "/usr/share/mingw-w64/include/psdk_inc/intrin-impl.h" 3
+# 413 "/usr/share/mingw-w64/include/psdk_inc/intrin-impl.h" 3
 #define __buildmov(x,y,z) void x(y *Destination, y const *Source, size_t Count) { __asm__ __volatile__ ( "rep movs" z : "=D" (Destination), "=S" (Source), "=c" (Count) : "0" (Destination), "1" (Source), "2" (Count) : "memory"); }
-# 393 "/usr/share/mingw-w64/include/psdk_inc/intrin-impl.h" 3
+# 428 "/usr/share/mingw-w64/include/psdk_inc/intrin-impl.h" 3
 #define _ReadWriteBarrier() __asm__ __volatile__ ("" ::: "memory")
 #define _ReadBarrier _ReadWriteBarrier
 #define _WriteBarrier _ReadWriteBarrier
-# 407 "/usr/share/mingw-w64/include/psdk_inc/intrin-impl.h" 3
+# 442 "/usr/share/mingw-w64/include/psdk_inc/intrin-impl.h" 3
 #define __INTRINSIC_PROLOG(name) (!defined(__INTRINSIC_DEFINED_ ## name)) && ((!defined (__INTRINSIC_ONLYSPECIAL)) || (defined (__INTRINSIC_ONLYSPECIAL) && defined(__INTRINSIC_SPECIAL_ ## name)))
 
 
 
 
 #define __INTRINSICS_USEINLINE __MINGW_INTRIN_INLINE
-# 434 "/usr/share/mingw-w64/include/psdk_inc/intrin-impl.h" 3
+# 469 "/usr/share/mingw-w64/include/psdk_inc/intrin-impl.h" 3
 #undef __INTRINSIC_GROUP_WINNT
 
 
@@ -2711,54 +2497,66 @@ int __attribute__((__cdecl__)) iswblank(wint_t _C);
 #define __INTRINSIC_SPECIAL___movsw 
 #define __INTRINSIC_SPECIAL___movsd 
 #define __INTRINSIC_SPECIAL___movsq 
-# 548 "/usr/share/mingw-w64/include/psdk_inc/intrin-impl.h" 3
+# 583 "/usr/share/mingw-w64/include/psdk_inc/intrin-impl.h" 3
 #undef _lrotl
 #undef _lrotr
-# 975 "/usr/share/mingw-w64/include/psdk_inc/intrin-impl.h" 3
+# 1420 "/usr/share/mingw-w64/include/psdk_inc/intrin-impl.h" 3
 long _InterlockedAnd(long volatile *, long);
+
 extern __inline__ __attribute__((__always_inline__,__gnu_inline__))
 long _InterlockedAnd(volatile long *Destination, long Value) { return __sync_fetch_and_and(Destination, Value); }
+
 #define __INTRINSIC_DEFINED__InterlockedAnd 
 
 
 
 long _InterlockedOr(long volatile *, long);
+
 extern __inline__ __attribute__((__always_inline__,__gnu_inline__))
 long _InterlockedOr(volatile long *Destination, long Value) { return __sync_fetch_and_or(Destination, Value); }
+
 #define __INTRINSIC_DEFINED__InterlockedOr 
 
 
 
 long _InterlockedXor(long volatile *, long);
+
 extern __inline__ __attribute__((__always_inline__,__gnu_inline__))
 long _InterlockedXor(volatile long *Destination, long Value) { return __sync_fetch_and_xor(Destination, Value); }
+
 #define __INTRINSIC_DEFINED__InterlockedXor 
 
 
 
 short _InterlockedIncrement16(short volatile *Addend);
+
 extern __inline__ __attribute__((__always_inline__,__gnu_inline__))
 short _InterlockedIncrement16(short volatile *Addend) {
     return __sync_add_and_fetch(Addend, 1);
 }
+
 #define __INTRINSIC_DEFINED__InterlockedIncrement16 
 
 
 
 short _InterlockedDecrement16(short volatile *Addend);
+
 extern __inline__ __attribute__((__always_inline__,__gnu_inline__))
 short _InterlockedDecrement16(short volatile *Addend) {
     return __sync_sub_and_fetch(Addend, 1);
 }
+
 #define __INTRINSIC_DEFINED__InterlockedDecrement16 
 
 
 
 short _InterlockedCompareExchange16(short volatile *Destination, short ExChange, short Comperand);
+
 extern __inline__ __attribute__((__always_inline__,__gnu_inline__))
 short _InterlockedCompareExchange16(short volatile *Destination, short ExChange, short Comperand) {
     return __sync_val_compare_and_swap(Destination, Comperand, ExChange);
 }
+
 #define __INTRINSIC_DEFINED__InterlockedCompareExchange16 
 
 
@@ -2808,19 +2606,23 @@ long _InterlockedDecrement(long volatile *Addend) {
 
 
 long _InterlockedAdd(long volatile *Addend, long Value);
+
 extern __inline__ __attribute__((__always_inline__,__gnu_inline__))
 long _InterlockedAdd(long volatile *Addend, long Value) {
     return __sync_add_and_fetch(Addend, Value);
 }
+
 #define __INTRINSIC_DEFINED__InterlockedAdd 
 
 
 
 __extension__ long long _InterlockedAdd64(long long volatile *Addend, long long Value);
+
 __extension__ extern __inline__ __attribute__((__always_inline__,__gnu_inline__))
 long long _InterlockedAdd64(long long volatile *Addend, long long Value) {
     return __sync_add_and_fetch(Addend, Value);
 }
+
 #define __INTRINSIC_DEFINED__InterlockedAdd64 
 
 
@@ -2837,10 +2639,12 @@ long _InterlockedExchange(long volatile *Target, long Value) {
 
 
 __extension__ long long _InterlockedCompareExchange64(long long volatile *Destination, long long ExChange, long long Comperand);
+
 __extension__ extern __inline__ __attribute__((__always_inline__,__gnu_inline__))
 long long _InterlockedCompareExchange64(long long volatile *Destination, long long ExChange, long long Comperand) {
     return __sync_val_compare_and_swap(Destination, Comperand, ExChange);
 }
+
 #define __INTRINSIC_DEFINED__InterlockedCompareExchange64 
 
 
@@ -2872,146 +2676,188 @@ void *_InterlockedExchangePointer(void *volatile *Target,void *Value) {
 
 
 void __int2c(void);
+
 extern __inline__ __attribute__((__always_inline__,__gnu_inline__))
 void __int2c(void) {
     __asm__ __volatile__("int {$}" "0x2c" :);
 }
+
 #define __INTRINSIC_DEFINED___int2c 
 
 
 
 void __stosb(unsigned char *, unsigned char, size_t);
+
 extern __inline__ __attribute__((__always_inline__,__gnu_inline__))
 void __stosb(unsigned char *Dest, unsigned char Data, size_t Count) { __asm__ __volatile__ ("rep stos{" "b|b" "}" : "+D" (Dest), "+c" (Count) : [Data] "a" (Data) : "memory"); }
+
 #define __INTRINSIC_DEFINED___stosb 
 
 
 
 void __stosw(unsigned short *, unsigned short, size_t);
+
 extern __inline__ __attribute__((__always_inline__,__gnu_inline__))
 void __stosw(unsigned short *Dest, unsigned short Data, size_t Count) { __asm__ __volatile__ ("rep stos{" "w|w" "}" : "+D" (Dest), "+c" (Count) : [Data] "a" (Data) : "memory"); }
+
 #define __INTRINSIC_DEFINED___stosw 
 
 
 
 void __stosd(unsigned long *, unsigned long, size_t);
+
 extern __inline__ __attribute__((__always_inline__,__gnu_inline__))
 void __stosd(unsigned long *Dest, unsigned long Data, size_t Count) { __asm__ __volatile__ ("rep stos{" "l|d" "}" : "+D" (Dest), "+c" (Count) : [Data] "a" (Data) : "memory"); }
+
 #define __INTRINSIC_DEFINED___stosd 
 
 
 
-unsigned char _interlockedbittestandset(long *a, long b);
+unsigned char _interlockedbittestandset(long volatile *a, long b);
+
 extern __inline__ __attribute__((__always_inline__,__gnu_inline__))
-unsigned char _interlockedbittestandset(long *Base, long Offset) { unsigned char old; __asm__ __volatile__ ("lock bts{l %[Offset],%[Base] | %[Base],%[Offset]}" : [old] "=@ccc" (old), [Base] "+m" (*Base) : [Offset] "I" "r" (Offset) : "memory" ); return old; }
+unsigned char _interlockedbittestandset(long volatile *Base, long Offset) { unsigned char old; __asm__ __volatile__ ("lock bts{l %[Offset],%[Base] | %[Base],%[Offset]}" : [old] "=@ccc" (old), [Base] "+m" (*Base) : [Offset] "I" "r" (Offset) : "memory" ); return old; }
+
 #define __INTRINSIC_DEFINED__interlockedbittestandset 
 
 
 
-unsigned char _interlockedbittestandreset(long *a, long b);
+unsigned char _interlockedbittestandreset(long volatile *a, long b);
+
 extern __inline__ __attribute__((__always_inline__,__gnu_inline__))
-unsigned char _interlockedbittestandreset(long *Base, long Offset) { unsigned char old; __asm__ __volatile__ ("lock btr{l %[Offset],%[Base] | %[Base],%[Offset]}" : [old] "=@ccc" (old), [Base] "+m" (*Base) : [Offset] "I" "r" (Offset) : "memory" ); return old; }
+unsigned char _interlockedbittestandreset(long volatile *Base, long Offset) { unsigned char old; __asm__ __volatile__ ("lock btr{l %[Offset],%[Base] | %[Base],%[Offset]}" : [old] "=@ccc" (old), [Base] "+m" (*Base) : [Offset] "I" "r" (Offset) : "memory" ); return old; }
+
 #define __INTRINSIC_DEFINED__interlockedbittestandreset 
 
 
 
-unsigned char _interlockedbittestandcomplement(long *a, long b);
+unsigned char _interlockedbittestandcomplement(long volatile *a, long b);
+
 extern __inline__ __attribute__((__always_inline__,__gnu_inline__))
-unsigned char _interlockedbittestandcomplement(long *Base, long Offset) { unsigned char old; __asm__ __volatile__ ("lock btc{l %[Offset],%[Base] | %[Base],%[Offset]}" : [old] "=@ccc" (old), [Base] "+m" (*Base) : [Offset] "I" "r" (Offset) : "memory" ); return old; }
+unsigned char _interlockedbittestandcomplement(long volatile *Base, long Offset) { unsigned char old; __asm__ __volatile__ ("lock btc{l %[Offset],%[Base] | %[Base],%[Offset]}" : [old] "=@ccc" (old), [Base] "+m" (*Base) : [Offset] "I" "r" (Offset) : "memory" ); return old; }
+
 #define __INTRINSIC_DEFINED__interlockedbittestandcomplement 
 
 
 
 unsigned char InterlockedBitTestAndSet(volatile long *a, long b);
+
 extern __inline__ __attribute__((__always_inline__,__gnu_inline__))
-unsigned char InterlockedBitTestAndSet(volatile long *Base, long Offset) { unsigned char old; __asm__ __volatile__ ("lock bts{l %[Offset],%[Base] | %[Base],%[Offset]}" : [old] "=@ccc" (old), [Base] "+m" (*Base) : [Offset] "I" "r" (Offset) : "memory" ); return old; }
+unsigned char InterlockedBitTestAndSet(long volatile *Base, long Offset) { unsigned char old; __asm__ __volatile__ ("lock bts{l %[Offset],%[Base] | %[Base],%[Offset]}" : [old] "=@ccc" (old), [Base] "+m" (*Base) : [Offset] "I" "r" (Offset) : "memory" ); return old; }
+
 #define __INTRINSIC_DEFINED_InterlockedBitTestAndSet 
 
 
 
 unsigned char InterlockedBitTestAndReset(volatile long *a, long b);
+
 extern __inline__ __attribute__((__always_inline__,__gnu_inline__))
-unsigned char InterlockedBitTestAndReset(volatile long *Base, long Offset) { unsigned char old; __asm__ __volatile__ ("lock btr{l %[Offset],%[Base] | %[Base],%[Offset]}" : [old] "=@ccc" (old), [Base] "+m" (*Base) : [Offset] "I" "r" (Offset) : "memory" ); return old; }
+unsigned char InterlockedBitTestAndReset(long volatile *Base, long Offset) { unsigned char old; __asm__ __volatile__ ("lock btr{l %[Offset],%[Base] | %[Base],%[Offset]}" : [old] "=@ccc" (old), [Base] "+m" (*Base) : [Offset] "I" "r" (Offset) : "memory" ); return old; }
+
 #define __INTRINSIC_DEFINED_InterlockedBitTestAndReset 
 
 
 
 unsigned char InterlockedBitTestAndComplement(volatile long *a, long b);
+
 extern __inline__ __attribute__((__always_inline__,__gnu_inline__))
-unsigned char InterlockedBitTestAndComplement(volatile long *Base, long Offset) { unsigned char old; __asm__ __volatile__ ("lock btc{l %[Offset],%[Base] | %[Base],%[Offset]}" : [old] "=@ccc" (old), [Base] "+m" (*Base) : [Offset] "I" "r" (Offset) : "memory" ); return old; }
+unsigned char InterlockedBitTestAndComplement(long volatile *Base, long Offset) { unsigned char old; __asm__ __volatile__ ("lock btc{l %[Offset],%[Base] | %[Base],%[Offset]}" : [old] "=@ccc" (old), [Base] "+m" (*Base) : [Offset] "I" "r" (Offset) : "memory" ); return old; }
+
 #define __INTRINSIC_DEFINED_InterlockedBitTestAndComplement 
 
 
 
 unsigned char _BitScanForward(unsigned long *Index, unsigned long Mask);
+
 extern __inline__ __attribute__((__always_inline__,__gnu_inline__))
 unsigned char _BitScanForward(unsigned long *Index, unsigned long Mask) { unsigned long n; unsigned char old; __asm__ ("bsf{l %[Mask],%[Index] | %[Index],%[Mask]}" : "=@ccnz" (old), [Index] "=r" (n) : [Mask] "r" (Mask)); *Index = n; return old; }
+
 #define __INTRINSIC_DEFINED__BitScanForward 
 
 
 
 unsigned char _BitScanReverse(unsigned long *Index, unsigned long Mask);
+
 extern __inline__ __attribute__((__always_inline__,__gnu_inline__))
 unsigned char _BitScanReverse(unsigned long *Index, unsigned long Mask) { unsigned long n; unsigned char old; __asm__ ("bsr{l %[Mask],%[Index] | %[Index],%[Mask]}" : "=@ccnz" (old), [Index] "=r" (n) : [Mask] "r" (Mask)); *Index = n; return old; }
+
 #define __INTRINSIC_DEFINED__BitScanReverse 
 
 
 
 unsigned char _bittest(long const *a, long b);
+
 extern __inline__ __attribute__((__always_inline__,__gnu_inline__))
 unsigned char _bittest(const long *Base, long Offset) { unsigned char old; __asm__ ("bt{" "l" " %[Offset],%[Base] | %[Base],%[Offset]}" : [old] "=@ccc" (old) : [Offset] "I" "r" (Offset), [Base] "rm" (*Base) : ); return old; }
+
 #define __INTRINSIC_DEFINED__bittest 
 
 
 
 unsigned char _bittestandset(long *a, long b);
+
 extern __inline__ __attribute__((__always_inline__,__gnu_inline__))
 unsigned char _bittestandset(long *Base, long Offset) { unsigned char old; __asm__ ("bts" "{" "l" " %[Offset],%[Base] | %[Base],%[Offset]}" : [old] "=@ccc" (old), [Base] "+rm" (*Base) : [Offset] "I" "r" (Offset) : ); return old; }
+
 #define __INTRINSIC_DEFINED__bittestandset 
 
 
 
 unsigned char _bittestandreset(long *a, long b);
+
 extern __inline__ __attribute__((__always_inline__,__gnu_inline__))
 unsigned char _bittestandreset(long *Base, long Offset) { unsigned char old; __asm__ ("btr" "{" "l" " %[Offset],%[Base] | %[Base],%[Offset]}" : [old] "=@ccc" (old), [Base] "+rm" (*Base) : [Offset] "I" "r" (Offset) : ); return old; }
+
 #define __INTRINSIC_DEFINED__bittestandreset 
 
 
 
 unsigned char _bittestandcomplement(long *a, long b);
+
 extern __inline__ __attribute__((__always_inline__,__gnu_inline__))
 unsigned char _bittestandcomplement(long *Base, long Offset) { unsigned char old; __asm__ ("btc" "{" "l" " %[Offset],%[Base] | %[Base],%[Offset]}" : [old] "=@ccc" (old), [Base] "+rm" (*Base) : [Offset] "I" "r" (Offset) : ); return old; }
+
 #define __INTRINSIC_DEFINED__bittestandcomplement 
-# 1388 "/usr/share/mingw-w64/include/psdk_inc/intrin-impl.h" 3
+# 1915 "/usr/share/mingw-w64/include/psdk_inc/intrin-impl.h" 3
 void __movsb(unsigned char *Destination, unsigned char const *Source, size_t Count);
+
 extern __inline__ __attribute__((__always_inline__,__gnu_inline__))
 void __movsb(unsigned char *Destination, unsigned char const *Source, size_t Count) { __asm__ __volatile__ ( "rep movs" "b" : "=D" (Destination), "=S" (Source), "=c" (Count) : "0" (Destination), "1" (Source), "2" (Count) : "memory"); }
+
 #define __INTRINSIC_DEFINED___movsb 
 
 
 
 void __movsw(unsigned short *Dest, unsigned short const *Source, size_t Count);
+
 extern __inline__ __attribute__((__always_inline__,__gnu_inline__))
 void __movsw(unsigned short *Destination, unsigned short const *Source, size_t Count) { __asm__ __volatile__ ( "rep movs" "w" : "=D" (Destination), "=S" (Source), "=c" (Count) : "0" (Destination), "1" (Source), "2" (Count) : "memory"); }
+
 #define __INTRINSIC_DEFINED___movsw 
 
 
 
 void __movsd(unsigned long *Dest, unsigned long const *Source, size_t Count);
+
 extern __inline__ __attribute__((__always_inline__,__gnu_inline__))
 void __movsd(unsigned long *Destination, unsigned long const *Source, size_t Count) { __asm__ __volatile__ ( "rep movs" "d" : "=D" (Destination), "=S" (Source), "=c" (Count) : "0" (Destination), "1" (Source), "2" (Count) : "memory"); }
+
 #define __INTRINSIC_DEFINED___movsd 
-# 1437 "/usr/share/mingw-w64/include/psdk_inc/intrin-impl.h" 3
+# 1974 "/usr/share/mingw-w64/include/psdk_inc/intrin-impl.h" 3
 unsigned char __readfsbyte(unsigned long Offset);
+
 extern __inline__ __attribute__((__always_inline__,__gnu_inline__))
 unsigned char __readfsbyte(unsigned long Offset) { unsigned char ret; __asm__ ("mov{" "b" " %%" "fs" ":%[offset], %[ret] | %[ret], %%" "fs" ":%[offset]}" : [ret] "=r" (ret) : [offset] "m" ((*(unsigned char *) (size_t) Offset))); return ret; }
+
 #define __INTRINSIC_DEFINED___readfsbyte 
 
 
 
 unsigned short __readfsword(unsigned long Offset);
+
 extern __inline__ __attribute__((__always_inline__,__gnu_inline__))
 unsigned short __readfsword(unsigned long Offset) { unsigned short ret; __asm__ ("mov{" "w" " %%" "fs" ":%[offset], %[ret] | %[ret], %%" "fs" ":%[offset]}" : [ret] "=r" (ret) : [offset] "m" ((*(unsigned short *) (size_t) Offset))); return ret; }
+
 #define __INTRINSIC_DEFINED___readfsword 
 
 
@@ -3020,30 +2866,36 @@ unsigned long __readfsdword(unsigned long Offset);
 
 extern __inline__ __attribute__((__always_inline__,__gnu_inline__))
 unsigned long __readfsdword(unsigned long Offset) { unsigned long ret; __asm__ ("mov{" "l" " %%" "fs" ":%[offset], %[ret] | %[ret], %%" "fs" ":%[offset]}" : [ret] "=r" (ret) : [offset] "m" ((*(unsigned long *) (size_t) Offset))); return ret; }
+
 #define __INTRINSIC_DEFINED___readfsdword 
 
 
 
-
 void __writefsbyte(unsigned long Offset,unsigned char Data);
+
 extern __inline__ __attribute__((__always_inline__,__gnu_inline__))
 void __writefsbyte(unsigned long Offset, unsigned char Data) { __asm__ ("mov{" "b" " %[Data], %%" "fs" ":%[offset] | %%" "fs" ":%[offset], %[Data]}" : [offset] "=m" ((*(unsigned char *) (size_t) Offset)) : [Data] "ri" (Data)); }
+
 #define __INTRINSIC_DEFINED___writefsbyte 
 
 
 
 void __writefsword(unsigned long Offset,unsigned short Data);
+
 extern __inline__ __attribute__((__always_inline__,__gnu_inline__))
 void __writefsword(unsigned long Offset, unsigned short Data) { __asm__ ("mov{" "w" " %[Data], %%" "fs" ":%[offset] | %%" "fs" ":%[offset], %[Data]}" : [offset] "=m" ((*(unsigned short *) (size_t) Offset)) : [Data] "ri" (Data)); }
+
 #define __INTRINSIC_DEFINED___writefsword 
 
 
 
 void __writefsdword(unsigned long Offset,unsigned long Data);
+
 extern __inline__ __attribute__((__always_inline__,__gnu_inline__))
 void __writefsdword(unsigned long Offset, unsigned long Data) { __asm__ ("mov{" "l" " %[Data], %%" "fs" ":%[offset] | %%" "fs" ":%[offset], %[Data]}" : [offset] "=m" ((*(unsigned long *) (size_t) Offset)) : [Data] "ri" (Data)); }
+
 #define __INTRINSIC_DEFINED___writefsdword 
-# 1549 "/usr/share/mingw-w64/include/psdk_inc/intrin-impl.h" 3
+# 2114 "/usr/share/mingw-w64/include/psdk_inc/intrin-impl.h" 3
 #undef __INTRINSIC_ONLYSPECIAL
 #undef __INTRINSIC_PROLOG
 #undef __INTRINSIC_EPILOG
@@ -3054,12 +2906,12 @@ void __writefsdword(unsigned long Offset, unsigned long Data) { __asm__ ("mov{" 
 #undef __FLAGCLOBBER2
 
        
-# 1558 "/usr/share/mingw-w64/include/psdk_inc/intrin-impl.h" 3
+# 2123 "/usr/share/mingw-w64/include/psdk_inc/intrin-impl.h" 3
 #undef __has_builtin
 # 28 "/usr/share/mingw-w64/include/winnt.h" 2 3
-# 51 "/usr/share/mingw-w64/include/winnt.h" 3
+# 58 "/usr/share/mingw-w64/include/winnt.h" 3
 #include <sdkddkver.h>
-# 51 "/usr/share/mingw-w64/include/winnt.h" 3
+# 58 "/usr/share/mingw-w64/include/winnt.h" 3
 # 1 "/usr/share/mingw-w64/include/sdkddkver.h" 1 3
 # 11 "/usr/share/mingw-w64/include/sdkddkver.h" 3
 #define _INC_SDKDDKVER 
@@ -3076,6 +2928,8 @@ void __writefsdword(unsigned long Offset, unsigned long Data) { __asm__ ("mov{" 
 #define _WIN32_WINNT_WIN7 0x0601
 #define _WIN32_WINNT_WIN8 0x0602
 #define _WIN32_WINNT_WINBLUE 0x0603
+#define _WIN32_WINNT_WINTHRESHOLD 0x0A00
+#define _WIN32_WINNT_WIN10 0x0A00
 
 
 #define _WIN32_IE_IE20 0x0200
@@ -3181,6 +3035,13 @@ void __writefsdword(unsigned long Offset, unsigned long Data) { __asm__ ("mov{" 
 #define NTDDI_WIN7 0x06010000
 #define NTDDI_WIN8 0x06020000
 #define NTDDI_WINBLUE 0x06030000
+#define NTDDI_WINTHRESHOLD 0x0A000000
+#define NTDDI_WIN10 0x0A000000
+#define NTDDI_WIN10_TH2 0x0A000001
+#define NTDDI_WIN10_RS1 0x0A000002
+#define NTDDI_WIN10_RS2 0x0A000003
+#define NTDDI_WIN10_RS3 0x0A000004
+
 
 
 #define OSVERSION_MASK 0xFFFF0000U
@@ -3195,19 +3056,19 @@ void __writefsdword(unsigned long Offset, unsigned long Data) { __asm__ ("mov{" 
 
 #define NTDDI_VERSION_FROM_WIN32_WINNT2(Version) Version ##0000
 #define NTDDI_VERSION_FROM_WIN32_WINNT(Version) NTDDI_VERSION_FROM_WIN32_WINNT2(Version)
-# 153 "/usr/share/mingw-w64/include/sdkddkver.h" 3
-#define NTDDI_VERSION NTDDI_VERSION_FROM_WIN32_WINNT(_WIN32_WINNT)
 # 162 "/usr/share/mingw-w64/include/sdkddkver.h" 3
+#define NTDDI_VERSION NTDDI_VERSION_FROM_WIN32_WINNT(_WIN32_WINNT)
+# 171 "/usr/share/mingw-w64/include/sdkddkver.h" 3
 #define WINVER _WIN32_WINNT
-# 178 "/usr/share/mingw-w64/include/sdkddkver.h" 3
+# 187 "/usr/share/mingw-w64/include/sdkddkver.h" 3
 #define _WIN32_IE _WIN32_IE_WS03
-# 52 "/usr/share/mingw-w64/include/winnt.h" 2 3
-# 93 "/usr/share/mingw-w64/include/winnt.h" 3
+# 59 "/usr/share/mingw-w64/include/winnt.h" 2 3
+# 100 "/usr/share/mingw-w64/include/winnt.h" 3
 #define RESTRICTED_POINTER 
 
 #undef UNALIGNED
 #undef UNALIGNED64
-# 106 "/usr/share/mingw-w64/include/winnt.h" 3
+# 113 "/usr/share/mingw-w64/include/winnt.h" 3
 #undef ALIGNMENT_MACHINE
 #define UNALIGNED 
 #define UNALIGNED64 
@@ -3229,12 +3090,12 @@ void __writefsdword(unsigned long Offset, unsigned long Data) { __asm__ ("mov{" 
 
 
 #define PROBE_ALIGNMENT(_s) TYPE_ALIGNMENT (DWORD)
-# 140 "/usr/share/mingw-w64/include/winnt.h" 3
+# 147 "/usr/share/mingw-w64/include/winnt.h" 3
 #define C_ASSERT(e) extern void __C_ASSERT__(int [(e)?1:-1])
 
 
 #include <basetsd.h>
-# 143 "/usr/share/mingw-w64/include/winnt.h" 3
+# 150 "/usr/share/mingw-w64/include/winnt.h" 3
 # 1 "/usr/share/mingw-w64/include/basetsd.h" 1 3
 
 
@@ -3346,7 +3207,7 @@ typedef unsigned long POINTER_64_INT;
   __extension__ typedef unsigned long long DWORD64,*PDWORD64;
   __extension__ typedef ULONG_PTR KAFFINITY;
   __extension__ typedef KAFFINITY *PKAFFINITY;
-# 144 "/usr/share/mingw-w64/include/winnt.h" 2 3
+# 151 "/usr/share/mingw-w64/include/winnt.h" 2 3
 
 
 
@@ -3367,9 +3228,9 @@ typedef unsigned long POINTER_64_INT;
 
 
 #define DECLSPEC_NOTHROW __declspec (nothrow)
-# 174 "/usr/share/mingw-w64/include/winnt.h" 3
+# 181 "/usr/share/mingw-w64/include/winnt.h" 3
 #define DECLSPEC_ALIGN(x) __attribute__ ((__aligned__ (x)))
-# 185 "/usr/share/mingw-w64/include/winnt.h" 3
+# 192 "/usr/share/mingw-w64/include/winnt.h" 3
 #define SYSTEM_CACHE_ALIGNMENT_SIZE 64
 
 
@@ -3397,7 +3258,7 @@ typedef unsigned long POINTER_64_INT;
 
 
 #define NOP_FUNCTION (void)0
-# 223 "/usr/share/mingw-w64/include/winnt.h" 3
+# 230 "/usr/share/mingw-w64/include/winnt.h" 3
 #define DECLSPEC_NOINLINE __attribute__((noinline))
 
 
@@ -3431,7 +3292,7 @@ typedef unsigned long POINTER_64_INT;
 
 
 #define FASTCALL __fastcall
-# 264 "/usr/share/mingw-w64/include/winnt.h" 3
+# 271 "/usr/share/mingw-w64/include/winnt.h" 3
 #define NTAPI __stdcall
 
 #define NTAPI_INLINE NTAPI
@@ -3475,7 +3336,7 @@ typedef unsigned long POINTER_64_INT;
   typedef const WCHAR *PCNZWCH;
   typedef WCHAR *PUNZWCH;
   typedef const WCHAR *PCUNZWCH;
-# 327 "/usr/share/mingw-w64/include/winnt.h" 3
+# 334 "/usr/share/mingw-w64/include/winnt.h" 3
   typedef CHAR *PCHAR,*LPCH,*PCH;
   typedef const CHAR *LPCCH,*PCCH;
   typedef CHAR *NPSTR,*LPSTR,*PSTR;
@@ -3487,7 +3348,7 @@ typedef unsigned long POINTER_64_INT;
   typedef const CHAR *PCZZSTR;
   typedef CHAR *PNZCH;
   typedef const CHAR *PCNZCH;
-# 365 "/usr/share/mingw-w64/include/winnt.h" 3
+# 372 "/usr/share/mingw-w64/include/winnt.h" 3
 #define _TCHAR_DEFINED 
   typedef char TCHAR, *PTCHAR;
   typedef unsigned char TBYTE, *PTBYTE;
@@ -3670,7 +3531,7 @@ typedef enum {
 #define Int64ShllMod32(a,b) (((ULONGLONG) (a)) << (b))
 #define Int64ShraMod32(a,b) (((LONGLONG) (a)) >> (b))
 #define Int64ShrlMod32(a,b) (((ULONGLONG) (a)) >> (b))
-# 565 "/usr/share/mingw-w64/include/winnt.h" 3
+# 572 "/usr/share/mingw-w64/include/winnt.h" 3
 #define RotateLeft32 _rotl
 #define RotateLeft64 _rotl64
 #define RotateRight32 _rotr
@@ -3735,7 +3596,7 @@ typedef enum {
 
 
 #include <guiddef.h>
-# 628 "/usr/share/mingw-w64/include/winnt.h" 3
+# 635 "/usr/share/mingw-w64/include/winnt.h" 3
 # 1 "/usr/share/mingw-w64/include/guiddef.h" 1 3
 
 
@@ -3756,7 +3617,7 @@ typedef struct _GUID {
   unsigned short Data3;
   unsigned char Data4[8];
 } GUID;
-# 61 "/usr/share/mingw-w64/include/guiddef.h" 3
+# 67 "/usr/share/mingw-w64/include/guiddef.h" 3
 #define DEFINE_GUID(name,l,w1,w2,b1,b2,b3,b4,b5,b6,b7,b8) EXTERN_C const GUID name
 
 
@@ -3845,7 +3706,7 @@ typedef FMTID *LPFMTID;
 
 #define _SYS_GUID_OPERATORS_ 
 #include <string.h>
-# 148 "/usr/share/mingw-w64/include/guiddef.h" 3
+# 154 "/usr/share/mingw-w64/include/guiddef.h" 3
 # 1 "/usr/share/mingw-w64/include/string.h" 1 3
 
 
@@ -4086,8 +3947,8 @@ typedef FMTID *LPFMTID;
     return _src ? wcsnlen(_src, _count) : 0;
   }
 # 191 "/usr/share/mingw-w64/include/string.h" 2 3
-# 149 "/usr/share/mingw-w64/include/guiddef.h" 2 3
-# 159 "/usr/share/mingw-w64/include/guiddef.h" 3
+# 155 "/usr/share/mingw-w64/include/guiddef.h" 2 3
+# 165 "/usr/share/mingw-w64/include/guiddef.h" 3
 #define InlineIsEqualGUID(rguid1,rguid2) ((&(rguid1)->Data1)[0] == (&(rguid2)->Data1)[0] && (&(rguid1)->Data1)[1] == (&(rguid2)->Data1)[1] && (&(rguid1)->Data1)[2] == (&(rguid2)->Data1)[2] && (&(rguid1)->Data1)[3] == (&(rguid2)->Data1)[3])
 #define IsEqualGUID(rguid1,rguid2) (!memcmp (rguid1, rguid2, sizeof (GUID)))
 
@@ -4102,7 +3963,7 @@ typedef FMTID *LPFMTID;
 
 
 #define _SYS_GUID_OPERATOR_EQ_ 
-# 629 "/usr/share/mingw-w64/include/winnt.h" 2 3
+# 636 "/usr/share/mingw-w64/include/winnt.h" 2 3
 
 
 #define __OBJECTID_DEFINED 
@@ -4146,7 +4007,7 @@ typedef FMTID *LPFMTID;
 
 
 #define RTL_CONST_CAST(type) (type)
-# 686 "/usr/share/mingw-w64/include/winnt.h" 3
+# 693 "/usr/share/mingw-w64/include/winnt.h" 3
 #define DEFINE_ENUM_FLAG_OPERATORS(ENUMTYPE) 
 
 
@@ -4224,6 +4085,7 @@ typedef FMTID *LPFMTID;
 #define PRODUCT_SERVER_FOR_SMALLBUSINESS_V 0x23
 #define PRODUCT_STANDARD_SERVER_V 0x24
 #define PRODUCT_DATACENTER_SERVER_V 0x25
+#define PRODUCT_SERVER_V 0x25
 #define PRODUCT_ENTERPRISE_SERVER_V 0x26
 #define PRODUCT_DATACENTER_SERVER_CORE_V 0x27
 #define PRODUCT_STANDARD_SERVER_CORE_V 0x28
@@ -4244,6 +4106,7 @@ typedef FMTID *LPFMTID;
 #define PRODUCT_SERVER_FOR_SB_SOLUTIONS_EM 0x37
 #define PRODUCT_SOLUTION_EMBEDDEDSERVER 0x38
 #define PRODUCT_SOLUTION_EMBEDDEDSERVER_CORE 0x39
+#define PRODUCT_PROFESSIONAL_EMBEDDED 0x3A
 #define PRODUCT_ESSENTIALBUSINESS_SERVER_MGMT 0x3B
 #define PRODUCT_ESSENTIALBUSINESS_SERVER_ADDL 0x3C
 #define PRODUCT_ESSENTIALBUSINESS_SERVER_MGMTSVC 0x3D
@@ -4277,11 +4140,36 @@ typedef FMTID *LPFMTID;
 #define PRODUCT_CORE_N 0x62
 #define PRODUCT_CORE_COUNTRYSPECIFIC 0x63
 #define PRODUCT_CORE_SINGLELANGUAGE 0x64
+#define PRODUCT_CORE_LANGUAGESPECIFIC 0x64
 #define PRODUCT_CORE 0x65
 #define PRODUCT_PROFESSIONAL_WMC 0x67
 #define PRODUCT_MOBILE_CORE 0x68
+#define PRODUCT_EMBEDDED_INDUSTRY_EVAL 0x69
+#define PRODUCT_EMBEDDED_INDUSTRY_E_EVAL 0x6A
+#define PRODUCT_EMBEDDED_EVAL 0x6B
+#define PRODUCT_EMBEDDED_E_EVAL 0x6C
+#define PRODUCT_NANO_SERVER 0x6D
+#define PRODUCT_CLOUD_STORAGE_SERVER 0x6E
+#define PRODUCT_CORE_CONNECTED 0x6F
+#define PRODUCT_PROFESSIONAL_STUDENT 0x70
+#define PRODUCT_CORE_CONNECTED_N 0x71
+#define PRODUCT_PROFESSIONAL_STUDENT_N 0x72
+#define PRODUCT_CORE_CONNECTED_SINGLELANGUAGE 0x73
+#define PRODUCT_CORE_CONNECTED_COUNTRYSPECIFIC 0x74
+#define PRODUCT_CONNECTED_CAR 0x75
+#define PRODUCT_INDUSTRY_HANDHELD 0x76
+#define PRODUCT_PPI_PRO 0x77
+#define PRODUCT_ARM64_SERVER 0x78
 #define PRODUCT_EDUCATION 0x79
 #define PRODUCT_EDUCATION_N 0x7a
+#define PRODUCT_IOTUAP 0x7B
+#define PRODUCT_CLOUD_HOST_INFRASTRUCTURE_SERVER 0x7C
+#define PRODUCT_ENTERPRISE_S 0x7D
+#define PRODUCT_ENTERPRISE_S_N 0x7E
+#define PRODUCT_PROFESSIONAL_S 0x7F
+#define PRODUCT_PROFESSIONAL_S_N 0x80
+#define PRODUCT_ENTERPRISE_S_EVALUATION 0x81
+#define PRODUCT_ENTERPRISE_S_N_EVALUATION 0x82
 #define PRODUCT_MOBILE_ENTERPRISE 0x85
 
 #define PRODUCT_UNLICENSED 0xabcdabcd
@@ -4763,6 +4651,7 @@ typedef FMTID *LPFMTID;
 #define DBG_RIPEXCEPTION ((DWORD)0x40010007)
 #define DBG_CONTROL_BREAK ((DWORD)0x40010008)
 #define DBG_COMMAND_EXCEPTION ((DWORD)0x40010009)
+#define DBG_PRINTEXCEPTION_WIDE_C ((DWORD)0x4001000A)
 #define STATUS_GUARD_PAGE_VIOLATION ((DWORD)0x80000001)
 #define STATUS_DATATYPE_MISALIGNMENT ((DWORD)0x80000002)
 #define STATUS_BREAKPOINT ((DWORD)0x80000003)
@@ -4875,7 +4764,7 @@ typedef FMTID *LPFMTID;
  DWORD JumpTarget;
       } ScopeRecord[1];
     } SCOPE_TABLE_AMD64,*PSCOPE_TABLE_AMD64;
-# 1950 "/usr/share/mingw-w64/include/winnt.h" 3
+# 2234 "/usr/share/mingw-w64/include/winnt.h" 3
 #define BitTest _bittest
 #define BitTestAndComplement _bittestandcomplement
 #define BitTestAndSet _bittestandset
@@ -4884,10 +4773,46 @@ typedef FMTID *LPFMTID;
 #define BitScanForward _BitScanForward
 #define BitScanReverse _BitScanReverse
 
+#define InterlockedIncrement16 _InterlockedIncrement16
+#define InterlockedDecrement16 _InterlockedDecrement16
 #define InterlockedCompareExchange16 _InterlockedCompareExchange16
+
+#define InterlockedAnd _InterlockedAnd
+#define InterlockedOr _InterlockedOr
+#define InterlockedXor _InterlockedXor
+#define InterlockedIncrement _InterlockedIncrement
+#define InterlockedIncrementAcquire InterlockedIncrement
+#define InterlockedIncrementRelease InterlockedIncrement
+#define InterlockedDecrement _InterlockedDecrement
+#define InterlockedDecrementAcquire InterlockedDecrement
+#define InterlockedDecrementRelease InterlockedDecrement
 #define InterlockedAdd _InterlockedAdd
+#define InterlockedExchange _InterlockedExchange
+#define InterlockedExchangeAdd _InterlockedExchangeAdd
+#define InterlockedCompareExchange _InterlockedCompareExchange
+#define InterlockedCompareExchangeAcquire InterlockedCompareExchange
+#define InterlockedCompareExchangeRelease InterlockedCompareExchange
+
+#define InterlockedAnd64 _InterlockedAnd64
+#define InterlockedAndAffinity InterlockedAnd64
+#define InterlockedOr64 _InterlockedOr64
+#define InterlockedOrAffinity InterlockedOr64
+#define InterlockedXor64 _InterlockedXor64
+#define InterlockedIncrement64 _InterlockedIncrement64
+#define InterlockedDecrement64 _InterlockedDecrement64
 #define InterlockedAdd64 _InterlockedAdd64
-# 1982 "/usr/share/mingw-w64/include/winnt.h" 3
+#define InterlockedExchange64 _InterlockedExchange64
+#define InterlockedExchangeAcquire64 InterlockedExchange64
+#define InterlockedExchangeAdd64 _InterlockedExchangeAdd64
+#define InterlockedCompareExchange64 _InterlockedCompareExchange64
+#define InterlockedCompareExchangeAcquire64 InterlockedCompareExchange64
+#define InterlockedCompareExchangeRelease64 InterlockedCompareExchange64
+
+#define InterlockedExchangePointer _InterlockedExchangePointer
+#define InterlockedCompareExchangePointer(Destination,ExChange,Comperand) (PVOID) (LONG_PTR)InterlockedCompareExchange ((LONG volatile *) (Destination),(LONG) (LONG_PTR) (ExChange),(LONG) (LONG_PTR) (Comperand))
+#define InterlockedCompareExchangePointerAcquire InterlockedCompareExchangePointer
+#define InterlockedCompareExchangePointerRelease InterlockedCompareExchangePointer
+# 2303 "/usr/share/mingw-w64/include/winnt.h" 3
 #define YieldProcessor __buildpause
 void MemoryBarrier(void);
 extern __inline__ __attribute__((__always_inline__,__gnu_inline__)) void MemoryBarrier(void)
@@ -4990,7 +4915,7 @@ extern __inline__ __attribute__((__always_inline__,__gnu_inline__)) void MemoryB
     } CONTEXT;
 
     typedef CONTEXT *PCONTEXT;
-# 2092 "/usr/share/mingw-w64/include/winnt.h" 3
+# 2413 "/usr/share/mingw-w64/include/winnt.h" 3
 #define _LDT_ENTRY_DEFINED 
 
     typedef struct _LDT_ENTRY {
@@ -5017,7 +4942,7 @@ extern __inline__ __attribute__((__always_inline__,__gnu_inline__)) void MemoryB
  } Bits;
       } HighWord;
     } LDT_ENTRY,*PLDT_ENTRY;
-# 2440 "/usr/share/mingw-w64/include/winnt.h" 3
+# 2761 "/usr/share/mingw-w64/include/winnt.h" 3
 #define EXCEPTION_NONCONTINUABLE 0x1
 #define EXCEPTION_UNWINDING 0x2
 #define EXCEPTION_EXIT_UNWIND 0x4
@@ -5067,7 +4992,7 @@ extern __inline__ __attribute__((__always_inline__,__gnu_inline__)) void MemoryB
       PEXCEPTION_RECORD ExceptionRecord;
       PCONTEXT ContextRecord;
     } EXCEPTION_POINTERS,*PEXCEPTION_POINTERS;
-# 2547 "/usr/share/mingw-w64/include/winnt.h" 3
+# 2871 "/usr/share/mingw-w64/include/winnt.h" 3
     typedef PVOID PACCESS_TOKEN;
     typedef PVOID PSECURITY_DESCRIPTOR;
     typedef PVOID PSID;
@@ -5108,7 +5033,7 @@ extern __inline__ __attribute__((__always_inline__,__gnu_inline__)) void MemoryB
     typedef GENERIC_MAPPING *PGENERIC_MAPPING;
 
 #include <pshpack4.h>
-# 2586 "/usr/share/mingw-w64/include/winnt.h" 3
+# 2910 "/usr/share/mingw-w64/include/winnt.h" 3
 # 1 "/usr/share/mingw-w64/include/pshpack4.h" 1 3
 
 
@@ -5117,7 +5042,7 @@ extern __inline__ __attribute__((__always_inline__,__gnu_inline__)) void MemoryB
 
 
 #pragma pack(push,4)
-# 2587 "/usr/share/mingw-w64/include/winnt.h" 2 3
+# 2911 "/usr/share/mingw-w64/include/winnt.h" 2 3
     typedef struct _LUID_AND_ATTRIBUTES {
       LUID Luid;
       DWORD Attributes;
@@ -5125,7 +5050,7 @@ extern __inline__ __attribute__((__always_inline__,__gnu_inline__)) void MemoryB
     typedef LUID_AND_ATTRIBUTES LUID_AND_ATTRIBUTES_ARRAY[1];
     typedef LUID_AND_ATTRIBUTES_ARRAY *PLUID_AND_ATTRIBUTES_ARRAY;
 #include <poppack.h>
-# 2593 "/usr/share/mingw-w64/include/winnt.h" 3
+# 2917 "/usr/share/mingw-w64/include/winnt.h" 3
 # 1 "/usr/share/mingw-w64/include/poppack.h" 1 3
 
 
@@ -5134,7 +5059,7 @@ extern __inline__ __attribute__((__always_inline__,__gnu_inline__)) void MemoryB
 
 
 #pragma pack(pop)
-# 2594 "/usr/share/mingw-w64/include/winnt.h" 2 3
+# 2918 "/usr/share/mingw-w64/include/winnt.h" 2 3
 
 
 #define SID_IDENTIFIER_AUTHORITY_DEFINED 
@@ -5163,7 +5088,7 @@ extern __inline__ __attribute__((__always_inline__,__gnu_inline__)) void MemoryB
 #define SID_HASH_SIZE 32
 
     typedef enum _SID_NAME_USE {
-      SidTypeUser = 1,SidTypeGroup,SidTypeDomain,SidTypeAlias,SidTypeWellKnownGroup,SidTypeDeletedAccount,SidTypeInvalid,SidTypeUnknown,SidTypeComputer,SidTypeLabel
+      SidTypeUser = 1,SidTypeGroup,SidTypeDomain,SidTypeAlias,SidTypeWellKnownGroup,SidTypeDeletedAccount,SidTypeInvalid,SidTypeUnknown,SidTypeComputer,SidTypeLabel,SidTypeLogonSession
     } SID_NAME_USE,*PSID_NAME_USE;
 
     typedef struct _SID_AND_ATTRIBUTES {
@@ -5454,7 +5379,20 @@ extern __inline__ __attribute__((__always_inline__,__gnu_inline__)) void MemoryB
       WinAccountCloneableControllersSid = 100,
       WinBuiltinAccessControlAssistanceOperatorsSid = 101,
       WinBuiltinRemoteManagementUsersSid = 102, WinAuthenticationAuthorityAssertedSid = 103,
-      WinAuthenticationServiceAssertedSid = 104
+      WinAuthenticationServiceAssertedSid = 104,
+      WinLocalAccountSid = 105,
+      WinLocalAccountAndAdministratorSid = 106,
+      WinAccountProtectedUsersSid = 107,
+      WinCapabilityAppointmentsSid = 108,
+      WinCapabilityContactsSid = 109,
+      WinAccountDefaultSystemManagedSid = 110,
+      WinBuiltinDefaultSystemManagedGroupSid = 111,
+      WinBuiltinStorageReplicaAdminsSid = 112,
+      WinAccountKeyAdminsSid = 113,
+      WinAccountEnterpriseKeyAdminsSid = 114,
+      WinAuthenticationKeyTrustSid = 115,
+      WinAuthenticationKeyPropertyMFASid = 116,
+      WinAuthenticationKeyPropertyAttestationSid = 117
 } WELL_KNOWN_SID_TYPE;
 
 #define SYSTEM_LUID { 0x3e7, 0x0 }
@@ -6435,69 +6373,132 @@ extern __inline__ __attribute__((__always_inline__,__gnu_inline__)) void MemoryB
     typedef enum _PROCESS_MITIGATION_POLICY {
       ProcessDEPPolicy,
       ProcessASLRPolicy,
-      ProcessReserved1MitigationPolicy,
+      ProcessDynamicCodePolicy,
       ProcessStrictHandleCheckPolicy,
       ProcessSystemCallDisablePolicy,
       ProcessMitigationOptionsMask,
       ProcessExtensionPointDisablePolicy,
+      ProcessControlFlowGuardPolicy,
+      ProcessSignaturePolicy,
+      ProcessFontDisablePolicy,
+      ProcessImageLoadPolicy,
       MaxProcessMitigationPolicy
     } PROCESS_MITIGATION_POLICY,*PPROCESS_MITIGATION_POLICY;
 
     typedef struct _PROCESS_MITIGATION_ASLR_POLICY {
       __extension__ union {
- DWORD Flags;
- __extension__ struct {
-   DWORD EnableBottomUpRandomization : 1;
-   DWORD EnableForceRelocateImages : 1;
-   DWORD EnableHighEntropy : 1;
-   DWORD DisallowStrippedImages : 1;
-   DWORD ReservedFlags : 28;
- };
+        DWORD Flags;
+        __extension__ struct {
+          DWORD EnableBottomUpRandomization : 1;
+          DWORD EnableForceRelocateImages : 1;
+          DWORD EnableHighEntropy : 1;
+          DWORD DisallowStrippedImages : 1;
+          DWORD ReservedFlags : 28;
+        };
       };
     } PROCESS_MITIGATION_ASLR_POLICY,*PPROCESS_MITIGATION_ASLR_POLICY;
 
     typedef struct _PROCESS_MITIGATION_DEP_POLICY {
       __extension__ union {
- DWORD Flags;
- __extension__ struct {
-   DWORD Enable : 1;
-   DWORD DisableAtlThunkEmulation : 1;
-   DWORD ReservedFlags : 30;
- };
+        DWORD Flags;
+        __extension__ struct {
+          DWORD Enable : 1;
+          DWORD DisableAtlThunkEmulation : 1;
+          DWORD ReservedFlags : 30;
+        };
       };
       BOOLEAN Permanent;
     } PROCESS_MITIGATION_DEP_POLICY,*PPROCESS_MITIGATION_DEP_POLICY;
 
     typedef struct _PROCESS_MITIGATION_STRICT_HANDLE_CHECK_POLICY {
       __extension__ union {
- DWORD Flags;
- __extension__ struct {
-   DWORD RaiseExceptionOnInvalidHandleReference : 1;
-   DWORD HandleExceptionsPermanentlyEnabled : 1;
-   DWORD ReservedFlags : 30;
- };
+        DWORD Flags;
+        __extension__ struct {
+          DWORD RaiseExceptionOnInvalidHandleReference : 1;
+          DWORD HandleExceptionsPermanentlyEnabled : 1;
+          DWORD ReservedFlags : 30;
+        };
       };
     } PROCESS_MITIGATION_STRICT_HANDLE_CHECK_POLICY,*PPROCESS_MITIGATION_STRICT_HANDLE_CHECK_POLICY;
 
     typedef struct _PROCESS_MITIGATION_SYSTEM_CALL_DISABLE_POLICY {
       __extension__ union {
- DWORD Flags;
- __extension__ struct {
-   DWORD DisallowWin32kSystemCalls : 1;
-   DWORD ReservedFlags : 31;
- };
+        DWORD Flags;
+        __extension__ struct {
+          DWORD DisallowWin32kSystemCalls : 1;
+          DWORD ReservedFlags : 31;
+        };
       };
     } PROCESS_MITIGATION_SYSTEM_CALL_DISABLE_POLICY,*PPROCESS_MITIGATION_SYSTEM_CALL_DISABLE_POLICY;
 
     typedef struct _PROCESS_MITIGATION_EXTENSION_POINT_DISABLE_POLICY {
       __extension__ union {
- DWORD Flags;
- __extension__ struct {
-   DWORD DisableExtensionPoints : 1;
-   DWORD ReservedFlags : 31;
- };
+        DWORD Flags;
+        __extension__ struct {
+          DWORD DisableExtensionPoints : 1;
+          DWORD ReservedFlags : 31;
+        };
       };
     } PROCESS_MITIGATION_EXTENSION_POINT_DISABLE_POLICY,*PPROCESS_MITIGATION_EXTENSION_POINT_DISABLE_POLICY;
+
+    typedef struct _PROCESS_MITIGATION_CONTROL_FLOW_GUARD_POLICY {
+      __extension__ union {
+        DWORD Flags;
+        __extension__ struct {
+          DWORD EnableControlFlowGuard :1;
+          DWORD EnableExportSuppression :1;
+          DWORD StrictMode :1;
+          DWORD ReservedFlags :29;
+        };
+      };
+    } PROCESS_MITIGATION_CONTROL_FLOW_GUARD_POLICY, *PPROCESS_MITIGATION_CONTROL_FLOW_GUARD_POLICY;
+
+    typedef struct _PROCESS_MITIGATION_BINARY_SIGNATURE_POLICY {
+      __extension__ union {
+        DWORD Flags;
+        __extension__ struct {
+          DWORD MicrosoftSignedOnly :1;
+          DWORD StoreSignedOnly :1;
+          DWORD MitigationOptIn :1;
+          DWORD ReservedFlags :29;
+        };
+      };
+    } PROCESS_MITIGATION_BINARY_SIGNATURE_POLICY, *PPROCESS_MITIGATION_BINARY_SIGNATURE_POLICY;
+
+    typedef struct _PROCESS_MITIGATION_DYNAMIC_CODE_POLICY {
+      __extension__ union {
+        DWORD Flags;
+        __extension__ struct {
+          DWORD ProhibitDynamicCode :1;
+          DWORD AllowThreadOptOut :1;
+          DWORD AllowRemoteDowngrade :1;
+          DWORD ReservedFlags :30;
+        };
+      };
+    } PROCESS_MITIGATION_DYNAMIC_CODE_POLICY, *PPROCESS_MITIGATION_DYNAMIC_CODE_POLICY;
+
+    typedef struct _PROCESS_MITIGATION_FONT_DISABLE_POLICY {
+      __extension__ union {
+        DWORD Flags;
+        __extension__ struct {
+          DWORD DisableNonSystemFonts :1;
+          DWORD AuditNonSystemFontLoading :1;
+          DWORD ReservedFlags :30;
+        };
+      };
+    } PROCESS_MITIGATION_FONT_DISABLE_POLICY, *PPROCESS_MITIGATION_FONT_DISABLE_POLICY;
+
+    typedef struct _PROCESS_MITIGATION_IMAGE_LOAD_POLICY {
+      __extension__ union {
+        DWORD Flags;
+        __extension__ struct {
+          DWORD NoRemoteImages :1;
+          DWORD NoLowMandatoryLabelImages :1;
+          DWORD PreferSystem32Images :1;
+          DWORD ReservedFlags :29;
+        };
+      };
+    } PROCESS_MITIGATION_IMAGE_LOAD_POLICY, *PPROCESS_MITIGATION_IMAGE_LOAD_POLICY;
 
     typedef struct _JOBOBJECT_BASIC_ACCOUNTING_INFORMATION {
       LARGE_INTEGER TotalUserTime;
@@ -7177,7 +7178,7 @@ extern __inline__ __attribute__((__always_inline__,__gnu_inline__)) void MemoryB
 #define IO_REPARSE_TAG_DRIVE_EXTENDER (__MSABI_LONG(0x80000005))
 #define IO_REPARSE_TAG_DEDUP (__MSABI_LONG(0x80000013))
 #define IO_REPARSE_TAG_NFS (__MSABI_LONG(0x80000014))
-# 4667 "/usr/share/mingw-w64/include/winnt.h" 3
+# 5067 "/usr/share/mingw-w64/include/winnt.h" 3
 #define IO_COMPLETION_MODIFY_STATE 0x0002
 #define IO_COMPLETION_ALL_ACCESS (STANDARD_RIGHTS_REQUIRED|SYNCHRONIZE|0x3)
 #define DUPLICATE_CLOSE_SOURCE 0x00000001
@@ -8061,7 +8062,7 @@ extern __inline__ __attribute__((__always_inline__,__gnu_inline__)) void MemoryB
     } SYSTEM_BATTERY_STATE,*PSYSTEM_BATTERY_STATE;
 
 #include "pshpack4.h"
-# 5549 "/usr/share/mingw-w64/include/winnt.h" 3
+# 5949 "/usr/share/mingw-w64/include/winnt.h" 3
 # 1 "/usr/share/mingw-w64/include/pshpack4.h" 1 3
 
 
@@ -8070,7 +8071,7 @@ extern __inline__ __attribute__((__always_inline__,__gnu_inline__)) void MemoryB
 
 
 #pragma pack(push,4)
-# 5550 "/usr/share/mingw-w64/include/winnt.h" 2 3
+# 5950 "/usr/share/mingw-w64/include/winnt.h" 2 3
 
 #define IMAGE_DOS_SIGNATURE 0x5A4D
 #define IMAGE_OS2_SIGNATURE 0x454E
@@ -8079,7 +8080,7 @@ extern __inline__ __attribute__((__always_inline__,__gnu_inline__)) void MemoryB
 #define IMAGE_NT_SIGNATURE 0x00004550
 
 #include "pshpack2.h"
-# 5557 "/usr/share/mingw-w64/include/winnt.h" 3
+# 5957 "/usr/share/mingw-w64/include/winnt.h" 3
 # 1 "/usr/share/mingw-w64/include/pshpack2.h" 1 3
 
 
@@ -8088,7 +8089,7 @@ extern __inline__ __attribute__((__always_inline__,__gnu_inline__)) void MemoryB
 
 
 #pragma pack(push,2)
-# 5558 "/usr/share/mingw-w64/include/winnt.h" 2 3
+# 5958 "/usr/share/mingw-w64/include/winnt.h" 2 3
 
     typedef struct _IMAGE_DOS_HEADER {
       WORD e_magic;
@@ -8200,7 +8201,7 @@ extern __inline__ __attribute__((__always_inline__,__gnu_inline__)) void MemoryB
     } IMAGE_VXD_HEADER,*PIMAGE_VXD_HEADER;
 
 #include "poppack.h"
-# 5668 "/usr/share/mingw-w64/include/winnt.h" 3
+# 6068 "/usr/share/mingw-w64/include/winnt.h" 3
 # 1 "/usr/share/mingw-w64/include/poppack.h" 1 3
 
 
@@ -8209,7 +8210,7 @@ extern __inline__ __attribute__((__always_inline__,__gnu_inline__)) void MemoryB
 
 
 #pragma pack(pop)
-# 5669 "/usr/share/mingw-w64/include/winnt.h" 2 3
+# 6069 "/usr/share/mingw-w64/include/winnt.h" 2 3
 
     typedef struct _IMAGE_FILE_HEADER {
       WORD Machine;
@@ -8254,6 +8255,7 @@ extern __inline__ __attribute__((__always_inline__,__gnu_inline__)) void MemoryB
 #define IMAGE_FILE_MACHINE_ARM 0x01c0
 #define IMAGE_FILE_MACHINE_ARMV7 0x01c4
 #define IMAGE_FILE_MACHINE_ARMNT 0x01c4
+#define IMAGE_FILE_MACHINE_ARM64 0xaa64
 #define IMAGE_FILE_MACHINE_THUMB 0x01c2
 #define IMAGE_FILE_MACHINE_AM33 0x01d3
 #define IMAGE_FILE_MACHINE_POWERPC 0x01F0
@@ -8558,7 +8560,7 @@ extern __inline__ __attribute__((__always_inline__,__gnu_inline__)) void MemoryB
 #define IMAGE_SCN_SCALE_INDEX 0x00000001
 
 #include "pshpack2.h"
-# 6016 "/usr/share/mingw-w64/include/winnt.h" 3
+# 6417 "/usr/share/mingw-w64/include/winnt.h" 3
 # 1 "/usr/share/mingw-w64/include/pshpack2.h" 1 3
 
 
@@ -8567,7 +8569,7 @@ extern __inline__ __attribute__((__always_inline__,__gnu_inline__)) void MemoryB
 
 
 #pragma pack(push,2)
-# 6017 "/usr/share/mingw-w64/include/winnt.h" 2 3
+# 6418 "/usr/share/mingw-w64/include/winnt.h" 2 3
     typedef struct _IMAGE_SYMBOL {
       union {
  BYTE ShortName[8];
@@ -8694,7 +8696,7 @@ extern __inline__ __attribute__((__always_inline__,__gnu_inline__)) void MemoryB
 
 
 #include <pshpack2.h>
-# 6142 "/usr/share/mingw-w64/include/winnt.h" 3
+# 6543 "/usr/share/mingw-w64/include/winnt.h" 3
 # 1 "/usr/share/mingw-w64/include/pshpack2.h" 1 3
 
 
@@ -8703,7 +8705,7 @@ extern __inline__ __attribute__((__always_inline__,__gnu_inline__)) void MemoryB
 
 
 #pragma pack(push,2)
-# 6143 "/usr/share/mingw-w64/include/winnt.h" 2 3
+# 6544 "/usr/share/mingw-w64/include/winnt.h" 2 3
     typedef struct IMAGE_AUX_SYMBOL_TOKEN_DEF {
       BYTE bAuxType;
       BYTE bReserved;
@@ -8711,7 +8713,7 @@ extern __inline__ __attribute__((__always_inline__,__gnu_inline__)) void MemoryB
       BYTE rgbReserved[12];
     } IMAGE_AUX_SYMBOL_TOKEN_DEF, *PIMAGE_AUX_SYMBOL_TOKEN_DEF;
 #include <poppack.h>
-# 6149 "/usr/share/mingw-w64/include/winnt.h" 3
+# 6550 "/usr/share/mingw-w64/include/winnt.h" 3
 # 1 "/usr/share/mingw-w64/include/poppack.h" 1 3
 
 
@@ -8720,7 +8722,7 @@ extern __inline__ __attribute__((__always_inline__,__gnu_inline__)) void MemoryB
 
 
 #pragma pack(pop)
-# 6150 "/usr/share/mingw-w64/include/winnt.h" 2 3
+# 6551 "/usr/share/mingw-w64/include/winnt.h" 2 3
 
     typedef union _IMAGE_AUX_SYMBOL {
       struct {
@@ -9159,7 +9161,7 @@ extern __inline__ __attribute__((__always_inline__,__gnu_inline__)) void MemoryB
 #define IMAGE_SIZEOF_LINENUMBER 6
 
 #include "poppack.h"
-# 6587 "/usr/share/mingw-w64/include/winnt.h" 3
+# 6988 "/usr/share/mingw-w64/include/winnt.h" 3
 # 1 "/usr/share/mingw-w64/include/poppack.h" 1 3
 
 
@@ -9168,7 +9170,7 @@ extern __inline__ __attribute__((__always_inline__,__gnu_inline__)) void MemoryB
 
 
 #pragma pack(pop)
-# 6588 "/usr/share/mingw-w64/include/winnt.h" 2 3
+# 6989 "/usr/share/mingw-w64/include/winnt.h" 2 3
 
     typedef struct _IMAGE_BASE_RELOCATION {
       DWORD VirtualAddress;
@@ -9225,11 +9227,11 @@ extern __inline__ __attribute__((__always_inline__,__gnu_inline__)) void MemoryB
 
     typedef struct _IMAGE_IMPORT_BY_NAME {
       WORD Hint;
-      BYTE Name[1];
+      CHAR Name[1];
     } IMAGE_IMPORT_BY_NAME,*PIMAGE_IMPORT_BY_NAME;
 
 #include "pshpack8.h"
-# 6647 "/usr/share/mingw-w64/include/winnt.h" 3
+# 7048 "/usr/share/mingw-w64/include/winnt.h" 3
 # 1 "/usr/share/mingw-w64/include/pshpack8.h" 1 3
 
 
@@ -9238,7 +9240,7 @@ extern __inline__ __attribute__((__always_inline__,__gnu_inline__)) void MemoryB
 
 
 #pragma pack(push,8)
-# 6648 "/usr/share/mingw-w64/include/winnt.h" 2 3
+# 7049 "/usr/share/mingw-w64/include/winnt.h" 2 3
 
     typedef struct _IMAGE_THUNK_DATA64 {
       union {
@@ -9251,7 +9253,7 @@ extern __inline__ __attribute__((__always_inline__,__gnu_inline__)) void MemoryB
     typedef IMAGE_THUNK_DATA64 *PIMAGE_THUNK_DATA64;
 
 #include "poppack.h"
-# 6659 "/usr/share/mingw-w64/include/winnt.h" 3
+# 7060 "/usr/share/mingw-w64/include/winnt.h" 3
 # 1 "/usr/share/mingw-w64/include/poppack.h" 1 3
 
 
@@ -9260,7 +9262,7 @@ extern __inline__ __attribute__((__always_inline__,__gnu_inline__)) void MemoryB
 
 
 #pragma pack(pop)
-# 6660 "/usr/share/mingw-w64/include/winnt.h" 2 3
+# 7061 "/usr/share/mingw-w64/include/winnt.h" 2 3
 
     typedef struct _IMAGE_THUNK_DATA32 {
       union {
@@ -9300,7 +9302,7 @@ extern __inline__ __attribute__((__always_inline__,__gnu_inline__)) void MemoryB
       DWORD Characteristics;
     } IMAGE_TLS_DIRECTORY32;
     typedef IMAGE_TLS_DIRECTORY32 *PIMAGE_TLS_DIRECTORY32;
-# 6709 "/usr/share/mingw-w64/include/winnt.h" 3
+# 7110 "/usr/share/mingw-w64/include/winnt.h" 3
 #define IMAGE_ORDINAL_FLAG IMAGE_ORDINAL_FLAG32
 #define IMAGE_ORDINAL(Ordinal) IMAGE_ORDINAL32(Ordinal)
     typedef IMAGE_THUNK_DATA32 IMAGE_THUNK_DATA;
@@ -9496,6 +9498,22 @@ extern __inline__ __attribute__((__always_inline__,__gnu_inline__)) void MemoryB
       } ;
     } IMAGE_ARM_RUNTIME_FUNCTION_ENTRY,*PIMAGE_ARM_RUNTIME_FUNCTION_ENTRY;
 
+    typedef struct _IMAGE_ARM64_RUNTIME_FUNCTION_ENTRY {
+      DWORD BeginAddress;
+      __extension__ union {
+ DWORD UnwindData;
+ __extension__ struct {
+   DWORD Flag : 2;
+   DWORD FunctionLength : 11;
+   DWORD RegF : 3;
+   DWORD RegI : 4;
+   DWORD H : 1;
+   DWORD CR : 2;
+   DWORD FrameSize : 9;
+ } ;
+      } ;
+    } IMAGE_ARM64_RUNTIME_FUNCTION_ENTRY,*PIMAGE_ARM64_RUNTIME_FUNCTION_ENTRY;
+
     typedef struct _IMAGE_RUNTIME_FUNCTION_ENTRY {
       DWORD BeginAddress;
       DWORD EndAddress;
@@ -9507,7 +9525,7 @@ extern __inline__ __attribute__((__always_inline__,__gnu_inline__)) void MemoryB
 
     typedef _IMAGE_RUNTIME_FUNCTION_ENTRY IMAGE_IA64_RUNTIME_FUNCTION_ENTRY;
     typedef _PIMAGE_RUNTIME_FUNCTION_ENTRY PIMAGE_IA64_RUNTIME_FUNCTION_ENTRY;
-# 6928 "/usr/share/mingw-w64/include/winnt.h" 3
+# 7345 "/usr/share/mingw-w64/include/winnt.h" 3
     typedef _IMAGE_RUNTIME_FUNCTION_ENTRY IMAGE_RUNTIME_FUNCTION_ENTRY;
     typedef _PIMAGE_RUNTIME_FUNCTION_ENTRY PIMAGE_RUNTIME_FUNCTION_ENTRY;
 
@@ -9638,7 +9656,7 @@ extern __inline__ __attribute__((__always_inline__,__gnu_inline__)) void MemoryB
       DWORD NewInst;
     } IMAGE_ARCHITECTURE_ENTRY,*PIMAGE_ARCHITECTURE_ENTRY;
 #include "poppack.h"
-# 7057 "/usr/share/mingw-w64/include/winnt.h" 3
+# 7474 "/usr/share/mingw-w64/include/winnt.h" 3
 # 1 "/usr/share/mingw-w64/include/poppack.h" 1 3
 
 
@@ -9647,7 +9665,7 @@ extern __inline__ __attribute__((__always_inline__,__gnu_inline__)) void MemoryB
 
 
 #pragma pack(pop)
-# 7058 "/usr/share/mingw-w64/include/winnt.h" 2 3
+# 7475 "/usr/share/mingw-w64/include/winnt.h" 2 3
 
 #define IMPORT_OBJECT_HDR_SIG2 0xffff
 
@@ -9709,15 +9727,15 @@ extern __inline__ __attribute__((__always_inline__,__gnu_inline__)) void MemoryB
     __attribute__((dllimport)) WORD __attribute__((__stdcall__)) RtlCaptureStackBackTrace (DWORD FramesToSkip, DWORD FramesToCapture, PVOID *BackTrace, PDWORD BackTraceHash);
     __attribute__((dllimport)) void __attribute__((__stdcall__)) RtlCaptureContext (PCONTEXT ContextRecord);
     __attribute__((dllimport)) SIZE_T __attribute__((__stdcall__)) RtlCompareMemory (const void *Source1, const void *Source2, SIZE_T Length);
-# 7154 "/usr/share/mingw-w64/include/winnt.h" 3
+# 7581 "/usr/share/mingw-w64/include/winnt.h" 3
     __attribute__((dllimport)) void __attribute__((__stdcall__)) RtlUnwind (PVOID TargetFrame, PVOID TargetIp, PEXCEPTION_RECORD ExceptionRecord, PVOID ReturnValue);
     __attribute__((dllimport)) PVOID __attribute__((__stdcall__)) RtlPcToFileHeader (PVOID PcValue, PVOID *BaseOfImage);
-# 7170 "/usr/share/mingw-w64/include/winnt.h" 3
+# 7601 "/usr/share/mingw-w64/include/winnt.h" 3
 #include <string.h>
 
 
 #define _SLIST_HEADER_ 
-# 7203 "/usr/share/mingw-w64/include/winnt.h" 3
+# 7634 "/usr/share/mingw-w64/include/winnt.h" 3
     typedef struct _SINGLE_LIST_ENTRY SLIST_ENTRY,*PSLIST_ENTRY;
 
     typedef union _SLIST_HEADER {
@@ -9827,7 +9845,7 @@ typedef DWORD (__attribute__((__stdcall__)) *PRTL_RUN_ONCE_INIT_FN)(PRTL_RUN_ONC
 #define COMPRESSION_ENGINE_STANDARD (0x0000)
 #define COMPRESSION_ENGINE_MAXIMUM (0x0100)
 #define COMPRESSION_ENGINE_HIBER (0x0200)
-# 7326 "/usr/share/mingw-w64/include/winnt.h" 3
+# 7757 "/usr/share/mingw-w64/include/winnt.h" 3
 #define RtlEqualMemory(Destination,Source,Length) (!memcmp((Destination),(Source),(Length)))
 #define RtlMoveMemory(Destination,Source,Length) memmove((Destination),(Source),(Length))
 #define RtlCopyMemory(Destination,Source,Length) memcpy((Destination),(Source),(Length))
@@ -9835,7 +9853,7 @@ typedef DWORD (__attribute__((__stdcall__)) *PRTL_RUN_ONCE_INIT_FN)(PRTL_RUN_ONC
 #define RtlZeroMemory(Destination,Length) memset((Destination),0,(Length))
 
     PVOID __attribute__((__stdcall__)) RtlSecureZeroMemory(PVOID ptr,SIZE_T cnt);
-# 7349 "/usr/share/mingw-w64/include/winnt.h" 3
+# 7780 "/usr/share/mingw-w64/include/winnt.h" 3
     typedef struct _MESSAGE_RESOURCE_ENTRY {
       WORD Length;
       WORD Flags;
@@ -9984,7 +10002,7 @@ typedef DWORD (__attribute__((__stdcall__)) *PRTL_RUN_ONCE_INIT_FN)(PRTL_RUN_ONC
 
     typedef void __attribute__((__stdcall__)) RTL_UMS_SCHEDULER_ENTRY_POINT (RTL_UMS_SCHEDULER_REASON Reason, ULONG_PTR ActivationPayload, PVOID SchedulerParam);
     typedef RTL_UMS_SCHEDULER_ENTRY_POINT *PRTL_UMS_SCHEDULER_ENTRY_POINT;
-# 7516 "/usr/share/mingw-w64/include/winnt.h" 3
+# 7947 "/usr/share/mingw-w64/include/winnt.h" 3
     typedef struct _RTL_CRITICAL_SECTION_DEBUG {
       WORD Type;
       WORD CreatorBackTraceIndex;
@@ -10012,7 +10030,7 @@ typedef DWORD (__attribute__((__stdcall__)) *PRTL_RUN_ONCE_INIT_FN)(PRTL_RUN_ONC
 #define RTL_CRITICAL_SECTION_DEBUG_FLAG_STATIC_INIT 0x00000001
 
 #include <pshpack8.h>
-# 7542 "/usr/share/mingw-w64/include/winnt.h" 3
+# 7973 "/usr/share/mingw-w64/include/winnt.h" 3
 # 1 "/usr/share/mingw-w64/include/pshpack8.h" 1 3
 
 
@@ -10021,7 +10039,7 @@ typedef DWORD (__attribute__((__stdcall__)) *PRTL_RUN_ONCE_INIT_FN)(PRTL_RUN_ONC
 
 
 #pragma pack(push,8)
-# 7543 "/usr/share/mingw-w64/include/winnt.h" 2 3
+# 7974 "/usr/share/mingw-w64/include/winnt.h" 2 3
     typedef struct _RTL_CRITICAL_SECTION {
       PRTL_CRITICAL_SECTION_DEBUG DebugInfo;
       LONG LockCount;
@@ -10031,7 +10049,7 @@ typedef DWORD (__attribute__((__stdcall__)) *PRTL_RUN_ONCE_INIT_FN)(PRTL_RUN_ONC
       ULONG_PTR SpinCount;
     } RTL_CRITICAL_SECTION,*PRTL_CRITICAL_SECTION;
 #include <poppack.h>
-# 7551 "/usr/share/mingw-w64/include/winnt.h" 3
+# 7982 "/usr/share/mingw-w64/include/winnt.h" 3
 # 1 "/usr/share/mingw-w64/include/poppack.h" 1 3
 
 
@@ -10040,7 +10058,7 @@ typedef DWORD (__attribute__((__stdcall__)) *PRTL_RUN_ONCE_INIT_FN)(PRTL_RUN_ONC
 
 
 #pragma pack(pop)
-# 7552 "/usr/share/mingw-w64/include/winnt.h" 2 3
+# 7983 "/usr/share/mingw-w64/include/winnt.h" 2 3
 
     typedef struct _RTL_SRWLOCK { PVOID Ptr; } RTL_SRWLOCK,*PRTL_SRWLOCK;
     typedef struct _RTL_CONDITION_VARIABLE { PVOID Ptr; } RTL_CONDITION_VARIABLE,*PRTL_CONDITION_VARIABLE;
@@ -10758,7 +10776,7 @@ typedef DWORD (__attribute__((__stdcall__)) *PRTL_RUN_ONCE_INIT_FN)(PRTL_RUN_ONC
 
   typedef struct _TP_CLEANUP_GROUP TP_CLEANUP_GROUP,*PTP_CLEANUP_GROUP;
   typedef void (__attribute__((__stdcall__)) *PTP_CLEANUP_GROUP_CANCEL_CALLBACK) (PVOID ObjectContext, PVOID CleanupContext);
-# 8292 "/usr/share/mingw-w64/include/winnt.h" 3
+# 8723 "/usr/share/mingw-w64/include/winnt.h" 3
   typedef struct _TP_CALLBACK_ENVIRON_V1 {
     TP_VERSION Version;
     PTP_POOL Pool;
@@ -10820,7 +10838,7 @@ typedef DWORD (__attribute__((__stdcall__)) *PRTL_RUN_ONCE_INIT_FN)(PRTL_RUN_ONC
 
     extern __inline__ __attribute__((__always_inline__,__gnu_inline__)) void TpSetCallbackPersistent (PTP_CALLBACK_ENVIRON cbe) { cbe->u.s.Persistent = 1; }
     extern __inline__ __attribute__((__always_inline__,__gnu_inline__)) void TpDestroyCallbackEnviron (PTP_CALLBACK_ENVIRON cbe) { {(cbe) = (cbe);}; }
-# 8378 "/usr/share/mingw-w64/include/winnt.h" 3
+# 8820 "/usr/share/mingw-w64/include/winnt.h" 3
 #define _NTTMAPI_ 
 
 
@@ -10828,7 +10846,7 @@ typedef DWORD (__attribute__((__stdcall__)) *PRTL_RUN_ONCE_INIT_FN)(PRTL_RUN_ONC
 
 
 #include <ktmtypes.h>
-# 8384 "/usr/share/mingw-w64/include/winnt.h" 3
+# 8826 "/usr/share/mingw-w64/include/winnt.h" 3
 # 1 "/usr/share/mingw-w64/include/ktmtypes.h" 1 3
 
 
@@ -10975,7 +10993,7 @@ typedef DWORD (__attribute__((__stdcall__)) *PRTL_RUN_ONCE_INIT_FN)(PRTL_RUN_ONC
     ULONG Unused1;
     ULONG Unused2;
   } KCRM_PROTOCOL_BLOB,*PKCRM_PROTOCOL_BLOB,* PRKCRM_PROTOCOL_BLOB;
-# 8385 "/usr/share/mingw-w64/include/winnt.h" 2 3
+# 8827 "/usr/share/mingw-w64/include/winnt.h" 2 3
 
 #define TRANSACTIONMANAGER_QUERY_INFORMATION 0x00001
 #define TRANSACTIONMANAGER_SET_INFORMATION 0x00002
@@ -11168,7 +11186,7 @@ typedef DWORD (__attribute__((__stdcall__)) *PRTL_RUN_ONCE_INIT_FN)(PRTL_RUN_ONC
  DWORD ObjectIdCount;
  GUID ObjectIds[1];
       } KTMOBJECT_CURSOR,*PKTMOBJECT_CURSOR;
-# 8592 "/usr/share/mingw-w64/include/winnt.h" 3
+# 9034 "/usr/share/mingw-w64/include/winnt.h" 3
 #define WOW64_CONTEXT_i386 0x00010000
 #define WOW64_CONTEXT_i486 0x00010000
 #define WOW64_CONTEXT_CONTROL (WOW64_CONTEXT_i386 | __MSABI_LONG(0x00000001))
@@ -11203,7 +11221,7 @@ typedef struct _WOW64_FLOATING_SAVE_AREA {
 } WOW64_FLOATING_SAVE_AREA, *PWOW64_FLOATING_SAVE_AREA;
 
 #include "pshpack4.h"
-# 8625 "/usr/share/mingw-w64/include/winnt.h" 3
+# 9067 "/usr/share/mingw-w64/include/winnt.h" 3
 # 1 "/usr/share/mingw-w64/include/pshpack4.h" 1 3
 
 
@@ -11212,7 +11230,7 @@ typedef struct _WOW64_FLOATING_SAVE_AREA {
 
 
 #pragma pack(push,4)
-# 8626 "/usr/share/mingw-w64/include/winnt.h" 2 3
+# 9068 "/usr/share/mingw-w64/include/winnt.h" 2 3
 typedef struct _WOW64_CONTEXT {
   DWORD ContextFlags;
   DWORD Dr0;
@@ -11241,7 +11259,7 @@ typedef struct _WOW64_CONTEXT {
   BYTE ExtendedRegisters[512];
 } WOW64_CONTEXT, *PWOW64_CONTEXT;
 #include "poppack.h"
-# 8653 "/usr/share/mingw-w64/include/winnt.h" 3
+# 9095 "/usr/share/mingw-w64/include/winnt.h" 3
 # 1 "/usr/share/mingw-w64/include/poppack.h" 1 3
 
 
@@ -11250,7 +11268,7 @@ typedef struct _WOW64_CONTEXT {
 
 
 #pragma pack(pop)
-# 8654 "/usr/share/mingw-w64/include/winnt.h" 2 3
+# 9096 "/usr/share/mingw-w64/include/winnt.h" 2 3
 
 typedef struct _WOW64_LDT_ENTRY {
   WORD LimitLow;
@@ -11281,7 +11299,7 @@ typedef struct _WOW64_LDT_ENTRY {
       DWORD Selector;
       WOW64_LDT_ENTRY Descriptor;
     } WOW64_DESCRIPTOR_TABLE_ENTRY,*PWOW64_DESCRIPTOR_TABLE_ENTRY;
-# 8700 "/usr/share/mingw-w64/include/winnt.h" 3
+# 9142 "/usr/share/mingw-w64/include/winnt.h" 3
 #define ACTIVATION_CONTEXT_SECTION_ASSEMBLY_INFORMATION (1)
 #define ACTIVATION_CONTEXT_SECTION_DLL_REDIRECTION (2)
 #define ACTIVATION_CONTEXT_SECTION_WINDOW_CLASS_REDIRECTION (3)

@@ -1,14 +1,14 @@
 # 1 "c.c"
 # 1 "<built-in>"
 #define __STDC__ 1
-#define __STDC_VERSION__ 201112L
+#define __STDC_VERSION__ 201710L
 #define __STDC_UTF_16__ 1
 #define __STDC_UTF_32__ 1
 #define __STDC_HOSTED__ 1
-#define __GNUC__ 7
-#define __GNUC_MINOR__ 3
+#define __GNUC__ 8
+#define __GNUC_MINOR__ 2
 #define __GNUC_PATCHLEVEL__ 0
-#define __VERSION__ "7.3.0"
+#define __VERSION__ "8.2.0"
 #define __ATOMIC_RELAXED 0
 #define __ATOMIC_SEQ_CST 5
 #define __ATOMIC_ACQUIRE 2
@@ -75,7 +75,7 @@
 #define __UINTPTR_TYPE__ long unsigned int
 #define __has_include(STR) __has_include__(STR)
 #define __has_include_next(STR) __has_include_next__(STR)
-#define __GXX_ABI_VERSION 1011
+#define __GXX_ABI_VERSION 1013
 #define __SCHAR_MAX__ 0x7f
 #define __SHRT_MAX__ 0x7fff
 #define __INT_MAX__ 0x7fffffff
@@ -672,8 +672,8 @@
 # 393 "/usr/include/x86_64-linux-gnu/sys/cdefs.h" 3 4
 #define __glibc_unlikely(cond) __builtin_expect ((cond), 0)
 #define __glibc_likely(cond) __builtin_expect ((cond), 1)
-# 416 "/usr/include/x86_64-linux-gnu/sys/cdefs.h" 3 4
-#define __attribute_nonstring__ 
+# 414 "/usr/include/x86_64-linux-gnu/sys/cdefs.h" 3 4
+#define __attribute_nonstring__ __attribute__ ((__nonstring__))
 # 427 "/usr/include/x86_64-linux-gnu/sys/cdefs.h" 3 4
 #include <bits/wordsize.h>
 # 427 "/usr/include/x86_64-linux-gnu/sys/cdefs.h" 3 4
@@ -2709,78 +2709,78 @@ extern long double creall (long double _Complex __z) __attribute__ ((__nothrow__
 # 32 "/usr/include/tgmath.h" 2 3 4
 # 42 "/usr/include/tgmath.h" 3 4
 #define __HAVE_BUILTIN_TGMATH __GNUC_PREREQ (8, 0)
-# 102 "/usr/include/tgmath.h" 3 4
-#define __tgml(fct) fct ## l
-# 119 "/usr/include/tgmath.h" 3 4
-#define __floating_type(type) (__builtin_classify_type (__real__ ((type) 0)) == 8)
-
-#define __real_integer_type(type) (__builtin_classify_type ((type) 0) == 1)
-
-#define __complex_integer_type(type) (__builtin_classify_type ((type) 0) == 9 && __builtin_classify_type (__real__ ((type) 0)) == 1)
-# 136 "/usr/include/tgmath.h" 3 4
-#define __expr_is_real(E) (__builtin_classify_type (E) != 9)
+# 51 "/usr/include/tgmath.h" 3 4
+#define __TG_F16_ARG(X) 
 
 
 
 
-
-#define __tgmath_real_type_sub(T,E) __typeof__ (*(0 ? (__typeof__ (0 ? (double *) 0 : (void *) (E))) 0 : (__typeof__ (0 ? (T *) 0 : (void *) (!(E)))) 0))
-
-
-
-
-#define __tgmath_real_type(expr) __tgmath_real_type_sub (__typeof__ ((__typeof__ (+(expr))) 0), __floating_type (__typeof__ (+(expr))))
+#define __TG_F32_ARG(X) 
 
 
 
 
-
-
-#define __tgmath_complex_type_sub(T,E1,E2,E3) __typeof__ (*(0 ? (__typeof__ (0 ? (T *) 0 : (void *) (!(E1)))) 0 : (__typeof__ (0 ? (__typeof__ (0 ? (double *) 0 : (void *) (!(E2)))) 0 : (__typeof__ (0 ? (_Complex double *) 0 : (void *) (!(E3)))) 0)) 0))
-# 166 "/usr/include/tgmath.h" 3 4
-#define __tgmath_complex_type(expr) __tgmath_complex_type_sub (__typeof__ ((__typeof__ (+(expr))) 0), __floating_type (__typeof__ (+(expr))), __real_integer_type (__typeof__ (+(expr))), __complex_integer_type (__typeof__ (+(expr))))
-# 212 "/usr/include/tgmath.h" 3 4
-#define __TGMATH_F128(arg_comb,fct,arg_call) 
-#define __TGMATH_CF128(arg_comb,fct,cfct,arg_call) 
-# 253 "/usr/include/tgmath.h" 3 4
-#define __TGMATH_UNARY_REAL_ONLY(Val,Fct) (__extension__ ((sizeof (+(Val)) == sizeof (double) || __builtin_classify_type (Val) != 8) ? (__tgmath_real_type (Val)) Fct (Val) : (sizeof (+(Val)) == sizeof (float)) ? (__tgmath_real_type (Val)) Fct ##f (Val) : __TGMATH_F128 ((Val), (__tgmath_real_type (Val)) Fct, (Val)) (__tgmath_real_type (Val)) __tgml(Fct) (Val)))
-# 263 "/usr/include/tgmath.h" 3 4
-#define __TGMATH_UNARY_REAL_RET_ONLY(Val,Fct) (__extension__ ((sizeof (+(Val)) == sizeof (double) || __builtin_classify_type (Val) != 8) ? Fct (Val) : (sizeof (+(Val)) == sizeof (float)) ? Fct ##f (Val) : __TGMATH_F128 ((Val), Fct, (Val)) __tgml(Fct) (Val)))
-# 272 "/usr/include/tgmath.h" 3 4
-#define __TGMATH_BINARY_FIRST_REAL_ONLY(Val1,Val2,Fct) (__extension__ ((sizeof (+(Val1)) == sizeof (double) || __builtin_classify_type (Val1) != 8) ? (__tgmath_real_type (Val1)) Fct (Val1, Val2) : (sizeof (+(Val1)) == sizeof (float)) ? (__tgmath_real_type (Val1)) Fct ##f (Val1, Val2) : __TGMATH_F128 ((Val1), (__tgmath_real_type (Val1)) Fct, (Val1, Val2)) (__tgmath_real_type (Val1)) __tgml(Fct) (Val1, Val2)))
-# 282 "/usr/include/tgmath.h" 3 4
-#define __TGMATH_BINARY_FIRST_REAL_STD_ONLY(Val1,Val2,Fct) (__extension__ ((sizeof (+(Val1)) == sizeof (double) || __builtin_classify_type (Val1) != 8) ? (__tgmath_real_type (Val1)) Fct (Val1, Val2) : (sizeof (+(Val1)) == sizeof (float)) ? (__tgmath_real_type (Val1)) Fct ##f (Val1, Val2) : (__tgmath_real_type (Val1)) __tgml(Fct) (Val1, Val2)))
+#define __TG_F64_ARG(X) 
 
 
 
 
-
-
-
-#define __TGMATH_BINARY_REAL_ONLY(Val1,Val2,Fct) (__extension__ ((sizeof ((Val1) + (Val2)) > sizeof (double) && __builtin_classify_type ((Val1) + (Val2)) == 8) ? __TGMATH_F128 ((Val1) + (Val2), (__typeof ((__tgmath_real_type (Val1)) 0 + (__tgmath_real_type (Val2)) 0)) Fct, (Val1, Val2)) (__typeof ((__tgmath_real_type (Val1)) 0 + (__tgmath_real_type (Val2)) 0)) __tgml(Fct) (Val1, Val2) : (sizeof (+(Val1)) == sizeof (double) || sizeof (+(Val2)) == sizeof (double) || __builtin_classify_type (Val1) != 8 || __builtin_classify_type (Val2) != 8) ? (__typeof ((__tgmath_real_type (Val1)) 0 + (__tgmath_real_type (Val2)) 0)) Fct (Val1, Val2) : (__typeof ((__tgmath_real_type (Val1)) 0 + (__tgmath_real_type (Val2)) 0)) Fct ##f (Val1, Val2)))
-# 312 "/usr/include/tgmath.h" 3 4
-#define __TGMATH_BINARY_REAL_STD_ONLY(Val1,Val2,Fct) (__extension__ ((sizeof ((Val1) + (Val2)) > sizeof (double) && __builtin_classify_type ((Val1) + (Val2)) == 8) ? (__typeof ((__tgmath_real_type (Val1)) 0 + (__tgmath_real_type (Val2)) 0)) __tgml(Fct) (Val1, Val2) : (sizeof (+(Val1)) == sizeof (double) || sizeof (+(Val2)) == sizeof (double) || __builtin_classify_type (Val1) != 8 || __builtin_classify_type (Val2) != 8) ? (__typeof ((__tgmath_real_type (Val1)) 0 + (__tgmath_real_type (Val2)) 0)) Fct (Val1, Val2) : (__typeof ((__tgmath_real_type (Val1)) 0 + (__tgmath_real_type (Val2)) 0)) Fct ##f (Val1, Val2)))
-# 329 "/usr/include/tgmath.h" 3 4
-#define __TGMATH_BINARY_REAL_RET_ONLY(Val1,Val2,Fct) (__extension__ ((sizeof ((Val1) + (Val2)) > sizeof (double) && __builtin_classify_type ((Val1) + (Val2)) == 8) ? __TGMATH_F128 ((Val1) + (Val2), Fct, (Val1, Val2)) __tgml(Fct) (Val1, Val2) : (sizeof (+(Val1)) == sizeof (double) || sizeof (+(Val2)) == sizeof (double) || __builtin_classify_type (Val1) != 8 || __builtin_classify_type (Val2) != 8) ? Fct (Val1, Val2) : Fct ##f (Val1, Val2)))
-# 341 "/usr/include/tgmath.h" 3 4
-#define __TGMATH_TERNARY_FIRST_SECOND_REAL_ONLY(Val1,Val2,Val3,Fct) (__extension__ ((sizeof ((Val1) + (Val2)) > sizeof (double) && __builtin_classify_type ((Val1) + (Val2)) == 8) ? __TGMATH_F128 ((Val1) + (Val2), (__typeof ((__tgmath_real_type (Val1)) 0 + (__tgmath_real_type (Val2)) 0)) Fct, (Val1, Val2, Val3)) (__typeof ((__tgmath_real_type (Val1)) 0 + (__tgmath_real_type (Val2)) 0)) __tgml(Fct) (Val1, Val2, Val3) : (sizeof (+(Val1)) == sizeof (double) || sizeof (+(Val2)) == sizeof (double) || __builtin_classify_type (Val1) != 8 || __builtin_classify_type (Val2) != 8) ? (__typeof ((__tgmath_real_type (Val1)) 0 + (__tgmath_real_type (Val2)) 0)) Fct (Val1, Val2, Val3) : (__typeof ((__tgmath_real_type (Val1)) 0 + (__tgmath_real_type (Val2)) 0)) Fct ##f (Val1, Val2, Val3)))
-# 363 "/usr/include/tgmath.h" 3 4
-#define __TGMATH_TERNARY_REAL_ONLY(Val1,Val2,Val3,Fct) (__extension__ ((sizeof ((Val1) + (Val2) + (Val3)) > sizeof (double) && __builtin_classify_type ((Val1) + (Val2) + (Val3)) == 8) ? __TGMATH_F128 ((Val1) + (Val2) + (Val3), (__typeof ((__tgmath_real_type (Val1)) 0 + (__tgmath_real_type (Val2)) 0 + (__tgmath_real_type (Val3)) 0)) Fct, (Val1, Val2, Val3)) (__typeof ((__tgmath_real_type (Val1)) 0 + (__tgmath_real_type (Val2)) 0 + (__tgmath_real_type (Val3)) 0)) __tgml(Fct) (Val1, Val2, Val3) : (sizeof (+(Val1)) == sizeof (double) || sizeof (+(Val2)) == sizeof (double) || sizeof (+(Val3)) == sizeof (double) || __builtin_classify_type (Val1) != 8 || __builtin_classify_type (Val2) != 8 || __builtin_classify_type (Val3) != 8) ? (__typeof ((__tgmath_real_type (Val1)) 0 + (__tgmath_real_type (Val2)) 0 + (__tgmath_real_type (Val3)) 0)) Fct (Val1, Val2, Val3) : (__typeof ((__tgmath_real_type (Val1)) 0 + (__tgmath_real_type (Val2)) 0 + (__tgmath_real_type (Val3)) 0)) Fct ##f (Val1, Val2, Val3)))
-# 392 "/usr/include/tgmath.h" 3 4
-#define __TGMATH_TERNARY_FIRST_REAL_RET_ONLY(Val1,Val2,Val3,Fct) (__extension__ ((sizeof (+(Val1)) == sizeof (double) || __builtin_classify_type (Val1) != 8) ? Fct (Val1, Val2, Val3) : (sizeof (+(Val1)) == sizeof (float)) ? Fct ##f (Val1, Val2, Val3) : __TGMATH_F128 ((Val1), Fct, (Val1, Val2, Val3)) __tgml(Fct) (Val1, Val2, Val3)))
-# 403 "/usr/include/tgmath.h" 3 4
-#define __TGMATH_UNARY_REAL_IMAG(Val,Fct,Cfct) (__extension__ ((sizeof (+__real__ (Val)) == sizeof (double) || __builtin_classify_type (__real__ (Val)) != 8) ? (__expr_is_real (Val) ? (__tgmath_complex_type (Val)) Fct (Val) : (__tgmath_complex_type (Val)) Cfct (Val)) : (sizeof (+__real__ (Val)) == sizeof (float)) ? (__expr_is_real (Val) ? (__tgmath_complex_type (Val)) Fct ##f (Val) : (__tgmath_complex_type (Val)) Cfct ##f (Val)) : __TGMATH_CF128 ((Val), (__tgmath_complex_type (Val)) Fct, (__tgmath_complex_type (Val)) Cfct, (Val)) (__expr_is_real (Val) ? (__tgmath_complex_type (Val)) __tgml(Fct) (Val) : (__tgmath_complex_type (Val)) __tgml(Cfct) (Val))))
-# 421 "/usr/include/tgmath.h" 3 4
-#define __TGMATH_UNARY_IMAG(Val,Cfct) (__extension__ ((sizeof (+__real__ (Val)) == sizeof (double) || __builtin_classify_type (__real__ (Val)) != 8) ? (__typeof__ ((__tgmath_real_type (Val)) 0 + _Complex_I)) Cfct (Val) : (sizeof (+__real__ (Val)) == sizeof (float)) ? (__typeof__ ((__tgmath_real_type (Val)) 0 + _Complex_I)) Cfct ##f (Val) : __TGMATH_F128 (__real__ (Val), (__typeof__ ((__tgmath_real_type (Val)) 0 + _Complex_I)) Cfct, (Val)) (__typeof__ ((__tgmath_real_type (Val)) 0 + _Complex_I)) __tgml(Cfct) (Val)))
-# 438 "/usr/include/tgmath.h" 3 4
-#define __TGMATH_UNARY_REAL_IMAG_RET_REAL(Val,Fct,Cfct) (__extension__ ((sizeof (+__real__ (Val)) == sizeof (double) || __builtin_classify_type (__real__ (Val)) != 8) ? (__expr_is_real (Val) ? (__typeof__ (__real__ (__tgmath_real_type (Val)) 0)) Fct (Val) : (__typeof__ (__real__ (__tgmath_real_type (Val)) 0)) Cfct (Val)) : (sizeof (+__real__ (Val)) == sizeof (float)) ? (__expr_is_real (Val) ? (__typeof__ (__real__ (__tgmath_real_type (Val)) 0)) Fct ##f (Val) : (__typeof__ (__real__ (__tgmath_real_type (Val)) 0)) Cfct ##f (Val)) : __TGMATH_CF128 ((Val), (__typeof__ (__real__ (__tgmath_real_type (Val)) 0)) Fct, (__typeof__ (__real__ (__tgmath_real_type (Val)) 0)) Cfct, (Val)) (__expr_is_real (Val) ? (__typeof__ (__real__ (__tgmath_real_type (Val)) 0)) __tgml(Fct) (Val) : (__typeof__ (__real__ (__tgmath_real_type (Val)) 0)) __tgml(Cfct) (Val))))
-# 465 "/usr/include/tgmath.h" 3 4
-#define __TGMATH_UNARY_REAL_IMAG_RET_REAL_SAME(Val,Cfct) __TGMATH_UNARY_REAL_IMAG_RET_REAL ((Val), Cfct, Cfct)
+#define __TG_F128_ARG(X) 
 
 
 
 
-#define __TGMATH_BINARY_REAL_IMAG(Val1,Val2,Fct,Cfct) (__extension__ ((sizeof (__real__ (Val1) + __real__ (Val2)) > sizeof (double) && __builtin_classify_type (__real__ (Val1) + __real__ (Val2)) == 8) ? __TGMATH_CF128 ((Val1) + (Val2), (__typeof ((__tgmath_complex_type (Val1)) 0 + (__tgmath_complex_type (Val2)) 0)) Fct, (__typeof ((__tgmath_complex_type (Val1)) 0 + (__tgmath_complex_type (Val2)) 0)) Cfct, (Val1, Val2)) (__expr_is_real ((Val1) + (Val2)) ? (__typeof ((__tgmath_complex_type (Val1)) 0 + (__tgmath_complex_type (Val2)) 0)) __tgml(Fct) (Val1, Val2) : (__typeof ((__tgmath_complex_type (Val1)) 0 + (__tgmath_complex_type (Val2)) 0)) __tgml(Cfct) (Val1, Val2)) : (sizeof (+__real__ (Val1)) == sizeof (double) || sizeof (+__real__ (Val2)) == sizeof (double) || __builtin_classify_type (__real__ (Val1)) != 8 || __builtin_classify_type (__real__ (Val2)) != 8) ? (__expr_is_real ((Val1) + (Val2)) ? (__typeof ((__tgmath_complex_type (Val1)) 0 + (__tgmath_complex_type (Val2)) 0)) Fct (Val1, Val2) : (__typeof ((__tgmath_complex_type (Val1)) 0 + (__tgmath_complex_type (Val2)) 0)) Cfct (Val1, Val2)) : (__expr_is_real ((Val1) + (Val2)) ? (__typeof ((__tgmath_complex_type (Val1)) 0 + (__tgmath_complex_type (Val2)) 0)) Fct ##f (Val1, Val2) : (__typeof ((__tgmath_complex_type (Val1)) 0 + (__tgmath_complex_type (Val2)) 0)) Cfct ##f (Val1, Val2))))
+#define __TG_F32X_ARG(X) 
+
+
+
+
+#define __TG_F64X_ARG(X) 
+
+
+
+
+#define __TG_F128X_ARG(X) 
+
+
+#define __TGMATH_FUNCS(X) X ## f, X, X ## l, __TG_F16_ARG (X) __TG_F32_ARG (X) __TG_F64_ARG (X) __TG_F128_ARG (X) __TG_F32X_ARG (X) __TG_F64X_ARG (X) __TG_F128X_ARG (X)
+
+
+#define __TGMATH_RCFUNCS(F,C) __TGMATH_FUNCS (F) __TGMATH_FUNCS (C)
+#define __TGMATH_1(F,X) __builtin_tgmath (__TGMATH_FUNCS (F) (X))
+#define __TGMATH_2(F,X,Y) __builtin_tgmath (__TGMATH_FUNCS (F) (X), (Y))
+#define __TGMATH_2STD(F,X,Y) __builtin_tgmath (F ## f, F, F ## l, (X), (Y))
+#define __TGMATH_3(F,X,Y,Z) __builtin_tgmath (__TGMATH_FUNCS (F) (X), (Y), (Z))
+
+#define __TGMATH_1C(F,C,X) __builtin_tgmath (__TGMATH_RCFUNCS (F, C) (X))
+#define __TGMATH_2C(F,C,X,Y) __builtin_tgmath (__TGMATH_RCFUNCS (F, C) (X), (Y))
+# 223 "/usr/include/tgmath.h" 3 4
+#define __TGMATH_UNARY_REAL_ONLY(Val,Fct) __TGMATH_1 (Fct, (Val))
+#define __TGMATH_UNARY_REAL_RET_ONLY(Val,Fct) __TGMATH_1 (Fct, (Val))
+#define __TGMATH_BINARY_FIRST_REAL_ONLY(Val1,Val2,Fct) __TGMATH_2 (Fct, (Val1), (Val2))
+
+#define __TGMATH_BINARY_FIRST_REAL_STD_ONLY(Val1,Val2,Fct) __TGMATH_2STD (Fct, (Val1), (Val2))
+
+#define __TGMATH_BINARY_REAL_ONLY(Val1,Val2,Fct) __TGMATH_2 (Fct, (Val1), (Val2))
+
+#define __TGMATH_BINARY_REAL_STD_ONLY(Val1,Val2,Fct) __TGMATH_2STD (Fct, (Val1), (Val2))
+
+#define __TGMATH_BINARY_REAL_RET_ONLY(Val1,Val2,Fct) __TGMATH_2 (Fct, (Val1), (Val2))
+
+#define __TGMATH_TERNARY_FIRST_SECOND_REAL_ONLY(Val1,Val2,Val3,Fct) __TGMATH_3 (Fct, (Val1), (Val2), (Val3))
+
+#define __TGMATH_TERNARY_REAL_ONLY(Val1,Val2,Val3,Fct) __TGMATH_3 (Fct, (Val1), (Val2), (Val3))
+
+#define __TGMATH_TERNARY_FIRST_REAL_RET_ONLY(Val1,Val2,Val3,Fct) __TGMATH_3 (Fct, (Val1), (Val2), (Val3))
+
+#define __TGMATH_UNARY_REAL_IMAG(Val,Fct,Cfct) __TGMATH_1C (Fct, Cfct, (Val))
+
+#define __TGMATH_UNARY_IMAG(Val,Cfct) __TGMATH_1 (Cfct, (Val))
+#define __TGMATH_UNARY_REAL_IMAG_RET_REAL(Val,Fct,Cfct) __TGMATH_1C (Fct, Cfct, (Val))
+
+#define __TGMATH_UNARY_REAL_IMAG_RET_REAL_SAME(Val,Cfct) __TGMATH_1 (Cfct, (Val))
+
+#define __TGMATH_BINARY_REAL_IMAG(Val1,Val2,Fct,Cfct) __TGMATH_2C (Fct, Cfct, (Val1), (Val2))
 # 522 "/usr/include/tgmath.h" 3 4
 #define acos(Val) __TGMATH_UNARY_REAL_IMAG (Val, acos, cacos)
 

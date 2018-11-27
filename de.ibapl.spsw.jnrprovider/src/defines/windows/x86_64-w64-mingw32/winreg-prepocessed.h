@@ -8,7 +8,7 @@
 #define __GNUC__ 7
 #define __GNUC_MINOR__ 3
 #define __GNUC_PATCHLEVEL__ 0
-#define __VERSION__ "7.3-win32 20180318"
+#define __VERSION__ "7.3-win32 20180506"
 #define __ATOMIC_RELAXED 0
 #define __ATOMIC_SEQ_CST 5
 #define __ATOMIC_ACQUIRE 2
@@ -386,6 +386,32 @@
 
 #define __MINGW_TYPEDEF_UAW(type) typedef __MINGW_NAME_UAW(type) type;
 # 10 "/usr/share/mingw-w64/include/winreg.h" 2 3
+#include <winapifamily.h>
+# 10 "/usr/share/mingw-w64/include/winreg.h" 3
+# 1 "/usr/share/mingw-w64/include/winapifamily.h" 1 3
+
+
+
+
+
+
+#define _INC_WINAPIFAMILY 
+
+#define WINAPI_PARTITION_DESKTOP 0x1
+#define WINAPI_PARTITION_APP 0x2
+
+#define WINAPI_FAMILY_APP WINAPI_PARTITION_APP
+#define WINAPI_FAMILY_DESKTOP_APP (WINAPI_PARTITION_DESKTOP | WINAPI_PARTITION_APP)
+
+
+
+
+#define WINAPI_FAMILY WINAPI_FAMILY_DESKTOP_APP
+
+
+#define WINAPI_FAMILY_PARTITION(v) ((WINAPI_FAMILY & v) == v)
+#define WINAPI_FAMILY_ONE_PARTITION(vset,v) ((WINAPI_FAMILY & vset) == v)
+# 11 "/usr/share/mingw-w64/include/winreg.h" 2 3
 
 
 
@@ -411,7 +437,7 @@
 #define RRF_ZEROONFAILURE 0x20000000
 
   
-# 34 "/usr/share/mingw-w64/include/winreg.h" 3
+# 35 "/usr/share/mingw-w64/include/winreg.h" 3
  typedef ACCESS_MASK REGSAM;
   typedef LONG LSTATUS;
 
@@ -490,6 +516,8 @@
 
 
 #define WIN31_CLASS NULL
+
+
 
 #define RegConnectRegistry __MINGW_NAME_AW(RegConnectRegistry)
 #define RegConnectRegistryEx __MINGW_NAME_AW(RegConnectRegistryEx)
@@ -584,7 +612,7 @@
   WINADVAPI WINBOOL WINAPI AbortSystemShutdownW(LPWSTR lpMachineName);
 
 #include <reason.h>
-# 205 "/usr/share/mingw-w64/include/winreg.h" 3
+# 208 "/usr/share/mingw-w64/include/winreg.h" 3
 # 1 "/usr/share/mingw-w64/include/reason.h" 1 3
 
 
@@ -665,7 +693,7 @@
 #define SNAPSHOT_POLICY_UNPLANNED 2
 
 #define MAX_NUM_REASONS 256
-# 206 "/usr/share/mingw-w64/include/winreg.h" 2 3
+# 209 "/usr/share/mingw-w64/include/winreg.h" 2 3
 
 #define REASON_SWINSTALL SHTDN_REASON_MAJOR_SOFTWARE|SHTDN_REASON_MINOR_INSTALLATION
 #define REASON_HWINSTALL SHTDN_REASON_MAJOR_HARDWARE|SHTDN_REASON_MINOR_INSTALLATION

@@ -8,7 +8,7 @@
 #define __GNUC__ 7
 #define __GNUC_MINOR__ 3
 #define __GNUC_PATCHLEVEL__ 0
-#define __VERSION__ "7.3-win32 20180318"
+#define __VERSION__ "7.3-win32 20180506"
 #define __ATOMIC_RELAXED 0
 #define __ATOMIC_SEQ_CST 5
 #define __ATOMIC_ACQUIRE 2
@@ -387,8 +387,9 @@
 #define __MINGW64_STRINGIFY(x) __STRINGIFY(x)
 
 
-#define __MINGW64_VERSION_MAJOR 5
+#define __MINGW64_VERSION_MAJOR 6
 #define __MINGW64_VERSION_MINOR 0
+#define __MINGW64_VERSION_BUGFIX 0
 
 
 
@@ -398,7 +399,9 @@
 
 #define __MINGW64_VERSION_RC 0
 
-#define __MINGW64_VERSION_STR __MINGW64_STRINGIFY(__MINGW64_VERSION_MAJOR) "." __MINGW64_STRINGIFY(__MINGW64_VERSION_MINOR)
+#define __MINGW64_VERSION_STR __MINGW64_STRINGIFY(__MINGW64_VERSION_MAJOR) "." __MINGW64_STRINGIFY(__MINGW64_VERSION_MINOR) "." __MINGW64_STRINGIFY(__MINGW64_VERSION_BUGFIX)
+
+
 
 
 
@@ -411,17 +414,17 @@
 
 #define __MINGW32_MAJOR_VERSION 3
 #define __MINGW32_MINOR_VERSION 11
-# 53 "/usr/share/mingw-w64/include/_mingw_mac.h" 3
+# 54 "/usr/share/mingw-w64/include/_mingw_mac.h" 3
 #define _M_IX86 600
-# 104 "/usr/share/mingw-w64/include/_mingw_mac.h" 3
+# 114 "/usr/share/mingw-w64/include/_mingw_mac.h" 3
 #undef __MINGW_USE_UNDERSCORE_PREFIX
 #define __MINGW_USE_UNDERSCORE_PREFIX 1
-# 114 "/usr/share/mingw-w64/include/_mingw_mac.h" 3
+# 124 "/usr/share/mingw-w64/include/_mingw_mac.h" 3
 #define __MINGW_IMP_SYMBOL(sym) _imp__ ##sym
 #define __MINGW_IMP_LSYMBOL(sym) __imp__ ##sym
 #define __MINGW_USYMBOL(sym) _ ##sym
 #define __MINGW_LSYMBOL(sym) sym
-# 144 "/usr/share/mingw-w64/include/_mingw_mac.h" 3
+# 154 "/usr/share/mingw-w64/include/_mingw_mac.h" 3
 #undef __MINGW_EXTENSION
 
 
@@ -490,9 +493,9 @@
 
 
 #define __MINGW_GNUC_PREREQ(major,minor) (__GNUC__ > (major) || (__GNUC__ == (major) && __GNUC_MINOR__ >= (minor)))
-# 222 "/usr/share/mingw-w64/include/_mingw_mac.h" 3
+# 232 "/usr/share/mingw-w64/include/_mingw_mac.h" 3
 #define __MINGW_MSC_PREREQ(major,minor) 0
-# 234 "/usr/share/mingw-w64/include/_mingw_mac.h" 3
+# 244 "/usr/share/mingw-w64/include/_mingw_mac.h" 3
 #define __MINGW_ATTRIB_DEPRECATED_STR(X) 
 
 
@@ -529,11 +532,15 @@
 
 
 #undef __mingw_ovr
+#undef __mingw_static_ovr
+
 
 
 
 
 #define __mingw_ovr static __attribute__ ((__unused__)) __inline__ __cdecl
+
+#define __mingw_static_ovr __mingw_ovr
 # 13 "/usr/share/mingw-w64/include/_mingw.h" 2 3
 #include "_mingw_secapi.h"
 # 13 "/usr/share/mingw-w64/include/_mingw.h" 3
@@ -632,7 +639,9 @@
 
 #define __MINGW_ATTRIB_USED __attribute__ ((__used__))
 #define __MINGW_ATTRIB_DEPRECATED __attribute__ ((__deprecated__))
-# 193 "/usr/share/mingw-w64/include/_mingw.h" 3
+
+#define __MINGW_ATTRIB_DEPRECATED_MSG(x) __attribute__ ((__deprecated__(x)))
+# 200 "/usr/share/mingw-w64/include/_mingw.h" 3
 #define __MINGW_NOTHROW __attribute__ ((__nothrow__))
 
 
@@ -660,7 +669,7 @@
 
 
 
-#define __MSVCRT_VERSION__ 0x0700
+#define __MSVCRT_VERSION__ 0x700
 
 
 
@@ -675,7 +684,7 @@
 #define __int16 short
 #define __int32 int
 #define __int64 long long
-# 248 "/usr/share/mingw-w64/include/_mingw.h" 3
+# 255 "/usr/share/mingw-w64/include/_mingw.h" 3
 #define __ptr32 
 #define __ptr64 
 
@@ -688,13 +697,13 @@
 
 
 #define __forceinline extern __inline__ __attribute__((__always_inline__,__gnu_inline__))
-# 271 "/usr/share/mingw-w64/include/_mingw.h" 3
+# 278 "/usr/share/mingw-w64/include/_mingw.h" 3
 #define __nothrow 
 
 
 
 #include <vadefs.h>
-# 275 "/usr/share/mingw-w64/include/_mingw.h" 3
+# 282 "/usr/share/mingw-w64/include/_mingw.h" 3
 # 1 "/usr/share/mingw-w64/include/vadefs.h" 1 3
 
 
@@ -707,7 +716,7 @@
 #include <_mingw.h>
 # 9 "/usr/share/mingw-w64/include/vadefs.h" 3
 # 1 "/usr/share/mingw-w64/include/_mingw.h" 1 3
-# 557 "/usr/share/mingw-w64/include/_mingw.h" 3
+# 587 "/usr/share/mingw-w64/include/_mingw.h" 3
 #define MINGW_SDK_INIT 
 
 
@@ -717,7 +726,7 @@
 
 
 #include "sdks/_mingw_directx.h"
-# 565 "/usr/share/mingw-w64/include/_mingw.h" 3
+# 595 "/usr/share/mingw-w64/include/_mingw.h" 3
 # 1 "/usr/share/mingw-w64/include/sdks/_mingw_directx.h" 1 3
 
 
@@ -726,15 +735,15 @@
 
 #define MINGW_HAS_DDRAW_H 1
 #define MINGW_DDRAW_VERSION 7
-# 566 "/usr/share/mingw-w64/include/_mingw.h" 2 3
+# 596 "/usr/share/mingw-w64/include/_mingw.h" 2 3
 #include "sdks/_mingw_ddk.h"
-# 566 "/usr/share/mingw-w64/include/_mingw.h" 3
+# 596 "/usr/share/mingw-w64/include/_mingw.h" 3
 # 1 "/usr/share/mingw-w64/include/sdks/_mingw_ddk.h" 1 3
 
 #define MINGW_DDK_H 
 
 #define MINGW_HAS_DDK_H 1
-# 567 "/usr/share/mingw-w64/include/_mingw.h" 2 3
+# 597 "/usr/share/mingw-w64/include/_mingw.h" 2 3
 # 10 "/usr/share/mingw-w64/include/vadefs.h" 2 3
 
 
@@ -766,7 +775,7 @@
 #define _crt_va_copy(d,s) __builtin_va_copy(d,s)
 # 103 "/usr/share/mingw-w64/include/vadefs.h" 3
 #pragma pack(pop)
-# 276 "/usr/share/mingw-w64/include/_mingw.h" 2 3
+# 283 "/usr/share/mingw-w64/include/_mingw.h" 2 3
 
 
 #define __CRT_STRINGIZE(_Value) #_Value
@@ -801,7 +810,7 @@
 
 
 #define _MRTIMP2 _CRTIMP
-# 318 "/usr/share/mingw-w64/include/_mingw.h" 3
+# 325 "/usr/share/mingw-w64/include/_mingw.h" 3
 #define _DLL 
 
 
@@ -886,17 +895,17 @@
 
 
 #define _CRT_UNUSED(x) (void)x
-# 437 "/usr/share/mingw-w64/include/_mingw.h" 3
+# 444 "/usr/share/mingw-w64/include/_mingw.h" 3
 #undef _CRT_glob
 #define _CRT_glob _dowildcard
-# 454 "/usr/share/mingw-w64/include/_mingw.h" 3
+# 461 "/usr/share/mingw-w64/include/_mingw.h" 3
 #define __ANONYMOUS_DEFINED 
 #define _ANONYMOUS_UNION __MINGW_EXTENSION
 #define _ANONYMOUS_STRUCT __MINGW_EXTENSION
 
 #define _UNION_NAME(x) 
 #define _STRUCT_NAME(x) 
-# 479 "/usr/share/mingw-w64/include/_mingw.h" 3
+# 486 "/usr/share/mingw-w64/include/_mingw.h" 3
 #define DUMMYUNIONNAME 
 #define DUMMYUNIONNAME1 
 #define DUMMYUNIONNAME2 
@@ -907,16 +916,19 @@
 #define DUMMYUNIONNAME7 
 #define DUMMYUNIONNAME8 
 #define DUMMYUNIONNAME9 
-# 501 "/usr/share/mingw-w64/include/_mingw.h" 3
+# 508 "/usr/share/mingw-w64/include/_mingw.h" 3
 #define DUMMYSTRUCTNAME 
 #define DUMMYSTRUCTNAME1 
 #define DUMMYSTRUCTNAME2 
 #define DUMMYSTRUCTNAME3 
 #define DUMMYSTRUCTNAME4 
 #define DUMMYSTRUCTNAME5 
-# 529 "/usr/share/mingw-w64/include/_mingw.h" 3
+# 553 "/usr/share/mingw-w64/include/_mingw.h" 3
 #define __CRT_UUID_DECL(type,l,w1,w2,b1,b2,b3,b4,b5,b6,b7,b8) 
-# 539 "/usr/share/mingw-w64/include/_mingw.h" 3
+# 566 "/usr/share/mingw-w64/include/_mingw.h" 3
+#define __MINGW_DEBUGBREAK_IMPL 1
+
+
 void __attribute__((__cdecl__)) __debugbreak(void);
 extern __inline__ __attribute__((__always_inline__,__gnu_inline__)) void __attribute__((__cdecl__)) __debugbreak(void)
 {
@@ -967,7 +979,7 @@ typedef struct _GUID {
   unsigned short Data3;
   unsigned char Data4[8];
 } GUID;
-# 35 "/usr/share/mingw-w64/include/guiddef.h" 3
+# 40 "/usr/share/mingw-w64/include/guiddef.h" 3
 #define FAR 
 
 
@@ -980,7 +992,7 @@ typedef struct _GUID {
 
 
 #define EXTERN_C extern
-# 61 "/usr/share/mingw-w64/include/guiddef.h" 3
+# 67 "/usr/share/mingw-w64/include/guiddef.h" 3
 #define DEFINE_GUID(name,l,w1,w2,b1,b2,b3,b4,b5,b6,b7,b8) EXTERN_C const GUID name
 
 
@@ -1069,7 +1081,7 @@ typedef FMTID *LPFMTID;
 
 #define _SYS_GUID_OPERATORS_ 
 #include <string.h>
-# 148 "/usr/share/mingw-w64/include/guiddef.h" 3
+# 154 "/usr/share/mingw-w64/include/guiddef.h" 3
 # 1 "/usr/share/mingw-w64/include/string.h" 1 3
 
 
@@ -1536,8 +1548,8 @@ typedef struct threadlocaleinfostruct {
     return _src ? wcsnlen(_src, _count) : 0;
   }
 # 191 "/usr/share/mingw-w64/include/string.h" 2 3
-# 149 "/usr/share/mingw-w64/include/guiddef.h" 2 3
-# 159 "/usr/share/mingw-w64/include/guiddef.h" 3
+# 155 "/usr/share/mingw-w64/include/guiddef.h" 2 3
+# 165 "/usr/share/mingw-w64/include/guiddef.h" 3
 #define InlineIsEqualGUID(rguid1,rguid2) ((&(rguid1)->Data1)[0] == (&(rguid2)->Data1)[0] && (&(rguid1)->Data1)[1] == (&(rguid2)->Data1)[1] && (&(rguid1)->Data1)[2] == (&(rguid2)->Data1)[2] && (&(rguid1)->Data1)[3] == (&(rguid2)->Data1)[3])
 #define IsEqualGUID(rguid1,rguid2) (!memcmp (rguid1, rguid2, sizeof (GUID)))
 
@@ -2323,6 +2335,13 @@ typedef struct threadlocaleinfostruct {
 
 
 
+  __attribute__((dllimport)) WINBOOL __attribute__((__stdcall__)) CryptAcquireContextA (HCRYPTPROV *phProv, LPCSTR szContainer, LPCSTR szProvider, DWORD dwProvType, DWORD dwFlags);
+  __attribute__((dllimport)) WINBOOL __attribute__((__stdcall__)) CryptAcquireContextW (HCRYPTPROV *phProv, LPCWSTR szContainer, LPCWSTR szProvider, DWORD dwProvType, DWORD dwFlags);
+#define CryptAcquireContext __MINGW_NAME_AW(CryptAcquireContext)
+  __attribute__((dllimport)) WINBOOL __attribute__((__stdcall__)) CryptReleaseContext (HCRYPTPROV hProv, DWORD dwFlags);
+  __attribute__((dllimport)) WINBOOL __attribute__((__stdcall__)) CryptGenRandom (HCRYPTPROV hProv, DWORD dwLen, BYTE *pbBuffer);
+
+
   typedef struct _CMS_DH_KEY_INFO {
     DWORD dwVersion;
     ALG_ID Algid;
@@ -2331,7 +2350,6 @@ typedef struct threadlocaleinfostruct {
     void *pReserved;
   } CMS_DH_KEY_INFO,*PCMS_DH_KEY_INFO;
 
-#define CryptAcquireContext __MINGW_NAME_AW(CryptAcquireContext)
 #define CryptSignHash __MINGW_NAME_AW(CryptSignHash)
 #define CryptVerifySignature __MINGW_NAME_AW(CryptVerifySignature)
 #define CryptSetProvider __MINGW_NAME_AW(CryptSetProvider)
@@ -2340,9 +2358,6 @@ typedef struct threadlocaleinfostruct {
 #define CryptEnumProviderTypes __MINGW_NAME_AW(CryptEnumProviderTypes)
 #define CryptEnumProviders __MINGW_NAME_AW(CryptEnumProviders)
 
-  __attribute__((dllimport)) WINBOOL __attribute__((__stdcall__)) CryptAcquireContextA (HCRYPTPROV *phProv, LPCSTR szContainer, LPCSTR szProvider, DWORD dwProvType, DWORD dwFlags);
-  __attribute__((dllimport)) WINBOOL __attribute__((__stdcall__)) CryptAcquireContextW (HCRYPTPROV *phProv, LPCWSTR szContainer, LPCWSTR szProvider, DWORD dwProvType, DWORD dwFlags);
-  __attribute__((dllimport)) WINBOOL __attribute__((__stdcall__)) CryptReleaseContext (HCRYPTPROV hProv, DWORD dwFlags);
   __attribute__((dllimport)) WINBOOL __attribute__((__stdcall__)) CryptGenKey (HCRYPTPROV hProv, ALG_ID Algid, DWORD dwFlags, HCRYPTKEY *phKey);
   __attribute__((dllimport)) WINBOOL __attribute__((__stdcall__)) CryptDeriveKey (HCRYPTPROV hProv, ALG_ID Algid, HCRYPTHASH hBaseData, DWORD dwFlags, HCRYPTKEY *phKey);
   __attribute__((dllimport)) WINBOOL __attribute__((__stdcall__)) CryptDestroyKey (HCRYPTKEY hKey);
@@ -2352,7 +2367,6 @@ typedef struct threadlocaleinfostruct {
   __attribute__((dllimport)) WINBOOL __attribute__((__stdcall__)) CryptGetHashParam (HCRYPTHASH hHash, DWORD dwParam, BYTE *pbData, DWORD *pdwDataLen, DWORD dwFlags);
   __attribute__((dllimport)) WINBOOL __attribute__((__stdcall__)) CryptSetProvParam (HCRYPTPROV hProv, DWORD dwParam, const BYTE *pbData, DWORD dwFlags);
   __attribute__((dllimport)) WINBOOL __attribute__((__stdcall__)) CryptGetProvParam (HCRYPTPROV hProv, DWORD dwParam, BYTE *pbData, DWORD *pdwDataLen, DWORD dwFlags);
-  __attribute__((dllimport)) WINBOOL __attribute__((__stdcall__)) CryptGenRandom (HCRYPTPROV hProv, DWORD dwLen, BYTE *pbBuffer);
   __attribute__((dllimport)) WINBOOL __attribute__((__stdcall__)) CryptGetUserKey (HCRYPTPROV hProv, DWORD dwKeySpec, HCRYPTKEY *phUserKey);
   __attribute__((dllimport)) WINBOOL __attribute__((__stdcall__)) CryptExportKey (HCRYPTKEY hKey, HCRYPTKEY hExpKey, DWORD dwBlobType, DWORD dwFlags, BYTE *pbData, DWORD *pdwDataLen);
   __attribute__((dllimport)) WINBOOL __attribute__((__stdcall__)) CryptImportKey (HCRYPTPROV hProv, const BYTE *pbData, DWORD dwDataLen, HCRYPTKEY hPubKey, DWORD dwFlags, HCRYPTKEY *phKey);
@@ -2387,7 +2401,7 @@ typedef struct threadlocaleinfostruct {
   typedef ULONG_PTR HCRYPTPROV_LEGACY;
 
 #include <bcrypt.h>
-# 764 "/usr/share/mingw-w64/include/wincrypt.h" 3
+# 766 "/usr/share/mingw-w64/include/wincrypt.h" 3
 # 1 "/usr/share/mingw-w64/include/bcrypt.h" 1 3
 
 
@@ -2945,6 +2959,8 @@ typedef PVOID BCRYPT_HANDLE;
   NTSTATUS __attribute__((__stdcall__)) BCryptResolveProviders (LPCWSTR pszContext, ULONG dwInterface, LPCWSTR pszFunction, LPCWSTR pszProvider, ULONG dwMode, ULONG dwFlags, ULONG *pcbBuffer, PCRYPT_PROVIDER_REFS *ppBuffer);
   NTSTATUS __attribute__((__stdcall__)) BCryptGetFipsAlgorithmMode (BOOLEAN *pfEnabled);
 
+
+
   NTSTATUS __attribute__((__stdcall__)) BCryptQueryProviderRegistration (LPCWSTR pszProvider, ULONG dwMode, ULONG dwInterface, ULONG *pcbBuffer, PCRYPT_PROVIDER_REG *ppBuffer);
   NTSTATUS __attribute__((__stdcall__)) BCryptEnumRegisteredProviders (ULONG *pcbBuffer, PCRYPT_PROVIDERS *ppBuffer);
   NTSTATUS __attribute__((__stdcall__)) BCryptCreateContext (ULONG dwTable, LPCWSTR pszContext, PCRYPT_CONTEXT_CONFIG pConfig);
@@ -2961,11 +2977,11 @@ typedef PVOID BCRYPT_HANDLE;
   NTSTATUS __attribute__((__stdcall__)) BCryptSetContextFunctionProperty (ULONG dwTable, LPCWSTR pszContext, ULONG dwInterface, LPCWSTR pszFunction, LPCWSTR pszProperty, ULONG cbValue, PUCHAR pbValue);
   NTSTATUS __attribute__((__stdcall__)) BCryptQueryContextFunctionProperty (ULONG dwTable, LPCWSTR pszContext, ULONG dwInterface, LPCWSTR pszFunction, LPCWSTR pszProperty, ULONG *pcbValue, PUCHAR *ppbValue);
   NTSTATUS __attribute__((__stdcall__)) BCryptRegisterConfigChangeNotify (HANDLE *phEvent);
-# 765 "/usr/share/mingw-w64/include/wincrypt.h" 2 3
+# 767 "/usr/share/mingw-w64/include/wincrypt.h" 2 3
 
 
 #include <ncrypt.h>
-# 767 "/usr/share/mingw-w64/include/wincrypt.h" 3
+# 769 "/usr/share/mingw-w64/include/wincrypt.h" 3
 # 1 "/usr/share/mingw-w64/include/ncrypt.h" 1 3
 
 
@@ -3259,7 +3275,7 @@ typedef struct __NCRYPT_UI_POLICY {
   SECURITY_STATUS __attribute__((__stdcall__)) NCryptNotifyChangeKey (NCRYPT_PROV_HANDLE hProvider, HANDLE *phEvent, DWORD dwFlags);
   SECURITY_STATUS __attribute__((__stdcall__)) NCryptSecretAgreement (NCRYPT_KEY_HANDLE hPrivKey, NCRYPT_KEY_HANDLE hPubKey, NCRYPT_SECRET_HANDLE *phAgreedSecret, DWORD dwFlags);
   SECURITY_STATUS __attribute__((__stdcall__)) NCryptDeriveKey (NCRYPT_SECRET_HANDLE hSharedSecret, LPCWSTR pwszKDF, NCryptBufferDesc *pParameterList, PBYTE pbDerivedKey, DWORD cbDerivedKey, DWORD *pcbResult, ULONG dwFlags);
-# 768 "/usr/share/mingw-w64/include/wincrypt.h" 2 3
+# 770 "/usr/share/mingw-w64/include/wincrypt.h" 2 3
 
   typedef struct _CRYPT_BIT_BLOB {
     DWORD cbData;
@@ -5230,7 +5246,7 @@ typedef struct __NCRYPT_UI_POLICY {
     void *pvEncryptionAuxInfo;
     DWORD cRecipients;
     PCERT_INFO *rgpRecipients;
-# 2749 "/usr/share/mingw-w64/include/wincrypt.h" 3
+# 2751 "/usr/share/mingw-w64/include/wincrypt.h" 3
   } CMSG_ENVELOPED_ENCODE_INFO,*PCMSG_ENVELOPED_ENCODE_INFO;
 
   typedef struct _CMSG_KEY_TRANS_RECIPIENT_ENCODE_INFO {
@@ -6381,9 +6397,12 @@ __attribute__((dllimport)) HCERTSTORE __attribute__((__stdcall__)) CertOpenStore
   __attribute__((dllimport)) WINBOOL __attribute__((__stdcall__)) CertFreeCRLContext (PCCRL_CONTEXT pCrlContext);
 
 
-
   __attribute__((dllimport)) WINBOOL __attribute__((__stdcall__)) CertGetCertificateContextProperty (PCCERT_CONTEXT pCertContext, DWORD dwPropId, void *pvData, DWORD *pcbData);
   __attribute__((dllimport)) DWORD __attribute__((__stdcall__)) CertEnumCertificateContextProperties (PCCERT_CONTEXT pCertContext, DWORD dwPropId);
+  __attribute__((dllimport)) WINBOOL __attribute__((__stdcall__)) CertDeleteCertificateFromStore (PCCERT_CONTEXT pCertContext);
+
+
+
   __attribute__((dllimport)) WINBOOL __attribute__((__stdcall__)) CertCreateCTLEntryFromCertificateContextProperties (PCCERT_CONTEXT pCertContext, DWORD cOptAttr, PCRYPT_ATTRIBUTE rgOptAttr, DWORD dwFlags, void *pvReserved, PCTL_ENTRY pCtlEntry, DWORD *pcbCtlEntry);
   __attribute__((dllimport)) WINBOOL __attribute__((__stdcall__)) CertSetCertificateContextPropertiesFromCTLEntry (PCCERT_CONTEXT pCertContext, PCTL_ENTRY pCtlEntry, DWORD dwFlags);
   __attribute__((dllimport)) PCCRL_CONTEXT __attribute__((__stdcall__)) CertGetCRLFromStore (HCERTSTORE hCertStore, PCCERT_CONTEXT pIssuerContext, PCCRL_CONTEXT pPrevCrlContext, DWORD *pdwFlags);
@@ -6396,7 +6415,6 @@ __attribute__((dllimport)) HCERTSTORE __attribute__((__stdcall__)) CertOpenStore
   __attribute__((dllimport)) WINBOOL __attribute__((__stdcall__)) CertAddEncodedCertificateToStore (HCERTSTORE hCertStore, DWORD dwCertEncodingType, const BYTE *pbCertEncoded, DWORD cbCertEncoded, DWORD dwAddDisposition, PCCERT_CONTEXT *ppCertContext);
   __attribute__((dllimport)) WINBOOL __attribute__((__stdcall__)) CertAddCertificateContextToStore (HCERTSTORE hCertStore, PCCERT_CONTEXT pCertContext, DWORD dwAddDisposition, PCCERT_CONTEXT *ppStoreContext);
   __attribute__((dllimport)) WINBOOL __attribute__((__stdcall__)) CertAddSerializedElementToStore (HCERTSTORE hCertStore, const BYTE *pbElement, DWORD cbElement, DWORD dwAddDisposition, DWORD dwFlags, DWORD dwContextTypeFlags, DWORD *pdwContextType, const void **ppvContext);
-  __attribute__((dllimport)) WINBOOL __attribute__((__stdcall__)) CertDeleteCertificateFromStore (PCCERT_CONTEXT pCertContext);
   __attribute__((dllimport)) WINBOOL __attribute__((__stdcall__)) CertAddEncodedCRLToStore (HCERTSTORE hCertStore, DWORD dwCertEncodingType, const BYTE *pbCrlEncoded, DWORD cbCrlEncoded, DWORD dwAddDisposition, PCCRL_CONTEXT *ppCrlContext);
   __attribute__((dllimport)) WINBOOL __attribute__((__stdcall__)) CertAddCRLContextToStore (HCERTSTORE hCertStore, PCCRL_CONTEXT pCrlContext, DWORD dwAddDisposition, PCCRL_CONTEXT *ppStoreContext);
   __attribute__((dllimport)) WINBOOL __attribute__((__stdcall__)) CertSerializeCertificateStoreElement (PCCERT_CONTEXT pCertContext, DWORD dwFlags, BYTE *pbElement, DWORD *pcbElement);
@@ -6594,7 +6612,7 @@ __attribute__((dllimport)) HCERTSTORE __attribute__((__stdcall__)) CertOpenStore
     HCERTSTORE *rgCertStore;
     HCERTSTORE hCrlStore;
     LPFILETIME pftTimeToUse;
-# 4121 "/usr/share/mingw-w64/include/wincrypt.h" 3
+# 4125 "/usr/share/mingw-w64/include/wincrypt.h" 3
   } CERT_REVOCATION_PARA,*PCERT_REVOCATION_PARA;
 
   typedef struct _CERT_REVOCATION_STATUS {
@@ -6693,7 +6711,7 @@ __attribute__((dllimport)) HCERTSTORE __attribute__((__stdcall__)) CertOpenStore
 #define CRYPT_OID_EXPORT_PUBLIC_KEY_INFO_EX2_FUNC "CryptDllExportPublicKeyInfoEx2"
 
   typedef WINBOOL (__attribute__((__stdcall__)) *PFN_CRYPT_EXPORT_PUBLIC_KEY_INFO_EX2_FUNC) (NCRYPT_KEY_HANDLE hNCryptKey, DWORD dwCertEncodingType, LPSTR pszPublicKeyObjId, DWORD dwFlags, void *pvAuxInfo, PCERT_PUBLIC_KEY_INFO pInfo, DWORD *pcbInfo);
-# 4228 "/usr/share/mingw-w64/include/wincrypt.h" 3
+# 4232 "/usr/share/mingw-w64/include/wincrypt.h" 3
 #define CRYPT_OID_IMPORT_PUBLIC_KEY_INFO_FUNC "CryptDllImportPublicKeyInfoEx"
 #define CRYPT_OID_IMPORT_PRIVATE_KEY_INFO_FUNC "CryptDllImportPrivateKeyInfoEx"
 #define CRYPT_OID_EXPORT_PRIVATE_KEY_INFO_FUNC "CryptDllExportPrivateKeyInfoEx"
@@ -6724,7 +6742,7 @@ __attribute__((dllimport)) HCERTSTORE __attribute__((__stdcall__)) CertOpenStore
 
   __attribute__((dllimport)) WINBOOL __attribute__((__stdcall__)) CryptImportPublicKeyInfo (HCRYPTPROV hCryptProv, DWORD dwCertEncodingType, PCERT_PUBLIC_KEY_INFO pInfo, HCRYPTKEY *phKey);
   __attribute__((dllimport)) WINBOOL __attribute__((__stdcall__)) CryptImportPublicKeyInfoEx (HCRYPTPROV hCryptProv, DWORD dwCertEncodingType, PCERT_PUBLIC_KEY_INFO pInfo, ALG_ID aiKeyAlg, DWORD dwFlags, void *pvAuxInfo, HCRYPTKEY *phKey);
-# 4266 "/usr/share/mingw-w64/include/wincrypt.h" 3
+# 4270 "/usr/share/mingw-w64/include/wincrypt.h" 3
   __attribute__((dllimport)) WINBOOL __attribute__((__stdcall__)) CryptAcquireCertificatePrivateKey (PCCERT_CONTEXT pCert, DWORD dwFlags, void *pvParameters, HCRYPTPROV_OR_NCRYPT_KEY_HANDLE *phCryptProvOrNCryptKey, DWORD *pdwKeySpec, WINBOOL *pfCallerFreeProvOrNCryptKey);
   __attribute__((dllimport)) WINBOOL __attribute__((__stdcall__)) CryptFindCertificateKeyProvInfo (PCCERT_CONTEXT pCert, DWORD dwFlags, void *pvReserved);
   __attribute__((dllimport)) WINBOOL __attribute__((__stdcall__)) CryptImportPKCS8 (CRYPT_PKCS8_IMPORT_PARAMS sPrivateKeyAndParams, DWORD dwFlags, HCRYPTPROV *phCryptProv, void *pvAuxInfo);
@@ -7445,7 +7463,7 @@ __attribute__((dllimport)) HCERTSTORE __attribute__((__stdcall__)) CertOpenStore
   typedef struct _CERT_CHAIN_PARA {
     DWORD cbSize;
     CERT_USAGE_MATCH RequestedUsage;
-# 4995 "/usr/share/mingw-w64/include/wincrypt.h" 3
+# 4999 "/usr/share/mingw-w64/include/wincrypt.h" 3
   } CERT_CHAIN_PARA,*PCERT_CHAIN_PARA;
 
 #define CERT_CHAIN_STRONG_SIGN_DISABLE_END_CHECK_FLAG 0x1
@@ -7651,7 +7669,13 @@ __attribute__((dllimport)) HCERTSTORE __attribute__((__stdcall__)) CertOpenStore
     ULONG cbSalt;
   } CRYPT_PKCS12_PBE_PARAMS;
 
+
+
+
   __attribute__((dllimport)) HCERTSTORE __attribute__((__stdcall__)) PFXImportCertStore (CRYPT_DATA_BLOB *pPFX, LPCWSTR szPassword, DWORD dwFlags);
+
+
+
 
 #define PKCS12_IMPORT_SILENT 0x40
 #define CRYPT_USER_KEYSET 0x1000
@@ -7676,7 +7700,7 @@ __attribute__((dllimport)) HCERTSTORE __attribute__((__stdcall__)) CertOpenStore
 #define PKCS12_EXPORT_RESERVED_MASK 0xffff0000
 
   __attribute__((dllimport)) WINBOOL __attribute__((__stdcall__)) PFXExportCertStore (HCERTSTORE hStore, CRYPT_DATA_BLOB *pPFX, LPCWSTR szPassword, DWORD dwFlags);
-# 5249 "/usr/share/mingw-w64/include/wincrypt.h" 3
+# 5259 "/usr/share/mingw-w64/include/wincrypt.h" 3
   __attribute__((dllimport)) WINBOOL __attribute__((__stdcall__)) CertRetrieveLogoOrBiometricInfo (PCCERT_CONTEXT pCertContext, LPCSTR lpszLogoOrBiometricType, DWORD dwRetrievalFlags, DWORD dwTimeout, DWORD dwFlags, void *pvReserved, BYTE **ppbData, DWORD *pcbData, LPWSTR *ppwszMimeType);
 
 #define CERT_RETRIEVE_ISSUER_LOGO ((LPCSTR) 1)
@@ -7687,9 +7711,9 @@ __attribute__((dllimport)) HCERTSTORE __attribute__((__stdcall__)) CertOpenStore
 
 #define CERT_RETRIEVE_BIOMETRIC_PICTURE_TYPE (CERT_RETRIEVE_BIOMETRIC_PREDEFINED_BASE_TYPE + CERT_BIOMETRIC_PICTURE_TYPE)
 #define CERT_RETRIEVE_BIOMETRIC_SIGNATURE_TYPE (CERT_RETRIEVE_BIOMETRIC_PREDEFINED_BASE_TYPE + CERT_BIOMETRIC_SIGNATURE_TYPE)
-# 5434 "/usr/share/mingw-w64/include/wincrypt.h" 3
+# 5443 "/usr/share/mingw-w64/include/wincrypt.h" 3
 #include <dpapi.h>
-# 5434 "/usr/share/mingw-w64/include/wincrypt.h" 3
+# 5443 "/usr/share/mingw-w64/include/wincrypt.h" 3
 # 1 "/usr/share/mingw-w64/include/dpapi.h" 1 3
 
 
@@ -7726,13 +7750,7 @@ __attribute__((dllimport)) HCERTSTORE __attribute__((__stdcall__)) CertOpenStore
 
 #define CRYPTPROTECT_FIRST_RESERVED_FLAGVAL 0x0fffffff
 #define CRYPTPROTECT_LAST_RESERVED_FLAGVAL 0xffffffff
-
-#define CRYPTPROTECTMEMORY_BLOCK_SIZE 16
-
-#define CRYPTPROTECTMEMORY_SAME_PROCESS 0x0
-#define CRYPTPROTECTMEMORY_CROSS_PROCESS 0x1
-#define CRYPTPROTECTMEMORY_SAME_LOGON 0x2
-# 71 "/usr/share/mingw-w64/include/dpapi.h" 3
+# 65 "/usr/share/mingw-w64/include/dpapi.h" 3
   typedef struct _CRYPTPROTECT_PROMPTSTRUCT {
     DWORD cbSize;
     DWORD dwPromptFlags;
@@ -7742,7 +7760,14 @@ __attribute__((dllimport)) HCERTSTORE __attribute__((__stdcall__)) CertOpenStore
 
   __attribute__((dllimport)) WINBOOL __attribute__((__stdcall__)) CryptProtectData (DATA_BLOB *pDataIn, LPCWSTR szDataDescr, DATA_BLOB *pOptionalEntropy, PVOID pvReserved, CRYPTPROTECT_PROMPTSTRUCT *pPromptStruct, DWORD dwFlags, DATA_BLOB *pDataOut);
   __attribute__((dllimport)) WINBOOL __attribute__((__stdcall__)) CryptUnprotectData (DATA_BLOB *pDataIn, LPWSTR *ppszDataDescr, DATA_BLOB *pOptionalEntropy, PVOID pvReserved, CRYPTPROTECT_PROMPTSTRUCT *pPromptStruct, DWORD dwFlags, DATA_BLOB *pDataOut);
-  __attribute__((dllimport)) WINBOOL __attribute__((__stdcall__)) CryptProtectMemory (LPVOID pDataIn, DWORD cbDataIn, DWORD dwFlags);
-  __attribute__((dllimport)) WINBOOL __attribute__((__stdcall__)) CryptUnprotectMemory (LPVOID pDataIn, DWORD cbDataIn, DWORD dwFlags);
-# 5435 "/usr/share/mingw-w64/include/wincrypt.h" 2 3
+# 87 "/usr/share/mingw-w64/include/dpapi.h" 3
+#define CRYPTPROTECTMEMORY_BLOCK_SIZE 16
+
+#define CRYPTPROTECTMEMORY_SAME_PROCESS 0x0
+#define CRYPTPROTECTMEMORY_CROSS_PROCESS 0x1
+#define CRYPTPROTECTMEMORY_SAME_LOGON 0x2
+
+__attribute__((dllimport)) WINBOOL __attribute__((__stdcall__)) CryptProtectMemory (LPVOID pDataIn, DWORD cbDataIn, DWORD dwFlags);
+__attribute__((dllimport)) WINBOOL __attribute__((__stdcall__)) CryptUnprotectMemory (LPVOID pDataIn, DWORD cbDataIn, DWORD dwFlags);
+# 5444 "/usr/share/mingw-w64/include/wincrypt.h" 2 3
 # 1 "c.c" 2

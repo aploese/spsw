@@ -8,7 +8,7 @@
 #define __GNUC__ 7
 #define __GNUC_MINOR__ 3
 #define __GNUC_PATCHLEVEL__ 0
-#define __VERSION__ "7.3-win32 20180318"
+#define __VERSION__ "7.3-win32 20180506"
 #define __ATOMIC_RELAXED 0
 #define __ATOMIC_SEQ_CST 5
 #define __ATOMIC_ACQUIRE 2
@@ -411,8 +411,9 @@
 #define __MINGW64_STRINGIFY(x) __STRINGIFY(x)
 
 
-#define __MINGW64_VERSION_MAJOR 5
+#define __MINGW64_VERSION_MAJOR 6
 #define __MINGW64_VERSION_MINOR 0
+#define __MINGW64_VERSION_BUGFIX 0
 
 
 
@@ -422,7 +423,9 @@
 
 #define __MINGW64_VERSION_RC 0
 
-#define __MINGW64_VERSION_STR __MINGW64_STRINGIFY(__MINGW64_VERSION_MAJOR) "." __MINGW64_STRINGIFY(__MINGW64_VERSION_MINOR)
+#define __MINGW64_VERSION_STR __MINGW64_STRINGIFY(__MINGW64_VERSION_MAJOR) "." __MINGW64_STRINGIFY(__MINGW64_VERSION_MINOR) "." __MINGW64_STRINGIFY(__MINGW64_VERSION_BUGFIX)
+
+
 
 
 
@@ -435,10 +438,10 @@
 
 #define __MINGW32_MAJOR_VERSION 3
 #define __MINGW32_MINOR_VERSION 11
-# 59 "/usr/share/mingw-w64/include/_mingw_mac.h" 3
+# 62 "/usr/share/mingw-w64/include/_mingw_mac.h" 3
 #define _M_AMD64 100
 #define _M_X64 100
-# 88 "/usr/share/mingw-w64/include/_mingw_mac.h" 3
+# 98 "/usr/share/mingw-w64/include/_mingw_mac.h" 3
              
 #undef _
 #define _ 1
@@ -449,12 +452,12 @@
 
 #undef _
              
-# 109 "/usr/share/mingw-w64/include/_mingw_mac.h" 3
+# 119 "/usr/share/mingw-w64/include/_mingw_mac.h" 3
 #define __MINGW_IMP_SYMBOL(sym) __imp_ ##sym
 #define __MINGW_IMP_LSYMBOL(sym) __imp_ ##sym
 #define __MINGW_USYMBOL(sym) sym
 #define __MINGW_LSYMBOL(sym) _ ##sym
-# 144 "/usr/share/mingw-w64/include/_mingw_mac.h" 3
+# 154 "/usr/share/mingw-w64/include/_mingw_mac.h" 3
 #undef __MINGW_EXTENSION
 
 
@@ -523,9 +526,9 @@
 
 
 #define __MINGW_GNUC_PREREQ(major,minor) (__GNUC__ > (major) || (__GNUC__ == (major) && __GNUC_MINOR__ >= (minor)))
-# 222 "/usr/share/mingw-w64/include/_mingw_mac.h" 3
+# 232 "/usr/share/mingw-w64/include/_mingw_mac.h" 3
 #define __MINGW_MSC_PREREQ(major,minor) 0
-# 234 "/usr/share/mingw-w64/include/_mingw_mac.h" 3
+# 244 "/usr/share/mingw-w64/include/_mingw_mac.h" 3
 #define __MINGW_ATTRIB_DEPRECATED_STR(X) 
 
 
@@ -562,11 +565,15 @@
 
 
 #undef __mingw_ovr
+#undef __mingw_static_ovr
+
 
 
 
 
 #define __mingw_ovr static __attribute__ ((__unused__)) __inline__ __cdecl
+
+#define __mingw_static_ovr __mingw_ovr
 # 13 "/usr/share/mingw-w64/include/_mingw.h" 2 3
 #include "_mingw_secapi.h"
 # 13 "/usr/share/mingw-w64/include/_mingw.h" 3
@@ -675,7 +682,9 @@
 
 #define __MINGW_ATTRIB_USED __attribute__ ((__used__))
 #define __MINGW_ATTRIB_DEPRECATED __attribute__ ((__deprecated__))
-# 193 "/usr/share/mingw-w64/include/_mingw.h" 3
+
+#define __MINGW_ATTRIB_DEPRECATED_MSG(x) __attribute__ ((__deprecated__(x)))
+# 200 "/usr/share/mingw-w64/include/_mingw.h" 3
 #define __MINGW_NOTHROW __attribute__ ((__nothrow__))
 
 
@@ -703,7 +712,7 @@
 
 
 
-#define __MSVCRT_VERSION__ 0x0700
+#define __MSVCRT_VERSION__ 0x700
 
 
 
@@ -718,7 +727,7 @@
 #define __int16 short
 #define __int32 int
 #define __int64 long long
-# 248 "/usr/share/mingw-w64/include/_mingw.h" 3
+# 255 "/usr/share/mingw-w64/include/_mingw.h" 3
 #define __ptr32 
 #define __ptr64 
 
@@ -731,13 +740,13 @@
 
 
 #define __forceinline extern __inline__ __attribute__((__always_inline__,__gnu_inline__))
-# 271 "/usr/share/mingw-w64/include/_mingw.h" 3
+# 278 "/usr/share/mingw-w64/include/_mingw.h" 3
 #define __nothrow 
 
 
 
 #include <vadefs.h>
-# 275 "/usr/share/mingw-w64/include/_mingw.h" 3
+# 282 "/usr/share/mingw-w64/include/_mingw.h" 3
 # 1 "/usr/share/mingw-w64/include/vadefs.h" 1 3
 
 
@@ -750,7 +759,7 @@
 #include <_mingw.h>
 # 9 "/usr/share/mingw-w64/include/vadefs.h" 3
 # 1 "/usr/share/mingw-w64/include/_mingw.h" 1 3
-# 557 "/usr/share/mingw-w64/include/_mingw.h" 3
+# 587 "/usr/share/mingw-w64/include/_mingw.h" 3
 #define MINGW_SDK_INIT 
 
 
@@ -760,7 +769,7 @@
 
 
 #include "sdks/_mingw_directx.h"
-# 565 "/usr/share/mingw-w64/include/_mingw.h" 3
+# 595 "/usr/share/mingw-w64/include/_mingw.h" 3
 # 1 "/usr/share/mingw-w64/include/sdks/_mingw_directx.h" 1 3
 
 
@@ -769,15 +778,15 @@
 
 #define MINGW_HAS_DDRAW_H 1
 #define MINGW_DDRAW_VERSION 7
-# 566 "/usr/share/mingw-w64/include/_mingw.h" 2 3
+# 596 "/usr/share/mingw-w64/include/_mingw.h" 2 3
 #include "sdks/_mingw_ddk.h"
-# 566 "/usr/share/mingw-w64/include/_mingw.h" 3
+# 596 "/usr/share/mingw-w64/include/_mingw.h" 3
 # 1 "/usr/share/mingw-w64/include/sdks/_mingw_ddk.h" 1 3
 
 #define MINGW_DDK_H 
 
 #define MINGW_HAS_DDK_H 1
-# 567 "/usr/share/mingw-w64/include/_mingw.h" 2 3
+# 597 "/usr/share/mingw-w64/include/_mingw.h" 2 3
 # 10 "/usr/share/mingw-w64/include/vadefs.h" 2 3
 
 
@@ -809,7 +818,7 @@
 #define _crt_va_copy(d,s) __builtin_va_copy(d,s)
 # 103 "/usr/share/mingw-w64/include/vadefs.h" 3
 #pragma pack(pop)
-# 276 "/usr/share/mingw-w64/include/_mingw.h" 2 3
+# 283 "/usr/share/mingw-w64/include/_mingw.h" 2 3
 
 
 #define __CRT_STRINGIZE(_Value) #_Value
@@ -844,7 +853,7 @@
 
 
 #define _MRTIMP2 _CRTIMP
-# 318 "/usr/share/mingw-w64/include/_mingw.h" 3
+# 325 "/usr/share/mingw-w64/include/_mingw.h" 3
 #define _DLL 
 
 
@@ -885,14 +894,14 @@
 
 
 #define _CRT_OBSOLETE(_NewItem) 
-# 369 "/usr/share/mingw-w64/include/_mingw.h" 3
+# 376 "/usr/share/mingw-w64/include/_mingw.h" 3
 #define _CONST_RETURN 
 
 
 
 
 #define UNALIGNED __unaligned
-# 384 "/usr/share/mingw-w64/include/_mingw.h" 3
+# 391 "/usr/share/mingw-w64/include/_mingw.h" 3
 #define _CRT_ALIGN(x) __attribute__ ((__aligned__ (x)))
 
 
@@ -911,17 +920,17 @@
 
 
 #define _CRT_UNUSED(x) (void)x
-# 437 "/usr/share/mingw-w64/include/_mingw.h" 3
+# 444 "/usr/share/mingw-w64/include/_mingw.h" 3
 #undef _CRT_glob
 #define _CRT_glob _dowildcard
-# 454 "/usr/share/mingw-w64/include/_mingw.h" 3
+# 461 "/usr/share/mingw-w64/include/_mingw.h" 3
 #define __ANONYMOUS_DEFINED 
 #define _ANONYMOUS_UNION __MINGW_EXTENSION
 #define _ANONYMOUS_STRUCT __MINGW_EXTENSION
 
 #define _UNION_NAME(x) 
 #define _STRUCT_NAME(x) 
-# 479 "/usr/share/mingw-w64/include/_mingw.h" 3
+# 486 "/usr/share/mingw-w64/include/_mingw.h" 3
 #define DUMMYUNIONNAME 
 #define DUMMYUNIONNAME1 
 #define DUMMYUNIONNAME2 
@@ -932,16 +941,19 @@
 #define DUMMYUNIONNAME7 
 #define DUMMYUNIONNAME8 
 #define DUMMYUNIONNAME9 
-# 501 "/usr/share/mingw-w64/include/_mingw.h" 3
+# 508 "/usr/share/mingw-w64/include/_mingw.h" 3
 #define DUMMYSTRUCTNAME 
 #define DUMMYSTRUCTNAME1 
 #define DUMMYSTRUCTNAME2 
 #define DUMMYSTRUCTNAME3 
 #define DUMMYSTRUCTNAME4 
 #define DUMMYSTRUCTNAME5 
-# 529 "/usr/share/mingw-w64/include/_mingw.h" 3
+# 553 "/usr/share/mingw-w64/include/_mingw.h" 3
 #define __CRT_UUID_DECL(type,l,w1,w2,b1,b2,b3,b4,b5,b6,b7,b8) 
-# 539 "/usr/share/mingw-w64/include/_mingw.h" 3
+# 566 "/usr/share/mingw-w64/include/_mingw.h" 3
+#define __MINGW_DEBUGBREAK_IMPL 1
+
+
 void __attribute__((__cdecl__)) __debugbreak(void);
 extern __inline__ __attribute__((__always_inline__,__gnu_inline__)) void __attribute__((__cdecl__)) __debugbreak(void)
 {
@@ -1256,23 +1268,24 @@ typedef struct threadlocaleinfostruct {
 typedef off32_t off_t;
 # 81 "/usr/share/mingw-w64/include/stdio.h" 2 3
 
+__attribute__ ((__dllimport__)) FILE *__attribute__((__cdecl__)) __acrt_iob_func(unsigned index);
 
 
   __attribute__ ((__dllimport__)) FILE *__attribute__((__cdecl__)) __iob_func(void);
 #define _iob __iob_func()
-# 99 "/usr/share/mingw-w64/include/stdio.h" 3
+# 100 "/usr/share/mingw-w64/include/stdio.h" 3
 #define _FPOS_T_DEFINED 
 #undef _FPOSOFF
 
 
   __extension__ typedef long long fpos_t;
 #define _FPOSOFF(fp) ((long)(fp))
-# 113 "/usr/share/mingw-w64/include/stdio.h" 3
+# 114 "/usr/share/mingw-w64/include/stdio.h" 3
 #define _STDSTREAM_DEFINED 
 
-#define stdin (&__iob_func()[0])
-#define stdout (&__iob_func()[1])
-#define stderr (&__iob_func()[2])
+#define stdin (__acrt_iob_func(0))
+#define stdout (__acrt_iob_func(1))
+#define stderr (__acrt_iob_func(2))
 
 
 #define _IOREAD 0x0001
@@ -1292,8 +1305,7 @@ typedef off32_t off_t;
 
 
 #define _TWO_DIGIT_EXPONENT 0x1
-
-
+# 162 "/usr/share/mingw-w64/include/stdio.h" 3
 extern
   __attribute__((__format__ (gnu_scanf, 2, 3))) __attribute__ ((__nonnull__ (2)))
   int __attribute__((__cdecl__)) __mingw_sscanf(const char * __restrict__ _Src,const char * __restrict__ _Format,...);
@@ -1344,17 +1356,16 @@ extern
 extern
   __attribute__((__format__ (gnu_printf, 2, 0))) __attribute__((nonnull (1,2)))
   int __attribute__((__cdecl__)) __mingw_vasprintf(char ** __restrict__ , const char * __restrict__ , va_list) __attribute__ ((__nothrow__));
-# 367 "/usr/share/mingw-w64/include/stdio.h" 3
+# 220 "/usr/share/mingw-w64/include/stdio.h" 3
 #undef __MINGW_PRINTF_FORMAT
 #undef __MINGW_SCANF_FORMAT
+# 230 "/usr/share/mingw-w64/include/stdio.h" 3
 #define __MINGW_PRINTF_FORMAT ms_printf
 #define __MINGW_SCANF_FORMAT ms_scanf
+# 416 "/usr/share/mingw-w64/include/stdio.h" 3
 #undef __builtin_vsnprintf
 #undef __builtin_vsprintf
-
-
-
-
+# 506 "/usr/share/mingw-w64/include/stdio.h" 3
   __attribute__((__format__ (ms_printf, 2, 3))) __attribute__ ((__nonnull__ (2)))
   int __attribute__((__cdecl__)) fprintf(FILE * __restrict__ _File,const char * __restrict__ _Format,...);
   __attribute__((__format__ (ms_printf, 1, 2))) __attribute__ ((__nonnull__ (1)))
@@ -1378,6 +1389,11 @@ extern
 
 
 
+
+
+
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wshadow"
 
 
   __attribute__((__format__ (ms_scanf, 1, 0))) __attribute__ ((__nonnull__ (1)))
@@ -1406,6 +1422,11 @@ extern
   {
     return __ms_vscanf (__format, __local_argv);
   }
+
+
+#pragma GCC diagnostic pop
+
+
 
 
 
@@ -1449,11 +1470,16 @@ extern
   int __attribute__((__cdecl__)) fsetpos(FILE *_File,const fpos_t *_Pos);
   int __attribute__((__cdecl__)) fsetpos64(FILE *_File,const fpos_t *_Pos);
   int __attribute__((__cdecl__)) fseek(FILE *_File,long _Offset,int _Origin);
-
-
-
+  long __attribute__((__cdecl__)) ftell(FILE *_File);
+# 631 "/usr/share/mingw-w64/include/stdio.h" 3
+  __extension__ int __attribute__((__cdecl__)) _fseeki64(FILE *_File,long long _Offset,int _Origin);
+  __extension__ long long __attribute__((__cdecl__)) _ftelli64(FILE *_File);
   int fseeko64(FILE* stream, _off64_t offset, int whence);
   int fseeko(FILE* stream, _off_t offset, int whence);
+
+  _off_t ftello(FILE * stream);
+  _off64_t ftello64(FILE * stream);
+
 
 
 #define _FILE_OFFSET_BITS_SET_FSEEKO 
@@ -1462,11 +1488,6 @@ extern
 
 
 
-  long __attribute__((__cdecl__)) ftell(FILE *_File);
-
-  _off_t ftello(FILE * stream);
-  _off64_t ftello64(FILE * stream);
-
 
 #define _FILE_OFFSET_BITS_SET_FTELLO 
 
@@ -1474,8 +1495,6 @@ extern
 
 
 
-  __extension__ int __attribute__((__cdecl__)) _fseeki64(FILE *_File,long long _Offset,int _Origin);
-  __extension__ long long __attribute__((__cdecl__)) _ftelli64(FILE *_File);
   size_t __attribute__((__cdecl__)) fwrite(const void * __restrict__ _Str,size_t _Size,size_t _Count,FILE * __restrict__ _File);
   int __attribute__((__cdecl__)) getc(FILE *_File);
   int __attribute__((__cdecl__)) getchar(void);
@@ -1512,18 +1531,21 @@ extern
   __attribute__ ((__dllimport__)) unsigned int __attribute__((__cdecl__)) _set_output_format(unsigned int _Format);
   __attribute__ ((__dllimport__)) unsigned int __attribute__((__cdecl__)) _get_output_format(void);
   int __attribute__((__cdecl__)) setvbuf(FILE * __restrict__ _File,char * __restrict__ _Buf,int _Mode,size_t _Size);
+# 712 "/usr/share/mingw-w64/include/stdio.h" 3
   __attribute__ ((__dllimport__)) int __attribute__((__cdecl__)) _scprintf(const char * __restrict__ _Format,...);
   __attribute__ ((__dllimport__)) int __attribute__((__cdecl__)) _snscanf(const char * __restrict__ _Src,size_t _MaxCount,const char * __restrict__ _Format,...) ;
+
   FILE *__attribute__((__cdecl__)) tmpfile(void) ;
   char *__attribute__((__cdecl__)) tmpnam(char *_Buffer);
   int __attribute__((__cdecl__)) ungetc(int _Ch,FILE *_File);
-
+# 734 "/usr/share/mingw-w64/include/stdio.h" 3
   __attribute__((__format__ (ms_printf, 3, 4))) __attribute__ ((__nonnull__ (3)))
   __attribute__ ((__dllimport__)) int __attribute__((__cdecl__)) _snprintf(char * __restrict__ _Dest,size_t _Count,const char * __restrict__ _Format,...) ;
   __attribute__((__format__ (ms_printf, 3, 0))) __attribute__ ((__nonnull__ (3)))
   __attribute__ ((__dllimport__)) int __attribute__((__cdecl__)) _vsnprintf(char * __restrict__ _Dest,size_t _Count,const char * __restrict__ _Format,va_list _Args) ;
-
-
+# 761 "/usr/share/mingw-w64/include/stdio.h" 3
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wshadow"
 
 
        
@@ -1549,7 +1571,7 @@ static __attribute__ ((__unused__)) __inline__ __attribute__((__cdecl__))
 __attribute__((__format__ (ms_printf, 3, 4))) __attribute__ ((__nonnull__ (3)))
 int snprintf (char * __restrict__ __stream, size_t __n, const char * __restrict__ __format, ...)
 {
-  register int __retval;
+  int __retval;
   __builtin_va_list __local_argv; __builtin_va_start( __local_argv, __format );
   __retval = __ms_vsnprintf (__stream, __n, __format, __local_argv);
   __builtin_va_end( __local_argv );
@@ -1560,8 +1582,11 @@ int snprintf (char * __restrict__ __stream, size_t __n, const char * __restrict_
        
        
 
-
+#pragma GCC diagnostic pop
+# 811 "/usr/share/mingw-w64/include/stdio.h" 3
   __attribute__ ((__dllimport__)) int __attribute__((__cdecl__)) _vscprintf(const char * __restrict__ _Format,va_list _ArgList);
+
+
   __attribute__ ((__dllimport__)) int __attribute__((__cdecl__)) _set_printf_count_output(int _Value);
   __attribute__ ((__dllimport__)) int __attribute__((__cdecl__)) _get_printf_count_output(void);
 
@@ -1597,7 +1622,7 @@ int snprintf (char * __restrict__ __stream, size_t __n, const char * __restrict_
   int __attribute__((__cdecl__)) __mingw_swprintf(wchar_t * __restrict__ , const wchar_t * __restrict__ , ...);
                                                       __attribute__ ((__nonnull__ (2)))
   int __attribute__((__cdecl__)) __mingw_vswprintf(wchar_t * __restrict__ , const wchar_t * __restrict__ ,va_list);
-# 741 "/usr/share/mingw-w64/include/stdio.h" 3
+# 1061 "/usr/share/mingw-w64/include/stdio.h" 3
   int __attribute__((__cdecl__)) fwscanf(FILE * __restrict__ _File,const wchar_t * __restrict__ _Format,...) ;
   int __attribute__((__cdecl__)) swscanf(const wchar_t * __restrict__ _Src,const wchar_t * __restrict__ _Format,...) ;
   int __attribute__((__cdecl__)) wscanf(const wchar_t * __restrict__ _Format,...) ;
@@ -1635,6 +1660,7 @@ int snprintf (char * __restrict__ __stream, size_t __n, const char * __restrict_
 
 
 
+
 #define WEOF (wint_t)(0xFFFF)
 
 
@@ -1657,12 +1683,13 @@ int snprintf (char * __restrict__ __stream, size_t __n, const char * __restrict_
   int __attribute__((__cdecl__)) fputws(const wchar_t * __restrict__ _Str,FILE * __restrict__ _File);
   __attribute__ ((__dllimport__)) wchar_t *__attribute__((__cdecl__)) _getws(wchar_t *_String) ;
   __attribute__ ((__dllimport__)) int __attribute__((__cdecl__)) _putws(const wchar_t *_Str);
-
+# 1186 "/usr/share/mingw-w64/include/stdio.h" 3
   __attribute__ ((__dllimport__)) int __attribute__((__cdecl__)) _scwprintf(const wchar_t * __restrict__ _Format,...);
   __attribute__ ((__dllimport__)) int __attribute__((__cdecl__)) _swprintf_c(wchar_t * __restrict__ _DstBuf,size_t _SizeInWords,const wchar_t * __restrict__ _Format,...);
   __attribute__ ((__dllimport__)) int __attribute__((__cdecl__)) _vswprintf_c(wchar_t * __restrict__ _DstBuf,size_t _SizeInWords,const wchar_t * __restrict__ _Format,va_list _ArgList);
   __attribute__ ((__dllimport__)) int __attribute__((__cdecl__)) _snwprintf(wchar_t * __restrict__ _Dest,size_t _Count,const wchar_t * __restrict__ _Format,...) ;
   __attribute__ ((__dllimport__)) int __attribute__((__cdecl__)) _vsnwprintf(wchar_t * __restrict__ _Dest,size_t _Count,const wchar_t * __restrict__ _Format,va_list _Args) ;
+  __attribute__ ((__dllimport__)) int __attribute__((__cdecl__)) _vscwprintf(const wchar_t * __restrict__ _Format,va_list _ArgList);
 
 
 
@@ -1697,9 +1724,10 @@ int snprintf (char * __restrict__ __stream, size_t __n, const char * __restrict_
   __attribute__ ((__dllimport__)) int __attribute__((__cdecl__)) _vswprintf(wchar_t * __restrict__ _Dest,const wchar_t * __restrict__ _Format,va_list _Args);
 
 
+
 #include <swprintf.inl>
-# 840 "/usr/share/mingw-w64/include/stdio.h" 3
-# 1 "/usr/x86_64-w64-mingw32/include/swprintf.inl" 1 3
+# 1227 "/usr/share/mingw-w64/include/stdio.h" 3
+# 1 "/usr/share/mingw-w64/include/swprintf.inl" 1 3
 
 
 
@@ -1714,6 +1742,10 @@ int snprintf (char * __restrict__ __stream, size_t __n, const char * __restrict_
 #undef __mingw_ovr
 
 #define __mingw_ovr static __attribute__ ((__unused__)) __inline__ __cdecl
+
+#undef __mingw_static_ovr
+#define __mingw_static_ovr __mingw_ovr
+
 
 
 
@@ -1731,7 +1763,7 @@ static __attribute__ ((__unused__)) __inline__ __attribute__((__cdecl__))
                                                       __attribute__ ((__nonnull__ (3)))
 int swprintf (wchar_t *__stream, size_t __count, const wchar_t *__format, ...)
 {
-  register int __retval;
+  int __retval;
   __builtin_va_list __local_argv;
 
   __builtin_va_start( __local_argv, __format );
@@ -1739,10 +1771,9 @@ int swprintf (wchar_t *__stream, size_t __count, const wchar_t *__format, ...)
   __builtin_va_end( __local_argv );
   return __retval;
 }
-# 841 "/usr/share/mingw-w64/include/stdio.h" 2 3
-# 850 "/usr/share/mingw-w64/include/stdio.h" 3
+# 1228 "/usr/share/mingw-w64/include/stdio.h" 2 3
+# 1237 "/usr/share/mingw-w64/include/stdio.h" 3
   __attribute__ ((__dllimport__)) wchar_t *__attribute__((__cdecl__)) _wtempnam(const wchar_t *_Directory,const wchar_t *_FilePrefix);
-  __attribute__ ((__dllimport__)) int __attribute__((__cdecl__)) _vscwprintf(const wchar_t * __restrict__ _Format,va_list _ArgList);
   __attribute__ ((__dllimport__)) int __attribute__((__cdecl__)) _snwscanf(const wchar_t * __restrict__ _Src,size_t _MaxCount,const wchar_t * __restrict__ _Format,...);
   __attribute__ ((__dllimport__)) FILE *__attribute__((__cdecl__)) _wfdopen(int _FileHandle ,const wchar_t *_Mode);
   __attribute__ ((__dllimport__)) FILE *__attribute__((__cdecl__)) _wfopen(const wchar_t * __restrict__ _Filename,const wchar_t *__restrict__ _Mode) ;
@@ -1780,12 +1811,12 @@ int swprintf (wchar_t *__stream, size_t __count, const wchar_t *__format, ...)
 
 
 #define _STDIO_DEFINED 
-
-
+# 1283 "/usr/share/mingw-w64/include/stdio.h" 3
 #define _fgetc_nolock(_stream) (--(_stream)->_cnt >= 0 ? 0xff & *(_stream)->_ptr++ : _filbuf(_stream))
 #define _fputc_nolock(_c,_stream) (--(_stream)->_cnt >= 0 ? 0xff & (*(_stream)->_ptr++ = (char)(_c)) : _flsbuf((_c),(_stream)))
 #define _getc_nolock(_stream) _fgetc_nolock(_stream)
 #define _putc_nolock(_c,_stream) _fputc_nolock(_c,_stream)
+
 #define _getchar_nolock() _getc_nolock(stdin)
 #define _putchar_nolock(_c) _putc_nolock((_c),stdout)
 #define _getwchar_nolock() _getwc_nolock(stdin)
@@ -1821,11 +1852,11 @@ int swprintf (wchar_t *__stream, size_t __count, const wchar_t *__format, ...)
 
 
 #define __MINGW_MBWC_CONVERT_DEFINED 
-# 942 "/usr/share/mingw-w64/include/stdio.h" 3
+# 1335 "/usr/share/mingw-w64/include/stdio.h" 3
 int __attribute__((__cdecl__)) __mingw_str_wide_utf8 (const wchar_t * const wptr, char **mbptr, size_t * buflen);
-# 956 "/usr/share/mingw-w64/include/stdio.h" 3
+# 1349 "/usr/share/mingw-w64/include/stdio.h" 3
 int __attribute__((__cdecl__)) __mingw_str_utf8_wide (const char *const mbptr, wchar_t ** wptr, size_t * buflen);
-# 965 "/usr/share/mingw-w64/include/stdio.h" 3
+# 1358 "/usr/share/mingw-w64/include/stdio.h" 3
 void __attribute__((__cdecl__)) __mingw_str_free(void *ptr);
 
 
@@ -1869,7 +1900,7 @@ void __attribute__((__cdecl__)) __mingw_str_free(void *ptr);
 #pragma pack(pop)
 
 #include <sec_api/stdio_s.h>
-# 1007 "/usr/share/mingw-w64/include/stdio.h" 3
+# 1400 "/usr/share/mingw-w64/include/stdio.h" 3
 # 1 "/usr/share/mingw-w64/include/sec_api/stdio_s.h" 1 3
 
 
@@ -1888,8 +1919,10 @@ void __attribute__((__cdecl__)) __mingw_str_free(void *ptr);
 # 27 "/usr/share/mingw-w64/include/sec_api/stdio_s.h" 3
 #define _STDIO_S_DEFINED 
   __attribute__ ((__dllimport__)) errno_t __attribute__((__cdecl__)) clearerr_s(FILE *_File);
-  int __attribute__((__cdecl__)) fprintf_s(FILE *_File,const char *_Format,...);
+
   size_t __attribute__((__cdecl__)) fread_s(void *_DstBuf,size_t _DstSize,size_t _ElementSize,size_t _Count,FILE *_File);
+# 471 "/usr/share/mingw-w64/include/sec_api/stdio_s.h" 3
+  int __attribute__((__cdecl__)) fprintf_s(FILE *_File,const char *_Format,...);
   __attribute__ ((__dllimport__)) int __attribute__((__cdecl__)) _fscanf_s_l(FILE *_File,const char *_Format,_locale_t _Locale,...);
   int __attribute__((__cdecl__)) printf_s(const char *_Format,...);
   __attribute__ ((__dllimport__)) int __attribute__((__cdecl__)) _scanf_l(const char *_Format,_locale_t _Locale,...);
@@ -1908,19 +1941,14 @@ void __attribute__((__cdecl__)) __mingw_str_free(void *ptr);
   int __attribute__((__cdecl__)) vprintf_s(const char *_Format,va_list _ArgList);
 
   int __attribute__((__cdecl__)) vsnprintf_s(char *_DstBuf,size_t _DstSize,size_t _MaxCount,const char *_Format,va_list _ArgList);
- 
 
   __attribute__ ((__dllimport__)) int __attribute__((__cdecl__)) _vsnprintf_s(char *_DstBuf,size_t _DstSize,size_t _MaxCount,const char *_Format,va_list _ArgList);
- 
 
   __attribute__((dllimport)) int __attribute__((__cdecl__)) vsprintf_s(char *_DstBuf,size_t _Size,const char *_Format,va_list _ArgList);
- 
 
   __attribute__((dllimport)) int __attribute__((__cdecl__)) sprintf_s(char *_DstBuf,size_t _DstSize,const char *_Format,...);
- 
 
   __attribute__ ((__dllimport__)) int __attribute__((__cdecl__)) _snprintf_s(char *_DstBuf,size_t _DstSize,size_t _MaxCount,const char *_Format,...);
- 
 
   __attribute__ ((__dllimport__)) int __attribute__((__cdecl__)) _fprintf_p(FILE *_File,const char *_Format,...);
   __attribute__ ((__dllimport__)) int __attribute__((__cdecl__)) _printf_p(const char *_Format,...);
@@ -1958,6 +1986,14 @@ void __attribute__((__cdecl__)) __mingw_str_free(void *ptr);
   __attribute__ ((__dllimport__)) int __attribute__((__cdecl__)) _snprintf_c_l(char *_DstBuf,size_t _MaxCount,const char *_Format,_locale_t _Locale,...);
   __attribute__ ((__dllimport__)) int __attribute__((__cdecl__)) _vsnprintf_l(char *_DstBuf,size_t _MaxCount,const char *_Format,_locale_t _Locale,va_list _ArgList);
   __attribute__ ((__dllimport__)) int __attribute__((__cdecl__)) _vsnprintf_c_l(char *_DstBuf,size_t _MaxCount,const char *,_locale_t _Locale,va_list _ArgList);
+
+
+ 
+ 
+ 
+ 
+ 
+
   __attribute__ ((__dllimport__)) errno_t __attribute__((__cdecl__)) fopen_s(FILE **_File,const char *_Filename,const char *_Mode);
   __attribute__ ((__dllimport__)) errno_t __attribute__((__cdecl__)) freopen_s(FILE** _File, const char *_Filename, const char *_Mode, FILE *_Stream);
 
@@ -1972,23 +2008,19 @@ void __attribute__((__cdecl__)) __mingw_str_free(void *ptr);
 #define _WSTDIO_S_DEFINED 
   __attribute__ ((__dllimport__)) wchar_t *__attribute__((__cdecl__)) _getws_s(wchar_t *_Str,size_t _SizeInWords);
  
-
+# 739 "/usr/share/mingw-w64/include/sec_api/stdio_s.h" 3
   int __attribute__((__cdecl__)) fwprintf_s(FILE *_File,const wchar_t *_Format,...);
   int __attribute__((__cdecl__)) wprintf_s(const wchar_t *_Format,...);
   int __attribute__((__cdecl__)) vfwprintf_s(FILE *_File,const wchar_t *_Format,va_list _ArgList);
   int __attribute__((__cdecl__)) vwprintf_s(const wchar_t *_Format,va_list _ArgList);
 
   int __attribute__((__cdecl__)) vswprintf_s(wchar_t *_Dst,size_t _SizeInWords,const wchar_t *_Format,va_list _ArgList);
- 
 
   int __attribute__((__cdecl__)) swprintf_s(wchar_t *_Dst,size_t _SizeInWords,const wchar_t *_Format,...);
- 
 
   __attribute__ ((__dllimport__)) int __attribute__((__cdecl__)) _vsnwprintf_s(wchar_t *_DstBuf,size_t _DstSizeInWords,size_t _MaxCount,const wchar_t *_Format,va_list _ArgList);
- 
 
   __attribute__ ((__dllimport__)) int __attribute__((__cdecl__)) _snwprintf_s(wchar_t *_DstBuf,size_t _DstSizeInWords,size_t _MaxCount,const wchar_t *_Format,...);
- 
 
 
   __attribute__ ((__dllimport__)) int __attribute__((__cdecl__)) _wprintf_s_l(const wchar_t *_Format,_locale_t _Locale,...);
@@ -2005,11 +2037,19 @@ void __attribute__((__cdecl__)) __mingw_str_free(void *ptr);
   __attribute__ ((__dllimport__)) int __attribute__((__cdecl__)) _snwscanf_s(const wchar_t *_Src,size_t _MaxCount,const wchar_t *_Format,...);
   __attribute__ ((__dllimport__)) int __attribute__((__cdecl__)) _snwscanf_s_l(const wchar_t *_Src,size_t _MaxCount,const wchar_t *_Format,_locale_t _Locale,...);
   __attribute__ ((__dllimport__)) int __attribute__((__cdecl__)) _wscanf_s_l(const wchar_t *_Format,_locale_t _Locale,...);
+
+
+ 
+ 
+ 
+ 
+
   __attribute__ ((__dllimport__)) errno_t __attribute__((__cdecl__)) _wfopen_s(FILE **_File,const wchar_t *_Filename,const wchar_t *_Mode);
   __attribute__ ((__dllimport__)) errno_t __attribute__((__cdecl__)) _wfreopen_s(FILE **_File,const wchar_t *_Filename,const wchar_t *_Mode,FILE *_OldFile);
 
   __attribute__ ((__dllimport__)) errno_t __attribute__((__cdecl__)) _wtmpnam_s(wchar_t *_DstBuf,size_t _SizeInWords);
  
+
 
   __attribute__ ((__dllimport__)) int __attribute__((__cdecl__)) _fwprintf_p(FILE *_File,const wchar_t *_Format,...);
   __attribute__ ((__dllimport__)) int __attribute__((__cdecl__)) _wprintf_p(const wchar_t *_Format,...);
@@ -2046,11 +2086,13 @@ void __attribute__((__cdecl__)) __mingw_str_free(void *ptr);
 
 
 
+
+
   __attribute__ ((__dllimport__)) size_t __attribute__((__cdecl__)) _fread_nolock_s(void *_DstBuf,size_t _DstSize,size_t _ElementSize,size_t _Count,FILE *_File);
-# 1008 "/usr/share/mingw-w64/include/stdio.h" 2 3
+# 1401 "/usr/share/mingw-w64/include/stdio.h" 2 3
 
 #include <_mingw_print_pop.h>
-# 1009 "/usr/share/mingw-w64/include/stdio.h" 3
+# 1402 "/usr/share/mingw-w64/include/stdio.h" 3
 # 1 "/usr/share/mingw-w64/include/_mingw_print_pop.h" 1 3
-# 1010 "/usr/share/mingw-w64/include/stdio.h" 2 3
+# 1403 "/usr/share/mingw-w64/include/stdio.h" 2 3
 # 1 "c.c" 2
