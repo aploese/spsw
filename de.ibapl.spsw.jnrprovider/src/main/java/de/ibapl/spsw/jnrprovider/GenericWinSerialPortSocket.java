@@ -2,6 +2,7 @@ package de.ibapl.spsw.jnrprovider;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
+import java.nio.channels.AsynchronousCloseException;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
@@ -802,68 +803,6 @@ public class GenericWinSerialPortSocket extends AbstractSerialPortSocket<Generic
     }
 
     @Override
-    protected int readSingle() throws IOException {
-
-        byte[] lpBuffer = new byte[1];
-
-        LPDWORD dwBytesRead = LPDWORD.ofValue(0);
-        OVERLAPPED overlapped = OVERLAPPED.newOLWithUnionPointer();
-        overlapped.hEvent = synchapi_H.CreateEventW(null, true, false, null);
-
-        if (!fileapi_H.ReadFile(hFile, lpBuffer, 1, null, overlapped)) {
-
-            if (winbase_H.GetLastError() != Winerr_H.ERROR_IO_PENDING) {
-                winbase_H.CloseHandle(overlapped.hEvent);
-                if (Winbase_H.INVALID_HANDLE_VALUE.equals(hFile)) {
-                    return -1;
-                } else {
-                    throw new InterruptedIOException("Error readSingle (GetLastError): " + winbase_H.GetLastError());
-                }
-            }
-
-            if (synchapi_H.WaitForSingleObject(overlapped.hEvent, Winbase_H.INFINITE) != Winbase_H.WAIT_OBJECT_0) {
-                winbase_H.CloseHandle(overlapped.hEvent);
-                if (Winbase_H.INVALID_HANDLE_VALUE.equals(hFile)) {
-                    return -1;
-                } else {
-                    throw new InterruptedIOException("Error readSingle (WaitForSingleObject)");
-                }
-            }
-
-        }
-
-        if (!ioapiset_H.GetOverlappedResult(hFile, overlapped, dwBytesRead, false)) {
-            winbase_H.CloseHandle(overlapped.hEvent);
-            if (Winbase_H.INVALID_HANDLE_VALUE.equals(hFile)) {
-                return -1;
-            } else {
-                InterruptedIOException iioe = new InterruptedIOException("Error readSingle (GetOverlappedResult)");
-                iioe.bytesTransferred = (int) dwBytesRead.value;
-                throw iioe;
-            }
-        }
-
-        winbase_H.CloseHandle(overlapped.hEvent);
-        if (dwBytesRead.value == 1) {
-            //Success
-            return lpBuffer[0] & 0xFF;
-        } else if (dwBytesRead.value == 0) {
-            if (Winbase_H.INVALID_HANDLE_VALUE.equals(hFile)) {
-                return -1;
-            } else {
-                TimeoutIOException tioe = new TimeoutIOException();
-                tioe.bytesTransferred = (int) dwBytesRead.value;
-                throw tioe;
-            }
-        } else {
-            InterruptedIOException iioe = new InterruptedIOException("Should never happen! readSingle dwBytes < 0");
-            iioe.bytesTransferred = (int) dwBytesRead.value;
-            throw iioe;
-        }
-
-    }
-
-    @Override
     public int write(ByteBuffer b) throws IOException {
 
         OVERLAPPED overlapped = OVERLAPPED.newOLWithUnionPointer();
@@ -927,83 +866,6 @@ public class GenericWinSerialPortSocket extends AbstractSerialPortSocket<Generic
         //TODO fix this for errors
         b.limit(b.position() + (int) dwBytesWritten.value);
         return (int) dwBytesWritten.value;
-    }
-
-    @Override
-    protected void writeSingle(int b) throws IOException {
-
-        OVERLAPPED overlapped = OVERLAPPED.newOLWithUnionPointer();
-        overlapped.hEvent = synchapi_H.CreateEventW(null, true, false, null);
-        byte[] buf = new byte[]{(byte) b};
-
-        if (!fileapi_H.WriteFile(hFile, buf, 1, null, overlapped)) {
-
-            if (winbase_H.GetLastError() != Winerr_H.ERROR_IO_PENDING) {
-                winbase_H.CloseHandle(overlapped.hEvent);
-                if (Winbase_H.INVALID_HANDLE_VALUE.equals(hFile)) {
-                    throw new InterruptedIOException(PORT_IS_CLOSED);
-                } else {
-                    if (winbase_H.GetLastError() == winerr_H.ERROR_IO_PENDING) {
-                        TimeoutIOException tioe = new TimeoutIOException();
-                        throw tioe;
-                    } else {
-                        InterruptedIOException iioe = new InterruptedIOException("Error writeSingle (GetLastError): " + winbase_H.GetLastError());
-                        throw iioe;
-                    }
-                }
-            }
-
-            if (synchapi_H.WaitForSingleObject(overlapped.hEvent, Winbase_H.INFINITE) != Winbase_H.WAIT_OBJECT_0) {
-                winbase_H.CloseHandle(overlapped.hEvent);
-                if (Winbase_H.INVALID_HANDLE_VALUE.equals(hFile)) {
-                    throw new InterruptedIOException(PORT_IS_CLOSED);
-                } else {
-                    throw new InterruptedIOException("Error writeSingle (WaitForSingleObject): " + winbase_H.GetLastError());
-                }
-            }
-
-        }
-
-        LPDWORD dwBytesWritten = LPDWORD.ofValue(0);
-        if (!ioapiset_H.GetOverlappedResult(hFile, overlapped, dwBytesWritten, false)) {
-            winbase_H.CloseHandle(overlapped.hEvent);
-            if (Winbase_H.INVALID_HANDLE_VALUE.equals(hFile)) {
-                InterruptedIOException iioe = new InterruptedIOException(PORT_IS_CLOSED);
-                iioe.bytesTransferred = (int) dwBytesWritten.value;
-                throw iioe;
-            } else {
-                if (winbase_H.GetLastError() == winerr_H.ERROR_IO_PENDING) {
-                    TimeoutIOException tioe = new TimeoutIOException();
-                    tioe.bytesTransferred = (int) dwBytesWritten.value;
-                    throw tioe;
-                } else {
-                    InterruptedIOException iioe = new InterruptedIOException("Error writeSingle (GetOverlappedResult)");
-                    iioe.bytesTransferred = (int) dwBytesWritten.value;
-                    throw iioe;
-                }
-            }
-        }
-
-        winbase_H.CloseHandle(overlapped.hEvent);
-        if (dwBytesWritten.value != 1) {
-            if (Winbase_H.INVALID_HANDLE_VALUE.equals(hFile)) {
-                InterruptedIOException iioe = new InterruptedIOException(PORT_IS_CLOSED);
-                iioe.bytesTransferred = (int) dwBytesWritten.value;
-                throw iioe;
-            } else {
-                if (winbase_H.GetLastError() == winerr_H.ERROR_IO_PENDING) {
-                    TimeoutIOException tioe = new TimeoutIOException();
-                    tioe.bytesTransferred = (int) dwBytesWritten.value;
-                    throw tioe;
-                } else {
-                    InterruptedIOException iioe = new InterruptedIOException("Error writeSingle");
-                    iioe.bytesTransferred = (int) dwBytesWritten.value;
-                    throw iioe;
-                }
-            }
-        }
-
-//Success no-op
     }
 
 }

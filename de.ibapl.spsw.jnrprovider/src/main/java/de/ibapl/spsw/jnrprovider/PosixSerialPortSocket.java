@@ -23,6 +23,7 @@ import static de.ibapl.jnrheader.Defined.isDefined;
 import java.io.IOException;
 import java.io.InterruptedIOException;
 import java.nio.ByteBuffer;
+import java.nio.channels.AsynchronousCloseException;
 import java.util.Arrays;
 import java.util.EnumSet;
 import java.util.Set;
@@ -976,7 +977,7 @@ public class PosixSerialPortSocket extends AbstractSerialPortSocket<PosixSerialP
 				written = 0;
 			} else {
 				if (fd == INVALID_FD) {
-					throw new IOException(PORT_IS_CLOSED);
+					throw new AsynchronousCloseException();
 				} else {
 					throw new InterruptedIOException("unknown port error writeBytes " + errno_H.errno());
 				}
@@ -1012,9 +1013,7 @@ public class PosixSerialPortSocket extends AbstractSerialPortSocket<PosixSerialP
 			} else {
 				if (fds[1].revents == poll_H.POLLIN) {
 					// we can read from close_event_fd => port is closing
-					InterruptedIOException iioe = new InterruptedIOException(PORT_IS_CLOSED);
-					iioe.bytesTransferred = (int) offset;
-					throw iioe;
+					throw new AsynchronousCloseException();
 				} else if (fds[0].revents == poll_H.POLLOUT) {
 					// Happy path all is right...
 				} else {
@@ -1029,9 +1028,7 @@ public class PosixSerialPortSocket extends AbstractSerialPortSocket<PosixSerialP
 
 			if (written < 0) {
 				if (fd == INVALID_FD) {
-					InterruptedIOException iioe = new InterruptedIOException(PORT_IS_CLOSED);
-					iioe.bytesTransferred = (int) offset;
-					throw iioe;
+					throw new AsynchronousCloseException();
 				} else {
 					InterruptedIOException iioe = new InterruptedIOException(
 							"poll timeout with error writeBytes " + errno_H.errno());
@@ -1047,65 +1044,6 @@ public class PosixSerialPortSocket extends AbstractSerialPortSocket<PosixSerialP
 	}
 
 	@Override
-	protected void writeSingle(int b) throws IOException {
-		byte[] lpBuffer = new byte[] { (byte) b };
-		long written = unistd_H.write(fd, lpBuffer, 1);
-
-		if (written == 1) {
-			return;
-		}
-		if (written == 0) {
-			// No-op do poll
-		} else if (written < 0) {
-			if (errno_H.EAGAIN == errno_H.errno()) {
-				// No-op do poll
-				written = 0;
-			} else {
-				if (fd == INVALID_FD) {
-					throw new IOException(PORT_IS_CLOSED);
-				} else {
-					throw new InterruptedIOException("unknown error writeSingle " + errno_H.errno());
-				}
-			}
-		}
-
-		Poll_H.PollFd[] fds = poll_H.createPollFd(2);
-		fds[0].fd = fd;
-		fds[0].events = poll_H.POLLOUT;
-		fds[1].fd = close_event_fd;
-		fds[1].events = poll_H.POLLIN;
-
-		int poll_result = poll_H.poll(fds, 2, pollWriteTimeout);
-
-		if (poll_result == 0) {
-			// Timeout - nothing was written
-			throw new TimeoutIOException();
-		} else if (poll_result < 0) {
-			throw new InterruptedIOException("writeSingle poll: Error during poll " + errno_H.errno());
-		} else {
-			if (fds[1].revents == poll_H.POLLIN) {
-				// we can read from close_event_fd => port is closing
-				throw new IOException(PORT_IS_CLOSED);
-			} else if (fds[0].revents == poll_H.POLLOUT) {
-				// Happy path all is right...
-			} else {
-				throw new InterruptedIOException("writeSingle error during poll " + +errno_H.errno());
-			}
-		}
-
-		written = unistd_H.write(fd, lpBuffer, 1);
-		if (written == 0) {
-			throw new TimeoutIOException();
-		} else if (written < 0) {
-			if (fd == INVALID_FD) {
-				throw new IOException(PORT_IS_CLOSED);
-			} else {
-				throw new InterruptedIOException("writeSingle too few bytes written " + errno_H.errno());
-			}
-		}
-	}
-
-	@Override
 	public int read(ByteBuffer b) throws IOException {
 		// TODO honor overall read timeout
 		Poll_H.PollFd[] fds = poll_H.createPollFd(2);
@@ -1117,7 +1055,7 @@ public class PosixSerialPortSocket extends AbstractSerialPortSocket<PosixSerialP
 		long nread = unistd_H.read(fds[0].fd, b);
 		if (nread < 0) {
 			if (fd == INVALID_FD) {
-				return -1;
+				throw new AsynchronousCloseException();
 			} else if (errno_H.EAGAIN == errno_H.errno()) {
 				nread = 0;
 			} else {
@@ -1138,13 +1076,13 @@ public class PosixSerialPortSocket extends AbstractSerialPortSocket<PosixSerialP
 			} else {
 				if (fds[1].revents == poll_H.POLLIN) {
 					// we can read from close_event_fd => port is closing
-					return -1;
+					throw new AsynchronousCloseException();
 				} else if (fds[0].revents == poll_H.POLLIN) {
 					// Happy path just check if its the right event...
 					nread = unistd_H.read(fds[0].fd, b);
 					if (nread < 0) {
 						if (fd == INVALID_FD) {
-							return -1;
+							throw new AsynchronousCloseException();
 						} else if (nread == 0) {
 							throw new TimeoutIOException(); // Is this right???
 						} else {
@@ -1193,7 +1131,7 @@ public class PosixSerialPortSocket extends AbstractSerialPortSocket<PosixSerialP
 				overallRead += nread;
 			} else {
 				if (fd == INVALID_FD) {
-					return -1;
+					throw new AsynchronousCloseException();
 				} else if (nread == 0) {
 					throw new InterruptedIOException(
 							"readBytes: nothing to read after successful polling: Should never happen "
@@ -1205,65 +1143,6 @@ public class PosixSerialPortSocket extends AbstractSerialPortSocket<PosixSerialP
 		}
 		// We reached this, because the read buffer is full.
 		return (int) overallRead;
-	}
-
-	@Override
-	protected int readSingle() throws IOException {
-		// port is nonblocking and no hardware interbyte timeout, so we try to reed one
-		// byte.
-		Poll_H.PollFd[] fds = poll_H.createPollFd(2);
-		fds[0].fd = fd;
-		fds[0].events = poll_H.POLLIN;
-		fds[1].fd = close_event_fd;
-		fds[1].events = poll_H.POLLIN;
-
-		byte[] lpBuffer = new byte[1];
-		long nread = unistd_H.read(fds[0].fd, lpBuffer, 1);
-		if (nread == 1) {
-			return lpBuffer[0] & 0xFF;
-		} else if (nread < 0) {
-			if (fd == INVALID_FD) {
-				// Filehandle not valid -> closed.
-				return -1;
-			} else if (errno_H.EAGAIN != errno_H.errno()) {
-				throw new InterruptedIOException(
-						"readSingle: read error during first invocation of read() " + errno_H.errno());
-			}
-		}
-
-		// Nothing was read so use poll to wait...
-
-		int poll_result = poll_H.poll(fds, 2, pollReadTimeout);
-
-		if (poll_result == 0) {
-			// Timeout
-			throw new TimeoutIOException();
-		} else if ((poll_result < 0)) {
-			throw new InterruptedIOException("readSingle poll: Error during poll " + errno_H.errno());
-		} else {
-			if (fds[1].revents == poll_H.POLLIN) {
-				// we can read from close_event_fd => port is closing
-				return -1;
-			} else if (fds[0].revents == poll_H.POLLIN) {
-				// Happy path just check if its the right event...
-			} else {
-				throw new InterruptedIOException("readSingle poll: received poll event " + errno_H.errno());
-			}
-		}
-
-		// OK polling succeeds we should be able to read the byte.
-		nread = unistd_H.read(fds[0].fd, lpBuffer, 1);
-		if (nread == 1) {
-			return lpBuffer[0] & 0xFF;
-		}
-
-		if (fd == INVALID_FD) {
-			// Closed no-op
-			return -1;
-		} else {
-			throw new InterruptedIOException(
-					"readSingle read nothing read and no timeout => Should never happen " + errno_H.errno());
-		}
 	}
 
 	@Override

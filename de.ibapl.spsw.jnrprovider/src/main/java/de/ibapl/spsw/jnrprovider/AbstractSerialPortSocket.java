@@ -4,13 +4,16 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.ByteBuffer;
+import java.nio.channels.AsynchronousCloseException;
 
 import de.ibapl.spsw.api.SerialPortSocket;
 
 public abstract class AbstractSerialPortSocket<T extends AbstractSerialPortSocket<T>> implements SerialPortSocket {
-	
+
 	protected class SerialInputStream extends InputStream {
 
+		private ByteBuffer singleReadBuffer;
+		
 		@Override
 		public int available() throws IOException {
 			return AbstractSerialPortSocket.this.getInBufferBytesCount();
@@ -23,7 +26,22 @@ public abstract class AbstractSerialPortSocket<T extends AbstractSerialPortSocke
 
 		@Override
 		public int read() throws IOException {
-			return AbstractSerialPortSocket.this.readSingle();
+			if (singleReadBuffer == null) {
+				 singleReadBuffer = ByteBuffer.allocateDirect(1);
+			} else {
+				singleReadBuffer.clear();
+			}
+			try {
+				int result = AbstractSerialPortSocket.this.read(singleReadBuffer);
+				if (result == 1) {
+					singleReadBuffer.flip();
+					return singleReadBuffer.get() & 0xff;
+				} else {
+					return result;
+				}
+			} catch (AsynchronousCloseException ace) {
+				return -1;
+			}
 		}
 
 		@Override
@@ -34,14 +52,14 @@ public abstract class AbstractSerialPortSocket<T extends AbstractSerialPortSocke
 				return 0;
 			}
 			ByteBuffer buf = ByteBuffer.allocateDirect(b.length);
-
-			int result = AbstractSerialPortSocket.this.read(buf);
-			if (result == -1) {
+			try {
+				int result = AbstractSerialPortSocket.this.read(buf);
+				buf.flip();
+				buf.get(b, 0, result);
 				return result;
+			} catch (AsynchronousCloseException ace) {
+				return -1;
 			}
-                buf.flip();
-                buf.get(b, 0, result);
-                return result;
 		}
 
 		@Override
@@ -54,16 +72,22 @@ public abstract class AbstractSerialPortSocket<T extends AbstractSerialPortSocke
 				return 0;
 			}
 			ByteBuffer buf = ByteBuffer.allocateDirect(len);
-                        
-			int result = AbstractSerialPortSocket.this.read(buf);
-                        buf.flip();
-                        buf.get(b, off, result);
-                        return result;
+
+			try {
+				int result = AbstractSerialPortSocket.this.read(buf);
+				buf.flip();
+				buf.get(b, off, result);
+				return result;
+			} catch (AsynchronousCloseException ace) {
+				return -1;
+			}
 		}
 
 	}
 
 	protected class SerialOutputStream extends OutputStream {
+
+		private ByteBuffer singleWriteBuffer;
 
 		@Override
 		public void close() throws IOException {
@@ -83,8 +107,8 @@ public abstract class AbstractSerialPortSocket<T extends AbstractSerialPortSocke
 				return;
 			}
 			ByteBuffer buf = ByteBuffer.allocateDirect(b.length);
-                        buf.put(b);
-                        buf.flip();
+			buf.put(b);
+			buf.flip();
 			AbstractSerialPortSocket.this.write(buf);
 		}
 
@@ -98,21 +122,27 @@ public abstract class AbstractSerialPortSocket<T extends AbstractSerialPortSocke
 				return;
 			}
 			ByteBuffer buf = ByteBuffer.allocateDirect(len);
-                        buf.put(b, off, len);
-                        buf.flip();
+			buf.put(b, off, len);
+			buf.flip();
 			AbstractSerialPortSocket.this.write(buf);
 		}
 
 		@Override
 		public void write(int b) throws IOException {
-			AbstractSerialPortSocket.this.writeSingle(b);
+			if (singleWriteBuffer == null) {
+				singleWriteBuffer = ByteBuffer.allocateDirect(1);
+			} else {
+				singleWriteBuffer.clear();
+			}
+			singleWriteBuffer.put((byte) b);
+			singleWriteBuffer.flip();
+			AbstractSerialPortSocket.this.write(singleWriteBuffer);
 		}
 
 	}
 
 	protected SerialInputStream is;
 	protected SerialOutputStream os;
-	
 
 	protected final String portName;
 
@@ -120,8 +150,7 @@ public abstract class AbstractSerialPortSocket<T extends AbstractSerialPortSocke
 	 * Creates a new Instance and checks read/write permissions with the
 	 * System.getSecurityManager().
 	 * 
-	 * @param portName
-	 *            the name of the port.
+	 * @param portName the name of the port.
 	 * 
 	 * @see SecurityManager#checkRead(String)
 	 * @see SecurityManager#checkWrite(String)
@@ -199,8 +228,6 @@ public abstract class AbstractSerialPortSocket<T extends AbstractSerialPortSocke
 		return portName;
 	}
 
-	protected abstract int readSingle() throws IOException;
-
 	@Override
 	public String toString() {
 		try {
@@ -211,6 +238,4 @@ public abstract class AbstractSerialPortSocket<T extends AbstractSerialPortSocke
 		}
 	}
 
-	protected abstract void writeSingle(int b) throws IOException;
-	
 }
