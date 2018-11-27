@@ -21,6 +21,7 @@ package de.ibapl.jnrheader;
 
 import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
+import java.util.ArrayList;
 
 public interface JnrHeader {
 
@@ -31,12 +32,27 @@ public interface JnrHeader {
         if (!clazz.getSimpleName().endsWith("_H")) {
             throw new IllegalArgumentException("Wrong name, expect to end with _H");
         }
-        String className = clazz.getSimpleName().substring(0, clazz.getSimpleName().length() - 1);
+        
+        String packageName = clazz.getPackage().getName().replaceFirst("\\.api\\.", ".spi.");
+        String classSimpleName = clazz.getSimpleName().substring(0, clazz.getSimpleName().length() - 1);
+        
         try {
-            implClass = (Class<T>) clazz.getClassLoader().loadClass(String.format("de.ibapl.jnrheader.spi.%s.%s.%s.%sImpl", s[1], s[0], s[2], className));
+            implClass = (Class<T>) clazz.getClassLoader().loadClass(String.format("%s.%s.%s.%s.%sImpl", packageName, s[1], s[0], s[2], classSimpleName));
             return (T) implClass.newInstance();
         } catch (ClassNotFoundException | InstantiationException | IllegalAccessException e) {
-            throw new RuntimeException(e);
+            //no-op we will try next
+        }
+        try {
+            implClass = (Class<T>) clazz.getClassLoader().loadClass(String.format("%s.%s.%s.%sImpl", packageName, s[1], s[0], classSimpleName));
+            return (T) implClass.newInstance();
+        } catch (ClassNotFoundException | InstantiationException | IllegalAccessException e_1) {
+            //no-op we will try next
+        }
+        try {
+            implClass = (Class<T>) clazz.getClassLoader().loadClass(String.format("%s.%s.%sImpl", packageName, s[1], classSimpleName));
+            return (T) implClass.newInstance();
+        } catch (ClassNotFoundException | InstantiationException | IllegalAccessException e_1) {
+            throw new RuntimeException(e_1);
         }
     }
 

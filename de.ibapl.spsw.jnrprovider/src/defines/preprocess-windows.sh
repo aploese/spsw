@@ -16,7 +16,7 @@ mkdir -p windows/$DUMPMACHINE
 
 #obsolete "ulimit" 
 
-for d in "windows" "sdkddkver" "winresrc" "excpt" "stdarg" "windef" "winbase" "wingdi" "winuser" "winnls" "wincon" "winver" "winreg" "winnetwk" "virtdisk" "cderr" "dde" "ddeml" "dlgs" "lzexpand" "mmsystem" "nb30" "rpc" "shellapi" "winperf" "winsock" "wincrypt" "winefs" "winscard" "winspool" "ole" "commdlg" "stralign" "ole2" "winsvc" "mcx" "imm"
+for d in "windows" "sdkddkver" "synchapi" "ioapiset" "winresrc" "fileapi" "excpt" "stdarg" "windef" "basetsd" "ntstatus" "minwinbase" "winbase" "wingdi" "winuser" "winnls" "wincon" "winver" "winreg" "winnetwk" "virtdisk" "cderr" "dde" "ddeml" "dlgs" "lzexpand" "mmsystem" "nb30" "rpc" "shellapi" "winperf" "winsock" "wincrypt" "winefs" "winscard" "winspool" "ole" "commdlg" "stralign" "ole2" "winsvc" "mcx" "imm"
 do
   echo "#include <$d.h>" > c.c
   $GCC -dD -dI -E c.c > windows/$DUMPMACHINE/$d-prepocessed.h

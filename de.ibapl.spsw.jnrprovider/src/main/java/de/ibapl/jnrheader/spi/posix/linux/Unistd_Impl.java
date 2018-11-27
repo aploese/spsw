@@ -1,4 +1,4 @@
-package de.ibapl.jnrheader.spi.linux;
+package de.ibapl.jnrheader.spi.posix.linux;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
@@ -18,7 +18,7 @@ import jnr.ffi.types.int32_t;
 
 //TODO ask for _SC_LONG_BIT etc ...
 //map c long int => java long 
-public class Unistd_Lib extends Unistd_H {
+public final class Unistd_Impl extends Unistd_H {
 
     @Retention(RetentionPolicy.RUNTIME)
     @Target(value = {ElementType.PARAMETER, ElementType.METHOD})
@@ -1096,1528 +1096,1528 @@ public class Unistd_Lib extends Unistd_H {
 
     private NativeFunctions nativeFunctions;
 
-    public Unistd_Lib() {
+    public Unistd_Impl() {
         nativeFunctions = LibraryLoader.create(NativeFunctions.class).load("c");
     }
 
     @Override
     protected int _CS_GNU_LIBC_VERSION() {
-        return Unistd_Lib._CS_GNU_LIBC_VERSION;
+        return Unistd_Impl._CS_GNU_LIBC_VERSION;
     }
 
     @Override
     protected int _CS_GNU_LIBPTHREAD_VERSION() {
-        return Unistd_Lib._CS_GNU_LIBPTHREAD_VERSION;
+        return Unistd_Impl._CS_GNU_LIBPTHREAD_VERSION;
     }
 
     @Override
     protected int _CS_LFS_CFLAGS() {
-        return Unistd_Lib._CS_LFS_CFLAGS;
+        return Unistd_Impl._CS_LFS_CFLAGS;
     }
 
     @Override
     protected int _CS_LFS_LDFLAGS() {
-        return Unistd_Lib._CS_LFS_LDFLAGS;
+        return Unistd_Impl._CS_LFS_LDFLAGS;
     }
 
     @Override
     protected int _CS_LFS_LIBS() {
-        return Unistd_Lib._CS_LFS_LIBS;
+        return Unistd_Impl._CS_LFS_LIBS;
     }
 
     @Override
     protected int _CS_LFS_LINTFLAGS() {
-        return Unistd_Lib._CS_LFS_LINTFLAGS;
+        return Unistd_Impl._CS_LFS_LINTFLAGS;
     }
 
     @Override
     protected int _CS_LFS64_CFLAGS() {
-        return Unistd_Lib._CS_LFS64_CFLAGS;
+        return Unistd_Impl._CS_LFS64_CFLAGS;
     }
 
     @Override
     protected int _CS_LFS64_LDFLAGS() {
-        return Unistd_Lib._CS_LFS64_LDFLAGS;
+        return Unistd_Impl._CS_LFS64_LDFLAGS;
     }
 
     @Override
     protected int _CS_LFS64_LIBS() {
-        return Unistd_Lib._CS_LFS64_LIBS;
+        return Unistd_Impl._CS_LFS64_LIBS;
     }
 
     @Override
     protected int _CS_LFS64_LINTFLAGS() {
-        return Unistd_Lib._CS_LFS64_LINTFLAGS;
+        return Unistd_Impl._CS_LFS64_LINTFLAGS;
     }
 
     @Override
     protected int _CS_PATH() {
-        return Unistd_Lib._CS_PATH;
+        return Unistd_Impl._CS_PATH;
     }
 
     @Override
     protected int _CS_POSIX_V5_WIDTH_RESTRICTED_ENVS() {
-        return Unistd_Lib._CS_POSIX_V5_WIDTH_RESTRICTED_ENVS;
+        return Unistd_Impl._CS_POSIX_V5_WIDTH_RESTRICTED_ENVS;
     }
 
     @Override
     protected int _CS_POSIX_V6_ILP32_OFF32_CFLAGS() {
-        return Unistd_Lib._CS_POSIX_V6_ILP32_OFF32_CFLAGS;
+        return Unistd_Impl._CS_POSIX_V6_ILP32_OFF32_CFLAGS;
     }
 
     @Override
     protected int _CS_POSIX_V6_ILP32_OFF32_LDFLAGS() {
-        return Unistd_Lib._CS_POSIX_V6_ILP32_OFF32_LDFLAGS;
+        return Unistd_Impl._CS_POSIX_V6_ILP32_OFF32_LDFLAGS;
     }
 
     @Override
     protected int _CS_POSIX_V6_ILP32_OFF32_LIBS() {
-        return Unistd_Lib._CS_POSIX_V6_ILP32_OFF32_LIBS;
+        return Unistd_Impl._CS_POSIX_V6_ILP32_OFF32_LIBS;
     }
 
     @Override
     protected int _CS_POSIX_V6_ILP32_OFF32_LINTFLAGS() {
-        return Unistd_Lib._CS_POSIX_V6_ILP32_OFF32_LINTFLAGS;
+        return Unistd_Impl._CS_POSIX_V6_ILP32_OFF32_LINTFLAGS;
     }
 
     @Override
     protected int _CS_POSIX_V6_ILP32_OFFBIG_CFLAGS() {
-        return Unistd_Lib._CS_POSIX_V6_ILP32_OFFBIG_CFLAGS;
+        return Unistd_Impl._CS_POSIX_V6_ILP32_OFFBIG_CFLAGS;
     }
 
     @Override
     protected int _CS_POSIX_V6_ILP32_OFFBIG_LDFLAGS() {
-        return Unistd_Lib._CS_POSIX_V6_ILP32_OFFBIG_LDFLAGS;
+        return Unistd_Impl._CS_POSIX_V6_ILP32_OFFBIG_LDFLAGS;
     }
 
     @Override
     protected int _CS_POSIX_V6_ILP32_OFFBIG_LIBS() {
-        return Unistd_Lib._CS_POSIX_V6_ILP32_OFFBIG_LIBS;
+        return Unistd_Impl._CS_POSIX_V6_ILP32_OFFBIG_LIBS;
     }
 
     @Override
     protected int _CS_POSIX_V6_ILP32_OFFBIG_LINTFLAGS() {
-        return Unistd_Lib._CS_POSIX_V6_ILP32_OFFBIG_LINTFLAGS;
+        return Unistd_Impl._CS_POSIX_V6_ILP32_OFFBIG_LINTFLAGS;
     }
 
     @Override
     protected int _CS_POSIX_V6_LP64_OFF64_CFLAGS() {
-        return Unistd_Lib._CS_POSIX_V6_LP64_OFF64_CFLAGS;
+        return Unistd_Impl._CS_POSIX_V6_LP64_OFF64_CFLAGS;
     }
 
     @Override
     protected int _CS_POSIX_V6_LP64_OFF64_LDFLAGS() {
-        return Unistd_Lib._CS_POSIX_V6_LP64_OFF64_LDFLAGS;
+        return Unistd_Impl._CS_POSIX_V6_LP64_OFF64_LDFLAGS;
     }
 
     @Override
     protected int _CS_POSIX_V6_LP64_OFF64_LIBS() {
-        return Unistd_Lib._CS_POSIX_V6_LP64_OFF64_LIBS;
+        return Unistd_Impl._CS_POSIX_V6_LP64_OFF64_LIBS;
     }
 
     @Override
     protected int _CS_POSIX_V6_LP64_OFF64_LINTFLAGS() {
-        return Unistd_Lib._CS_POSIX_V6_LP64_OFF64_LINTFLAGS;
+        return Unistd_Impl._CS_POSIX_V6_LP64_OFF64_LINTFLAGS;
     }
 
     @Override
     protected int _CS_POSIX_V6_LPBIG_OFFBIG_CFLAGS() {
-        return Unistd_Lib._CS_POSIX_V6_LPBIG_OFFBIG_CFLAGS;
+        return Unistd_Impl._CS_POSIX_V6_LPBIG_OFFBIG_CFLAGS;
     }
 
     @Override
     protected int _CS_POSIX_V6_LPBIG_OFFBIG_LDFLAGS() {
-        return Unistd_Lib._CS_POSIX_V6_LPBIG_OFFBIG_LDFLAGS;
+        return Unistd_Impl._CS_POSIX_V6_LPBIG_OFFBIG_LDFLAGS;
     }
 
     @Override
     protected int _CS_POSIX_V6_LPBIG_OFFBIG_LIBS() {
-        return Unistd_Lib._CS_POSIX_V6_LPBIG_OFFBIG_LIBS;
+        return Unistd_Impl._CS_POSIX_V6_LPBIG_OFFBIG_LIBS;
     }
 
     @Override
     protected int _CS_POSIX_V6_LPBIG_OFFBIG_LINTFLAGS() {
-        return Unistd_Lib._CS_POSIX_V6_LPBIG_OFFBIG_LINTFLAGS;
+        return Unistd_Impl._CS_POSIX_V6_LPBIG_OFFBIG_LINTFLAGS;
     }
 
     @Override
     protected int _CS_POSIX_V6_WIDTH_RESTRICTED_ENVS() {
-        return Unistd_Lib._CS_POSIX_V6_WIDTH_RESTRICTED_ENVS;
+        return Unistd_Impl._CS_POSIX_V6_WIDTH_RESTRICTED_ENVS;
     }
 
     @Override
     protected int _CS_POSIX_V7_ILP32_OFF32_CFLAGS() {
-        return Unistd_Lib._CS_POSIX_V7_ILP32_OFF32_CFLAGS;
+        return Unistd_Impl._CS_POSIX_V7_ILP32_OFF32_CFLAGS;
     }
 
     @Override
     protected int _CS_POSIX_V7_ILP32_OFF32_LDFLAGS() {
-        return Unistd_Lib._CS_POSIX_V7_ILP32_OFF32_LDFLAGS;
+        return Unistd_Impl._CS_POSIX_V7_ILP32_OFF32_LDFLAGS;
     }
 
     @Override
     protected int _CS_POSIX_V7_ILP32_OFF32_LIBS() {
-        return Unistd_Lib._CS_POSIX_V7_ILP32_OFF32_LIBS;
+        return Unistd_Impl._CS_POSIX_V7_ILP32_OFF32_LIBS;
     }
 
     @Override
     protected int _CS_POSIX_V7_ILP32_OFF32_LINTFLAGS() {
-        return Unistd_Lib._CS_POSIX_V7_ILP32_OFF32_LINTFLAGS;
+        return Unistd_Impl._CS_POSIX_V7_ILP32_OFF32_LINTFLAGS;
     }
 
     @Override
     protected int _CS_POSIX_V7_ILP32_OFFBIG_CFLAGS() {
-        return Unistd_Lib._CS_POSIX_V7_ILP32_OFFBIG_CFLAGS;
+        return Unistd_Impl._CS_POSIX_V7_ILP32_OFFBIG_CFLAGS;
     }
 
     @Override
     protected int _CS_POSIX_V7_ILP32_OFFBIG_LDFLAGS() {
-        return Unistd_Lib._CS_POSIX_V7_ILP32_OFFBIG_LDFLAGS;
+        return Unistd_Impl._CS_POSIX_V7_ILP32_OFFBIG_LDFLAGS;
     }
 
     @Override
     protected int _CS_POSIX_V7_ILP32_OFFBIG_LIBS() {
-        return Unistd_Lib._CS_POSIX_V7_ILP32_OFFBIG_LIBS;
+        return Unistd_Impl._CS_POSIX_V7_ILP32_OFFBIG_LIBS;
     }
 
     @Override
     protected int _CS_POSIX_V7_ILP32_OFFBIG_LINTFLAGS() {
-        return Unistd_Lib._CS_POSIX_V7_ILP32_OFFBIG_LINTFLAGS;
+        return Unistd_Impl._CS_POSIX_V7_ILP32_OFFBIG_LINTFLAGS;
     }
 
     @Override
     protected int _CS_POSIX_V7_LP64_OFF64_CFLAGS() {
-        return Unistd_Lib._CS_POSIX_V7_LP64_OFF64_CFLAGS;
+        return Unistd_Impl._CS_POSIX_V7_LP64_OFF64_CFLAGS;
     }
 
     @Override
     protected int _CS_POSIX_V7_LP64_OFF64_LDFLAGS() {
-        return Unistd_Lib._CS_POSIX_V7_LP64_OFF64_LDFLAGS;
+        return Unistd_Impl._CS_POSIX_V7_LP64_OFF64_LDFLAGS;
     }
 
     @Override
     protected int _CS_POSIX_V7_LP64_OFF64_LIBS() {
-        return Unistd_Lib._CS_POSIX_V7_LP64_OFF64_LIBS;
+        return Unistd_Impl._CS_POSIX_V7_LP64_OFF64_LIBS;
     }
 
     @Override
     protected int _CS_POSIX_V7_LP64_OFF64_LINTFLAGS() {
-        return Unistd_Lib._CS_POSIX_V7_LP64_OFF64_LINTFLAGS;
+        return Unistd_Impl._CS_POSIX_V7_LP64_OFF64_LINTFLAGS;
     }
 
     @Override
     protected int _CS_POSIX_V7_LPBIG_OFFBIG_CFLAGS() {
-        return Unistd_Lib._CS_POSIX_V7_LPBIG_OFFBIG_CFLAGS;
+        return Unistd_Impl._CS_POSIX_V7_LPBIG_OFFBIG_CFLAGS;
     }
 
     @Override
     protected int _CS_POSIX_V7_LPBIG_OFFBIG_LDFLAGS() {
-        return Unistd_Lib._CS_POSIX_V7_LPBIG_OFFBIG_LDFLAGS;
+        return Unistd_Impl._CS_POSIX_V7_LPBIG_OFFBIG_LDFLAGS;
     }
 
     @Override
     protected int _CS_POSIX_V7_LPBIG_OFFBIG_LIBS() {
-        return Unistd_Lib._CS_POSIX_V7_LPBIG_OFFBIG_LIBS;
+        return Unistd_Impl._CS_POSIX_V7_LPBIG_OFFBIG_LIBS;
     }
 
     @Override
     protected int _CS_POSIX_V7_LPBIG_OFFBIG_LINTFLAGS() {
-        return Unistd_Lib._CS_POSIX_V7_LPBIG_OFFBIG_LINTFLAGS;
+        return Unistd_Impl._CS_POSIX_V7_LPBIG_OFFBIG_LINTFLAGS;
     }
 
     @Override
     protected int _CS_POSIX_V7_WIDTH_RESTRICTED_ENVS() {
-        return Unistd_Lib._CS_POSIX_V7_WIDTH_RESTRICTED_ENVS;
+        return Unistd_Impl._CS_POSIX_V7_WIDTH_RESTRICTED_ENVS;
     }
 
     @Override
     protected int _CS_V5_WIDTH_RESTRICTED_ENVS() {
-        return Unistd_Lib._CS_V5_WIDTH_RESTRICTED_ENVS;
+        return Unistd_Impl._CS_V5_WIDTH_RESTRICTED_ENVS;
     }
 
     @Override
     protected int _CS_V6_ENV() {
-        return Unistd_Lib._CS_V6_ENV;
+        return Unistd_Impl._CS_V6_ENV;
     }
 
     @Override
     protected int _CS_V6_WIDTH_RESTRICTED_ENVS() {
-        return Unistd_Lib._CS_V6_WIDTH_RESTRICTED_ENVS;
+        return Unistd_Impl._CS_V6_WIDTH_RESTRICTED_ENVS;
     }
 
     @Override
     protected int _CS_V7_ENV() {
-        return Unistd_Lib._CS_V7_ENV;
+        return Unistd_Impl._CS_V7_ENV;
     }
 
     @Override
     protected int _CS_V7_WIDTH_RESTRICTED_ENVS() {
-        return Unistd_Lib._CS_V7_WIDTH_RESTRICTED_ENVS;
+        return Unistd_Impl._CS_V7_WIDTH_RESTRICTED_ENVS;
     }
 
     @Override
     protected int _CS_XBS5_ILP32_OFF32_CFLAGS() {
-        return Unistd_Lib._CS_XBS5_ILP32_OFF32_CFLAGS;
+        return Unistd_Impl._CS_XBS5_ILP32_OFF32_CFLAGS;
     }
 
     @Override
     protected int _CS_XBS5_ILP32_OFF32_LDFLAGS() {
-        return Unistd_Lib._CS_XBS5_ILP32_OFF32_LDFLAGS;
+        return Unistd_Impl._CS_XBS5_ILP32_OFF32_LDFLAGS;
     }
 
     @Override
     protected int _CS_XBS5_ILP32_OFF32_LIBS() {
-        return Unistd_Lib._CS_XBS5_ILP32_OFF32_LIBS;
+        return Unistd_Impl._CS_XBS5_ILP32_OFF32_LIBS;
     }
 
     @Override
     protected int _CS_XBS5_ILP32_OFF32_LINTFLAGS() {
-        return Unistd_Lib._CS_XBS5_ILP32_OFF32_LINTFLAGS;
+        return Unistd_Impl._CS_XBS5_ILP32_OFF32_LINTFLAGS;
     }
 
     @Override
     protected int _CS_XBS5_ILP32_OFFBIG_CFLAGS() {
-        return Unistd_Lib._CS_XBS5_ILP32_OFFBIG_CFLAGS;
+        return Unistd_Impl._CS_XBS5_ILP32_OFFBIG_CFLAGS;
     }
 
     @Override
     protected int _CS_XBS5_ILP32_OFFBIG_LDFLAGS() {
-        return Unistd_Lib._CS_XBS5_ILP32_OFFBIG_LDFLAGS;
+        return Unistd_Impl._CS_XBS5_ILP32_OFFBIG_LDFLAGS;
     }
 
     @Override
     protected int _CS_XBS5_ILP32_OFFBIG_LIBS() {
-        return Unistd_Lib._CS_XBS5_ILP32_OFFBIG_LIBS;
+        return Unistd_Impl._CS_XBS5_ILP32_OFFBIG_LIBS;
     }
 
     @Override
     protected int _CS_XBS5_ILP32_OFFBIG_LINTFLAGS() {
-        return Unistd_Lib._CS_XBS5_ILP32_OFFBIG_LINTFLAGS;
+        return Unistd_Impl._CS_XBS5_ILP32_OFFBIG_LINTFLAGS;
     }
 
     @Override
     protected int _CS_XBS5_LP64_OFF64_CFLAGS() {
-        return Unistd_Lib._CS_XBS5_LP64_OFF64_CFLAGS;
+        return Unistd_Impl._CS_XBS5_LP64_OFF64_CFLAGS;
     }
 
     @Override
     protected int _CS_XBS5_LP64_OFF64_LDFLAGS() {
-        return Unistd_Lib._CS_XBS5_LP64_OFF64_LDFLAGS;
+        return Unistd_Impl._CS_XBS5_LP64_OFF64_LDFLAGS;
     }
 
     @Override
     protected int _CS_XBS5_LP64_OFF64_LIBS() {
-        return Unistd_Lib._CS_XBS5_LP64_OFF64_LIBS;
+        return Unistd_Impl._CS_XBS5_LP64_OFF64_LIBS;
     }
 
     @Override
     protected int _CS_XBS5_LP64_OFF64_LINTFLAGS() {
-        return Unistd_Lib._CS_XBS5_LP64_OFF64_LINTFLAGS;
+        return Unistd_Impl._CS_XBS5_LP64_OFF64_LINTFLAGS;
     }
 
     @Override
     protected int _CS_XBS5_LPBIG_OFFBIG_CFLAGS() {
-        return Unistd_Lib._CS_XBS5_LPBIG_OFFBIG_CFLAGS;
+        return Unistd_Impl._CS_XBS5_LPBIG_OFFBIG_CFLAGS;
     }
 
     @Override
     protected int _CS_XBS5_LPBIG_OFFBIG_LDFLAGS() {
-        return Unistd_Lib._CS_XBS5_LPBIG_OFFBIG_LDFLAGS;
+        return Unistd_Impl._CS_XBS5_LPBIG_OFFBIG_LDFLAGS;
     }
 
     @Override
     protected int _CS_XBS5_LPBIG_OFFBIG_LIBS() {
-        return Unistd_Lib._CS_XBS5_LPBIG_OFFBIG_LIBS;
+        return Unistd_Impl._CS_XBS5_LPBIG_OFFBIG_LIBS;
     }
 
     @Override
     protected int _CS_XBS5_LPBIG_OFFBIG_LINTFLAGS() {
-        return Unistd_Lib._CS_XBS5_LPBIG_OFFBIG_LINTFLAGS;
+        return Unistd_Impl._CS_XBS5_LPBIG_OFFBIG_LINTFLAGS;
     }
 
     @Override
     protected int _PC_2_SYMLINKS() {
-        return Unistd_Lib._PC_2_SYMLINKS;
+        return Unistd_Impl._PC_2_SYMLINKS;
     }
 
     @Override
     protected int _PC_ALLOC_SIZE_MIN() {
-        return Unistd_Lib._PC_ALLOC_SIZE_MIN;
+        return Unistd_Impl._PC_ALLOC_SIZE_MIN;
     }
 
     @Override
     protected int _PC_ASYNC_IO() {
-        return Unistd_Lib._PC_ASYNC_IO;
+        return Unistd_Impl._PC_ASYNC_IO;
     }
 
     @Override
     protected int _PC_CHOWN_RESTRICTED() {
-        return Unistd_Lib._PC_CHOWN_RESTRICTED;
+        return Unistd_Impl._PC_CHOWN_RESTRICTED;
     }
 
     @Override
     protected int _PC_FILESIZEBITS() {
-        return Unistd_Lib._PC_FILESIZEBITS;
+        return Unistd_Impl._PC_FILESIZEBITS;
     }
 
     @Override
     protected int _PC_LINK_MAX() {
-        return Unistd_Lib._PC_LINK_MAX;
+        return Unistd_Impl._PC_LINK_MAX;
     }
 
     @Override
     protected int _PC_MAX_CANON() {
-        return Unistd_Lib._PC_MAX_CANON;
+        return Unistd_Impl._PC_MAX_CANON;
     }
 
     @Override
     protected int _PC_MAX_INPUT() {
-        return Unistd_Lib._PC_MAX_INPUT;
+        return Unistd_Impl._PC_MAX_INPUT;
     }
 
     @Override
     protected int _PC_NAME_MAX() {
-        return Unistd_Lib._PC_NAME_MAX;
+        return Unistd_Impl._PC_NAME_MAX;
     }
 
     @Override
     protected int _PC_NO_TRUNC() {
-        return Unistd_Lib._PC_NO_TRUNC;
+        return Unistd_Impl._PC_NO_TRUNC;
     }
 
     @Override
     protected int _PC_PATH_MAX() {
-        return Unistd_Lib._PC_PATH_MAX;
+        return Unistd_Impl._PC_PATH_MAX;
     }
 
     @Override
     protected int _PC_PIPE_BUF() {
-        return Unistd_Lib._PC_PIPE_BUF;
+        return Unistd_Impl._PC_PIPE_BUF;
     }
 
     @Override
     protected int _PC_PRIO_IO() {
-        return Unistd_Lib._PC_PRIO_IO;
+        return Unistd_Impl._PC_PRIO_IO;
     }
 
     @Override
     protected int _PC_REC_INCR_XFER_SIZE() {
-        return Unistd_Lib._PC_REC_INCR_XFER_SIZE;
+        return Unistd_Impl._PC_REC_INCR_XFER_SIZE;
     }
 
     @Override
     protected int _PC_REC_MAX_XFER_SIZE() {
-        return Unistd_Lib._PC_REC_MAX_XFER_SIZE;
+        return Unistd_Impl._PC_REC_MAX_XFER_SIZE;
     }
 
     @Override
     protected int _PC_REC_MIN_XFER_SIZE() {
-        return Unistd_Lib._PC_REC_MIN_XFER_SIZE;
+        return Unistd_Impl._PC_REC_MIN_XFER_SIZE;
     }
 
     @Override
     protected int _PC_REC_XFER_ALIGN() {
-        return Unistd_Lib._PC_REC_XFER_ALIGN;
+        return Unistd_Impl._PC_REC_XFER_ALIGN;
     }
 
     @Override
     protected int _PC_SOCK_MAXBUF() {
-        return Unistd_Lib._PC_SOCK_MAXBUF;
+        return Unistd_Impl._PC_SOCK_MAXBUF;
     }
 
     @Override
     protected int _PC_SYMLINK_MAX() {
-        return Unistd_Lib._PC_SYMLINK_MAX;
+        return Unistd_Impl._PC_SYMLINK_MAX;
     }
 
     @Override
     protected int _PC_SYNC_IO() {
-        return Unistd_Lib._PC_SYNC_IO;
+        return Unistd_Impl._PC_SYNC_IO;
     }
 
     @Override
     protected int _PC_VDISABLE() {
-        return Unistd_Lib._PC_VDISABLE;
+        return Unistd_Impl._PC_VDISABLE;
     }
 
     @Override
     protected int _SC_2_C_BIND() {
-        return Unistd_Lib._SC_2_C_BIND;
+        return Unistd_Impl._SC_2_C_BIND;
     }
 
     @Override
     protected int _SC_2_C_DEV() {
-        return Unistd_Lib._SC_2_C_DEV;
+        return Unistd_Impl._SC_2_C_DEV;
     }
 
     @Override
     protected int _SC_2_C_VERSION() {
-        return Unistd_Lib._SC_2_C_VERSION;
+        return Unistd_Impl._SC_2_C_VERSION;
     }
 
     @Override
     protected int _SC_2_CHAR_TERM() {
-        return Unistd_Lib._SC_2_CHAR_TERM;
+        return Unistd_Impl._SC_2_CHAR_TERM;
     }
 
     @Override
     protected int _SC_2_FORT_DEV() {
-        return Unistd_Lib._SC_2_FORT_DEV;
+        return Unistd_Impl._SC_2_FORT_DEV;
     }
 
     @Override
     protected int _SC_2_FORT_RUN() {
-        return Unistd_Lib._SC_2_FORT_RUN;
+        return Unistd_Impl._SC_2_FORT_RUN;
     }
 
     @Override
     protected int _SC_2_LOCALEDEF() {
-        return Unistd_Lib._SC_2_LOCALEDEF;
+        return Unistd_Impl._SC_2_LOCALEDEF;
     }
 
     @Override
     protected int _SC_2_PBS() {
-        return Unistd_Lib._SC_2_PBS;
+        return Unistd_Impl._SC_2_PBS;
     }
 
     @Override
     protected int _SC_2_PBS_ACCOUNTING() {
-        return Unistd_Lib._SC_2_PBS_ACCOUNTING;
+        return Unistd_Impl._SC_2_PBS_ACCOUNTING;
     }
 
     @Override
     protected int _SC_2_PBS_CHECKPOINT() {
-        return Unistd_Lib._SC_2_PBS_CHECKPOINT;
+        return Unistd_Impl._SC_2_PBS_CHECKPOINT;
     }
 
     @Override
     protected int _SC_2_PBS_LOCATE() {
-        return Unistd_Lib._SC_2_PBS_LOCATE;
+        return Unistd_Impl._SC_2_PBS_LOCATE;
     }
 
     @Override
     protected int _SC_2_PBS_MESSAGE() {
-        return Unistd_Lib._SC_2_PBS_MESSAGE;
+        return Unistd_Impl._SC_2_PBS_MESSAGE;
     }
 
     @Override
     protected int _SC_2_PBS_TRACK() {
-        return Unistd_Lib._SC_2_PBS_TRACK;
+        return Unistd_Impl._SC_2_PBS_TRACK;
     }
 
     @Override
     protected int _SC_2_SW_DEV() {
-        return Unistd_Lib._SC_2_SW_DEV;
+        return Unistd_Impl._SC_2_SW_DEV;
     }
 
     @Override
     protected int _SC_2_UPE() {
-        return Unistd_Lib._SC_2_UPE;
+        return Unistd_Impl._SC_2_UPE;
     }
 
     @Override
     protected int _SC_2_VERSION() {
-        return Unistd_Lib._SC_2_VERSION;
+        return Unistd_Impl._SC_2_VERSION;
     }
 
     @Override
     protected int _SC_ADVISORY_INFO() {
-        return Unistd_Lib._SC_ADVISORY_INFO;
+        return Unistd_Impl._SC_ADVISORY_INFO;
     }
 
     @Override
     protected int _SC_AIO_LISTIO_MAX() {
-        return Unistd_Lib._SC_AIO_LISTIO_MAX;
+        return Unistd_Impl._SC_AIO_LISTIO_MAX;
     }
 
     @Override
     protected int _SC_AIO_MAX() {
-        return Unistd_Lib._SC_AIO_MAX;
+        return Unistd_Impl._SC_AIO_MAX;
     }
 
     @Override
     protected int _SC_AIO_PRIO_DELTA_MAX() {
-        return Unistd_Lib._SC_AIO_PRIO_DELTA_MAX;
+        return Unistd_Impl._SC_AIO_PRIO_DELTA_MAX;
     }
 
     @Override
     protected int _SC_ARG_MAX() {
-        return Unistd_Lib._SC_ARG_MAX;
+        return Unistd_Impl._SC_ARG_MAX;
     }
 
     @Override
     protected int _SC_ASYNCHRONOUS_IO() {
-        return Unistd_Lib._SC_ASYNCHRONOUS_IO;
+        return Unistd_Impl._SC_ASYNCHRONOUS_IO;
     }
 
     @Override
     protected int _SC_ATEXIT_MAX() {
-        return Unistd_Lib._SC_ATEXIT_MAX;
+        return Unistd_Impl._SC_ATEXIT_MAX;
     }
 
     @Override
     protected int _SC_AVPHYS_PAGES() {
-        return Unistd_Lib._SC_AVPHYS_PAGES;
+        return Unistd_Impl._SC_AVPHYS_PAGES;
     }
 
     @Override
     protected int _SC_BARRIERS() {
-        return Unistd_Lib._SC_BARRIERS;
+        return Unistd_Impl._SC_BARRIERS;
     }
 
     @Override
     protected int _SC_BASE() {
-        return Unistd_Lib._SC_BASE;
+        return Unistd_Impl._SC_BASE;
     }
 
     @Override
     protected int _SC_BC_BASE_MAX() {
-        return Unistd_Lib._SC_BC_BASE_MAX;
+        return Unistd_Impl._SC_BC_BASE_MAX;
     }
 
     @Override
     protected int _SC_BC_DIM_MAX() {
-        return Unistd_Lib._SC_BC_DIM_MAX;
+        return Unistd_Impl._SC_BC_DIM_MAX;
     }
 
     @Override
     protected int _SC_BC_SCALE_MAX() {
-        return Unistd_Lib._SC_BC_SCALE_MAX;
+        return Unistd_Impl._SC_BC_SCALE_MAX;
     }
 
     @Override
     protected int _SC_BC_STRING_MAX() {
-        return Unistd_Lib._SC_BC_STRING_MAX;
+        return Unistd_Impl._SC_BC_STRING_MAX;
     }
 
     @Override
     protected int _SC_C_LANG_SUPPORT() {
-        return Unistd_Lib._SC_C_LANG_SUPPORT;
+        return Unistd_Impl._SC_C_LANG_SUPPORT;
     }
 
     @Override
     protected int _SC_C_LANG_SUPPORT_R() {
-        return Unistd_Lib._SC_C_LANG_SUPPORT_R;
+        return Unistd_Impl._SC_C_LANG_SUPPORT_R;
     }
 
     @Override
     protected int _SC_CHAR_BIT() {
-        return Unistd_Lib._SC_CHAR_BIT;
+        return Unistd_Impl._SC_CHAR_BIT;
     }
 
     @Override
     protected int _SC_CHAR_MAX() {
-        return Unistd_Lib._SC_CHAR_MAX;
+        return Unistd_Impl._SC_CHAR_MAX;
     }
 
     @Override
     protected int _SC_CHAR_MIN() {
-        return Unistd_Lib._SC_CHAR_MIN;
+        return Unistd_Impl._SC_CHAR_MIN;
     }
 
     @Override
     protected int _SC_CHARCLASS_NAME_MAX() {
-        return Unistd_Lib._SC_CHARCLASS_NAME_MAX;
+        return Unistd_Impl._SC_CHARCLASS_NAME_MAX;
     }
 
     @Override
     protected int _SC_CHILD_MAX() {
-        return Unistd_Lib._SC_CHILD_MAX;
+        return Unistd_Impl._SC_CHILD_MAX;
     }
 
     @Override
     protected int _SC_CLK_TCK() {
-        return Unistd_Lib._SC_CLK_TCK;
+        return Unistd_Impl._SC_CLK_TCK;
     }
 
     @Override
     protected int _SC_CLOCK_SELECTION() {
-        return Unistd_Lib._SC_CLOCK_SELECTION;
+        return Unistd_Impl._SC_CLOCK_SELECTION;
     }
 
     @Override
     protected int _SC_COLL_WEIGHTS_MAX() {
-        return Unistd_Lib._SC_COLL_WEIGHTS_MAX;
+        return Unistd_Impl._SC_COLL_WEIGHTS_MAX;
     }
 
     @Override
     protected int _SC_CPUTIME() {
-        return Unistd_Lib._SC_CPUTIME;
+        return Unistd_Impl._SC_CPUTIME;
     }
 
     @Override
     protected int _SC_DELAYTIMER_MAX() {
-        return Unistd_Lib._SC_DELAYTIMER_MAX;
+        return Unistd_Impl._SC_DELAYTIMER_MAX;
     }
 
     @Override
     protected int _SC_DEVICE_IO() {
-        return Unistd_Lib._SC_DEVICE_IO;
+        return Unistd_Impl._SC_DEVICE_IO;
     }
 
     @Override
     protected int _SC_DEVICE_SPECIFIC() {
-        return Unistd_Lib._SC_DEVICE_SPECIFIC;
+        return Unistd_Impl._SC_DEVICE_SPECIFIC;
     }
 
     @Override
     protected int _SC_DEVICE_SPECIFIC_R() {
-        return Unistd_Lib._SC_DEVICE_SPECIFIC_R;
+        return Unistd_Impl._SC_DEVICE_SPECIFIC_R;
     }
 
     @Override
     protected int _SC_EQUIV_CLASS_MAX() {
-        return Unistd_Lib._SC_EQUIV_CLASS_MAX;
+        return Unistd_Impl._SC_EQUIV_CLASS_MAX;
     }
 
     @Override
     protected int _SC_EXPR_NEST_MAX() {
-        return Unistd_Lib._SC_EXPR_NEST_MAX;
+        return Unistd_Impl._SC_EXPR_NEST_MAX;
     }
 
     @Override
     protected int _SC_FD_MGMT() {
-        return Unistd_Lib._SC_FD_MGMT;
+        return Unistd_Impl._SC_FD_MGMT;
     }
 
     @Override
     protected int _SC_FIFO() {
-        return Unistd_Lib._SC_FIFO;
+        return Unistd_Impl._SC_FIFO;
     }
 
     @Override
     protected int _SC_FILE_ATTRIBUTES() {
-        return Unistd_Lib._SC_FILE_ATTRIBUTES;
+        return Unistd_Impl._SC_FILE_ATTRIBUTES;
     }
 
     @Override
     protected int _SC_FILE_LOCKING() {
-        return Unistd_Lib._SC_FILE_LOCKING;
+        return Unistd_Impl._SC_FILE_LOCKING;
     }
 
     @Override
     protected int _SC_FILE_SYSTEM() {
-        return Unistd_Lib._SC_FILE_SYSTEM;
+        return Unistd_Impl._SC_FILE_SYSTEM;
     }
 
     @Override
     protected int _SC_FSYNC() {
-        return Unistd_Lib._SC_FSYNC;
+        return Unistd_Impl._SC_FSYNC;
     }
 
     @Override
     protected int _SC_GETGR_R_SIZE_MAX() {
-        return Unistd_Lib._SC_GETGR_R_SIZE_MAX;
+        return Unistd_Impl._SC_GETGR_R_SIZE_MAX;
     }
 
     @Override
     protected int _SC_GETPW_R_SIZE_MAX() {
-        return Unistd_Lib._SC_GETPW_R_SIZE_MAX;
+        return Unistd_Impl._SC_GETPW_R_SIZE_MAX;
     }
 
     @Override
     protected int _SC_HOST_NAME_MAX() {
-        return Unistd_Lib._SC_HOST_NAME_MAX;
+        return Unistd_Impl._SC_HOST_NAME_MAX;
     }
 
     @Override
     protected int _SC_INT_MAX() {
-        return Unistd_Lib._SC_INT_MAX;
+        return Unistd_Impl._SC_INT_MAX;
     }
 
     @Override
     protected int _SC_INT_MIN() {
-        return Unistd_Lib._SC_INT_MIN;
+        return Unistd_Impl._SC_INT_MIN;
     }
 
     @Override
     protected int _SC_IOV_MAX() {
-        return Unistd_Lib._SC_IOV_MAX;
+        return Unistd_Impl._SC_IOV_MAX;
     }
 
     @Override
     protected int _SC_IPV6() {
-        return Unistd_Lib._SC_IPV6;
+        return Unistd_Impl._SC_IPV6;
     }
 
     @Override
     protected int _SC_JOB_CONTROL() {
-        return Unistd_Lib._SC_JOB_CONTROL;
+        return Unistd_Impl._SC_JOB_CONTROL;
     }
 
     @Override
     protected int _SC_LEVEL1_DCACHE_ASSOC() {
-        return Unistd_Lib._SC_LEVEL1_DCACHE_ASSOC;
+        return Unistd_Impl._SC_LEVEL1_DCACHE_ASSOC;
     }
 
     @Override
     protected int _SC_LEVEL1_DCACHE_LINESIZE() {
-        return Unistd_Lib._SC_LEVEL1_DCACHE_LINESIZE;
+        return Unistd_Impl._SC_LEVEL1_DCACHE_LINESIZE;
     }
 
     @Override
     protected int _SC_LEVEL1_DCACHE_SIZE() {
-        return Unistd_Lib._SC_LEVEL1_DCACHE_SIZE;
+        return Unistd_Impl._SC_LEVEL1_DCACHE_SIZE;
     }
 
     @Override
     protected int _SC_LEVEL1_ICACHE_ASSOC() {
-        return Unistd_Lib._SC_LEVEL1_ICACHE_ASSOC;
+        return Unistd_Impl._SC_LEVEL1_ICACHE_ASSOC;
     }
 
     @Override
     protected int _SC_LEVEL1_ICACHE_LINESIZE() {
-        return Unistd_Lib._SC_LEVEL1_ICACHE_LINESIZE;
+        return Unistd_Impl._SC_LEVEL1_ICACHE_LINESIZE;
     }
 
     @Override
     protected int _SC_LEVEL1_ICACHE_SIZE() {
-        return Unistd_Lib._SC_LEVEL1_ICACHE_SIZE;
+        return Unistd_Impl._SC_LEVEL1_ICACHE_SIZE;
     }
 
     @Override
     protected int _SC_LEVEL2_CACHE_ASSOC() {
-        return Unistd_Lib._SC_LEVEL2_CACHE_ASSOC;
+        return Unistd_Impl._SC_LEVEL2_CACHE_ASSOC;
     }
 
     @Override
     protected int _SC_LEVEL2_CACHE_LINESIZE() {
-        return Unistd_Lib._SC_LEVEL2_CACHE_LINESIZE;
+        return Unistd_Impl._SC_LEVEL2_CACHE_LINESIZE;
     }
 
     @Override
     protected int _SC_LEVEL2_CACHE_SIZE() {
-        return Unistd_Lib._SC_LEVEL2_CACHE_SIZE;
+        return Unistd_Impl._SC_LEVEL2_CACHE_SIZE;
     }
 
     @Override
     protected int _SC_LEVEL3_CACHE_ASSOC() {
-        return Unistd_Lib._SC_LEVEL3_CACHE_ASSOC;
+        return Unistd_Impl._SC_LEVEL3_CACHE_ASSOC;
     }
 
     @Override
     protected int _SC_LEVEL3_CACHE_LINESIZE() {
-        return Unistd_Lib._SC_LEVEL3_CACHE_LINESIZE;
+        return Unistd_Impl._SC_LEVEL3_CACHE_LINESIZE;
     }
 
     @Override
     protected int _SC_LEVEL3_CACHE_SIZE() {
-        return Unistd_Lib._SC_LEVEL3_CACHE_SIZE;
+        return Unistd_Impl._SC_LEVEL3_CACHE_SIZE;
     }
 
     @Override
     protected int _SC_LEVEL4_CACHE_ASSOC() {
-        return Unistd_Lib._SC_LEVEL4_CACHE_ASSOC;
+        return Unistd_Impl._SC_LEVEL4_CACHE_ASSOC;
     }
 
     @Override
     protected int _SC_LEVEL4_CACHE_LINESIZE() {
-        return Unistd_Lib._SC_LEVEL4_CACHE_LINESIZE;
+        return Unistd_Impl._SC_LEVEL4_CACHE_LINESIZE;
     }
 
     @Override
     protected int _SC_LEVEL4_CACHE_SIZE() {
-        return Unistd_Lib._SC_LEVEL4_CACHE_SIZE;
+        return Unistd_Impl._SC_LEVEL4_CACHE_SIZE;
     }
 
     @Override
     protected int _SC_LINE_MAX() {
-        return Unistd_Lib._SC_LINE_MAX;
+        return Unistd_Impl._SC_LINE_MAX;
     }
 
     @Override
     protected int _SC_LOGIN_NAME_MAX() {
-        return Unistd_Lib._SC_LOGIN_NAME_MAX;
+        return Unistd_Impl._SC_LOGIN_NAME_MAX;
     }
 
     @Override
     protected int _SC_LONG_BIT() {
-        return Unistd_Lib._SC_LONG_BIT;
+        return Unistd_Impl._SC_LONG_BIT;
     }
 
     @Override
     protected int _SC_MAPPED_FILES() {
-        return Unistd_Lib._SC_MAPPED_FILES;
+        return Unistd_Impl._SC_MAPPED_FILES;
     }
 
     @Override
     protected int _SC_MB_LEN_MAX() {
-        return Unistd_Lib._SC_MB_LEN_MAX;
+        return Unistd_Impl._SC_MB_LEN_MAX;
     }
 
     @Override
     protected int _SC_MEMLOCK() {
-        return Unistd_Lib._SC_MEMLOCK;
+        return Unistd_Impl._SC_MEMLOCK;
     }
 
     @Override
     protected int _SC_MEMLOCK_RANGE() {
-        return Unistd_Lib._SC_MEMLOCK_RANGE;
+        return Unistd_Impl._SC_MEMLOCK_RANGE;
     }
 
     @Override
     protected int _SC_MEMORY_PROTECTION() {
-        return Unistd_Lib._SC_MEMORY_PROTECTION;
+        return Unistd_Impl._SC_MEMORY_PROTECTION;
     }
 
     @Override
     protected int _SC_MESSAGE_PASSING() {
-        return Unistd_Lib._SC_MESSAGE_PASSING;
+        return Unistd_Impl._SC_MESSAGE_PASSING;
     }
 
     @Override
     protected int _SC_MONOTONIC_CLOCK() {
-        return Unistd_Lib._SC_MONOTONIC_CLOCK;
+        return Unistd_Impl._SC_MONOTONIC_CLOCK;
     }
 
     @Override
     protected int _SC_MQ_OPEN_MAX() {
-        return Unistd_Lib._SC_MQ_OPEN_MAX;
+        return Unistd_Impl._SC_MQ_OPEN_MAX;
     }
 
     @Override
     protected int _SC_MQ_PRIO_MAX() {
-        return Unistd_Lib._SC_MQ_PRIO_MAX;
+        return Unistd_Impl._SC_MQ_PRIO_MAX;
     }
 
     @Override
     protected int _SC_MULTI_PROCESS() {
-        return Unistd_Lib._SC_MULTI_PROCESS;
+        return Unistd_Impl._SC_MULTI_PROCESS;
     }
 
     @Override
     protected int _SC_NETWORKING() {
-        return Unistd_Lib._SC_NETWORKING;
+        return Unistd_Impl._SC_NETWORKING;
     }
 
     @Override
     protected int _SC_NGROUPS_MAX() {
-        return Unistd_Lib._SC_NGROUPS_MAX;
+        return Unistd_Impl._SC_NGROUPS_MAX;
     }
 
     @Override
     protected int _SC_NL_ARGMAX() {
-        return Unistd_Lib._SC_NL_ARGMAX;
+        return Unistd_Impl._SC_NL_ARGMAX;
     }
 
     @Override
     protected int _SC_NL_LANGMAX() {
-        return Unistd_Lib._SC_NL_LANGMAX;
+        return Unistd_Impl._SC_NL_LANGMAX;
     }
 
     @Override
     protected int _SC_NL_MSGMAX() {
-        return Unistd_Lib._SC_NL_MSGMAX;
+        return Unistd_Impl._SC_NL_MSGMAX;
     }
 
     @Override
     protected int _SC_NL_NMAX() {
-        return Unistd_Lib._SC_NL_NMAX;
+        return Unistd_Impl._SC_NL_NMAX;
     }
 
     @Override
     protected int _SC_NL_SETMAX() {
-        return Unistd_Lib._SC_NL_SETMAX;
+        return Unistd_Impl._SC_NL_SETMAX;
     }
 
     @Override
     protected int _SC_NL_TEXTMAX() {
-        return Unistd_Lib._SC_NL_TEXTMAX;
+        return Unistd_Impl._SC_NL_TEXTMAX;
     }
 
     @Override
     protected int _SC_NPROCESSORS_CONF() {
-        return Unistd_Lib._SC_NPROCESSORS_CONF;
+        return Unistd_Impl._SC_NPROCESSORS_CONF;
     }
 
     @Override
     protected int _SC_NPROCESSORS_ONLN() {
-        return Unistd_Lib._SC_NPROCESSORS_ONLN;
+        return Unistd_Impl._SC_NPROCESSORS_ONLN;
     }
 
     @Override
     protected int _SC_NZERO() {
-        return Unistd_Lib._SC_NZERO;
+        return Unistd_Impl._SC_NZERO;
     }
 
     @Override
     protected int _SC_OPEN_MAX() {
-        return Unistd_Lib._SC_OPEN_MAX;
+        return Unistd_Impl._SC_OPEN_MAX;
     }
 
     @Override
     protected int _SC_PAGE_SIZE() {
-        return Unistd_Lib._SC_PAGE_SIZE;
+        return Unistd_Impl._SC_PAGE_SIZE;
     }
 
     @Override
     protected int _SC_PAGESIZE() {
-        return Unistd_Lib._SC_PAGESIZE;
+        return Unistd_Impl._SC_PAGESIZE;
     }
 
     @Override
     protected int _SC_PASS_MAX() {
-        return Unistd_Lib._SC_PASS_MAX;
+        return Unistd_Impl._SC_PASS_MAX;
     }
 
     @Override
     protected int _SC_PHYS_PAGES() {
-        return Unistd_Lib._SC_PHYS_PAGES;
+        return Unistd_Impl._SC_PHYS_PAGES;
     }
 
     @Override
     protected int _SC_PII() {
-        return Unistd_Lib._SC_PII;
+        return Unistd_Impl._SC_PII;
     }
 
     @Override
     protected int _SC_PII_INTERNET() {
-        return Unistd_Lib._SC_PII_INTERNET;
+        return Unistd_Impl._SC_PII_INTERNET;
     }
 
     @Override
     protected int _SC_PII_INTERNET_DGRAM() {
-        return Unistd_Lib._SC_PII_INTERNET_DGRAM;
+        return Unistd_Impl._SC_PII_INTERNET_DGRAM;
     }
 
     @Override
     protected int _SC_PII_INTERNET_STREAM() {
-        return Unistd_Lib._SC_PII_INTERNET_STREAM;
+        return Unistd_Impl._SC_PII_INTERNET_STREAM;
     }
 
     @Override
     protected int _SC_PII_OSI() {
-        return Unistd_Lib._SC_PII_OSI;
+        return Unistd_Impl._SC_PII_OSI;
     }
 
     @Override
     protected int _SC_PII_OSI_CLTS() {
-        return Unistd_Lib._SC_PII_OSI_CLTS;
+        return Unistd_Impl._SC_PII_OSI_CLTS;
     }
 
     @Override
     protected int _SC_PII_OSI_COTS() {
-        return Unistd_Lib._SC_PII_OSI_COTS;
+        return Unistd_Impl._SC_PII_OSI_COTS;
     }
 
     @Override
     protected int _SC_PII_OSI_M() {
-        return Unistd_Lib._SC_PII_OSI_M;
+        return Unistd_Impl._SC_PII_OSI_M;
     }
 
     @Override
     protected int _SC_PII_SOCKET() {
-        return Unistd_Lib._SC_PII_SOCKET;
+        return Unistd_Impl._SC_PII_SOCKET;
     }
 
     @Override
     protected int _SC_PII_XTI() {
-        return Unistd_Lib._SC_PII_XTI;
+        return Unistd_Impl._SC_PII_XTI;
     }
 
     @Override
     protected int _SC_PIPE() {
-        return Unistd_Lib._SC_PIPE;
+        return Unistd_Impl._SC_PIPE;
     }
 
     @Override
     protected int _SC_POLL() {
-        return Unistd_Lib._SC_POLL;
+        return Unistd_Impl._SC_POLL;
     }
 
     @Override
     protected int _SC_PRIORITIZED_IO() {
-        return Unistd_Lib._SC_PRIORITIZED_IO;
+        return Unistd_Impl._SC_PRIORITIZED_IO;
     }
 
     @Override
     protected int _SC_PRIORITY_SCHEDULING() {
-        return Unistd_Lib._SC_PRIORITY_SCHEDULING;
+        return Unistd_Impl._SC_PRIORITY_SCHEDULING;
     }
 
     @Override
     protected int _SC_RAW_SOCKETS() {
-        return Unistd_Lib._SC_RAW_SOCKETS;
+        return Unistd_Impl._SC_RAW_SOCKETS;
     }
 
     @Override
     protected int _SC_RE_DUP_MAX() {
-        return Unistd_Lib._SC_RE_DUP_MAX;
+        return Unistd_Impl._SC_RE_DUP_MAX;
     }
 
     @Override
     protected int _SC_READER_WRITER_LOCKS() {
-        return Unistd_Lib._SC_READER_WRITER_LOCKS;
+        return Unistd_Impl._SC_READER_WRITER_LOCKS;
     }
 
     @Override
     protected int _SC_REALTIME_SIGNALS() {
-        return Unistd_Lib._SC_REALTIME_SIGNALS;
+        return Unistd_Impl._SC_REALTIME_SIGNALS;
     }
 
     @Override
     protected int _SC_REGEX_VERSION() {
-        return Unistd_Lib._SC_REGEX_VERSION;
+        return Unistd_Impl._SC_REGEX_VERSION;
     }
 
     @Override
     protected int _SC_REGEXP() {
-        return Unistd_Lib._SC_REGEXP;
+        return Unistd_Impl._SC_REGEXP;
     }
 
     @Override
     protected int _SC_RTSIG_MAX() {
-        return Unistd_Lib._SC_RTSIG_MAX;
+        return Unistd_Impl._SC_RTSIG_MAX;
     }
 
     @Override
     protected int _SC_SAVED_IDS() {
-        return Unistd_Lib._SC_SAVED_IDS;
+        return Unistd_Impl._SC_SAVED_IDS;
     }
 
     @Override
     protected int _SC_SCHAR_MAX() {
-        return Unistd_Lib._SC_SCHAR_MAX;
+        return Unistd_Impl._SC_SCHAR_MAX;
     }
 
     @Override
     protected int _SC_SCHAR_MIN() {
-        return Unistd_Lib._SC_SCHAR_MIN;
+        return Unistd_Impl._SC_SCHAR_MIN;
     }
 
     @Override
     protected int _SC_SELECT() {
-        return Unistd_Lib._SC_SELECT;
+        return Unistd_Impl._SC_SELECT;
     }
 
     @Override
     protected int _SC_SEM_NSEMS_MAX() {
-        return Unistd_Lib._SC_SEM_NSEMS_MAX;
+        return Unistd_Impl._SC_SEM_NSEMS_MAX;
     }
 
     @Override
     protected int _SC_SEM_VALUE_MAX() {
-        return Unistd_Lib._SC_SEM_VALUE_MAX;
+        return Unistd_Impl._SC_SEM_VALUE_MAX;
     }
 
     @Override
     protected int _SC_SEMAPHORES() {
-        return Unistd_Lib._SC_SEMAPHORES;
+        return Unistd_Impl._SC_SEMAPHORES;
     }
 
     @Override
     protected int _SC_SHARED_MEMORY_OBJECTS() {
-        return Unistd_Lib._SC_SHARED_MEMORY_OBJECTS;
+        return Unistd_Impl._SC_SHARED_MEMORY_OBJECTS;
     }
 
     @Override
     protected int _SC_SHELL() {
-        return Unistd_Lib._SC_SHELL;
+        return Unistd_Impl._SC_SHELL;
     }
 
     @Override
     protected int _SC_SHRT_MAX() {
-        return Unistd_Lib._SC_SHRT_MAX;
+        return Unistd_Impl._SC_SHRT_MAX;
     }
 
     @Override
     protected int _SC_SHRT_MIN() {
-        return Unistd_Lib._SC_SHRT_MIN;
+        return Unistd_Impl._SC_SHRT_MIN;
     }
 
     @Override
     protected int _SC_SIGNALS() {
-        return Unistd_Lib._SC_SIGNALS;
+        return Unistd_Impl._SC_SIGNALS;
     }
 
     @Override
     protected int _SC_SIGQUEUE_MAX() {
-        return Unistd_Lib._SC_SIGQUEUE_MAX;
+        return Unistd_Impl._SC_SIGQUEUE_MAX;
     }
 
     @Override
     protected int _SC_SINGLE_PROCESS() {
-        return Unistd_Lib._SC_SINGLE_PROCESS;
+        return Unistd_Impl._SC_SINGLE_PROCESS;
     }
 
     @Override
     protected int _SC_SPAWN() {
-        return Unistd_Lib._SC_SPAWN;
+        return Unistd_Impl._SC_SPAWN;
     }
 
     @Override
     protected int _SC_SPIN_LOCKS() {
-        return Unistd_Lib._SC_SPIN_LOCKS;
+        return Unistd_Impl._SC_SPIN_LOCKS;
     }
 
     @Override
     protected int _SC_SPORADIC_SERVER() {
-        return Unistd_Lib._SC_SPORADIC_SERVER;
+        return Unistd_Impl._SC_SPORADIC_SERVER;
     }
 
     @Override
     protected int _SC_SS_REPL_MAX() {
-        return Unistd_Lib._SC_SS_REPL_MAX;
+        return Unistd_Impl._SC_SS_REPL_MAX;
     }
 
     @Override
     protected int _SC_SSIZE_MAX() {
-        return Unistd_Lib._SC_SSIZE_MAX;
+        return Unistd_Impl._SC_SSIZE_MAX;
     }
 
     @Override
     protected int _SC_STREAM_MAX() {
-        return Unistd_Lib._SC_STREAM_MAX;
+        return Unistd_Impl._SC_STREAM_MAX;
     }
 
     @Override
     protected int _SC_STREAMS() {
-        return Unistd_Lib._SC_STREAMS;
+        return Unistd_Impl._SC_STREAMS;
     }
 
     @Override
     protected int _SC_SYMLOOP_MAX() {
-        return Unistd_Lib._SC_SYMLOOP_MAX;
+        return Unistd_Impl._SC_SYMLOOP_MAX;
     }
 
     @Override
     protected int _SC_SYNCHRONIZED_IO() {
-        return Unistd_Lib._SC_SYNCHRONIZED_IO;
+        return Unistd_Impl._SC_SYNCHRONIZED_IO;
     }
 
     @Override
     protected int _SC_SYSTEM_DATABASE() {
-        return Unistd_Lib._SC_SYSTEM_DATABASE;
+        return Unistd_Impl._SC_SYSTEM_DATABASE;
     }
 
     @Override
     protected int _SC_SYSTEM_DATABASE_R() {
-        return Unistd_Lib._SC_SYSTEM_DATABASE_R;
+        return Unistd_Impl._SC_SYSTEM_DATABASE_R;
     }
 
     @Override
     protected int _SC_T_IOV_MAX() {
-        return Unistd_Lib._SC_T_IOV_MAX;
+        return Unistd_Impl._SC_T_IOV_MAX;
     }
 
     @Override
     protected int _SC_THREAD_ATTR_STACKADDR() {
-        return Unistd_Lib._SC_THREAD_ATTR_STACKADDR;
+        return Unistd_Impl._SC_THREAD_ATTR_STACKADDR;
     }
 
     @Override
     protected int _SC_THREAD_ATTR_STACKSIZE() {
-        return Unistd_Lib._SC_THREAD_ATTR_STACKSIZE;
+        return Unistd_Impl._SC_THREAD_ATTR_STACKSIZE;
     }
 
     @Override
     protected int _SC_THREAD_CPUTIME() {
-        return Unistd_Lib._SC_THREAD_CPUTIME;
+        return Unistd_Impl._SC_THREAD_CPUTIME;
     }
 
     @Override
     protected int _SC_THREAD_DESTRUCTOR_ITERATIONS() {
-        return Unistd_Lib._SC_THREAD_DESTRUCTOR_ITERATIONS;
+        return Unistd_Impl._SC_THREAD_DESTRUCTOR_ITERATIONS;
     }
 
     @Override
     protected int _SC_THREAD_KEYS_MAX() {
-        return Unistd_Lib._SC_THREAD_KEYS_MAX;
+        return Unistd_Impl._SC_THREAD_KEYS_MAX;
     }
 
     @Override
     protected int _SC_THREAD_PRIO_INHERIT() {
-        return Unistd_Lib._SC_THREAD_PRIO_INHERIT;
+        return Unistd_Impl._SC_THREAD_PRIO_INHERIT;
     }
 
     @Override
     protected int _SC_THREAD_PRIO_PROTECT() {
-        return Unistd_Lib._SC_THREAD_PRIO_PROTECT;
+        return Unistd_Impl._SC_THREAD_PRIO_PROTECT;
     }
 
     @Override
     protected int _SC_THREAD_PRIORITY_SCHEDULING() {
-        return Unistd_Lib._SC_THREAD_PRIORITY_SCHEDULING;
+        return Unistd_Impl._SC_THREAD_PRIORITY_SCHEDULING;
     }
 
     @Override
     protected int _SC_THREAD_PROCESS_SHARED() {
-        return Unistd_Lib._SC_THREAD_PROCESS_SHARED;
+        return Unistd_Impl._SC_THREAD_PROCESS_SHARED;
     }
 
     @Override
     protected int _SC_THREAD_ROBUST_PRIO_INHERIT() {
-        return Unistd_Lib._SC_THREAD_ROBUST_PRIO_INHERIT;
+        return Unistd_Impl._SC_THREAD_ROBUST_PRIO_INHERIT;
     }
 
     @Override
     protected int _SC_THREAD_ROBUST_PRIO_PROTECT() {
-        return Unistd_Lib._SC_THREAD_ROBUST_PRIO_PROTECT;
+        return Unistd_Impl._SC_THREAD_ROBUST_PRIO_PROTECT;
     }
 
     @Override
     protected int _SC_THREAD_SAFE_FUNCTIONS() {
-        return Unistd_Lib._SC_THREAD_SAFE_FUNCTIONS;
+        return Unistd_Impl._SC_THREAD_SAFE_FUNCTIONS;
     }
 
     @Override
     protected int _SC_THREAD_SPORADIC_SERVER() {
-        return Unistd_Lib._SC_THREAD_SPORADIC_SERVER;
+        return Unistd_Impl._SC_THREAD_SPORADIC_SERVER;
     }
 
     @Override
     protected int _SC_THREAD_STACK_MIN() {
-        return Unistd_Lib._SC_THREAD_STACK_MIN;
+        return Unistd_Impl._SC_THREAD_STACK_MIN;
     }
 
     @Override
     protected int _SC_THREAD_THREADS_MAX() {
-        return Unistd_Lib._SC_THREAD_THREADS_MAX;
+        return Unistd_Impl._SC_THREAD_THREADS_MAX;
     }
 
     @Override
     protected int _SC_THREADS() {
-        return Unistd_Lib._SC_THREADS;
+        return Unistd_Impl._SC_THREADS;
     }
 
     @Override
     protected int _SC_TIMEOUTS() {
-        return Unistd_Lib._SC_TIMEOUTS;
+        return Unistd_Impl._SC_TIMEOUTS;
     }
 
     @Override
     protected int _SC_TIMER_MAX() {
-        return Unistd_Lib._SC_TIMER_MAX;
+        return Unistd_Impl._SC_TIMER_MAX;
     }
 
     @Override
     protected int _SC_TIMERS() {
-        return Unistd_Lib._SC_TIMERS;
+        return Unistd_Impl._SC_TIMERS;
     }
 
     @Override
     protected int _SC_TRACE() {
-        return Unistd_Lib._SC_TRACE;
+        return Unistd_Impl._SC_TRACE;
     }
 
     @Override
     protected int _SC_TRACE_EVENT_FILTER() {
-        return Unistd_Lib._SC_TRACE_EVENT_FILTER;
+        return Unistd_Impl._SC_TRACE_EVENT_FILTER;
     }
 
     @Override
     protected int _SC_TRACE_EVENT_NAME_MAX() {
-        return Unistd_Lib._SC_TRACE_EVENT_NAME_MAX;
+        return Unistd_Impl._SC_TRACE_EVENT_NAME_MAX;
     }
 
     @Override
     protected int _SC_TRACE_INHERIT() {
-        return Unistd_Lib._SC_TRACE_INHERIT;
+        return Unistd_Impl._SC_TRACE_INHERIT;
     }
 
     @Override
     protected int _SC_TRACE_LOG() {
-        return Unistd_Lib._SC_TRACE_LOG;
+        return Unistd_Impl._SC_TRACE_LOG;
     }
 
     @Override
     protected int _SC_TRACE_NAME_MAX() {
-        return Unistd_Lib._SC_TRACE_NAME_MAX;
+        return Unistd_Impl._SC_TRACE_NAME_MAX;
     }
 
     @Override
     protected int _SC_TRACE_SYS_MAX() {
-        return Unistd_Lib._SC_TRACE_SYS_MAX;
+        return Unistd_Impl._SC_TRACE_SYS_MAX;
     }
 
     @Override
     protected int _SC_TRACE_USER_EVENT_MAX() {
-        return Unistd_Lib._SC_TRACE_USER_EVENT_MAX;
+        return Unistd_Impl._SC_TRACE_USER_EVENT_MAX;
     }
 
     @Override
     protected int _SC_TTY_NAME_MAX() {
-        return Unistd_Lib._SC_TTY_NAME_MAX;
+        return Unistd_Impl._SC_TTY_NAME_MAX;
     }
 
     @Override
     protected int _SC_TYPED_MEMORY_OBJECTS() {
-        return Unistd_Lib._SC_TYPED_MEMORY_OBJECTS;
+        return Unistd_Impl._SC_TYPED_MEMORY_OBJECTS;
     }
 
     @Override
     protected int _SC_TZNAME_MAX() {
-        return Unistd_Lib._SC_TZNAME_MAX;
+        return Unistd_Impl._SC_TZNAME_MAX;
     }
 
     @Override
     protected int _SC_UCHAR_MAX() {
-        return Unistd_Lib._SC_UCHAR_MAX;
+        return Unistd_Impl._SC_UCHAR_MAX;
     }
 
     @Override
     protected int _SC_UINT_MAX() {
-        return Unistd_Lib._SC_UINT_MAX;
+        return Unistd_Impl._SC_UINT_MAX;
     }
 
     @Override
     protected int _SC_UIO_MAXIOV() {
-        return Unistd_Lib._SC_UIO_MAXIOV;
+        return Unistd_Impl._SC_UIO_MAXIOV;
     }
 
     @Override
     protected int _SC_ULONG_MAX() {
-        return Unistd_Lib._SC_ULONG_MAX;
+        return Unistd_Impl._SC_ULONG_MAX;
     }
 
     @Override
     protected int _SC_USER_GROUPS() {
-        return Unistd_Lib._SC_USER_GROUPS;
+        return Unistd_Impl._SC_USER_GROUPS;
     }
 
     @Override
     protected int _SC_USER_GROUPS_R() {
-        return Unistd_Lib._SC_USER_GROUPS_R;
+        return Unistd_Impl._SC_USER_GROUPS_R;
     }
 
     @Override
     protected int _SC_USHRT_MAX() {
-        return Unistd_Lib._SC_USHRT_MAX;
+        return Unistd_Impl._SC_USHRT_MAX;
     }
 
     @Override
     protected int _SC_V6_ILP32_OFF32() {
-        return Unistd_Lib._SC_V6_ILP32_OFF32;
+        return Unistd_Impl._SC_V6_ILP32_OFF32;
     }
 
     @Override
     protected int _SC_V6_ILP32_OFFBIG() {
-        return Unistd_Lib._SC_V6_ILP32_OFFBIG;
+        return Unistd_Impl._SC_V6_ILP32_OFFBIG;
     }
 
     @Override
     protected int _SC_V6_LP64_OFF64() {
-        return Unistd_Lib._SC_V6_LP64_OFF64;
+        return Unistd_Impl._SC_V6_LP64_OFF64;
     }
 
     @Override
     protected int _SC_V6_LPBIG_OFFBIG() {
-        return Unistd_Lib._SC_V6_LPBIG_OFFBIG;
+        return Unistd_Impl._SC_V6_LPBIG_OFFBIG;
     }
 
     @Override
     protected int _SC_V7_ILP32_OFF32() {
-        return Unistd_Lib._SC_V7_ILP32_OFF32;
+        return Unistd_Impl._SC_V7_ILP32_OFF32;
     }
 
     @Override
     protected int _SC_V7_ILP32_OFFBIG() {
-        return Unistd_Lib._SC_V7_ILP32_OFFBIG;
+        return Unistd_Impl._SC_V7_ILP32_OFFBIG;
     }
 
     @Override
     protected int _SC_V7_LP64_OFF64() {
-        return Unistd_Lib._SC_V7_LP64_OFF64;
+        return Unistd_Impl._SC_V7_LP64_OFF64;
     }
 
     @Override
     protected int _SC_V7_LPBIG_OFFBIG() {
-        return Unistd_Lib._SC_V7_LPBIG_OFFBIG;
+        return Unistd_Impl._SC_V7_LPBIG_OFFBIG;
     }
 
     @Override
     protected int _SC_VERSION() {
-        return Unistd_Lib._SC_VERSION;
+        return Unistd_Impl._SC_VERSION;
     }
 
     @Override
     protected int _SC_WORD_BIT() {
-        return Unistd_Lib._SC_WORD_BIT;
+        return Unistd_Impl._SC_WORD_BIT;
     }
 
     @Override
     protected int _SC_XBS5_ILP32_OFF32() {
-        return Unistd_Lib._SC_XBS5_ILP32_OFF32;
+        return Unistd_Impl._SC_XBS5_ILP32_OFF32;
     }
 
     @Override
     protected int _SC_XBS5_ILP32_OFFBIG() {
-        return Unistd_Lib._SC_XBS5_ILP32_OFFBIG;
+        return Unistd_Impl._SC_XBS5_ILP32_OFFBIG;
     }
 
     @Override
     protected int _SC_XBS5_LP64_OFF64() {
-        return Unistd_Lib._SC_XBS5_LP64_OFF64;
+        return Unistd_Impl._SC_XBS5_LP64_OFF64;
     }
 
     @Override
     protected int _SC_XBS5_LPBIG_OFFBIG() {
-        return Unistd_Lib._SC_XBS5_LPBIG_OFFBIG;
+        return Unistd_Impl._SC_XBS5_LPBIG_OFFBIG;
     }
 
     @Override
     protected int _SC_XOPEN_CRYPT() {
-        return Unistd_Lib._SC_XOPEN_CRYPT;
+        return Unistd_Impl._SC_XOPEN_CRYPT;
     }
 
     @Override
     protected int _SC_XOPEN_ENH_I18N() {
-        return Unistd_Lib._SC_XOPEN_ENH_I18N;
+        return Unistd_Impl._SC_XOPEN_ENH_I18N;
     }
 
     @Override
     protected int _SC_XOPEN_LEGACY() {
-        return Unistd_Lib._SC_XOPEN_LEGACY;
+        return Unistd_Impl._SC_XOPEN_LEGACY;
     }
 
     @Override
     protected int _SC_XOPEN_REALTIME() {
-        return Unistd_Lib._SC_XOPEN_REALTIME;
+        return Unistd_Impl._SC_XOPEN_REALTIME;
     }
 
     @Override
     protected int _SC_XOPEN_REALTIME_THREADS() {
-        return Unistd_Lib._SC_XOPEN_REALTIME_THREADS;
+        return Unistd_Impl._SC_XOPEN_REALTIME_THREADS;
     }
 
     @Override
     protected int _SC_XOPEN_SHM() {
-        return Unistd_Lib._SC_XOPEN_SHM;
+        return Unistd_Impl._SC_XOPEN_SHM;
     }
 
     @Override
     protected int _SC_XOPEN_STREAMS() {
-        return Unistd_Lib._SC_XOPEN_STREAMS;
+        return Unistd_Impl._SC_XOPEN_STREAMS;
     }
 
     @Override
     protected int _SC_XOPEN_UNIX() {
-        return Unistd_Lib._SC_XOPEN_UNIX;
+        return Unistd_Impl._SC_XOPEN_UNIX;
     }
 
     @Override
     protected int _SC_XOPEN_VERSION() {
-        return Unistd_Lib._SC_XOPEN_VERSION;
+        return Unistd_Impl._SC_XOPEN_VERSION;
     }
 
     @Override
     protected int _SC_XOPEN_XCU_VERSION() {
-        return Unistd_Lib._SC_XOPEN_XCU_VERSION;
+        return Unistd_Impl._SC_XOPEN_XCU_VERSION;
     }
 
     @Override
     protected int _SC_XOPEN_XPG2() {
-        return Unistd_Lib._SC_XOPEN_XPG2;
+        return Unistd_Impl._SC_XOPEN_XPG2;
     }
 
     @Override
     protected int _SC_XOPEN_XPG3() {
-        return Unistd_Lib._SC_XOPEN_XPG3;
+        return Unistd_Impl._SC_XOPEN_XPG3;
     }
 
     @Override
     protected int _SC_XOPEN_XPG4() {
-        return Unistd_Lib._SC_XOPEN_XPG4;
+        return Unistd_Impl._SC_XOPEN_XPG4;
     }
 
     public int close(int fd) {
@@ -2626,72 +2626,72 @@ public class Unistd_Lib extends Unistd_H {
 
     @Override
     protected int F_LOCK() {
-        return Unistd_Lib.F_LOCK;
+        return Unistd_Impl.F_LOCK;
     }
 
     @Override
     protected int F_OK() {
-        return Unistd_Lib.F_OK;
+        return Unistd_Impl.F_OK;
     }
 
     @Override
     protected int F_TEST() {
-        return Unistd_Lib.F_TEST;
+        return Unistd_Impl.F_TEST;
     }
 
     @Override
     protected int F_TLOCK() {
-        return Unistd_Lib.F_TLOCK;
+        return Unistd_Impl.F_TLOCK;
     }
 
     @Override
     protected int F_ULOCK() {
-        return Unistd_Lib.F_ULOCK;
+        return Unistd_Impl.F_ULOCK;
     }
 
     @Override
     protected int L_INCR() {
-        return Unistd_Lib.L_INCR;
+        return Unistd_Impl.L_INCR;
     }
 
     @Override
     protected int L_SET() {
-        return Unistd_Lib.L_SET;
+        return Unistd_Impl.L_SET;
     }
 
     @Override
     protected int L_XTND() {
-        return Unistd_Lib.L_XTND;
+        return Unistd_Impl.L_XTND;
     }
 
     @Override
     protected int R_OK() {
-        return Unistd_Lib.R_OK;
+        return Unistd_Impl.R_OK;
     }
 
     @Override
     protected int SEEK_CUR() {
-        return Unistd_Lib.SEEK_CUR;
+        return Unistd_Impl.SEEK_CUR;
     }
 
     @Override
     protected int SEEK_END() {
-        return Unistd_Lib.SEEK_END;
+        return Unistd_Impl.SEEK_END;
     }
 
     @Override
     protected int SEEK_SET() {
-        return Unistd_Lib.SEEK_SET;
+        return Unistd_Impl.SEEK_SET;
     }
 
     @Override
     protected int W_OK() {
-        return Unistd_Lib.W_OK;
+        return Unistd_Impl.W_OK;
     }
 
     @Override
     protected int X_OK() {
-        return Unistd_Lib.X_OK;
+        return Unistd_Impl.X_OK;
     }
 
     @Override

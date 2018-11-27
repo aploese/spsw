@@ -1,4 +1,4 @@
-package de.ibapl.jnrheader.spi.linux;
+package de.ibapl.jnrheader.spi.posix.linux;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
@@ -17,7 +17,7 @@ import jnr.ffi.Struct;
 import jnr.ffi.TypeAlias;
 import jnr.ffi.annotations.TypeDefinition;
 
-public abstract class Poll_Lib extends Poll_H {
+public final class Poll_Impl extends Poll_H {
 	
 	@Retention(RetentionPolicy.RUNTIME)
 	@Target(value = { ElementType.PARAMETER, ElementType.METHOD, ElementType.FIELD })
@@ -60,7 +60,7 @@ public abstract class Poll_Lib extends Poll_H {
 
 	final private NativeFunctions nativeFunctions;
 
-	public Poll_Lib() {
+	public Poll_Impl() {
 		nativeFunctions = LibraryLoader.create(NativeFunctions.class).load("c");
 	}
 
@@ -96,52 +96,52 @@ public abstract class Poll_Lib extends Poll_H {
 
 	@Override
 	protected short POLLERR() {
-		return Poll_Lib.POLLERR;
+		return Poll_Impl.POLLERR;
 	}
 
 	@Override
 	protected short POLLHUP() {
-		return Poll_Lib.POLLHUP;
+		return Poll_Impl.POLLHUP;
 	}
 
 	@Override
 	protected short POLLIN() {
-		return Poll_Lib.POLLIN;
+		return Poll_Impl.POLLIN;
 	}
 
 	@Override
 	protected short POLLNVAL() {
-		return Poll_Lib.POLLNVAL;
+		return Poll_Impl.POLLNVAL;
 	}
 
 	@Override
 	protected short POLLOUT() {
-		return Poll_Lib.POLLOUT;
+		return Poll_Impl.POLLOUT;
 	}
 
 	@Override
 	protected short POLLPRI() {
-		return Poll_Lib.POLLPRI;
+		return Poll_Impl.POLLPRI;
 	}
 
 	@Override
 	protected short POLLRDBAND() {
-		return Poll_Lib.POLLRDBAND;
+		return Poll_Impl.POLLRDBAND;
 	}
 
 	@Override
 	protected short POLLRDNORM() {
-		return Poll_Lib.POLLRDNORM;
+		return Poll_Impl.POLLRDNORM;
 	}
 
 	@Override
 	protected short POLLWRBAND() {
-		return Poll_Lib.POLLWRBAND;
+		return Poll_Impl.POLLWRBAND;
 	}
 
 	@Override
 	protected short POLLWRNORM() {
-		return Poll_Lib.POLLWRNORM;
+		return Poll_Impl.POLLWRNORM;
 	}
 
 	@Override

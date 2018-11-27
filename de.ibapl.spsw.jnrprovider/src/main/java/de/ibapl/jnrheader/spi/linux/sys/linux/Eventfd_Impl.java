@@ -1,4 +1,4 @@
-package de.ibapl.jnrheader.spi.linux.sys;
+package de.ibapl.jnrheader.spi.linux.sys.linux;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
@@ -13,7 +13,7 @@ import jnr.ffi.annotations.TypeDefinition;
 import jnr.ffi.types.int32_t;
 import jnr.ffi.types.u_int32_t;
 
-public abstract class Eventfd_Lib extends Eventfd_H {
+public final class Eventfd_Impl extends Eventfd_H {
 
 	public static final int EFD_CLOEXEC = 02000000;
 	public static final int EFD_NONBLOCK = 00004000;
@@ -40,22 +40,22 @@ public abstract class Eventfd_Lib extends Eventfd_H {
 
 	@Override
 	protected int EFD_CLOEXEC() {
-		return Eventfd_Lib.EFD_CLOEXEC;
+		return Eventfd_Impl.EFD_CLOEXEC;
 	}
 
 	@Override
 	protected int EFD_NONBLOCK() {
-		return Eventfd_Lib.EFD_NONBLOCK;
+		return Eventfd_Impl.EFD_NONBLOCK;
 	}
 
 	@Override
 	protected int EFD_SEMAPHORE() {
-		return Eventfd_Lib.EFD_SEMAPHORE;
+		return Eventfd_Impl.EFD_SEMAPHORE;
 	}
 
 	final private NativeFunctions nativeFunctions;
 
-	public Eventfd_Lib() {
+	public Eventfd_Impl() {
 		nativeFunctions = LibraryLoader.create(NativeFunctions.class).load("c");
 	}
 	

@@ -1,4 +1,4 @@
-package de.ibapl.jnrheader.spi.linux;
+package de.ibapl.jnrheader.spi.posix.linux;
 
 import static de.ibapl.jnrheader.Defined.isDefined;
 
@@ -20,7 +20,7 @@ import jnr.ffi.TypeAlias;
 import jnr.ffi.annotations.TypeDefinition;
 import org.eclipse.jdt.annotation.Nullable;
 
-public abstract class Termios_Lib extends Termios_H implements cfsetspeed, cfmakeraw {
+public abstract class Termios_Generic extends Termios_H implements cfsetspeed, cfmakeraw {
 
 	@Retention(RetentionPolicy.RUNTIME)
 	@Target(value = { ElementType.PARAMETER, ElementType.METHOD, ElementType.FIELD })
@@ -163,17 +163,17 @@ public abstract class Termios_Lib extends Termios_H implements cfsetspeed, cfmak
 
 	@termios
 	public class TermiosImpl extends Struct {
-		@Termios_Lib.tcflag_t
+		@Termios_Generic.tcflag_t
 		public final int32_t c_iflag = new int32_t(); /* input mode flags */
-		@Termios_Lib.tcflag_t
+		@Termios_Generic.tcflag_t
 		public final int32_t c_oflag = new int32_t(); /* output mode flags */
-		@Termios_Lib.tcflag_t
+		@Termios_Generic.tcflag_t
 		public final int32_t c_cflag = new int32_t(); /* control mode flags */
-		@Termios_Lib.tcflag_t
+		@Termios_Generic.tcflag_t
 		public final int32_t c_lflag = new int32_t(); /* local mode flags */
-		@Termios_Lib.cc_t
+		@Termios_Generic.cc_t
 		public final int8_t c_line = new int8_t(); /* line discipline */
-		@Termios_Lib.cc_t
+		@Termios_Generic.cc_t
 		public final int8_t[] c_cc = createCc_t(); /* control characters */
 
 		// This is termios2 ??? - but linux except mips does define this.
@@ -182,7 +182,7 @@ public abstract class Termios_Lib extends Termios_H implements cfsetspeed, cfmak
 		 * defined.
 		 * 
 		 */
-		@Termios_Lib.speed_t
+		@Termios_Generic.speed_t
 		public final int32_t c_ispeed = Defined.isDefined(_HAVE_STRUCT_TERMIOS_C_ISPEED) ? new int32_t()
 				: null; /* input speed */
 		/**
@@ -190,7 +190,7 @@ public abstract class Termios_Lib extends Termios_H implements cfsetspeed, cfmak
 		 * defined.
 		 * 
 		 */
-		@Termios_Lib.speed_t
+		@Termios_Generic.speed_t
 		public final int32_t c_ospeed = Defined.isDefined(_HAVE_STRUCT_TERMIOS_C_OSPEED) ? new int32_t()
 				: null; /* output speed */
 
@@ -350,198 +350,198 @@ public abstract class Termios_Lib extends Termios_H implements cfsetspeed, cfmak
 
 	final private NativeFunctions nativeFunctions;
 
-	public Termios_Lib() {
+	public Termios_Generic() {
 		nativeFunctions = LibraryLoader.create(NativeFunctions.class).load("c");
 	}
 
 	@Override
 	protected Integer __MAX_BAUD() {
-		return Termios_Lib.__MAX_BAUD;
+		return Termios_Generic.__MAX_BAUD;
 	}
 
 	@Override
 	protected int B0() {
-		return Termios_Lib.B0;
+		return Termios_Generic.B0;
 	}
 
 	@Override
 	protected int B1000000() {
-		return Termios_Lib.B1000000;
+		return Termios_Generic.B1000000;
 	}
 
 	@Override
 	protected int B110() {
-		return Termios_Lib.B110;
+		return Termios_Generic.B110;
 	}
 
 	@Override
 	protected int B115200() {
-		return Termios_Lib.B115200;
+		return Termios_Generic.B115200;
 	}
 
 	@Override
 	protected int B1152000() {
-		return Termios_Lib.B1152000;
+		return Termios_Generic.B1152000;
 	}
 
 	@Override
 	protected int B1200() {
-		return Termios_Lib.B1200;
+		return Termios_Generic.B1200;
 	}
 
 	@Override
 	protected int B134() {
-		return Termios_Lib.B134;
+		return Termios_Generic.B134;
 	}
 
 	@Override
 	protected int B150() {
-		return Termios_Lib.B150;
+		return Termios_Generic.B150;
 	}
 
 	@Override
 	protected int B1500000() {
-		return Termios_Lib.B1500000;
+		return Termios_Generic.B1500000;
 	}
 
 	@Override
 	protected int B1800() {
-		return Termios_Lib.B1800;
+		return Termios_Generic.B1800;
 	}
 
 	@Override
 	protected int B19200() {
-		return Termios_Lib.B19200;
+		return Termios_Generic.B19200;
 	}
 
 	@Override
 	protected int B200() {
-		return Termios_Lib.B200;
+		return Termios_Generic.B200;
 	}
 
 	@Override
 	protected int B2000000() {
-		return Termios_Lib.B2000000;
+		return Termios_Generic.B2000000;
 	}
 
 	@Override
 	protected int B230400() {
-		return Termios_Lib.B230400;
+		return Termios_Generic.B230400;
 	}
 
 	@Override
 	protected int B2400() {
-		return Termios_Lib.B2400;
+		return Termios_Generic.B2400;
 	}
 
 	@Override
 	protected int B2500000() {
-		return Termios_Lib.B2500000;
+		return Termios_Generic.B2500000;
 	}
 
 	@Override
 	protected int B300() {
-		return Termios_Lib.B300;
+		return Termios_Generic.B300;
 	}
 
 	@Override
 	protected int B3000000() {
-		return Termios_Lib.B3000000;
+		return Termios_Generic.B3000000;
 	}
 
 	@Override
 	protected int B3500000() {
-		return Termios_Lib.B3500000;
+		return Termios_Generic.B3500000;
 	}
 
 	@Override
 	protected int B38400() {
-		return Termios_Lib.B38400;
+		return Termios_Generic.B38400;
 	}
 
 	@Override
 	protected int B4000000() {
-		return Termios_Lib.B4000000;
+		return Termios_Generic.B4000000;
 	}
 
 	@Override
 	protected int B460800() {
-		return Termios_Lib.B460800;
+		return Termios_Generic.B460800;
 	}
 
 	@Override
 	protected int B4800() {
-		return Termios_Lib.B4800;
+		return Termios_Generic.B4800;
 	}
 
 	@Override
 	protected int B50() {
-		return Termios_Lib.B50;
+		return Termios_Generic.B50;
 	}
 
 	@Override
 	protected int B500000() {
-		return Termios_Lib.B500000;
+		return Termios_Generic.B500000;
 	}
 
 	@Override
 	protected int B57600() {
-		return Termios_Lib.B57600;
+		return Termios_Generic.B57600;
 	}
 
 	@Override
 	protected int B576000() {
-		return Termios_Lib.B576000;
+		return Termios_Generic.B576000;
 	}
 
 	@Override
 	protected int B600() {
-		return Termios_Lib.B600;
+		return Termios_Generic.B600;
 	}
 
 	@Override
 	protected int B75() {
-		return Termios_Lib.B75;
+		return Termios_Generic.B75;
 	}
 
 	@Override
 	protected int B921600() {
-		return Termios_Lib.B921600;
+		return Termios_Generic.B921600;
 	}
 
 	@Override
 	protected int B9600() {
-		return Termios_Lib.B9600;
+		return Termios_Generic.B9600;
 	}
 
 	@Override
 	protected int BRKINT() {
-		return Termios_Lib.BRKINT;
+		return Termios_Generic.BRKINT;
 	}
 
 	@Override
 	protected int BS0() {
-		return Termios_Lib.BS0;
+		return Termios_Generic.BS0;
 	}
 
 	@Override
 	protected int BS1() {
-		return Termios_Lib.BS1;
+		return Termios_Generic.BS1;
 	}
 
 	@Override
 	protected int BSDLY() {
-		return Termios_Lib.BSDLY;
+		return Termios_Generic.BSDLY;
 	}
 
 	@Override
 	protected Integer CBAUD() {
-		return Termios_Lib.CBAUD;
+		return Termios_Generic.CBAUD;
 	}
 
 	@Override
 	protected Integer CBAUDEX() {
-		return Termios_Lib.CBAUDEX;
+		return Termios_Generic.CBAUDEX;
 	}
 
 	@Override
@@ -594,47 +594,47 @@ public abstract class Termios_Lib extends Termios_H implements cfsetspeed, cfmak
 
 	@Override
 	protected Integer CIBAUD() {
-		return Termios_Lib.CIBAUD;
+		return Termios_Generic.CIBAUD;
 	}
 
 	@Override
 	protected int CLOCAL() {
-		return Termios_Lib.CLOCAL;
+		return Termios_Generic.CLOCAL;
 	}
 
 	@Override
 	protected Integer CMSPAR() {
-		return Termios_Lib.CMSPAR;
+		return Termios_Generic.CMSPAR;
 	}
 
 	@Override
 	protected int CR0() {
-		return Termios_Lib.CR0;
+		return Termios_Generic.CR0;
 	}
 
 	@Override
 	protected int CR1() {
-		return Termios_Lib.CR1;
+		return Termios_Generic.CR1;
 	}
 
 	@Override
 	protected int CR2() {
-		return Termios_Lib.CR2;
+		return Termios_Generic.CR2;
 	}
 
 	@Override
 	protected int CR3() {
-		return Termios_Lib.CR3;
+		return Termios_Generic.CR3;
 	}
 
 	@Override
 	protected int CRDLY() {
-		return Termios_Lib.CRDLY;
+		return Termios_Generic.CRDLY;
 	}
 
 	@Override
 	protected int CREAD() {
-		return Termios_Lib.CREAD;
+		return Termios_Generic.CREAD;
 	}
 
 	@Override
@@ -646,37 +646,37 @@ public abstract class Termios_Lib extends Termios_H implements cfsetspeed, cfmak
 
 	@Override
 	protected int CRTSCTS() {
-		return Termios_Lib.CRTSCTS;
+		return Termios_Generic.CRTSCTS;
 	}
 
 	@Override
 	protected int CS5() {
-		return Termios_Lib.CS5;
+		return Termios_Generic.CS5;
 	}
 
 	@Override
 	protected int CS6() {
-		return Termios_Lib.CS6;
+		return Termios_Generic.CS6;
 	}
 
 	@Override
 	protected int CS7() {
-		return Termios_Lib.CS7;
+		return Termios_Generic.CS7;
 	}
 
 	@Override
 	protected int CS8() {
-		return Termios_Lib.CS8;
+		return Termios_Generic.CS8;
 	}
 
 	@Override
 	protected int CSIZE() {
-		return Termios_Lib.CSIZE;
+		return Termios_Generic.CSIZE;
 	}
 
 	@Override
 	protected int CSTOPB() {
-		return Termios_Lib.CSTOPB;
+		return Termios_Generic.CSTOPB;
 	}
 
 	@Override
@@ -686,157 +686,157 @@ public abstract class Termios_Lib extends Termios_H implements cfsetspeed, cfmak
 
 	@Override
 	protected int ECHO() {
-		return Termios_Lib.ECHO;
+		return Termios_Generic.ECHO;
 	}
 
 	@Override
 	protected Integer ECHOCTL() {
-		return Termios_Lib.ECHOCTL;
+		return Termios_Generic.ECHOCTL;
 	}
 
 	@Override
 	protected int ECHOE() {
-		return Termios_Lib.ECHOE;
+		return Termios_Generic.ECHOE;
 	}
 
 	@Override
 	protected Integer ECHOK() {
-		return Termios_Lib.ECHOK;
+		return Termios_Generic.ECHOK;
 	}
 
 	@Override
 	protected int ECHOKE() {
-		return Termios_Lib.ECHOKE;
+		return Termios_Generic.ECHOKE;
 	}
 
 	@Override
 	protected int ECHONL() {
-		return Termios_Lib.ECHONL;
+		return Termios_Generic.ECHONL;
 	}
 
 	@Override
 	protected Integer ECHOPRT() {
-		return Termios_Lib.ECHOPRT;
+		return Termios_Generic.ECHOPRT;
 	}
 
 	@Override
 	protected Integer EXTA() {
-		return Termios_Lib.EXTA;
+		return Termios_Generic.EXTA;
 	}
 
 	@Override
 	protected Integer EXTB() {
-		return Termios_Lib.EXTB;
+		return Termios_Generic.EXTB;
 	}
 
 	@Override
 	protected Integer EXTPROC() {
-		return Termios_Lib.EXTPROC;
+		return Termios_Generic.EXTPROC;
 	}
 
 	@Override
 	protected int FF0() {
-		return Termios_Lib.FF0;
+		return Termios_Generic.FF0;
 	}
 
 	@Override
 	protected int FF1() {
-		return Termios_Lib.FF1;
+		return Termios_Generic.FF1;
 	}
 
 	@Override
 	protected int FFDLY() {
-		return Termios_Lib.FFDLY;
+		return Termios_Generic.FFDLY;
 	}
 
 	@Override
 	protected Integer FLUSHO() {
-		return Termios_Lib.FLUSHO;
+		return Termios_Generic.FLUSHO;
 	}
 
 	@Override
 	protected int HUPCL() {
-		return Termios_Lib.HUPCL;
+		return Termios_Generic.HUPCL;
 	}
 
 	@Override
 	protected int ICANON() {
-		return Termios_Lib.ICANON;
+		return Termios_Generic.ICANON;
 	}
 
 	@Override
 	protected int ICRNL() {
-		return Termios_Lib.ICRNL;
+		return Termios_Generic.ICRNL;
 	}
 
 	@Override
 	protected int IEXTEN() {
-		return Termios_Lib.IEXTEN;
+		return Termios_Generic.IEXTEN;
 	}
 
 	@Override
 	protected int IGNBRK() {
-		return Termios_Lib.IGNBRK;
+		return Termios_Generic.IGNBRK;
 	}
 
 	@Override
 	protected int IGNCR() {
-		return Termios_Lib.IGNCR;
+		return Termios_Generic.IGNCR;
 	}
 
 	@Override
 	protected int IGNPAR() {
-		return Termios_Lib.IGNPAR;
+		return Termios_Generic.IGNPAR;
 	}
 
 	@Override
 	protected Integer IMAXBEL() {
-		return Termios_Lib.IMAXBEL;
+		return Termios_Generic.IMAXBEL;
 	}
 
 	@Override
 	protected int INLCR() {
-		return Termios_Lib.INLCR;
+		return Termios_Generic.INLCR;
 	}
 
 	@Override
 	protected int INPCK() {
-		return Termios_Lib.INPCK;
+		return Termios_Generic.INPCK;
 	}
 
 	@Override
 	protected int ISIG() {
-		return Termios_Lib.ISIG;
+		return Termios_Generic.ISIG;
 	}
 
 	@Override
 	protected int ISTRIP() {
-		return Termios_Lib.ISTRIP;
+		return Termios_Generic.ISTRIP;
 	}
 
 	@Override
 	protected Integer IUCLC() {
-		return Termios_Lib.IUCLC;
+		return Termios_Generic.IUCLC;
 	}
 
 	@Override
 	protected Integer IUTF8() {
-		return Termios_Lib.IUTF8;
+		return Termios_Generic.IUTF8;
 	}
 
 	@Override
 	protected int IXANY() {
-		return Termios_Lib.IXANY;
+		return Termios_Generic.IXANY;
 	}
 
 	@Override
 	protected int IXOFF() {
-		return Termios_Lib.IXOFF;
+		return Termios_Generic.IXOFF;
 	}
 
 	@Override
 	protected int IXON() {
-		return Termios_Lib.IXON;
+		return Termios_Generic.IXON;
 	}
 
 	@Override
@@ -846,72 +846,72 @@ public abstract class Termios_Lib extends Termios_H implements cfsetspeed, cfmak
 
 	@Override
 	protected int NCCS() {
-		return Termios_Lib.NCCS;
+		return Termios_Generic.NCCS;
 	}
 
 	@Override
 	protected int NL0() {
-		return Termios_Lib.NL0;
+		return Termios_Generic.NL0;
 	}
 
 	@Override
 	protected int NL1() {
-		return Termios_Lib.NL1;
+		return Termios_Generic.NL1;
 	}
 
 	@Override
 	protected int NLDLY() {
-		return Termios_Lib.NLDLY;
+		return Termios_Generic.NLDLY;
 	}
 
 	@Override
 	protected int NOFLSH() {
-		return Termios_Lib.NOFLSH;
+		return Termios_Generic.NOFLSH;
 	}
 
 	@Override
 	protected int OCRNL() {
-		return Termios_Lib.OCRNL;
+		return Termios_Generic.OCRNL;
 	}
 
 	@Override
 	protected int OFDEL() {
-		return Termios_Lib.OFDEL;
+		return Termios_Generic.OFDEL;
 	}
 
 	@Override
 	protected int OFILL() {
-		return Termios_Lib.OFILL;
+		return Termios_Generic.OFILL;
 	}
 
 	@Override
 	protected Integer OLCUC() {
-		return Termios_Lib.OLCUC;
+		return Termios_Generic.OLCUC;
 	}
 
 	@Override
 	protected int ONLCR() {
-		return Termios_Lib.ONLCR;
+		return Termios_Generic.ONLCR;
 	}
 
 	@Override
 	protected int ONLRET() {
-		return Termios_Lib.ONLRET;
+		return Termios_Generic.ONLRET;
 	}
 
 	@Override
 	protected int ONOCR() {
-		return Termios_Lib.ONOCR;
+		return Termios_Generic.ONOCR;
 	}
 
 	@Override
 	protected int OPOST() {
-		return Termios_Lib.OPOST;
+		return Termios_Generic.OPOST;
 	}
 
 	@Override
 	protected int PARENB() {
-		return Termios_Lib.PARENB;
+		return Termios_Generic.PARENB;
 	}
 
 	@Override
@@ -921,17 +921,17 @@ public abstract class Termios_Lib extends Termios_H implements cfsetspeed, cfmak
 
 	@Override
 	protected int PARMRK() {
-		return Termios_Lib.PARMRK;
+		return Termios_Generic.PARMRK;
 	}
 
 	@Override
 	protected int PARODD() {
-		return Termios_Lib.PARODD;
+		return Termios_Generic.PARODD;
 	}
 
 	@Override
 	protected Integer PENDIN() {
-		return Termios_Lib.PENDIN;
+		return Termios_Generic.PENDIN;
 	}
 
 	@Override
@@ -941,27 +941,27 @@ public abstract class Termios_Lib extends Termios_H implements cfsetspeed, cfmak
 
 	@Override
 	protected int TAB0() {
-		return Termios_Lib.TAB0;
+		return Termios_Generic.TAB0;
 	}
 
 	@Override
 	protected int TAB1() {
-		return Termios_Lib.TAB1;
+		return Termios_Generic.TAB1;
 	}
 
 	@Override
 	protected int TAB2() {
-		return Termios_Lib.TAB2;
+		return Termios_Generic.TAB2;
 	}
 
 	@Override
 	protected int TAB3() {
-		return Termios_Lib.TAB3;
+		return Termios_Generic.TAB3;
 	}
 
 	@Override
 	protected int TABDLY() {
-		return Termios_Lib.TABDLY;
+		return Termios_Generic.TABDLY;
 	}
 
 	@Override
@@ -994,52 +994,52 @@ public abstract class Termios_Lib extends Termios_H implements cfsetspeed, cfmak
 
 	@Override
 	protected int TCIFLUSH() {
-		return Termios_Lib.TCIFLUSH;
+		return Termios_Generic.TCIFLUSH;
 	}
 
 	@Override
 	protected int TCIOFF() {
-		return Termios_Lib.TCIOFF;
+		return Termios_Generic.TCIOFF;
 	}
 
 	@Override
 	protected int TCIOFLUSH() {
-		return Termios_Lib.TCIOFLUSH;
+		return Termios_Generic.TCIOFLUSH;
 	}
 
 	@Override
 	protected int TCION() {
-		return Termios_Lib.TCION;
+		return Termios_Generic.TCION;
 	}
 
 	@Override
 	protected int TCOFLUSH() {
-		return Termios_Lib.TCOFLUSH;
+		return Termios_Generic.TCOFLUSH;
 	}
 
 	@Override
 	protected int TCOOFF() {
-		return Termios_Lib.TCOOFF;
+		return Termios_Generic.TCOOFF;
 	}
 
 	@Override
 	protected int TCOON() {
-		return Termios_Lib.TCOON;
+		return Termios_Generic.TCOON;
 	}
 
 	@Override
 	protected int TCSADRAIN() {
-		return Termios_Lib.TCSADRAIN;
+		return Termios_Generic.TCSADRAIN;
 	}
 
 	@Override
 	protected int TCSAFLUSH() {
-		return Termios_Lib.TCSAFLUSH;
+		return Termios_Generic.TCSAFLUSH;
 	}
 
 	@Override
 	protected int TCSANOW() {
-		return Termios_Lib.TCSANOW;
+		return Termios_Generic.TCSANOW;
 	}
 
 	@Override
@@ -1057,7 +1057,7 @@ public abstract class Termios_Lib extends Termios_H implements cfsetspeed, cfmak
 
 	@Override
 	protected int TOSTOP() {
-		return Termios_Lib.TOSTOP;
+		return Termios_Generic.TOSTOP;
 	}
 
 	private void unwrap(Termios termios, TermiosImpl termiosImpl) {
@@ -1079,7 +1079,7 @@ public abstract class Termios_Lib extends Termios_H implements cfsetspeed, cfmak
 
 	@Override
 	protected Integer VDISCARD() {
-		return Termios_Lib.VDISCARD;
+		return Termios_Generic.VDISCARD;
 	}
 
 	@Override
@@ -1089,57 +1089,57 @@ public abstract class Termios_Lib extends Termios_H implements cfsetspeed, cfmak
 
 	@Override
 	protected int VEOF() {
-		return Termios_Lib.VEOF;
+		return Termios_Generic.VEOF;
 	}
 
 	@Override
 	protected int VEOL() {
-		return Termios_Lib.VEOL;
+		return Termios_Generic.VEOL;
 	}
 
 	@Override
 	protected Integer VEOL2() {
-		return Termios_Lib.VEOL2;
+		return Termios_Generic.VEOL2;
 	}
 
 	@Override
 	protected int VERASE() {
-		return Termios_Lib.VERASE;
+		return Termios_Generic.VERASE;
 	}
 
 	@Override
 	protected int VINTR() {
-		return Termios_Lib.VINTR;
+		return Termios_Generic.VINTR;
 	}
 
 	@Override
 	protected int VKILL() {
-		return Termios_Lib.VKILL;
+		return Termios_Generic.VKILL;
 	}
 
 	@Override
 	protected Integer VLNEXT() {
-		return Termios_Lib.VLNEXT;
+		return Termios_Generic.VLNEXT;
 	}
 
 	@Override
 	protected int VMIN() {
-		return Termios_Lib.VMIN;
+		return Termios_Generic.VMIN;
 	}
 
 	@Override
 	protected int VQUIT() {
-		return Termios_Lib.VQUIT;
+		return Termios_Generic.VQUIT;
 	}
 
 	@Override
 	protected Integer VREPRINT() {
-		return Termios_Lib.VREPRINT;
+		return Termios_Generic.VREPRINT;
 	}
 
 	@Override
 	protected int VSTART() {
-		return Termios_Lib.VSTART;
+		return Termios_Generic.VSTART;
 	}
 
 	@Override
@@ -1149,17 +1149,17 @@ public abstract class Termios_Lib extends Termios_H implements cfsetspeed, cfmak
 
 	@Override
 	protected int VSTOP() {
-		return Termios_Lib.VSTOP;
+		return Termios_Generic.VSTOP;
 	}
 
 	@Override
 	protected int VSUSP() {
-		return Termios_Lib.VSUSP;
+		return Termios_Generic.VSUSP;
 	}
 
 	@Override
 	protected Integer VSWTC() {
-		return Termios_Lib.VSWTC;
+		return Termios_Generic.VSWTC;
 	}
 
 	@Override
@@ -1169,27 +1169,27 @@ public abstract class Termios_Lib extends Termios_H implements cfsetspeed, cfmak
 
 	@Override
 	protected int VT0() {
-		return Termios_Lib.VT0;
+		return Termios_Generic.VT0;
 	}
 
 	@Override
 	protected int VT1() {
-		return Termios_Lib.VT1;
+		return Termios_Generic.VT1;
 	}
 
 	@Override
 	protected int VTDLY() {
-		return Termios_Lib.VTDLY;
+		return Termios_Generic.VTDLY;
 	}
 
 	@Override
 	protected int VTIME() {
-		return Termios_Lib.VTIME;
+		return Termios_Generic.VTIME;
 	}
 
 	@Override
 	protected Integer VWERASE() {
-		return Termios_Lib.VWERASE;
+		return Termios_Generic.VWERASE;
 	}
 
 	private TermiosImpl wrap(Termios termios) {
@@ -1227,12 +1227,12 @@ public abstract class Termios_Lib extends Termios_H implements cfsetspeed, cfmak
 
 	@Override
 	protected Integer XCASE() {
-		return Termios_Lib.XCASE;
+		return Termios_Generic.XCASE;
 	}
 
 	@Override
 	protected Integer XTABS() {
-		return Termios_Lib.XTABS;
+		return Termios_Generic.XTABS;
 	}
 
 }

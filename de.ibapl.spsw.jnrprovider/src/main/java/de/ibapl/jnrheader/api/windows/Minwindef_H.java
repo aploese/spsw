@@ -1,6 +1,5 @@
 package de.ibapl.jnrheader.api.windows;
 
-import java.io.UnsupportedEncodingException;
 import java.nio.charset.Charset;
 
 import de.ibapl.jnrheader.JnrHeader;
@@ -12,13 +11,8 @@ import java.nio.CharBuffer;
 import java.nio.charset.CharacterCodingException;
 import java.nio.charset.CharsetDecoder;
 import java.nio.charset.CharsetEncoder;
-import java.nio.charset.CodingErrorAction;
-import java.util.Objects;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import jnr.ffi.Runtime;
-import jnr.ffi.byref.ByReference;
-import jnr.ffi.util.EnumMapper.IntegerEnum;
 
 @Wrapper("minwindef.h")
 public abstract class Minwindef_H implements JnrHeader {
@@ -106,69 +100,6 @@ public abstract class Minwindef_H implements JnrHeader {
 
     }
 
-    private static class LPByteImpl extends LPBYTE implements ByReference<Byte> {
-
-        @Override
-        public int nativeSize(Runtime runtime) {
-            return 1;
-        }
-
-        @Override
-        public void toNative(Runtime runtime, jnr.ffi.Pointer memory, long offset) {
-            memory.putByte(offset, value);
-        }
-
-        @Override
-        public void fromNative(Runtime runtime, jnr.ffi.Pointer memory, long offset) {
-            value = memory.getByte(offset);
-        }
-
-        @Override
-        public Byte getValue() {
-            return Byte.valueOf(value);
-        }
-
-    }
-
-    public static class LPBYTE {
-
-        public byte value;
-
-        private LPBYTE() {
-        }
-
-        public static LPBYTE ofValue(byte value) {
-            final LPBYTE result = new LPByteImpl();
-            result.value = value;
-            return result;
-        }
-
-    }
-
-    private static class LPDWord_impl extends LPDWORD implements ByReference<Long> {
-
-        @Override
-        public int nativeSize(Runtime runtime) {
-            return 4;
-        }
-
-        @Override
-        public void toNative(Runtime runtime, jnr.ffi.Pointer memory, long offset) {
-            memory.putInt(offset, ((int) value) & 0xFFFFFFFF);
-        }
-
-        @Override
-        public void fromNative(Runtime runtime, jnr.ffi.Pointer memory, long offset) {
-            value = memory.getInt(offset) & 0xFFFFFFFF;
-        }
-
-        @Override
-        public Long getValue() {
-            return Long.valueOf(value);
-        }
-
-    }
-
     public static class LPDWORD {
 
         public long value;
@@ -178,7 +109,7 @@ public abstract class Minwindef_H implements JnrHeader {
         }
 
         public static LPDWORD ofValue(long value) {
-            LPDWord_impl result = new LPDWord_impl();
+            LPDWORD result = new LPDWORD();
             result.value = value;
             return result;
         }

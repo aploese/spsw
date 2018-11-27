@@ -36,9 +36,12 @@ public abstract class AbstractSerialPortSocket<T extends AbstractSerialPortSocke
 			ByteBuffer buf = ByteBuffer.allocateDirect(b.length);
 
 			int result = AbstractSerialPortSocket.this.read(buf);
-                        buf.flip();
-                        buf.get(b, 0, result);
-                        return result;
+			if (result == -1) {
+				return result;
+			}
+                buf.flip();
+                buf.get(b, 0, result);
+                return result;
 		}
 
 		@Override

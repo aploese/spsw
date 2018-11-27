@@ -1,4 +1,4 @@
-package de.ibapl.jnrheader.spi.linux;
+package de.ibapl.jnrheader.spi.posix.linux;
 
 import static de.ibapl.jnrheader.JnrHeader.UTF8_ENCODING;
 import de.ibapl.jnrheader.POSIX;
@@ -7,7 +7,7 @@ import jnr.ffi.LibraryLoader;
 import jnr.ffi.annotations.Encoding;
 import jnr.ffi.annotations.In;
 
-public abstract class Fcntl_Lib extends Fcntl_H {
+public final class Fcntl_Impl extends Fcntl_H {
 
 	@de.ibapl.jnrheader.NativeFunctions
 	protected interface NativeFunctions {
@@ -366,33 +366,33 @@ public abstract class Fcntl_Lib extends Fcntl_H {
 
 	private NativeFunctions nativeFunctions;
 
-	public Fcntl_Lib() {
+	public Fcntl_Impl() {
 		nativeFunctions = LibraryLoader.create(NativeFunctions.class).load("c");
 	}
 
 	@Override
 	protected int AT_EACCESS() {
-		return Fcntl_Lib.AT_EACCESS;
+		return Fcntl_Impl.AT_EACCESS;
 	}
 
 	@Override
 	protected int AT_FDCWD() {
-		return Fcntl_Lib.AT_FDCWD;
+		return Fcntl_Impl.AT_FDCWD;
 	}
 
 	@Override
 	protected int AT_REMOVEDIR() {
-		return Fcntl_Lib.AT_REMOVEDIR;
+		return Fcntl_Impl.AT_REMOVEDIR;
 	}
 
 	@Override
 	protected int AT_SYMLINK_FOLLOW() {
-		return Fcntl_Lib.AT_SYMLINK_FOLLOW;
+		return Fcntl_Impl.AT_SYMLINK_FOLLOW;
 	}
 
 	@Override
 	protected int AT_SYMLINK_NOFOLLOW() {
-		return Fcntl_Lib.AT_SYMLINK_NOFOLLOW;
+		return Fcntl_Impl.AT_SYMLINK_NOFOLLOW;
 	}
 
 	@Override
@@ -407,132 +407,132 @@ public abstract class Fcntl_Lib extends Fcntl_H {
 
 	@Override
 	protected int F_DUPFD() {
-		return Fcntl_Lib.F_DUPFD;
+		return Fcntl_Impl.F_DUPFD;
 	}
 
 	@Override
 	protected int F_DUPFD_CLOEXEC() {
-		return Fcntl_Lib.F_DUPFD_CLOEXEC;
+		return Fcntl_Impl.F_DUPFD_CLOEXEC;
 	}
 
 	@Override
 	protected int F_EXLCK() {
-		return Fcntl_Lib.F_EXLCK;
+		return Fcntl_Impl.F_EXLCK;
 	}
 
 	@Override
 	protected int F_GETFD() {
-		return Fcntl_Lib.F_GETFD;
+		return Fcntl_Impl.F_GETFD;
 	}
 
 	@Override
 	protected int F_GETFL() {
-		return Fcntl_Lib.F_GETFL;
+		return Fcntl_Impl.F_GETFL;
 	}
 
 	@Override
 	protected int F_GETLK() {
-		return Fcntl_Lib.F_GETLK;
+		return Fcntl_Impl.F_GETLK;
 	}
 
 	@Override
 	protected int F_GETLK64() {
-		return Fcntl_Lib.F_GETLK64;
+		return Fcntl_Impl.F_GETLK64;
 	}
 
 	@Override
 	protected int F_GETOWN() {
-		return Fcntl_Lib.F_GETOWN;
+		return Fcntl_Impl.F_GETOWN;
 	}
 
 	@Override
 	protected int F_LOCK() {
-		return Fcntl_Lib.F_LOCK;
+		return Fcntl_Impl.F_LOCK;
 	}
 
 	@Override
 	protected int F_OK() {
-		return Fcntl_Lib.F_OK;
+		return Fcntl_Impl.F_OK;
 	}
 
 	@Override
 	protected int F_RDLCK() {
-		return Fcntl_Lib.F_RDLCK;
+		return Fcntl_Impl.F_RDLCK;
 	}
 
 	@Override
 	protected int F_SETFD() {
-		return Fcntl_Lib.F_SETFD;
+		return Fcntl_Impl.F_SETFD;
 	}
 
 	@Override
 	protected int F_SETFL() {
-		return Fcntl_Lib.F_SETFL;
+		return Fcntl_Impl.F_SETFL;
 	}
 
 	@Override
 	protected int F_SETLK() {
-		return Fcntl_Lib.F_SETLK;
+		return Fcntl_Impl.F_SETLK;
 	}
 
 	@Override
 	protected int F_SETLK64() {
-		return Fcntl_Lib.F_SETLK64;
+		return Fcntl_Impl.F_SETLK64;
 	}
 
 	@Override
 	protected int F_SETLKW() {
-		return Fcntl_Lib.F_SETLKW;
+		return Fcntl_Impl.F_SETLKW;
 	}
 
 	@Override
 	protected int F_SETLKW64() {
-		return Fcntl_Lib.F_SETLKW64;
+		return Fcntl_Impl.F_SETLKW64;
 	}
 
 	@Override
 	protected int F_SETOWN() {
-		return Fcntl_Lib.F_SETOWN;
+		return Fcntl_Impl.F_SETOWN;
 	}
 
 	@Override
 	protected int F_SHLCK() {
-		return Fcntl_Lib.F_SHLCK;
+		return Fcntl_Impl.F_SHLCK;
 	}
 
 	@Override
 	protected int F_TEST() {
-		return Fcntl_Lib.F_TEST;
+		return Fcntl_Impl.F_TEST;
 	}
 
 	@Override
 	protected int F_TLOCK() {
-		return Fcntl_Lib.F_TLOCK;
+		return Fcntl_Impl.F_TLOCK;
 	}
 
 	@Override
 	protected int F_ULOCK() {
-		return Fcntl_Lib.F_ULOCK;
+		return Fcntl_Impl.F_ULOCK;
 	}
 
 	@Override
 	protected int F_UNLCK() {
-		return Fcntl_Lib.F_UNLCK;
+		return Fcntl_Impl.F_UNLCK;
 	}
 
 	@Override
 	protected int F_WRLCK() {
-		return Fcntl_Lib.F_WRLCK;
+		return Fcntl_Impl.F_WRLCK;
 	}
 
 	@Override
 	protected int FAPPEND() {
-		return Fcntl_Lib.FAPPEND;
+		return Fcntl_Impl.FAPPEND;
 	}
 
 	@Override
 	protected int FASYNC() {
-		return Fcntl_Lib.FASYNC;
+		return Fcntl_Impl.FASYNC;
 	}
 
 	@Override
@@ -542,42 +542,42 @@ public abstract class Fcntl_Lib extends Fcntl_H {
 
 	@Override
 	protected int FD_CLOEXEC() {
-		return Fcntl_Lib.FD_CLOEXEC;
+		return Fcntl_Impl.FD_CLOEXEC;
 	}
 
 	@Override
 	protected int FFSYNC() {
-		return Fcntl_Lib.FFSYNC;
+		return Fcntl_Impl.FFSYNC;
 	}
 
 	@Override
 	protected int FNDELAY() {
-		return Fcntl_Lib.FNDELAY;
+		return Fcntl_Impl.FNDELAY;
 	}
 
 	@Override
 	protected int FNONBLOCK() {
-		return Fcntl_Lib.FNONBLOCK;
+		return Fcntl_Impl.FNONBLOCK;
 	}
 
 	@Override
 	protected int LOCK_EX() {
-		return Fcntl_Lib.LOCK_EX;
+		return Fcntl_Impl.LOCK_EX;
 	}
 
 	@Override
 	protected int LOCK_NB() {
-		return Fcntl_Lib.LOCK_NB;
+		return Fcntl_Impl.LOCK_NB;
 	}
 
 	@Override
 	protected int LOCK_SH() {
-		return Fcntl_Lib.LOCK_SH;
+		return Fcntl_Impl.LOCK_SH;
 	}
 
 	@Override
 	protected int LOCK_UN() {
-		return Fcntl_Lib.LOCK_UN;
+		return Fcntl_Impl.LOCK_UN;
 	}
 
 	@Override
@@ -587,97 +587,97 @@ public abstract class Fcntl_Lib extends Fcntl_H {
 
 	@Override
 	protected int O_ACCMODE() {
-		return Fcntl_Lib.O_ACCMODE;
+		return Fcntl_Impl.O_ACCMODE;
 	}
 
 	@Override
 	protected int O_APPEND() {
-		return Fcntl_Lib.O_APPEND;
+		return Fcntl_Impl.O_APPEND;
 	}
 
 	@Override
 	protected int O_ASYNC() {
-		return Fcntl_Lib.O_ASYNC;
+		return Fcntl_Impl.O_ASYNC;
 	}
 
 	@Override
 	protected int O_CLOEXEC() {
-		return Fcntl_Lib.O_CLOEXEC;
+		return Fcntl_Impl.O_CLOEXEC;
 	}
 
 	@Override
 	protected int O_CREAT() {
-		return Fcntl_Lib.O_CREAT;
+		return Fcntl_Impl.O_CREAT;
 	}
 
 	@Override
 	protected int O_DIRECTORY() {
-		return Fcntl_Lib.O_DIRECTORY;
+		return Fcntl_Impl.O_DIRECTORY;
 	}
 
 	@Override
 	protected int O_DSYNC() {
-		return Fcntl_Lib.O_DSYNC;
+		return Fcntl_Impl.O_DSYNC;
 	}
 
 	@Override
 	protected int O_EXCL() {
-		return Fcntl_Lib.O_EXCL;
+		return Fcntl_Impl.O_EXCL;
 	}
 
 	@Override
 	protected int O_FSYNC() {
-		return Fcntl_Lib.O_FSYNC;
+		return Fcntl_Impl.O_FSYNC;
 	}
 
 	@Override
 	protected int O_NDELAY() {
-		return Fcntl_Lib.O_NDELAY;
+		return Fcntl_Impl.O_NDELAY;
 	}
 
 	@Override
 	protected int O_NOCTTY() {
-		return Fcntl_Lib.O_NOCTTY;
+		return Fcntl_Impl.O_NOCTTY;
 	}
 
 	@Override
 	protected int O_NOFOLLOW() {
-		return Fcntl_Lib.O_NOFOLLOW;
+		return Fcntl_Impl.O_NOFOLLOW;
 	}
 
 	@Override
 	protected int O_NONBLOCK() {
-		return Fcntl_Lib.O_NONBLOCK;
+		return Fcntl_Impl.O_NONBLOCK;
 	}
 
 	@Override
 	protected int O_RDONLY() {
-		return Fcntl_Lib.O_RDONLY;
+		return Fcntl_Impl.O_RDONLY;
 	}
 
 	@Override
 	protected int O_RDWR() {
-		return Fcntl_Lib.O_RDWR;
+		return Fcntl_Impl.O_RDWR;
 	}
 
 	@Override
 	protected int O_RSYNC() {
-		return Fcntl_Lib.O_RSYNC;
+		return Fcntl_Impl.O_RSYNC;
 	}
 
 	@Override
 	protected int O_SYNC() {
-		return Fcntl_Lib.O_SYNC;
+		return Fcntl_Impl.O_SYNC;
 	}
 
 	@Override
 	protected int O_TRUNC() {
-		return Fcntl_Lib.O_TRUNC;
+		return Fcntl_Impl.O_TRUNC;
 	}
 
 	@Override
 	protected int O_WRONLY() {
-		return Fcntl_Lib.O_WRONLY;
+		return Fcntl_Impl.O_WRONLY;
 	}
 
 	@Override
@@ -692,32 +692,32 @@ public abstract class Fcntl_Lib extends Fcntl_H {
 
 	@Override
 	protected int POSIX_FADV_DONTNEED() {
-		return Fcntl_Lib.POSIX_FADV_DONTNEED;
+		return Fcntl_Impl.POSIX_FADV_DONTNEED;
 	}
 
 	@Override
 	protected int POSIX_FADV_NOREUSE() {
-		return Fcntl_Lib.POSIX_FADV_NOREUSE;
+		return Fcntl_Impl.POSIX_FADV_NOREUSE;
 	}
 
 	@Override
 	protected int POSIX_FADV_NORMAL() {
-		return Fcntl_Lib.POSIX_FADV_NORMAL;
+		return Fcntl_Impl.POSIX_FADV_NORMAL;
 	}
 
 	@Override
 	protected int POSIX_FADV_RANDOM() {
-		return Fcntl_Lib.POSIX_FADV_RANDOM;
+		return Fcntl_Impl.POSIX_FADV_RANDOM;
 	}
 
 	@Override
 	protected int POSIX_FADV_SEQUENTIAL() {
-		return Fcntl_Lib.POSIX_FADV_SEQUENTIAL;
+		return Fcntl_Impl.POSIX_FADV_SEQUENTIAL;
 	}
 
 	@Override
 	protected int POSIX_FADV_WILLNEED() {
-		return Fcntl_Lib.POSIX_FADV_WILLNEED;
+		return Fcntl_Impl.POSIX_FADV_WILLNEED;
 	}
 
 	@Override
@@ -732,147 +732,147 @@ public abstract class Fcntl_Lib extends Fcntl_H {
 
 	@Override
 	protected int R_OK() {
-		return Fcntl_Lib.R_OK;
+		return Fcntl_Impl.R_OK;
 	}
 
 	@Override
 	protected int S_IFBLK() {
-		return Fcntl_Lib.S_IFBLK;
+		return Fcntl_Impl.S_IFBLK;
 	}
 
 	@Override
 	protected int S_IFCHR() {
-		return Fcntl_Lib.S_IFCHR;
+		return Fcntl_Impl.S_IFCHR;
 	}
 
 	@Override
 	protected int S_IFDIR() {
-		return Fcntl_Lib.S_IFDIR;
+		return Fcntl_Impl.S_IFDIR;
 	}
 
 	@Override
 	protected int S_IFIFO() {
-		return Fcntl_Lib.S_IFIFO;
+		return Fcntl_Impl.S_IFIFO;
 	}
 
 	@Override
 	protected int S_IFLNK() {
-		return Fcntl_Lib.S_IFLNK;
+		return Fcntl_Impl.S_IFLNK;
 	}
 
 	@Override
 	protected int S_IFMT() {
-		return Fcntl_Lib.S_IFMT;
+		return Fcntl_Impl.S_IFMT;
 	}
 
 	@Override
 	protected int S_IFREG() {
-		return Fcntl_Lib.S_IFREG;
+		return Fcntl_Impl.S_IFREG;
 	}
 
 	@Override
 	protected int S_IFSOCK() {
-		return Fcntl_Lib.S_IFSOCK;
+		return Fcntl_Impl.S_IFSOCK;
 	}
 
 	@Override
 	protected int S_IRGRP() {
-		return Fcntl_Lib.S_IRGRP;
+		return Fcntl_Impl.S_IRGRP;
 	}
 
 	@Override
 	protected int S_IROTH() {
-		return Fcntl_Lib.S_IROTH;
+		return Fcntl_Impl.S_IROTH;
 	}
 
 	@Override
 	protected int S_IRUSR() {
-		return Fcntl_Lib.S_IRUSR;
+		return Fcntl_Impl.S_IRUSR;
 	}
 
 	@Override
 	protected int S_IRWXG() {
-		return Fcntl_Lib.S_IRWXG;
+		return Fcntl_Impl.S_IRWXG;
 	}
 
 	@Override
 	protected int S_IRWXO() {
-		return Fcntl_Lib.S_IRWXO;
+		return Fcntl_Impl.S_IRWXO;
 	}
 
 	@Override
 	protected int S_IRWXU() {
-		return Fcntl_Lib.S_IRWXU;
+		return Fcntl_Impl.S_IRWXU;
 	}
 
 	@Override
 	protected int S_ISGID() {
-		return Fcntl_Lib.S_ISGID;
+		return Fcntl_Impl.S_ISGID;
 	}
 
 	@Override
 	protected int S_ISUID() {
-		return Fcntl_Lib.S_ISUID;
+		return Fcntl_Impl.S_ISUID;
 	}
 
 	@Override
 	protected int S_ISVTX() {
-		return Fcntl_Lib.S_ISVTX;
+		return Fcntl_Impl.S_ISVTX;
 	}
 
 	@Override
 	protected int S_IWGRP() {
-		return Fcntl_Lib.S_IWGRP;
+		return Fcntl_Impl.S_IWGRP;
 	}
 
 	@Override
 	protected int S_IWOTH() {
-		return Fcntl_Lib.S_IWOTH;
+		return Fcntl_Impl.S_IWOTH;
 	}
 
 	@Override
 	protected int S_IWUSR() {
-		return Fcntl_Lib.S_IWUSR;
+		return Fcntl_Impl.S_IWUSR;
 	}
 
 	@Override
 	protected int S_IXGRP() {
-		return Fcntl_Lib.S_IXGRP;
+		return Fcntl_Impl.S_IXGRP;
 	}
 
 	@Override
 	protected int S_IXOTH() {
-		return Fcntl_Lib.S_IXOTH;
+		return Fcntl_Impl.S_IXOTH;
 	}
 
 	@Override
 	protected int S_IXUSR() {
-		return Fcntl_Lib.S_IXUSR;
+		return Fcntl_Impl.S_IXUSR;
 	}
 
 	@Override
 	protected int SEEK_CUR() {
-		return Fcntl_Lib.SEEK_CUR;
+		return Fcntl_Impl.SEEK_CUR;
 	}
 
 	@Override
 	protected int SEEK_END() {
-		return Fcntl_Lib.SEEK_END;
+		return Fcntl_Impl.SEEK_END;
 	}
 
 	@Override
 	protected int SEEK_SET() {
-		return Fcntl_Lib.SEEK_SET;
+		return Fcntl_Impl.SEEK_SET;
 	}
 
 	@Override
 	protected int W_OK() {
-		return Fcntl_Lib.W_OK;
+		return Fcntl_Impl.W_OK;
 	}
 
 	@Override
 	protected int X_OK() {
-		return Fcntl_Lib.X_OK;
+		return Fcntl_Impl.X_OK;
 	}
 
 }

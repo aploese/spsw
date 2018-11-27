@@ -1,4 +1,4 @@
-package de.ibapl.jnrheader.spi.linux;
+package de.ibapl.jnrheader.spi.isoc.linux;
 
 import de.ibapl.jnrheader.POSIX;
 import de.ibapl.jnrheader.api.isoc.Errno_H;
@@ -6,7 +6,7 @@ import jnr.ffi.LibraryLoader;
 import jnr.ffi.Runtime;
 import jnr.ffi.types.intptr_t;
 
-public abstract class Errno_Generic extends Errno_H {
+public final class Errno_Impl extends Errno_H {
 	
 	//TODO we can't use this were miles away ???
 	@de.ibapl.jnrheader.NativeFunctions
@@ -419,593 +419,593 @@ public abstract class Errno_Generic extends Errno_H {
 
 	final private NativeFunctions nativeFunctions;
 
-	public Errno_Generic() {
+	public Errno_Impl() {
 		nativeFunctions = LibraryLoader.create(NativeFunctions.class).load("c");
 	}
 
 	@Override
 	protected int E2BIG() {
-		return Errno_Generic.E2BIG;
+		return Errno_Impl.E2BIG;
 	}
 
 	@Override
 	protected int EACCES() {
-		return Errno_Generic.EACCES;
+		return Errno_Impl.EACCES;
 	}
 
 	@Override
 	protected int EADDRINUSE() {
-		return Errno_Generic.EADDRINUSE;
+		return Errno_Impl.EADDRINUSE;
 	}
 
 	@Override
 	protected int EADDRNOTAVAIL() {
-		return Errno_Generic.EADDRNOTAVAIL;
+		return Errno_Impl.EADDRNOTAVAIL;
 	}
 
 	@Override
 	protected int EADV() {
-		return Errno_Generic.EADV;
+		return Errno_Impl.EADV;
 	}
 
 	@Override
 	protected int EAFNOSUPPORT() {
-		return Errno_Generic.EAFNOSUPPORT;
+		return Errno_Impl.EAFNOSUPPORT;
 	}
 
 	@Override
 	protected int EAGAIN() {
-		return Errno_Generic.EAGAIN;
+		return Errno_Impl.EAGAIN;
 	}
 
 	@Override
 	protected int EALREADY() {
-		return Errno_Generic.EALREADY;
+		return Errno_Impl.EALREADY;
 	}
 
 	@Override
 	protected int EBADE() {
-		return Errno_Generic.EBADE;
+		return Errno_Impl.EBADE;
 	}
 
 	@Override
 	protected int EBADF() {
-		return Errno_Generic.EBADF;
+		return Errno_Impl.EBADF;
 	}
 
 	@Override
 	protected int EBADFD() {
-		return Errno_Generic.EBADFD;
+		return Errno_Impl.EBADFD;
 	}
 
 	@Override
 	protected int EBADMSG() {
-		return Errno_Generic.EBADMSG;
+		return Errno_Impl.EBADMSG;
 	}
 
 	@Override
 	protected int EBADR() {
-		return Errno_Generic.EBADR;
+		return Errno_Impl.EBADR;
 	}
 
 	@Override
 	protected int EBADRQC() {
-		return Errno_Generic.EBADRQC;
+		return Errno_Impl.EBADRQC;
 	}
 
 	@Override
 	protected int EBADSLT() {
-		return Errno_Generic.EBADSLT;
+		return Errno_Impl.EBADSLT;
 	}
 
 	@Override
 	protected int EBFONT() {
-		return Errno_Generic.EBFONT;
+		return Errno_Impl.EBFONT;
 	}
 
 	@Override
 	protected int EBUSY() {
-		return Errno_Generic.EBUSY;
+		return Errno_Impl.EBUSY;
 	}
 
 	@Override
 	protected int ECANCELED() {
-		return Errno_Generic.ECANCELED;
+		return Errno_Impl.ECANCELED;
 	}
 
 	@Override
 	protected int ECHILD() {
-		return Errno_Generic.ECHILD;
+		return Errno_Impl.ECHILD;
 	}
 
 	@Override
 	protected int ECHRNG() {
-		return Errno_Generic.ECHRNG;
+		return Errno_Impl.ECHRNG;
 	}
 
 	@Override
 	protected int ECOMM() {
-		return Errno_Generic.ECOMM;
+		return Errno_Impl.ECOMM;
 	}
 
 	@Override
 	protected int ECONNABORTED() {
-		return Errno_Generic.ECONNABORTED;
+		return Errno_Impl.ECONNABORTED;
 	}
 
 	@Override
 	protected int ECONNREFUSED() {
-		return Errno_Generic.ECONNREFUSED;
+		return Errno_Impl.ECONNREFUSED;
 	}
 
 	@Override
 	protected int ECONNRESET() {
-		return Errno_Generic.ECONNRESET;
+		return Errno_Impl.ECONNRESET;
 	}
 
 	@Override
 	protected int EDEADLK() {
-		return Errno_Generic.EDEADLK;
+		return Errno_Impl.EDEADLK;
 	}
 
 	@Override
 	protected int EDEADLOCK() {
-		return Errno_Generic.EDEADLOCK;
+		return Errno_Impl.EDEADLOCK;
 	}
 
 	@Override
 	protected int EDESTADDRREQ() {
-		return Errno_Generic.EDESTADDRREQ;
+		return Errno_Impl.EDESTADDRREQ;
 	}
 
 	@Override
 	protected int EDOM() {
-		return Errno_Generic.EDOM;
+		return Errno_Impl.EDOM;
 	}
 
 	@Override
 	protected int EDOTDOT() {
-		return Errno_Generic.EDOTDOT;
+		return Errno_Impl.EDOTDOT;
 	}
 
 	@Override
 	protected int EDQUOT() {
-		return Errno_Generic.EDQUOT;
+		return Errno_Impl.EDQUOT;
 	}
 
 	@Override
 	protected int EEXIST() {
-		return Errno_Generic.EEXIST;
+		return Errno_Impl.EEXIST;
 	}
 
 	@Override
 	protected int EFAULT() {
-		return Errno_Generic.EFAULT;
+		return Errno_Impl.EFAULT;
 	}
 
 	@Override
 	protected int EFBIG() {
-		return Errno_Generic.EFBIG;
+		return Errno_Impl.EFBIG;
 	}
 
 	@Override
 	protected int EHOSTDOWN() {
-		return Errno_Generic.EHOSTDOWN;
+		return Errno_Impl.EHOSTDOWN;
 	}
 
 	@Override
 	protected int EHOSTUNREACH() {
-		return Errno_Generic.EHOSTUNREACH;
+		return Errno_Impl.EHOSTUNREACH;
 	}
 
 	@Override
 	protected int EHWPOISON() {
-		return Errno_Generic.EHWPOISON;
+		return Errno_Impl.EHWPOISON;
 	}
 
 	@Override
 	protected int EIDRM() {
-		return Errno_Generic.EIDRM;
+		return Errno_Impl.EIDRM;
 	}
 
 	@Override
 	protected int EILSEQ() {
-		return Errno_Generic.EILSEQ;
+		return Errno_Impl.EILSEQ;
 	}
 
 	@Override
 	protected int EINPROGRESS() {
-		return Errno_Generic.EINPROGRESS;
+		return Errno_Impl.EINPROGRESS;
 	}
 
 	@Override
 	protected int EINTR() {
-		return Errno_Generic.EINTR;
+		return Errno_Impl.EINTR;
 	}
 
 	@Override
 	protected int EINVAL() {
-		return Errno_Generic.EINVAL;
+		return Errno_Impl.EINVAL;
 	}
 
 	@Override
 	protected int EIO() {
-		return Errno_Generic.EIO;
+		return Errno_Impl.EIO;
 	}
 
 	@Override
 	protected int EISCONN() {
-		return Errno_Generic.EISCONN;
+		return Errno_Impl.EISCONN;
 	}
 
 	@Override
 	protected int EISDIR() {
-		return Errno_Generic.EISDIR;
+		return Errno_Impl.EISDIR;
 	}
 
 	@Override
 	protected int EISNAM() {
-		return Errno_Generic.EISNAM;
+		return Errno_Impl.EISNAM;
 	}
 
 	@Override
 	protected int EKEYEXPIRED() {
-		return Errno_Generic.EKEYEXPIRED;
+		return Errno_Impl.EKEYEXPIRED;
 	}
 
 	@Override
 	protected int EKEYREJECTED() {
-		return Errno_Generic.EKEYREJECTED;
+		return Errno_Impl.EKEYREJECTED;
 	}
 
 	@Override
 	protected int EKEYREVOKED() {
-		return Errno_Generic.EKEYREVOKED;
+		return Errno_Impl.EKEYREVOKED;
 	}
 
 	@Override
 	protected int EL2HLT() {
-		return Errno_Generic.EL2HLT;
+		return Errno_Impl.EL2HLT;
 	}
 
 	@Override
 	protected int EL2NSYNC() {
-		return Errno_Generic.EL2NSYNC;
+		return Errno_Impl.EL2NSYNC;
 	}
 
 	@Override
 	protected int EL3HLT() {
-		return Errno_Generic.EL3HLT;
+		return Errno_Impl.EL3HLT;
 	}
 
 	@Override
 	protected int EL3RST() {
-		return Errno_Generic.EL3RST;
+		return Errno_Impl.EL3RST;
 	}
 
 	@Override
 	protected int ELIBACC() {
-		return Errno_Generic.ELIBACC;
+		return Errno_Impl.ELIBACC;
 	}
 
 	@Override
 	protected int ELIBBAD() {
-		return Errno_Generic.ELIBBAD;
+		return Errno_Impl.ELIBBAD;
 	}
 
 	@Override
 	protected int ELIBEXEC() {
-		return Errno_Generic.ELIBEXEC;
+		return Errno_Impl.ELIBEXEC;
 	}
 
 	@Override
 	protected int ELIBMAX() {
-		return Errno_Generic.ELIBMAX;
+		return Errno_Impl.ELIBMAX;
 	}
 
 	@Override
 	protected int ELIBSCN() {
-		return Errno_Generic.ELIBSCN;
+		return Errno_Impl.ELIBSCN;
 	}
 
 	@Override
 	protected int ELNRNG() {
-		return Errno_Generic.ELNRNG;
+		return Errno_Impl.ELNRNG;
 	}
 
 	@Override
 	protected int ELOOP() {
-		return Errno_Generic.ELOOP;
+		return Errno_Impl.ELOOP;
 	}
 
 	@Override
 	protected int EMEDIUMTYPE() {
-		return Errno_Generic.EMEDIUMTYPE;
+		return Errno_Impl.EMEDIUMTYPE;
 	}
 
 	@Override
 	protected int EMFILE() {
-		return Errno_Generic.EMFILE;
+		return Errno_Impl.EMFILE;
 	}
 
 	@Override
 	protected int EMLINK() {
-		return Errno_Generic.EMLINK;
+		return Errno_Impl.EMLINK;
 	}
 
 	@Override
 	protected int EMSGSIZE() {
-		return Errno_Generic.EMSGSIZE;
+		return Errno_Impl.EMSGSIZE;
 	}
 
 	@Override
 	protected int EMULTIHOP() {
-		return Errno_Generic.EMULTIHOP;
+		return Errno_Impl.EMULTIHOP;
 	}
 
 	@Override
 	protected int ENAMETOOLONG() {
-		return Errno_Generic.ENAMETOOLONG;
+		return Errno_Impl.ENAMETOOLONG;
 	}
 
 	@Override
 	protected int ENAVAIL() {
-		return Errno_Generic.ENAVAIL;
+		return Errno_Impl.ENAVAIL;
 	}
 
 	@Override
 	protected int ENETDOWN() {
-		return Errno_Generic.ENETDOWN;
+		return Errno_Impl.ENETDOWN;
 	}
 
 	@Override
 	protected int ENETRESET() {
-		return Errno_Generic.ENETRESET;
+		return Errno_Impl.ENETRESET;
 	}
 
 	@Override
 	protected int ENETUNREACH() {
-		return Errno_Generic.ENETUNREACH;
+		return Errno_Impl.ENETUNREACH;
 	}
 
 	@Override
 	protected int ENFILE() {
-		return Errno_Generic.ENFILE;
+		return Errno_Impl.ENFILE;
 	}
 
 	@Override
 	protected int ENOANO() {
-		return Errno_Generic.ENOANO;
+		return Errno_Impl.ENOANO;
 	}
 
 	@Override
 	protected int ENOBUFS() {
-		return Errno_Generic.ENOBUFS;
+		return Errno_Impl.ENOBUFS;
 	}
 
 	@Override
 	protected int ENOCSI() {
-		return Errno_Generic.ENOCSI;
+		return Errno_Impl.ENOCSI;
 	}
 
 	@Override
 	protected int ENODATA() {
-		return Errno_Generic.ENODATA;
+		return Errno_Impl.ENODATA;
 	}
 
 	@Override
 	protected int ENODEV() {
-		return Errno_Generic.ENODEV;
+		return Errno_Impl.ENODEV;
 	}
 
 	@Override
 	protected int ENOENT() {
-		return Errno_Generic.ENOENT;
+		return Errno_Impl.ENOENT;
 	}
 
 	@Override
 	protected int ENOEXEC() {
-		return Errno_Generic.ENOEXEC;
+		return Errno_Impl.ENOEXEC;
 	}
 
 	@Override
 	protected int ENOKEY() {
-		return Errno_Generic.ENOKEY;
+		return Errno_Impl.ENOKEY;
 	}
 
 	@Override
 	protected int ENOLCK() {
-		return Errno_Generic.ENOLCK;
+		return Errno_Impl.ENOLCK;
 	}
 
 	@Override
 	protected int ENOLINK() {
-		return Errno_Generic.ENOLINK;
+		return Errno_Impl.ENOLINK;
 	}
 
 	@Override
 	protected int ENOMEDIUM() {
-		return Errno_Generic.ENOMEDIUM;
+		return Errno_Impl.ENOMEDIUM;
 	}
 
 	@Override
 	protected int ENOMEM() {
-		return Errno_Generic.ENOMEM;
+		return Errno_Impl.ENOMEM;
 	}
 
 	@Override
 	protected int ENOMSG() {
-		return Errno_Generic.ENOMSG;
+		return Errno_Impl.ENOMSG;
 	}
 
 	@Override
 	protected int ENONET() {
-		return Errno_Generic.ENONET;
+		return Errno_Impl.ENONET;
 	}
 
 	@Override
 	protected int ENOPKG() {
-		return Errno_Generic.ENOPKG;
+		return Errno_Impl.ENOPKG;
 	}
 
 	@Override
 	protected int ENOPROTOOPT() {
-		return Errno_Generic.ENOPROTOOPT;
+		return Errno_Impl.ENOPROTOOPT;
 	}
 
 	@Override
 	protected int ENOSPC() {
-		return Errno_Generic.ENOSPC;
+		return Errno_Impl.ENOSPC;
 	}
 
 	@Override
 	protected int ENOSR() {
-		return Errno_Generic.ENOSR;
+		return Errno_Impl.ENOSR;
 	}
 
 	@Override
 	protected int ENOSTR() {
-		return Errno_Generic.ENOSTR;
+		return Errno_Impl.ENOSTR;
 	}
 
 	@Override
 	protected int ENOSYS() {
-		return Errno_Generic.ENOSYS;
+		return Errno_Impl.ENOSYS;
 	}
 
 	@Override
 	protected int ENOTBLK() {
-		return Errno_Generic.ENOTBLK;
+		return Errno_Impl.ENOTBLK;
 	}
 
 	@Override
 	protected int ENOTCONN() {
-		return Errno_Generic.ENOTCONN;
+		return Errno_Impl.ENOTCONN;
 	}
 
 	@Override
 	protected int ENOTDIR() {
-		return Errno_Generic.ENOTDIR;
+		return Errno_Impl.ENOTDIR;
 	}
 
 	@Override
 	protected int ENOTEMPTY() {
-		return Errno_Generic.ENOTEMPTY;
+		return Errno_Impl.ENOTEMPTY;
 	}
 
 	@Override
 	protected int ENOTNAM() {
-		return Errno_Generic.ENOTNAM;
+		return Errno_Impl.ENOTNAM;
 	}
 
 	@Override
 	protected int ENOTRECOVERABLE() {
-		return Errno_Generic.ENOTRECOVERABLE;
+		return Errno_Impl.ENOTRECOVERABLE;
 	}
 
 	@Override
 	protected int ENOTSOCK() {
-		return Errno_Generic.ENOTSOCK;
+		return Errno_Impl.ENOTSOCK;
 	}
 
 	@Override
 	protected int ENOTSUP() {
-		return Errno_Generic.ENOTSUP;
+		return Errno_Impl.ENOTSUP;
 	}
 
 	@Override
 	protected int ENOTTY() {
-		return Errno_Generic.ENOTTY;
+		return Errno_Impl.ENOTTY;
 	}
 
 	@Override
 	protected int ENOTUNIQ() {
-		return Errno_Generic.ENOTUNIQ;
+		return Errno_Impl.ENOTUNIQ;
 	}
 
 	@Override
 	protected int ENXIO() {
-		return Errno_Generic.ENXIO;
+		return Errno_Impl.ENXIO;
 	}
 
 	@Override
 	protected int EOPNOTSUPP() {
-		return Errno_Generic.EOPNOTSUPP;
+		return Errno_Impl.EOPNOTSUPP;
 	}
 
 	@Override
 	protected int EOVERFLOW() {
-		return Errno_Generic.EOVERFLOW;
+		return Errno_Impl.EOVERFLOW;
 	}
 
 	@Override
 	protected int EOWNERDEAD() {
-		return Errno_Generic.EOWNERDEAD;
+		return Errno_Impl.EOWNERDEAD;
 	}
 
 	@Override
 	protected int EPERM() {
-		return Errno_Generic.EPERM;
+		return Errno_Impl.EPERM;
 	}
 
 	@Override
 	protected int EPFNOSUPPORT() {
-		return Errno_Generic.EPFNOSUPPORT;
+		return Errno_Impl.EPFNOSUPPORT;
 	}
 
 	@Override
 	protected int EPIPE() {
-		return Errno_Generic.EPIPE;
+		return Errno_Impl.EPIPE;
 	}
 
 	@Override
 	protected int EPROTO() {
-		return Errno_Generic.EPROTO;
+		return Errno_Impl.EPROTO;
 	}
 
 	@Override
 	protected int EPROTONOSUPPORT() {
-		return Errno_Generic.EPROTONOSUPPORT;
+		return Errno_Impl.EPROTONOSUPPORT;
 	}
 
 	@Override
 	protected int EPROTOTYPE() {
-		return Errno_Generic.EPROTOTYPE;
+		return Errno_Impl.EPROTOTYPE;
 	}
 
 	@Override
 	protected int ERANGE() {
-		return Errno_Generic.ERANGE;
+		return Errno_Impl.ERANGE;
 	}
 
 	@Override
 	protected int EREMCHG() {
-		return Errno_Generic.EREMCHG;
+		return Errno_Impl.EREMCHG;
 	}
 
 	@Override
 	protected int EREMOTE() {
-		return Errno_Generic.EREMOTE;
+		return Errno_Impl.EREMOTE;
 	}
 
 	@Override
 	protected int EREMOTEIO() {
-		return Errno_Generic.EREMOTEIO;
+		return Errno_Impl.EREMOTEIO;
 	}
 
 	@Override
 	protected int ERESTART() {
-		return Errno_Generic.ERESTART;
+		return Errno_Impl.ERESTART;
 	}
 
 	@Override
 	protected int ERFKILL() {
-		return Errno_Generic.ERFKILL;
+		return Errno_Impl.ERFKILL;
 	}
 
 	@Override
 	protected int EROFS() {
-		return Errno_Generic.EROFS;
+		return Errno_Impl.EROFS;
 	}
 
 	@Override
@@ -1021,87 +1021,87 @@ public abstract class Errno_Generic extends Errno_H {
 
 	@Override
 	protected int ESHUTDOWN() {
-		return Errno_Generic.ESHUTDOWN;
+		return Errno_Impl.ESHUTDOWN;
 	}
 
 	@Override
 	protected int ESOCKTNOSUPPORT() {
-		return Errno_Generic.ESOCKTNOSUPPORT;
+		return Errno_Impl.ESOCKTNOSUPPORT;
 	}
 
 	@Override
 	protected int ESPIPE() {
-		return Errno_Generic.ESPIPE;
+		return Errno_Impl.ESPIPE;
 	}
 
 	@Override
 	protected int ESRCH() {
-		return Errno_Generic.ESRCH;
+		return Errno_Impl.ESRCH;
 	}
 
 	@Override
 	protected int ESRMNT() {
-		return Errno_Generic.ESRMNT;
+		return Errno_Impl.ESRMNT;
 	}
 
 	@Override
 	protected int ESTALE() {
-		return Errno_Generic.ESTALE;
+		return Errno_Impl.ESTALE;
 	}
 
 	@Override
 	protected int ESTRPIPE() {
-		return Errno_Generic.ESTRPIPE;
+		return Errno_Impl.ESTRPIPE;
 	}
 
 	@Override
 	protected int ETIME() {
-		return Errno_Generic.ETIME;
+		return Errno_Impl.ETIME;
 	}
 
 	@Override
 	protected int ETIMEDOUT() {
-		return Errno_Generic.ETIMEDOUT;
+		return Errno_Impl.ETIMEDOUT;
 	}
 
 	@Override
 	protected int ETOOMANYREFS() {
-		return Errno_Generic.ETOOMANYREFS;
+		return Errno_Impl.ETOOMANYREFS;
 	}
 
 	@Override
 	protected int ETXTBSY() {
-		return Errno_Generic.ETXTBSY;
+		return Errno_Impl.ETXTBSY;
 	}
 
 	@Override
 	protected int EUCLEAN() {
-		return Errno_Generic.EUCLEAN;
+		return Errno_Impl.EUCLEAN;
 	}
 
 	@Override
 	protected int EUNATCH() {
-		return Errno_Generic.EUNATCH;
+		return Errno_Impl.EUNATCH;
 	}
 
 	@Override
 	protected int EUSERS() {
-		return Errno_Generic.EUSERS;
+		return Errno_Impl.EUSERS;
 	}
 
 	@Override
 	protected int EWOULDBLOCK() {
-		return Errno_Generic.EWOULDBLOCK;
+		return Errno_Impl.EWOULDBLOCK;
 	}
 
 	@Override
 	protected int EXDEV() {
-		return Errno_Generic.EXDEV;
+		return Errno_Impl.EXDEV;
 	}
 
 	@Override
 	protected int EXFULL() {
-		return Errno_Generic.EXFULL;
+		return Errno_Impl.EXFULL;
 	}
 
 }

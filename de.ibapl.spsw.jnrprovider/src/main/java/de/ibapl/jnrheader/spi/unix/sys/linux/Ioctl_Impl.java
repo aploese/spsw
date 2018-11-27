@@ -1,8 +1,8 @@
-package de.ibapl.jnrheader.spi.linux.sys;
+package de.ibapl.jnrheader.spi.unix.sys.linux;
 
 import de.ibapl.jnrheader.Defined;
 import de.ibapl.jnrheader.ExtraInclude;
-import de.ibapl.jnrheader.spi.linux.Termios_Lib;
+import de.ibapl.jnrheader.spi.posix.linux.Termios_Generic;
 import de.ibapl.jnrheader.api.unix.sys.Ioctl_H;
 import jnr.ffi.LibraryLoader;
 import jnr.ffi.byref.IntByReference;
@@ -11,7 +11,7 @@ import jnr.ffi.types.intptr_t;
 import jnr.ffi.types.u_int64_t;
 
 @ExtraInclude("termios.h")
-public abstract class Ioctl_Lib extends Ioctl_H {
+public final class Ioctl_Impl extends Ioctl_H {
 	@de.ibapl.jnrheader.NativeFunctions
 	protected interface NativeFunctions {
 		@int32_t
@@ -21,6 +21,7 @@ public abstract class Ioctl_Lib extends Ioctl_H {
 		int ioctl(@int32_t int fd, @u_int64_t long request, @intptr_t IntByReference value);
 	}
 
+        @SuppressWarnings("FieldNameHidesFieldInSuperclass")
 	public static final int TCGETS = 0x5401;
 	public static final int TCSETS = 0x5402;
 	public static final int TCSETSW = 0x5403;
@@ -188,14 +189,14 @@ public abstract class Ioctl_Lib extends Ioctl_H {
 	public static final int N_SYNC_PPP = 14;
 	public static final int N_HCI = 15;
 	public static final Defined _SYS_TTYDEFAULTS_H_ = Defined.DEFINED;
-	public static final int TTYDEF_IFLAG = (Termios_Lib.BRKINT | Termios_Lib.ISTRIP | Termios_Lib.ICRNL
-			| Termios_Lib.IMAXBEL | Termios_Lib.IXON | Termios_Lib.IXANY);
-	public static final int TTYDEF_OFLAG = (Termios_Lib.OPOST | Termios_Lib.ONLCR | Termios_Lib.XTABS);
-	public static final int TTYDEF_LFLAG = (Termios_Lib.ECHO | Termios_Lib.ICANON | Termios_Lib.ISIG
-			| Termios_Lib.IEXTEN | Termios_Lib.ECHOE | Termios_Lib.ECHOKE | Termios_Lib.ECHOCTL);
-	public static final int TTYDEF_CFLAG = (Termios_Lib.CREAD | Termios_Lib.CS7 | Termios_Lib.PARENB
-			| Termios_Lib.HUPCL);
-	public static final int TTYDEF_SPEED = Termios_Lib.B9600;
+	public static final int TTYDEF_IFLAG = (Termios_Generic.BRKINT | Termios_Generic.ISTRIP | Termios_Generic.ICRNL
+			| Termios_Generic.IMAXBEL | Termios_Generic.IXON | Termios_Generic.IXANY);
+	public static final int TTYDEF_OFLAG = (Termios_Generic.OPOST | Termios_Generic.ONLCR | Termios_Generic.XTABS);
+	public static final int TTYDEF_LFLAG = (Termios_Generic.ECHO | Termios_Generic.ICANON | Termios_Generic.ISIG
+			| Termios_Generic.IEXTEN | Termios_Generic.ECHOE | Termios_Generic.ECHOKE | Termios_Generic.ECHOCTL);
+	public static final int TTYDEF_CFLAG = (Termios_Generic.CREAD | Termios_Generic.CS7 | Termios_Generic.PARENB
+			| Termios_Generic.HUPCL);
+	public static final int TTYDEF_SPEED = Termios_Generic.B9600;
 	private static final int CTRL_AND = 037;
 	public static final int CEOF = 'd' & CTRL_AND;
 	public static final int CEOL = '\0';
@@ -222,148 +223,148 @@ public abstract class Ioctl_Lib extends Ioctl_H {
 
 	final private NativeFunctions nativeFunctions;
 
-	public Ioctl_Lib() {
+	public Ioctl_Impl() {
 		nativeFunctions = LibraryLoader.create(NativeFunctions.class).load("c");
 	}
 
 	@Override
 	protected Defined _SYS_TTYDEFAULTS_H_() {
-		return Ioctl_Lib._SYS_TTYDEFAULTS_H_;
+		return Ioctl_Impl._SYS_TTYDEFAULTS_H_;
 	}
 
 	@Override
 	protected int CBRK() {
-		return Ioctl_Lib.CBRK;
+		return Ioctl_Impl.CBRK;
 	}
 
 	@Override
 	protected int CDISCARD() {
-		return Ioctl_Lib.CDISCARD;
+		return Ioctl_Impl.CDISCARD;
 	}
 
 	@Override
 	protected int CDSUSP() {
-		return Ioctl_Lib.CDSUSP;
+		return Ioctl_Impl.CDSUSP;
 	}
 
 	@Override
 	protected int CEOF() {
-		return Ioctl_Lib.CEOF;
+		return Ioctl_Impl.CEOF;
 	}
 
 	@Override
 	protected int CEOL() {
-		return Ioctl_Lib.CEOL;
+		return Ioctl_Impl.CEOL;
 	}
 
 	@Override
 	protected int CEOT() {
-		return Ioctl_Lib.CEOT;
+		return Ioctl_Impl.CEOT;
 	}
 
 	@Override
 	protected int CERASE() {
-		return Ioctl_Lib.CERASE;
+		return Ioctl_Impl.CERASE;
 	}
 
 	@Override
 	protected int CFLUSH() {
-		return Ioctl_Lib.CFLUSH;
+		return Ioctl_Impl.CFLUSH;
 	}
 
 	@Override
 	protected int CINTR() {
-		return Ioctl_Lib.CINTR;
+		return Ioctl_Impl.CINTR;
 	}
 
 	@Override
 	protected int CKILL() {
-		return Ioctl_Lib.CKILL;
+		return Ioctl_Impl.CKILL;
 	}
 
 	@Override
 	protected int CLNEXT() {
-		return Ioctl_Lib.CLNEXT;
+		return Ioctl_Impl.CLNEXT;
 	}
 
 	@Override
 	protected int CMIN() {
-		return Ioctl_Lib.CMIN;
+		return Ioctl_Impl.CMIN;
 	}
 
 	@Override
 	protected int CQUIT() {
-		return Ioctl_Lib.CQUIT;
+		return Ioctl_Impl.CQUIT;
 	}
 
 	@Override
 	protected int CREPRINT() {
-		return Ioctl_Lib.CREPRINT;
+		return Ioctl_Impl.CREPRINT;
 	}
 
 	@Override
 	protected int CRPRNT() {
-		return Ioctl_Lib.CRPRNT;
+		return Ioctl_Impl.CRPRNT;
 	}
 
 	@Override
 	protected int CSTART() {
-		return Ioctl_Lib.CSTART;
+		return Ioctl_Impl.CSTART;
 	}
 
 	@Override
 	protected int CSTATUS() {
-		return Ioctl_Lib.CSTATUS;
+		return Ioctl_Impl.CSTATUS;
 	}
 
 	@Override
 	protected int CSTOP() {
-		return Ioctl_Lib.CSTOP;
+		return Ioctl_Impl.CSTOP;
 	}
 
 	@Override
 	protected int CSUSP() {
-		return Ioctl_Lib.CSUSP;
+		return Ioctl_Impl.CSUSP;
 	}
 
 	@Override
 	protected int CTIME() {
-		return Ioctl_Lib.CTIME;
+		return Ioctl_Impl.CTIME;
 	}
 
 	@Override
 	protected int CWERASE() {
-		return Ioctl_Lib.CWERASE;
+		return Ioctl_Impl.CWERASE;
 	}
 
 	@Override
 	protected int FIOASYNC() {
-		return Ioctl_Lib.FIOASYNC;
+		return Ioctl_Impl.FIOASYNC;
 	}
 
 	@Override
 	protected int FIOCLEX() {
-		return Ioctl_Lib.FIOCLEX;
+		return Ioctl_Impl.FIOCLEX;
 	}
 
 	@Override
 	protected int FIONBIO() {
-		return Ioctl_Lib.FIONBIO;
+		return Ioctl_Impl.FIONBIO;
 	}
 
 	@Override
 	protected int FIONCLEX() {
-		return Ioctl_Lib.FIONCLEX;
+		return Ioctl_Impl.FIONCLEX;
 	}
 
 	@Override
 	protected int FIONREAD() {
-		return Ioctl_Lib.FIONREAD;
+		return Ioctl_Impl.FIONREAD;
 	}
 
 	@Override
 	protected int FIOQSIZE() {
-		return Ioctl_Lib.FIOQSIZE;
+		return Ioctl_Impl.FIOQSIZE;
 	}
 
 	@Override
@@ -378,802 +379,802 @@ public abstract class Ioctl_Lib extends Ioctl_H {
 
 	@Override
 	protected int N_6PACK() {
-		return Ioctl_Lib.N_6PACK;
+		return Ioctl_Impl.N_6PACK;
 	}
 
 	@Override
 	protected int N_AX25() {
-		return Ioctl_Lib.N_AX25;
+		return Ioctl_Impl.N_AX25;
 	}
 
 	@Override
 	protected int N_HCI() {
-		return Ioctl_Lib.N_HCI;
+		return Ioctl_Impl.N_HCI;
 	}
 
 	@Override
 	protected int N_HDLC() {
-		return Ioctl_Lib.N_HDLC;
+		return Ioctl_Impl.N_HDLC;
 	}
 
 	@Override
 	protected int N_IRDA() {
-		return Ioctl_Lib.N_IRDA;
+		return Ioctl_Impl.N_IRDA;
 	}
 
 	@Override
 	protected int N_MASC() {
-		return Ioctl_Lib.N_MASC;
+		return Ioctl_Impl.N_MASC;
 	}
 
 	@Override
 	protected int N_MOUSE() {
-		return Ioctl_Lib.N_MOUSE;
+		return Ioctl_Impl.N_MOUSE;
 	}
 
 	@Override
 	protected int N_PPP() {
-		return Ioctl_Lib.N_PPP;
+		return Ioctl_Impl.N_PPP;
 	}
 
 	@Override
 	protected int N_PROFIBUS_FDL() {
-		return Ioctl_Lib.N_PROFIBUS_FDL;
+		return Ioctl_Impl.N_PROFIBUS_FDL;
 	}
 
 	@Override
 	protected int N_R3964() {
-		return Ioctl_Lib.N_R3964;
+		return Ioctl_Impl.N_R3964;
 	}
 
 	@Override
 	protected int N_SLIP() {
-		return Ioctl_Lib.N_SLIP;
+		return Ioctl_Impl.N_SLIP;
 	}
 
 	@Override
 	protected int N_SMSBLOCK() {
-		return Ioctl_Lib.N_SMSBLOCK;
+		return Ioctl_Impl.N_SMSBLOCK;
 	}
 
 	@Override
 	protected int N_STRIP() {
-		return Ioctl_Lib.N_STRIP;
+		return Ioctl_Impl.N_STRIP;
 	}
 
 	@Override
 	protected int N_SYNC_PPP() {
-		return Ioctl_Lib.N_SYNC_PPP;
+		return Ioctl_Impl.N_SYNC_PPP;
 	}
 
 	@Override
 	protected int N_TTY() {
-		return Ioctl_Lib.N_TTY;
+		return Ioctl_Impl.N_TTY;
 	}
 
 	@Override
 	protected int N_X25() {
-		return Ioctl_Lib.N_X25;
+		return Ioctl_Impl.N_X25;
 	}
 
 	@Override
 	protected int SIOCADDDLCI() {
-		return Ioctl_Lib.SIOCADDDLCI;
+		return Ioctl_Impl.SIOCADDDLCI;
 	}
 
 	@Override
 	protected int SIOCADDMULTI() {
-		return Ioctl_Lib.SIOCADDMULTI;
+		return Ioctl_Impl.SIOCADDMULTI;
 	}
 
 	@Override
 	protected int SIOCADDRT() {
-		return Ioctl_Lib.SIOCADDRT;
+		return Ioctl_Impl.SIOCADDRT;
 	}
 
 	@Override
 	protected int SIOCDARP() {
-		return Ioctl_Lib.SIOCDARP;
+		return Ioctl_Impl.SIOCDARP;
 	}
 
 	@Override
 	protected int SIOCDELDLCI() {
-		return Ioctl_Lib.SIOCDELDLCI;
+		return Ioctl_Impl.SIOCDELDLCI;
 	}
 
 	@Override
 	protected int SIOCDELMULTI() {
-		return Ioctl_Lib.SIOCDELMULTI;
+		return Ioctl_Impl.SIOCDELMULTI;
 	}
 
 	@Override
 	protected int SIOCDELRT() {
-		return Ioctl_Lib.SIOCDELRT;
+		return Ioctl_Impl.SIOCDELRT;
 	}
 
 	@Override
 	protected int SIOCDEVPRIVATE() {
-		return Ioctl_Lib.SIOCDEVPRIVATE;
+		return Ioctl_Impl.SIOCDEVPRIVATE;
 	}
 
 	@Override
 	protected int SIOCDIFADDR() {
-		return Ioctl_Lib.SIOCDIFADDR;
+		return Ioctl_Impl.SIOCDIFADDR;
 	}
 
 	@Override
 	protected int SIOCDRARP() {
-		return Ioctl_Lib.SIOCDRARP;
+		return Ioctl_Impl.SIOCDRARP;
 	}
 
 	@Override
 	protected int SIOCGARP() {
-		return Ioctl_Lib.SIOCGARP;
+		return Ioctl_Impl.SIOCGARP;
 	}
 
 	@Override
 	protected int SIOCGIFADDR() {
-		return Ioctl_Lib.SIOCGIFADDR;
+		return Ioctl_Impl.SIOCGIFADDR;
 	}
 
 	@Override
 	protected int SIOCGIFBR() {
-		return Ioctl_Lib.SIOCGIFBR;
+		return Ioctl_Impl.SIOCGIFBR;
 	}
 
 	@Override
 	protected int SIOCGIFBRDADDR() {
-		return Ioctl_Lib.SIOCGIFBRDADDR;
+		return Ioctl_Impl.SIOCGIFBRDADDR;
 	}
 
 	@Override
 	protected int SIOCGIFCONF() {
-		return Ioctl_Lib.SIOCGIFCONF;
+		return Ioctl_Impl.SIOCGIFCONF;
 	}
 
 	@Override
 	protected int SIOCGIFCOUNT() {
-		return Ioctl_Lib.SIOCGIFCOUNT;
+		return Ioctl_Impl.SIOCGIFCOUNT;
 	}
 
 	@Override
 	protected int SIOCGIFDSTADDR() {
-		return Ioctl_Lib.SIOCGIFDSTADDR;
+		return Ioctl_Impl.SIOCGIFDSTADDR;
 	}
 
 	@Override
 	protected int SIOCGIFENCAP() {
-		return Ioctl_Lib.SIOCGIFENCAP;
+		return Ioctl_Impl.SIOCGIFENCAP;
 	}
 
 	@Override
 	protected int SIOCGIFFLAGS() {
-		return Ioctl_Lib.SIOCGIFFLAGS;
+		return Ioctl_Impl.SIOCGIFFLAGS;
 	}
 
 	@Override
 	protected int SIOCGIFHWADDR() {
-		return Ioctl_Lib.SIOCGIFHWADDR;
+		return Ioctl_Impl.SIOCGIFHWADDR;
 	}
 
 	@Override
 	protected int SIOCGIFINDEX() {
-		return Ioctl_Lib.SIOCGIFINDEX;
+		return Ioctl_Impl.SIOCGIFINDEX;
 	}
 
 	@Override
 	protected int SIOCGIFMAP() {
-		return Ioctl_Lib.SIOCGIFMAP;
+		return Ioctl_Impl.SIOCGIFMAP;
 	}
 
 	@Override
 	protected int SIOCGIFMEM() {
-		return Ioctl_Lib.SIOCGIFMEM;
+		return Ioctl_Impl.SIOCGIFMEM;
 	}
 
 	@Override
 	protected int SIOCGIFMETRIC() {
-		return Ioctl_Lib.SIOCGIFMETRIC;
+		return Ioctl_Impl.SIOCGIFMETRIC;
 	}
 
 	@Override
 	protected int SIOCGIFMTU() {
-		return Ioctl_Lib.SIOCGIFMTU;
+		return Ioctl_Impl.SIOCGIFMTU;
 	}
 
 	@Override
 	protected int SIOCGIFNAME() {
-		return Ioctl_Lib.SIOCGIFNAME;
+		return Ioctl_Impl.SIOCGIFNAME;
 	}
 
 	@Override
 	protected int SIOCGIFNETMASK() {
-		return Ioctl_Lib.SIOCGIFNETMASK;
+		return Ioctl_Impl.SIOCGIFNETMASK;
 	}
 
 	@Override
 	protected int SIOCGIFPFLAGS() {
-		return Ioctl_Lib.SIOCGIFPFLAGS;
+		return Ioctl_Impl.SIOCGIFPFLAGS;
 	}
 
 	@Override
 	protected int SIOCGIFSLAVE() {
-		return Ioctl_Lib.SIOCGIFSLAVE;
+		return Ioctl_Impl.SIOCGIFSLAVE;
 	}
 
 	@Override
 	protected int SIOCGIFTXQLEN() {
-		return Ioctl_Lib.SIOCGIFTXQLEN;
+		return Ioctl_Impl.SIOCGIFTXQLEN;
 	}
 
 	@Override
 	protected int SIOCGRARP() {
-		return Ioctl_Lib.SIOCGRARP;
+		return Ioctl_Impl.SIOCGRARP;
 	}
 
 	@Override
 	protected int SIOCPROTOPRIVATE() {
-		return Ioctl_Lib.SIOCPROTOPRIVATE;
+		return Ioctl_Impl.SIOCPROTOPRIVATE;
 	}
 
 	@Override
 	protected int SIOCRTMSG() {
-		return Ioctl_Lib.SIOCRTMSG;
+		return Ioctl_Impl.SIOCRTMSG;
 	}
 
 	@Override
 	protected int SIOCSARP() {
-		return Ioctl_Lib.SIOCSARP;
+		return Ioctl_Impl.SIOCSARP;
 	}
 
 	@Override
 	protected int SIOCSIFADDR() {
-		return Ioctl_Lib.SIOCSIFADDR;
+		return Ioctl_Impl.SIOCSIFADDR;
 	}
 
 	@Override
 	protected int SIOCSIFBR() {
-		return Ioctl_Lib.SIOCSIFBR;
+		return Ioctl_Impl.SIOCSIFBR;
 	}
 
 	@Override
 	protected int SIOCSIFBRDADDR() {
-		return Ioctl_Lib.SIOCSIFBRDADDR;
+		return Ioctl_Impl.SIOCSIFBRDADDR;
 	}
 
 	@Override
 	protected int SIOCSIFDSTADDR() {
-		return Ioctl_Lib.SIOCSIFDSTADDR;
+		return Ioctl_Impl.SIOCSIFDSTADDR;
 	}
 
 	@Override
 	protected int SIOCSIFENCAP() {
-		return Ioctl_Lib.SIOCSIFENCAP;
+		return Ioctl_Impl.SIOCSIFENCAP;
 	}
 
 	@Override
 	protected int SIOCSIFFLAGS() {
-		return Ioctl_Lib.SIOCSIFFLAGS;
+		return Ioctl_Impl.SIOCSIFFLAGS;
 	}
 
 	@Override
 	protected int SIOCSIFHWADDR() {
-		return Ioctl_Lib.SIOCSIFHWADDR;
+		return Ioctl_Impl.SIOCSIFHWADDR;
 	}
 
 	@Override
 	protected int SIOCSIFHWBROADCAST() {
-		return Ioctl_Lib.SIOCSIFHWBROADCAST;
+		return Ioctl_Impl.SIOCSIFHWBROADCAST;
 	}
 
 	@Override
 	protected int SIOCSIFLINK() {
-		return Ioctl_Lib.SIOCSIFLINK;
+		return Ioctl_Impl.SIOCSIFLINK;
 	}
 
 	@Override
 	protected int SIOCSIFMAP() {
-		return Ioctl_Lib.SIOCSIFMAP;
+		return Ioctl_Impl.SIOCSIFMAP;
 	}
 
 	@Override
 	protected int SIOCSIFMEM() {
-		return Ioctl_Lib.SIOCSIFMEM;
+		return Ioctl_Impl.SIOCSIFMEM;
 	}
 
 	@Override
 	protected int SIOCSIFMETRIC() {
-		return Ioctl_Lib.SIOCSIFMETRIC;
+		return Ioctl_Impl.SIOCSIFMETRIC;
 	}
 
 	@Override
 	protected int SIOCSIFMTU() {
-		return Ioctl_Lib.SIOCSIFMTU;
+		return Ioctl_Impl.SIOCSIFMTU;
 	}
 
 	@Override
 	protected int SIOCSIFNAME() {
-		return Ioctl_Lib.SIOCSIFNAME;
+		return Ioctl_Impl.SIOCSIFNAME;
 	}
 
 	@Override
 	protected int SIOCSIFNETMASK() {
-		return Ioctl_Lib.SIOCSIFNETMASK;
+		return Ioctl_Impl.SIOCSIFNETMASK;
 	}
 
 	@Override
 	protected int SIOCSIFPFLAGS() {
-		return Ioctl_Lib.SIOCSIFPFLAGS;
+		return Ioctl_Impl.SIOCSIFPFLAGS;
 	}
 
 	@Override
 	protected int SIOCSIFSLAVE() {
-		return Ioctl_Lib.SIOCSIFSLAVE;
+		return Ioctl_Impl.SIOCSIFSLAVE;
 	}
 
 	@Override
 	protected int SIOCSIFTXQLEN() {
-		return Ioctl_Lib.SIOCSIFTXQLEN;
+		return Ioctl_Impl.SIOCSIFTXQLEN;
 	}
 
 	@Override
 	protected int SIOCSRARP() {
-		return Ioctl_Lib.SIOCSRARP;
+		return Ioctl_Impl.SIOCSRARP;
 	}
 
 	@Override
 	protected int SIOGIFINDEX() {
-		return Ioctl_Lib.SIOGIFINDEX;
+		return Ioctl_Impl.SIOGIFINDEX;
 	}
 
 	@Override
 	protected int TCFLSH() {
-		return Ioctl_Lib.TCFLSH;
+		return Ioctl_Impl.TCFLSH;
 	}
 
 	@Override
 	protected int TCGETA() {
-		return Ioctl_Lib.TCGETA;
+		return Ioctl_Impl.TCGETA;
 	}
 
 	@Override
 	protected int TCGETS() {
-		return Ioctl_Lib.TCGETS;
+		return Ioctl_Impl.TCGETS;
 	}
 
 	@Override
 	protected int TCGETX() {
-		return Ioctl_Lib.TCGETX;
+		return Ioctl_Impl.TCGETX;
 	}
 
 	@Override
 	protected int TCSBRK() {
-		return Ioctl_Lib.TCSBRK;
+		return Ioctl_Impl.TCSBRK;
 	}
 
 	@Override
 	protected int TCSBRKP() {
-		return Ioctl_Lib.TCSBRKP;
+		return Ioctl_Impl.TCSBRKP;
 	}
 
 	@Override
 	protected int TCSETA() {
-		return Ioctl_Lib.TCSETA;
+		return Ioctl_Impl.TCSETA;
 	}
 
 	@Override
 	protected int TCSETAF() {
-		return Ioctl_Lib.TCSETAF;
+		return Ioctl_Impl.TCSETAF;
 	}
 
 	@Override
 	protected int TCSETAW() {
-		return Ioctl_Lib.TCSETAW;
+		return Ioctl_Impl.TCSETAW;
 	}
 
 	@Override
 	protected int TCSETS() {
-		return Ioctl_Lib.TCSETS;
+		return Ioctl_Impl.TCSETS;
 	}
 
 	@Override
 	protected int TCSETSF() {
-		return Ioctl_Lib.TCSETSF;
+		return Ioctl_Impl.TCSETSF;
 	}
 
 	@Override
 	protected Short TCSETSW() {
-		return Ioctl_Lib.TCSETSW;
+		return Ioctl_Impl.TCSETSW;
 	}
 
 	@Override
 	protected int TCSETX() {
-		return Ioctl_Lib.TCSETX;
+		return Ioctl_Impl.TCSETX;
 	}
 
 	@Override
 	protected int TCSETXF() {
-		return Ioctl_Lib.TCSETXF;
+		return Ioctl_Impl.TCSETXF;
 	}
 
 	@Override
 	protected int TCSETXW() {
-		return Ioctl_Lib.TCSETXW;
+		return Ioctl_Impl.TCSETXW;
 	}
 
 	@Override
 	protected int TCXONC() {
-		return Ioctl_Lib.TCXONC;
+		return Ioctl_Impl.TCXONC;
 	}
 
 	@Override
 	protected int TIOCCBRK() {
-		return Ioctl_Lib.TIOCCBRK;
+		return Ioctl_Impl.TIOCCBRK;
 	}
 
 	@Override
 	protected int TIOCCONS() {
-		return Ioctl_Lib.TIOCCONS;
+		return Ioctl_Impl.TIOCCONS;
 	}
 
 	@Override
 	protected int TIOCEXCL() {
-		return Ioctl_Lib.TIOCEXCL;
+		return Ioctl_Impl.TIOCEXCL;
 	}
 
 	@Override
 	protected int TIOCGDEV() {
-		return Ioctl_Lib.TIOCGDEV;
+		return Ioctl_Impl.TIOCGDEV;
 	}
 
 	@Override
 	protected int TIOCGETD() {
-		return Ioctl_Lib.TIOCGETD;
+		return Ioctl_Impl.TIOCGETD;
 	}
 
 	@Override
 	protected int TIOCGEXCL() {
-		return Ioctl_Lib.TIOCGEXCL;
+		return Ioctl_Impl.TIOCGEXCL;
 	}
 
 	@Override
 	protected int TIOCGICOUNT() {
-		return Ioctl_Lib.TIOCGICOUNT;
+		return Ioctl_Impl.TIOCGICOUNT;
 	}
 
 	@Override
 	protected int TIOCGLCKTRMIOS() {
-		return Ioctl_Lib.TIOCGLCKTRMIOS;
+		return Ioctl_Impl.TIOCGLCKTRMIOS;
 	}
 
 	@Override
 	protected int TIOCGPGRP() {
-		return Ioctl_Lib.TIOCGPGRP;
+		return Ioctl_Impl.TIOCGPGRP;
 	}
 
 	@Override
 	protected int TIOCGPKT() {
-		return Ioctl_Lib.TIOCGPKT;
+		return Ioctl_Impl.TIOCGPKT;
 	}
 
 	@Override
 	protected int TIOCGPTLCK() {
-		return Ioctl_Lib.TIOCGPTLCK;
+		return Ioctl_Impl.TIOCGPTLCK;
 	}
 
 	@Override
 	protected int TIOCGPTN() {
-		return Ioctl_Lib.TIOCGPTN;
+		return Ioctl_Impl.TIOCGPTN;
 	}
 
 	@Override
 	protected int TIOCGPTPEER() {
-		return Ioctl_Lib.TIOCGPTPEER;
+		return Ioctl_Impl.TIOCGPTPEER;
 	}
 
 	@Override
 	protected int TIOCGRS485() {
-		return Ioctl_Lib.TIOCGRS485;
+		return Ioctl_Impl.TIOCGRS485;
 	}
 
 	@Override
 	protected int TIOCGSERIAL() {
-		return Ioctl_Lib.TIOCGSERIAL;
+		return Ioctl_Impl.TIOCGSERIAL;
 	}
 
 	@Override
 	protected int TIOCGSID() {
-		return Ioctl_Lib.TIOCGSID;
+		return Ioctl_Impl.TIOCGSID;
 	}
 
 	@Override
 	protected int TIOCGSOFTCAR() {
-		return Ioctl_Lib.TIOCGSOFTCAR;
+		return Ioctl_Impl.TIOCGSOFTCAR;
 	}
 
 	@Override
 	protected int TIOCGWINSZ() {
-		return Ioctl_Lib.TIOCGWINSZ;
+		return Ioctl_Impl.TIOCGWINSZ;
 	}
 
 	@Override
 	protected int TIOCINQ() {
-		return Ioctl_Lib.TIOCINQ;
+		return Ioctl_Impl.TIOCINQ;
 	}
 
 	@Override
 	protected Short TIOCLINUX() {
-		return Ioctl_Lib.TIOCLINUX;
+		return Ioctl_Impl.TIOCLINUX;
 	}
 
 	@Override
 	protected int TIOCM_CAR() {
-		return Ioctl_Lib.TIOCM_CAR;
+		return Ioctl_Impl.TIOCM_CAR;
 	}
 
 	@Override
 	protected int TIOCM_CD() {
-		return Ioctl_Lib.TIOCM_CD;
+		return Ioctl_Impl.TIOCM_CD;
 	}
 
 	@Override
 	protected int TIOCM_CTS() {
-		return Ioctl_Lib.TIOCM_CTS;
+		return Ioctl_Impl.TIOCM_CTS;
 	}
 
 	@Override
 	protected int TIOCM_DSR() {
-		return Ioctl_Lib.TIOCM_DSR;
+		return Ioctl_Impl.TIOCM_DSR;
 	}
 
 	@Override
 	protected int TIOCM_DTR() {
-		return Ioctl_Lib.TIOCM_DTR;
+		return Ioctl_Impl.TIOCM_DTR;
 	}
 
 	@Override
 	protected int TIOCM_LE() {
-		return Ioctl_Lib.TIOCM_LE;
+		return Ioctl_Impl.TIOCM_LE;
 	}
 
 	@Override
 	protected int TIOCM_RI() {
-		return Ioctl_Lib.TIOCM_RI;
+		return Ioctl_Impl.TIOCM_RI;
 	}
 
 	@Override
 	protected int TIOCM_RNG() {
-		return Ioctl_Lib.TIOCM_RNG;
+		return Ioctl_Impl.TIOCM_RNG;
 	}
 
 	@Override
 	protected int TIOCM_RTS() {
-		return Ioctl_Lib.TIOCM_RTS;
+		return Ioctl_Impl.TIOCM_RTS;
 	}
 
 	@Override
 	protected int TIOCM_SR() {
-		return Ioctl_Lib.TIOCM_SR;
+		return Ioctl_Impl.TIOCM_SR;
 	}
 
 	@Override
 	protected int TIOCM_ST() {
-		return Ioctl_Lib.TIOCM_ST;
+		return Ioctl_Impl.TIOCM_ST;
 	}
 
 	@Override
 	protected int TIOCMBIC() {
-		return Ioctl_Lib.TIOCMBIC;
+		return Ioctl_Impl.TIOCMBIC;
 	}
 
 	@Override
 	protected int TIOCMBIS() {
-		return Ioctl_Lib.TIOCMBIS;
+		return Ioctl_Impl.TIOCMBIS;
 	}
 
 	@Override
 	protected int TIOCMGET() {
-		return Ioctl_Lib.TIOCMGET;
+		return Ioctl_Impl.TIOCMGET;
 	}
 
 	@Override
 	protected int TIOCMIWAIT() {
-		return Ioctl_Lib.TIOCMIWAIT;
+		return Ioctl_Impl.TIOCMIWAIT;
 	}
 
 	@Override
 	protected int TIOCMSET() {
-		return Ioctl_Lib.TIOCMSET;
+		return Ioctl_Impl.TIOCMSET;
 	}
 
 	@Override
 	protected int TIOCNOTTY() {
-		return Ioctl_Lib.TIOCNOTTY;
+		return Ioctl_Impl.TIOCNOTTY;
 	}
 
 	@Override
 	protected int TIOCNXCL() {
-		return Ioctl_Lib.TIOCNXCL;
+		return Ioctl_Impl.TIOCNXCL;
 	}
 
 	@Override
 	protected int TIOCOUTQ() {
-		return Ioctl_Lib.TIOCOUTQ;
+		return Ioctl_Impl.TIOCOUTQ;
 	}
 
 	@Override
 	protected int TIOCPKT() {
-		return Ioctl_Lib.TIOCPKT;
+		return Ioctl_Impl.TIOCPKT;
 	}
 
 	@Override
 	protected int TIOCPKT_DATA() {
-		return Ioctl_Lib.TIOCPKT_DATA;
+		return Ioctl_Impl.TIOCPKT_DATA;
 	}
 
 	@Override
 	protected int TIOCPKT_DOSTOP() {
-		return Ioctl_Lib.TIOCPKT_DOSTOP;
+		return Ioctl_Impl.TIOCPKT_DOSTOP;
 	}
 
 	@Override
 	protected int TIOCPKT_FLUSHREAD() {
-		return Ioctl_Lib.TIOCPKT_FLUSHREAD;
+		return Ioctl_Impl.TIOCPKT_FLUSHREAD;
 	}
 
 	@Override
 	protected int TIOCPKT_FLUSHWRITE() {
-		return Ioctl_Lib.TIOCPKT_FLUSHWRITE;
+		return Ioctl_Impl.TIOCPKT_FLUSHWRITE;
 	}
 
 	@Override
 	protected int TIOCPKT_IOCTL() {
-		return Ioctl_Lib.TIOCPKT_IOCTL;
+		return Ioctl_Impl.TIOCPKT_IOCTL;
 	}
 
 	@Override
 	protected int TIOCPKT_NOSTOP() {
-		return Ioctl_Lib.TIOCPKT_NOSTOP;
+		return Ioctl_Impl.TIOCPKT_NOSTOP;
 	}
 
 	@Override
 	protected int TIOCPKT_START() {
-		return Ioctl_Lib.TIOCPKT_START;
+		return Ioctl_Impl.TIOCPKT_START;
 	}
 
 	@Override
 	protected int TIOCPKT_STOP() {
-		return Ioctl_Lib.TIOCPKT_STOP;
+		return Ioctl_Impl.TIOCPKT_STOP;
 	}
 
 	@Override
 	protected int TIOCSBRK() {
-		return Ioctl_Lib.TIOCSBRK;
+		return Ioctl_Impl.TIOCSBRK;
 	}
 
 	@Override
 	protected int TIOCSCTTY() {
-		return Ioctl_Lib.TIOCSCTTY;
+		return Ioctl_Impl.TIOCSCTTY;
 	}
 
 	@Override
 	protected int TIOCSER_TEMT() {
-		return Ioctl_Lib.TIOCSER_TEMT;
+		return Ioctl_Impl.TIOCSER_TEMT;
 	}
 
 	@Override
 	protected int TIOCSERCONFIG() {
-		return Ioctl_Lib.TIOCSERCONFIG;
+		return Ioctl_Impl.TIOCSERCONFIG;
 	}
 
 	@Override
 	protected int TIOCSERGETLSR() {
-		return Ioctl_Lib.TIOCSERGETLSR;
+		return Ioctl_Impl.TIOCSERGETLSR;
 	}
 
 	@Override
 	protected int TIOCSERGETMULTI() {
-		return Ioctl_Lib.TIOCSERGETMULTI;
+		return Ioctl_Impl.TIOCSERGETMULTI;
 	}
 
 	@Override
 	protected int TIOCSERGSTRUCT() {
-		return Ioctl_Lib.TIOCSERGSTRUCT;
+		return Ioctl_Impl.TIOCSERGSTRUCT;
 	}
 
 	@Override
 	protected int TIOCSERGWILD() {
-		return Ioctl_Lib.TIOCSERGWILD;
+		return Ioctl_Impl.TIOCSERGWILD;
 	}
 
 	@Override
 	protected int TIOCSERSETMULTI() {
-		return Ioctl_Lib.TIOCSERSETMULTI;
+		return Ioctl_Impl.TIOCSERSETMULTI;
 	}
 
 	@Override
 	protected int TIOCSERSWILD() {
-		return Ioctl_Lib.TIOCSERSWILD;
+		return Ioctl_Impl.TIOCSERSWILD;
 	}
 
 	@Override
 	protected int TIOCSETD() {
-		return Ioctl_Lib.TIOCSETD;
+		return Ioctl_Impl.TIOCSETD;
 	}
 
 	@Override
 	protected int TIOCSIG() {
-		return Ioctl_Lib.TIOCSIG;
+		return Ioctl_Impl.TIOCSIG;
 	}
 
 	@Override
 	protected int TIOCSLCKTRMIOS() {
-		return Ioctl_Lib.TIOCSLCKTRMIOS;
+		return Ioctl_Impl.TIOCSLCKTRMIOS;
 	}
 
 	@Override
 	protected int TIOCSPGRP() {
-		return Ioctl_Lib.TIOCSPGRP;
+		return Ioctl_Impl.TIOCSPGRP;
 	}
 
 	@Override
 	protected int TIOCSPTLCK() {
-		return Ioctl_Lib.TIOCSPTLCK;
+		return Ioctl_Impl.TIOCSPTLCK;
 	}
 
 	@Override
 	protected int TIOCSRS485() {
-		return Ioctl_Lib.TIOCSRS485;
+		return Ioctl_Impl.TIOCSRS485;
 	}
 
 	@Override
 	protected int TIOCSSERIAL() {
-		return Ioctl_Lib.TIOCSSERIAL;
+		return Ioctl_Impl.TIOCSSERIAL;
 	}
 
 	@Override
 	protected int TIOCSSOFTCAR() {
-		return Ioctl_Lib.TIOCSSOFTCAR;
+		return Ioctl_Impl.TIOCSSOFTCAR;
 	}
 
 	@Override
 	protected int TIOCSTI() {
-		return Ioctl_Lib.TIOCSTI;
+		return Ioctl_Impl.TIOCSTI;
 	}
 
 	@Override
 	protected int TIOCSWINSZ() {
-		return Ioctl_Lib.TIOCSWINSZ;
+		return Ioctl_Impl.TIOCSWINSZ;
 	}
 
 	@Override
 	protected int TIOCVHANGUP() {
-		return Ioctl_Lib.TIOCVHANGUP;
+		return Ioctl_Impl.TIOCVHANGUP;
 	}
 
 	@Override
 	protected int TTYDEF_CFLAG() {
-		return Ioctl_Lib.TTYDEF_CFLAG;
+		return Ioctl_Impl.TTYDEF_CFLAG;
 	}
 
 	@Override
 	protected int TTYDEF_IFLAG() {
-		return Ioctl_Lib.TTYDEF_IFLAG;
+		return Ioctl_Impl.TTYDEF_IFLAG;
 	}
 
 	@Override
 	protected int TTYDEF_LFLAG() {
-		return Ioctl_Lib.TTYDEF_LFLAG;
+		return Ioctl_Impl.TTYDEF_LFLAG;
 	}
 
 	@Override
 	protected int TTYDEF_OFLAG() {
-		return Ioctl_Lib.TTYDEF_OFLAG;
+		return Ioctl_Impl.TTYDEF_OFLAG;
 	}
 
 	@Override
 	protected int TTYDEF_SPEED() {
-		return Ioctl_Lib.TTYDEF_SPEED;
+		return Ioctl_Impl.TTYDEF_SPEED;
 	}
 
 }

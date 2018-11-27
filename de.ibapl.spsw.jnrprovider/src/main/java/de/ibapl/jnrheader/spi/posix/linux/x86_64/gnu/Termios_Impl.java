@@ -1,9 +1,9 @@
-package de.ibapl.jnrheader.spi.linux.x86_64.gnu;
+package de.ibapl.jnrheader.spi.posix.linux.x86_64.gnu;
 
 import de.ibapl.jnrheader.Defined;
-import de.ibapl.jnrheader.spi.linux.Termios_Lib;
+import de.ibapl.jnrheader.spi.posix.linux.Termios_Generic;
 
-public class Termios_Impl extends Termios_Lib {
+public class Termios_Impl extends Termios_Generic {
 	public static final Defined _HAVE_STRUCT_TERMIOS_C_ISPEED = Defined.DEFINED;
 	public static final Defined _HAVE_STRUCT_TERMIOS_C_OSPEED = Defined.DEFINED;
 

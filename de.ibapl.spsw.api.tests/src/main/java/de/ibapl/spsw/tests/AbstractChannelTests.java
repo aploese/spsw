@@ -23,7 +23,7 @@ public abstract class AbstractChannelTests extends AbstractReadWriteTest {
 		final int writeStart = 2;
 		sendBuffer.position(writeStart);
 
-		long written = writeSpc.getChannel().write(sendBuffer);
+		long written = writeSpc.write(sendBuffer);
 		assertEquals(24, written);
 		assertEquals(sendBuffer.position(), sendBuffer.limit());
 
@@ -32,14 +32,14 @@ public abstract class AbstractChannelTests extends AbstractReadWriteTest {
 		recBuffer.position(0);
 		recBuffer.limit(2);
 
-		long read = readSpc.getChannel().read(recBuffer);
+		long read = readSpc.read(recBuffer);
 		assertEquals(2, read);
 		assertEquals(recBuffer.position(), recBuffer.limit());
 		recBuffer.flip();
 		assertEquals('c', (char)recBuffer.get());
 		assertEquals('d', (char)recBuffer.get());
 		recBuffer.limit(recBuffer.limit() + 5);
-		read = readSpc.getChannel().read(recBuffer);
+		read = readSpc.read(recBuffer);
 		assertEquals(5, read);
 		assertEquals(recBuffer.position(), recBuffer.limit());
 		recBuffer.flip();
