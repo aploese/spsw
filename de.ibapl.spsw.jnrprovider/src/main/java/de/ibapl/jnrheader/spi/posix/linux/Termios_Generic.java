@@ -90,23 +90,24 @@ public abstract class Termios_Generic extends Termios_H implements cfsetspeed, c
 	
 	@de.ibapl.jnrheader.NativeFunctions
 	protected interface NativeFunctions {
-		@speed_t
-		int cfgetispeed(@termios TermiosImpl termios);
 
 		@speed_t
-		int cfgetospeed(@termios TermiosImpl termios);
-
-		void cfmakeraw(@termios TermiosImpl termios);
+		int cfgetispeed(TermiosImpl termios);
 
 		@speed_t
-		int cfsetispeed(@termios TermiosImpl termios, @speed_t int speed);
+		int cfgetospeed(TermiosImpl termios);
+
+		void cfmakeraw(TermiosImpl termios);
+
+		@speed_t
+		int cfsetispeed(TermiosImpl termios, @speed_t int speed);
 
 		@int32_t
-		int cfsetospeed(@termios TermiosImpl termios, @speed_t int speed);
+		int cfsetospeed(TermiosImpl termios, @speed_t int speed);
 
 		// TODO POSIX ??? set both in and out
 		@int32_t
-		int cfsetspeed(@termios TermiosImpl termios, @speed_t int speed);
+		int cfsetspeed(TermiosImpl termios, @speed_t int speed);
 
 		@int32_t
 		int tcdrain(@int32_t int fildes);
@@ -118,7 +119,7 @@ public abstract class Termios_Generic extends Termios_H implements cfsetspeed, c
 		int tcflush(@int32_t int fildes, @int32_t int queue_selector);
 
 		@int32_t
-		int tcgetattr(@int32_t int fildes, @termios TermiosImpl termios);
+		int tcgetattr(@int32_t int fildes, TermiosImpl termios);
 
 		@pid_t
 		int tcgetsid(@int32_t int fildes);
@@ -127,7 +128,7 @@ public abstract class Termios_Generic extends Termios_H implements cfsetspeed, c
 		int tcsendbreak(@int32_t int fildes, @int32_t int duration);
 
 		@int32_t
-		int tcsetattr(@int32_t int fildes, @int32_t int optional_actions, @termios TermiosImpl termios);
+		int tcsetattr(@int32_t int fildes, @int32_t int optional_actions, TermiosImpl termios);
 	}
 
 	@Retention(RetentionPolicy.RUNTIME)
@@ -154,15 +155,7 @@ public abstract class Termios_Generic extends Termios_H implements cfsetspeed, c
 
 	}
 
-	@Retention(RetentionPolicy.RUNTIME)
-	@Target(value = { ElementType.PARAMETER, ElementType.METHOD, ElementType.TYPE })
-	@NativeDataType("termios")
-	public @interface termios {
-
-	}
-
-	@termios
-	public class TermiosImpl extends Struct {
+	private class TermiosImpl extends Struct {
 		@Termios_Generic.tcflag_t
 		public final int32_t c_iflag = new int32_t(); /* input mode flags */
 		@Termios_Generic.tcflag_t

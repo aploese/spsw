@@ -850,7 +850,7 @@ public class GenericWinSerialPortSocket extends AbstractSerialPortSocket<Generic
                 iioe.bytesTransferred = (int) dwBytesWritten.value;
                 throw iioe;
             } else {
-                if (winbase_H.GetLastError() == winerr_H.ERROR_IO_PENDING) {
+                if (winbase_H.GetLastError() == Winerr_H.ERROR_IO_PENDING) {
                     TimeoutIOException tioe = new TimeoutIOException();
                     tioe.bytesTransferred = (int) dwBytesWritten.value;
                     throw tioe;

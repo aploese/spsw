@@ -32,6 +32,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InterruptedIOException;
 import java.lang.ref.WeakReference;
+import java.nio.channels.AsynchronousCloseException;
 import java.time.Duration;
 import java.util.EnumSet;
 import java.util.Iterator;
@@ -1217,13 +1218,13 @@ public abstract class AbstractOnePortTest extends AbstractPortTest {
 			}
 		}).start();
 
-		InterruptedIOException iioe = assertThrows(InterruptedIOException.class, () -> {
+		AsynchronousCloseException ace = assertThrows(AsynchronousCloseException.class, () -> {
 			assertTimeoutPreemptively(Duration.ofMillis(1000), () -> {
 				LOG.log(Level.INFO, "Will write " + len + " bytes in one second to fill the output buffer");
 				writeSpc.getOutputStream().write(b);
 			});
 		});
-		LOG.log(Level.INFO, "Bytes: " + iioe.bytesTransferred + " of: " + len + " written MSG: " + iioe.getMessage());
+		LOG.log(Level.INFO, "Poert closed msg:" + ace.getMessage());
 
 		assertTrue(writeSpc.isClosed(), "Port was not closed!");
 		// Allow 200ms to recover -on win the next executed test may fail with port busy
