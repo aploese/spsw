@@ -1,4 +1,4 @@
-package de.ibapl.spsw.jnrprovider;
+package de.ibapl.spsw.jnhwprovider;
 
 import java.io.IOException;
 import java.io.InputStream;

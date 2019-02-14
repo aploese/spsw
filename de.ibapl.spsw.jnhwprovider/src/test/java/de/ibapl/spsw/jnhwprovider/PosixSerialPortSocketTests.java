@@ -17,8 +17,9 @@
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  * #L%
  */
-package de.ibapl.spsw.jnrprovider;
+package de.ibapl.spsw.jnhwprovider;
 
+import de.ibapl.spsw.jnhwprovider.PosixSerialPortSocket;
 import static org.junit.jupiter.api.Assertions.*;
 
 import java.io.IOException;

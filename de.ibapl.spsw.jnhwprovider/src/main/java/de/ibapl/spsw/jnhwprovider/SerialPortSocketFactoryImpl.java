@@ -17,7 +17,7 @@
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  * #L%
  */
-package de.ibapl.spsw.jnrprovider;
+package de.ibapl.spsw.jnhwprovider;
 
 import de.ibapl.jnhw.MultiarchTupelBuilder;
 import de.ibapl.jnhw.OS;
@@ -64,7 +64,7 @@ public class SerialPortSocketFactoryImpl implements SerialPortSocketFactory {
             case LINUX:
                 return new PosixSerialPortSocket(portName);
             case WINDOWS:
-                throw new RuntimeException("Not implemented yet");
+                return new GenericWinSerialPortSocket(portName);
             default:
                 throw new RuntimeException();
         }
@@ -208,8 +208,7 @@ public class SerialPortSocketFactoryImpl implements SerialPortSocketFactory {
     }
 
     protected List<String> getWindowsBasedPortNames() {
-        throw  new RuntimeException("Not implemented");
-        //return GenericWinSerialPortSocket.getWindowsBasedPortNames();
+        return GenericWinSerialPortSocket.getWindowsBasedPortNames();
     }
 
     protected List<String> getWindowsPortNames(String portToInclude, boolean hideBusyPorts) {

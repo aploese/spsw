@@ -35,7 +35,7 @@ import de.ibapl.spsw.api.SerialPortSocketFactory;
 import de.ibapl.spsw.api.Speed;
 import de.ibapl.spsw.api.StopBits;
 import de.ibapl.spsw.api.TimeoutIOException;
-import de.ibapl.spsw.jnrprovider.SerialPortSocketFactoryImpl;
+import de.ibapl.spsw.jnhwprovider.SerialPortSocketFactoryImpl;
 
 /**
  * 

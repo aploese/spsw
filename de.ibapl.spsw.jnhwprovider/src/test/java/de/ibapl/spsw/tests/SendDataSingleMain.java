@@ -36,7 +36,7 @@ import de.ibapl.spsw.api.Parity;
 import de.ibapl.spsw.api.SerialPortSocket;
 import de.ibapl.spsw.api.Speed;
 import de.ibapl.spsw.api.StopBits;
-import de.ibapl.spsw.jnrprovider.SerialPortSocketFactoryImpl;
+import de.ibapl.spsw.jnhwprovider.SerialPortSocketFactoryImpl;
 
 /**
  * 

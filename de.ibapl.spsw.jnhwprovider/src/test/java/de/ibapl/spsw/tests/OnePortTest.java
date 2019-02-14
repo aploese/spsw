@@ -34,7 +34,7 @@ import java.util.logging.Level;
 
 import org.junit.jupiter.api.Test;
 
-import de.ibapl.spsw.jnrprovider.PosixSerialPortSocket;
+import de.ibapl.spsw.jnhwprovider.PosixSerialPortSocket;
 import de.ibapl.spsw.tests.tags.DtrDsrTest;
 import de.ibapl.spsw.tests.tags.RtsCtsTest;
 

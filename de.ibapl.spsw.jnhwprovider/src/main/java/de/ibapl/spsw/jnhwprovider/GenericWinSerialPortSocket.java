@@ -1,4 +1,4 @@
-package de.ibapl.spsw.jnrprovider;
+package de.ibapl.spsw.jnhwprovider;
 
 import de.ibapl.jnhw.IntRef;
 import de.ibapl.jnhw.NativeErrorException;
