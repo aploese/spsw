@@ -1,0 +1,128 @@
+<?xml version="1.0"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>de.ibapl.spsw</groupId>
+        <artifactId>spsw-project</artifactId>
+        <version>2.1.0-SNAPSHOT</version>
+        <relativePath>..</relativePath>
+    </parent>
+
+    <artifactId>de.ibapl.spsw.jnhwprovider</artifactId>
+    <name>SPSW JNHW Provider</name>
+
+    <properties>
+        <license.licenseResolver>${project.baseUri}/../src/licenses</license.licenseResolver>
+        <license.licenseName>${license.licenseName.epl}</license.licenseName>
+        <make>make</make>
+    </properties>
+
+    <dependencies>
+        <dependency>
+            <groupId>org.osgi</groupId>
+            <artifactId>org.osgi.service.component.annotations</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>de.ibapl.spsw</groupId>
+            <artifactId>de.ibapl.spsw.api</artifactId>
+            <version>2.1.0-SNAPSHOT</version>
+        </dependency>
+        <dependency>
+            <groupId>de.ibapl.jnhw</groupId>
+            <artifactId>de.ibapl.jnhw.posix</artifactId>
+            <version>0.0.0-SNAPSHOT</version>
+        </dependency>
+        <dependency>
+            <groupId>de.ibapl.jnhw</groupId>
+            <artifactId>de.ibapl.jnhw.winapi</artifactId>
+            <version>0.0.0-SNAPSHOT</version>
+        </dependency>
+        <dependency>
+            <groupId>de.ibapl.spsw</groupId>
+            <artifactId>de.ibapl.spsw.api.test</artifactId>
+            <version>2.1.0-SNAPSHOT</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.osgi</groupId>
+            <artifactId>org.osgi.annotation</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.servicemix.bundles</groupId>
+            <artifactId>org.apache.servicemix.bundles.javax-inject</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter-api</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter-engine</artifactId>
+        </dependency>
+
+    </dependencies>
+
+    <profiles>
+        <profile>
+            <id>release</id>
+            <properties>
+                <!-- Exclude all HW tests -->
+                <excludeJunit5Tags>Baseline,DtrDsr,HighSpeed,LowSpeed,NotSupportedByDevice,RtsCts,SlowTest</excludeJunit5Tags>
+                <includeJunit5Tags />
+            </properties>
+        </profile>
+
+        <profile>
+            <id>BaselineTests</id>
+            <properties>
+                <excludeJunit5Tags />
+                <includeJunit5Tags>Baseline</includeJunit5Tags>
+            </properties>
+        </profile>
+        <profile>
+            <id>RtsCtsTests</id>
+            <properties>
+                <excludeJunit5Tags />
+                <includeJunit5Tags>RtsCts</includeJunit5Tags>
+            </properties>
+        </profile>
+
+    </profiles>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>compile</id>
+                        <phase>compile</phase>
+                        <goals>
+                            <goal>compile</goal>
+                        </goals>
+                        <configuration>
+                            <compilerArgs>
+                                <arg>-h</arg>
+                                <arg>${project.build.directory}/generated-sources/include/</arg>
+                            </compilerArgs>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <configuration>
+                    <groups>${includeJunit5Tags}</groups>
+                    <excludedGroups>${excludeJunit5Tags}</excludedGroups>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+
+    <description>Provider which accesses the native resources with a Java Native Runtime (JNR) binding.</description>
+</project>
