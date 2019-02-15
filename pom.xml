@@ -108,6 +108,7 @@
         <module>de.ibapl.spsw.api</module>
         <module>de.ibapl.spsw.api.tests</module>
         <module>de.ibapl.spsw.jniprovider</module>
+        <module>de.ibapl.spsw.jnhwprovider</module>
         <module>de.ibapl.spsw.provider.osgi-tests</module>
         <module>de.ibapl.spsw.provider.osgi-integration-tests</module>
         <module>de.ibapl.spsw.elfreader</module>

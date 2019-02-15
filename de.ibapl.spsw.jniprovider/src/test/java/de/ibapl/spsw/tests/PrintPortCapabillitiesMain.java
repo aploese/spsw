@@ -54,7 +54,7 @@ public class PrintPortCapabillitiesMain {
 			} else {
 				Properties p = new Properties();
 				p.load(is);
-				serialPortName = p.getProperty("port0");
+				serialPortName = p.getProperty("writePort");
 			}
 		}
 		SerialPortSocket serialPortSocket = new SerialPortSocketFactoryImpl().createSerialPortSocket(serialPortName);

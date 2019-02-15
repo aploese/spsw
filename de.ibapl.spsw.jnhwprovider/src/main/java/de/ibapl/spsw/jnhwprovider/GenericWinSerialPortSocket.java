@@ -2,6 +2,7 @@ package de.ibapl.spsw.jnhwprovider;
 
 import de.ibapl.jnhw.IntRef;
 import de.ibapl.jnhw.NativeErrorException;
+import de.ibapl.jnhw.winapi.Fileapi;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.util.LinkedList;
@@ -36,7 +37,6 @@ import static de.ibapl.jnhw.winapi.Winerror.ERROR_ACCESS_DENIED;
 import static de.ibapl.jnhw.winapi.Winerror.ERROR_FILE_NOT_FOUND;
 import static de.ibapl.jnhw.winapi.Winerror.ERROR_IO_PENDING;
 
-import static de.ibapl.jnhw.winapi.Winbase.INVALID_HANDLE_VALUE;
 import static de.ibapl.jnhw.winapi.Winbase.NOPARITY;
 import static de.ibapl.jnhw.winapi.Winbase.EVENPARITY;
 import static de.ibapl.jnhw.winapi.Winbase.MARKPARITY;
@@ -79,6 +79,7 @@ import static de.ibapl.jnhw.winapi.Fileapi.OPEN_EXISTING;
 import static de.ibapl.jnhw.winapi.Fileapi.FlushFileBuffers;
 import static de.ibapl.jnhw.winapi.Fileapi.ReadFile;
 import static de.ibapl.jnhw.winapi.Fileapi.WriteFile;
+import de.ibapl.jnhw.winapi.Ioapiset;
 
 import static de.ibapl.jnhw.winapi.Synchapi.CreateEventW;
 import static de.ibapl.jnhw.winapi.Synchapi.WaitForSingleObject;
@@ -86,13 +87,16 @@ import static de.ibapl.jnhw.winapi.Ioapiset.GetOverlappedResult;
 import static de.ibapl.jnhw.winapi.Minwinbase.OVERLAPPED;
 import static de.ibapl.jnhw.winapi.Minwindef.PHKEY;
 import static de.ibapl.jnhw.winapi.Minwindef.LPBYTE;
+import de.ibapl.jnhw.winapi.Winbase;
 import de.ibapl.jnhw.winapi.Winerror;
 import static de.ibapl.jnhw.winapi.Winnt.LPWSTR;
 import de.ibapl.jnhw.winapi.Winreg;
+import java.nio.channels.AsynchronousCloseException;
 
 public class GenericWinSerialPortSocket extends AbstractSerialPortSocket<GenericWinSerialPortSocket> {
 
-    private HANDLE hFile;
+    private final static HANDLE INVALID_HANDLE_VALUE = Winbase.INVALID_HANDLE_VALUE();
+    private HANDLE hFile = INVALID_HANDLE_VALUE;
 
     public static List<String> getWindowsBasedPortNames() {
         LinkedList<String> result = new LinkedList<>();
@@ -112,7 +116,7 @@ public class GenericWinSerialPortSocket extends AbstractSerialPortSocket<Generic
             lpData.clear();
             errorCode = RegEnumValueW(phkResult, dwIndex, lpValueName, lpType, lpData);
             if (errorCode == Winerror.ERROR_SUCCESS()) {
-                result.add(lpData.toString(true));
+                result.add(LPWSTR.stringValueOfNullTerminated(lpData));
                 dwIndex++;
                 lpValueName.clear();
             } else if (errorCode == Winerror.ERROR_NO_MORE_ITEMS()) {
@@ -138,7 +142,7 @@ public class GenericWinSerialPortSocket extends AbstractSerialPortSocket<Generic
     }
 
     private IOException createClosedOrNativeException(int errno, String formatString, Object... args) {
-        if (INVALID_HANDLE_VALUE().value == hFile.value) {
+        if (INVALID_HANDLE_VALUE.value == hFile.value) {
             return new IOException(PORT_IS_CLOSED);
         } else {
             return new IOException(String.format("Native port error on %s, \"%d\" %s", portName, errno,
@@ -378,9 +382,33 @@ public class GenericWinSerialPortSocket extends AbstractSerialPortSocket<Generic
     }
 
     @Override
+    public synchronized void close() throws IOException {
+        super.close();
+
+        final HANDLE _hFile = hFile;
+        hFile = INVALID_HANDLE_VALUE;
+// if only ReadIntervalTimeout is set and port is closed during pending read the read operation will hang forever...
+        try {
+            Ioapiset.CancelIo(_hFile);
+        } catch (NativeErrorException nee) {
+            //no-op we dont care
+        }
+        try {
+            Ioapiset.CancelIoEx(_hFile, null);
+        } catch (NativeErrorException nee) {
+            //no-op we dont care
+        }
+
+        try {
+            CloseHandle(_hFile);
+        } catch (NativeErrorException nee) {
+            throw new IOException("Can't close port", nee);
+        }
+    }
+
+    @Override
     public boolean isClosed() {
-        // TODO Auto-generated method stub
-        return false;
+        return INVALID_HANDLE_VALUE.value == hFile.value;
     }
 
     private boolean getCommModemStatus(int bitMask) throws IOException {
@@ -411,7 +439,7 @@ public class GenericWinSerialPortSocket extends AbstractSerialPortSocket<Generic
 
     @Override
     public boolean isOpen() {
-        return INVALID_HANDLE_VALUE().value != hFile.value;
+        return INVALID_HANDLE_VALUE.value != hFile.value;
     }
 
     @Override
@@ -531,9 +559,9 @@ public class GenericWinSerialPortSocket extends AbstractSerialPortSocket<Generic
             SetCommState(hFile, dcb);
         } catch (NativeErrorException nee) {
             if (nee.errno == ERROR_INVALID_PARAMETER()) {
-                throw new IllegalArgumentException("setParams: Wrong FlowControl\n GetLastError() == ERROR_INVALID_PARAMETER");
+                throw new IllegalArgumentException("setParams: Wrong params\n GetLastError() == ERROR_INVALID_PARAMETER");
             } else if (nee.errno == ERROR_GEN_FAILURE()) {
-                throw new IllegalArgumentException("setParams: Wrong FlowControl\n GetLastError() == ERROR_GEN_FAILURE");
+                throw new IllegalArgumentException("setParams: Wrong params\n GetLastError() == ERROR_GEN_FAILURE");
             } else {
                 throw createClosedOrNativeException(nee.errno, "setParams SetCommState");
             }
@@ -555,11 +583,10 @@ public class GenericWinSerialPortSocket extends AbstractSerialPortSocket<Generic
         }
         if ((parity != null) && (parity
                 != getParity(dcb.Parity()))) {
-            errorMsgs.append("Could not set stopBits!\n");
+            errorMsgs.append("Could not set parity!\n");
         }
-        if ((flowControls != null) && (flowControls
-                != getFlowControl(dcb))) {
-            errorMsgs.append("Could not set stopBits!");
+        if ((flowControls != null) && (!flowControls.equals(getFlowControl(dcb)))) {
+            errorMsgs.append("Could not set flowControl!");
         }
 
         if (errorMsgs.length()
@@ -572,7 +599,7 @@ public class GenericWinSerialPortSocket extends AbstractSerialPortSocket<Generic
     public void open(Speed speed, DataBits dataBits, StopBits stopBits, Parity parity, Set<FlowControl> flowControls)
             throws IOException {
 
-        if (INVALID_HANDLE_VALUE().value != hFile.value) {
+        if (INVALID_HANDLE_VALUE.value != hFile.value) {
             throw new IOException(PORT_IS_OPEN);
         }
 
@@ -607,7 +634,7 @@ public class GenericWinSerialPortSocket extends AbstractSerialPortSocket<Generic
                 CloseHandle(hFile);
             } catch (NativeErrorException nee1) {
             }
-            hFile.value = INVALID_HANDLE_VALUE().value;
+            hFile.value = INVALID_HANDLE_VALUE.value;
             throw new IOException(String.format("Not a serial port: (%s)", portName));
         }
 
@@ -619,7 +646,7 @@ public class GenericWinSerialPortSocket extends AbstractSerialPortSocket<Generic
                 CloseHandle(hFile);
             } catch (NativeErrorException nee) {
             }
-            hFile.value = INVALID_HANDLE_VALUE().value;
+            hFile.value = INVALID_HANDLE_VALUE.value;
             throw t;
         }
 
@@ -631,7 +658,7 @@ public class GenericWinSerialPortSocket extends AbstractSerialPortSocket<Generic
                 CloseHandle(hFile);
             } catch (NativeErrorException nee1) {
             }
-            hFile.value = INVALID_HANDLE_VALUE().value;
+            hFile.value = INVALID_HANDLE_VALUE.value;
             throw new IOException("Open GetCommTimeouts");
         }
 
@@ -648,7 +675,7 @@ public class GenericWinSerialPortSocket extends AbstractSerialPortSocket<Generic
                 CloseHandle(hFile);
             } catch (NativeErrorException nee1) {
             }
-            hFile.value = INVALID_HANDLE_VALUE().value;
+            hFile.value = INVALID_HANDLE_VALUE.value;
 
             throw new IOException("Open SetCommTimeouts");
         }
@@ -764,8 +791,52 @@ public class GenericWinSerialPortSocket extends AbstractSerialPortSocket<Generic
     @Override
     public void setTimeouts(int interByteReadTimeout, int overallReadTimeout, int overallWriteTimeout)
             throws IOException {
-        // TODO Auto-generated method stub
+        COMMTIMEOUTS commTimeouts = new COMMTIMEOUTS(true);
 
+        if (overallWriteTimeout < 0) {
+            throw new IllegalArgumentException("setTimeouts: overallWriteTimeout must >= 0");
+        } else if (overallWriteTimeout == MAXDWORD()) {
+            //MAXDWORD has a special meaning...
+            overallWriteTimeout = MAXDWORD() - 1;
+        }
+
+        if (overallReadTimeout < 0) {
+            throw new IllegalArgumentException("setTimeouts: overallReadTimeout must >= 0");
+        } else if (overallReadTimeout == MAXDWORD()) {
+            //MAXDWORD has a special meaning...
+            overallReadTimeout = MAXDWORD() - 1;
+        }
+
+        if (interByteReadTimeout < 0) {
+            throw new IllegalArgumentException("setReadTimeouts: interByteReadTimeout must >= 0");
+        } else if (interByteReadTimeout == MAXDWORD()) {
+            //MAXDWORD has a special meaning...
+            interByteReadTimeout = MAXDWORD() - 1;
+        }
+
+        if ((interByteReadTimeout == 0) && (overallReadTimeout > 0)) {
+            //This fits best for wait a timeout and have no interByteReadTimeout see also getInterbyteReadTimeout for reading back
+            commTimeouts.ReadIntervalTimeout(MAXDWORD());
+            commTimeouts.ReadTotalTimeoutMultiplier(MAXDWORD());
+            commTimeouts.ReadTotalTimeoutConstant(overallReadTimeout);
+        } else {
+            commTimeouts.ReadIntervalTimeout(interByteReadTimeout);
+            commTimeouts.ReadTotalTimeoutMultiplier(0);
+            commTimeouts.ReadTotalTimeoutConstant(overallReadTimeout);
+        }
+
+        commTimeouts.WriteTotalTimeoutMultiplier(0);
+        commTimeouts.WriteTotalTimeoutConstant(overallWriteTimeout);
+
+        try {
+            SetCommTimeouts(hFile, commTimeouts);
+        } catch (NativeErrorException nee) {
+            if (nee.errno == ERROR_INVALID_PARAMETER()) {
+                throw new IllegalArgumentException("setTimeouts: Wrong Timeouts");
+            } else {
+                throw createClosedOrNativeException(nee.errno, "setTimeouts SetCommTimeouts");
+            }
+        }
     }
 
     @Override
@@ -846,8 +917,8 @@ public class GenericWinSerialPortSocket extends AbstractSerialPortSocket<Generic
                     CloseHandle(overlapped.hEvent());
                 } catch (NativeErrorException nee1) {
                 }
-                if (INVALID_HANDLE_VALUE().value == hFile.value) {
-                    return -1;
+                if (INVALID_HANDLE_VALUE.value == hFile.value) {
+                    throw new AsynchronousCloseException();
                 } else {
                     throw new InterruptedIOException("Error readBytes(GetLastError):" + nee.errno);
                 }
@@ -860,8 +931,8 @@ public class GenericWinSerialPortSocket extends AbstractSerialPortSocket<Generic
                 CloseHandle(overlapped.hEvent());
             } catch (NativeErrorException nee2) {
             }
-            if (INVALID_HANDLE_VALUE().value == hFile.value) {
-                return -1;
+            if (INVALID_HANDLE_VALUE.value == hFile.value) {
+                throw new AsynchronousCloseException();
             } else {
                 throw new InterruptedIOException("Error readBytes (WaitForSingleObject)");
             }
@@ -870,14 +941,14 @@ public class GenericWinSerialPortSocket extends AbstractSerialPortSocket<Generic
         IntRef dwBytesRead = new IntRef(0);
 
         try {
-            GetOverlappedResult(hFile, overlapped, dwBytesRead, false);
+            GetOverlappedResult(hFile, overlapped, dwBytesRead, false, b);
         } catch (NativeErrorException nee) {
             try {
                 CloseHandle(overlapped.hEvent());
             } catch (NativeErrorException nee1) {
             }
-            if (INVALID_HANDLE_VALUE().value == hFile.value) {
-                return -1;
+            if (INVALID_HANDLE_VALUE.value == hFile.value) {
+                throw new AsynchronousCloseException();
             } else {
                 InterruptedIOException iioe = new InterruptedIOException("Error readBytes (GetOverlappedResult)");
                 iioe.bytesTransferred = (int) dwBytesRead.value;
@@ -890,14 +961,12 @@ public class GenericWinSerialPortSocket extends AbstractSerialPortSocket<Generic
         } catch (NativeErrorException nee) {
         }
 
-        b.limit(b.position() + (int) dwBytesRead.value);
-
         if (dwBytesRead.value > 0) {
             //Success
             return (int) dwBytesRead.value;
         } else if (dwBytesRead.value == 0) {
-            if (INVALID_HANDLE_VALUE().value == hFile.value) {
-                return -1;
+            if (INVALID_HANDLE_VALUE.value == hFile.value) {
+                throw new AsynchronousCloseException();
             } else {
                 TimeoutIOException tioe = new TimeoutIOException();
                 tioe.bytesTransferred = (int) dwBytesRead.value;
@@ -928,8 +997,8 @@ public class GenericWinSerialPortSocket extends AbstractSerialPortSocket<Generic
                     CloseHandle(overlapped.hEvent());
                 } catch (NativeErrorException nee1) {
                 };
-                if (INVALID_HANDLE_VALUE().value == hFile.value) {
-                    throw new InterruptedIOException(PORT_IS_CLOSED);
+                if (INVALID_HANDLE_VALUE.value == hFile.value) {
+                    throw new AsynchronousCloseException();
                 } else {
                     throw new InterruptedIOException("Error writeBytes (GetLastError): " + nee.errno);
                 }
@@ -942,8 +1011,8 @@ public class GenericWinSerialPortSocket extends AbstractSerialPortSocket<Generic
                 CloseHandle(overlapped.hEvent());
             } catch (NativeErrorException nee1) {
             }
-            if (INVALID_HANDLE_VALUE().value == hFile.value) {
-                throw new InterruptedIOException(PORT_IS_CLOSED);
+            if (INVALID_HANDLE_VALUE.value == hFile.value) {
+                throw new AsynchronousCloseException();
             } else {
                 throw new InterruptedIOException("Error writeBytes (WaitForSingleObject): " + waitResult);
             }
@@ -951,16 +1020,14 @@ public class GenericWinSerialPortSocket extends AbstractSerialPortSocket<Generic
 
         IntRef dwBytesWritten = new IntRef(0);
         try {
-            GetOverlappedResult(hFile, overlapped, dwBytesWritten, false);
+            GetOverlappedResult(hFile, overlapped, dwBytesWritten, false, b);
         } catch (NativeErrorException nee) {
             try {
                 CloseHandle(overlapped.hEvent());
             } catch (NativeErrorException nee1) {
             }
-            if (INVALID_HANDLE_VALUE().value == hFile.value) {
-                InterruptedIOException iioe = new InterruptedIOException(PORT_IS_CLOSED);
-                iioe.bytesTransferred = (int) dwBytesWritten.value;
-                throw iioe;
+            if (INVALID_HANDLE_VALUE.value == hFile.value) {
+                throw new AsynchronousCloseException();
             } else {
                 InterruptedIOException iioe = new InterruptedIOException("Error writeBytes (GetOverlappedResult) errno: " + nee.errno);
                 iioe.bytesTransferred = (int) dwBytesWritten.value;
@@ -973,11 +1040,9 @@ public class GenericWinSerialPortSocket extends AbstractSerialPortSocket<Generic
         } catch (NativeErrorException nee) {
         }
 
-        if (dwBytesWritten.value != b.remaining()) {
-            if (INVALID_HANDLE_VALUE().value == hFile.value) {
-                InterruptedIOException iioe = new InterruptedIOException(PORT_IS_CLOSED);
-                iioe.bytesTransferred = (int) dwBytesWritten.value;
-                throw iioe;
+        if (b.hasRemaining()) {
+            if (INVALID_HANDLE_VALUE.value == hFile.value) {
+                throw new AsynchronousCloseException();
             } else {
 //                if (winbase_H.GetLastError() == Winerr_H.ERROR_IO_PENDING) {
 //                    TimeoutIOException tioe = new TimeoutIOException();
@@ -992,8 +1057,6 @@ public class GenericWinSerialPortSocket extends AbstractSerialPortSocket<Generic
         }
 
         //Success
-        //TODO fix this for errors
-        b.limit(b.position() + (int) dwBytesWritten.value);
         return (int) dwBytesWritten.value;
     }
 
