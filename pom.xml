@@ -111,7 +111,6 @@
         <module>de.ibapl.spsw.jnhwprovider</module>
         <module>de.ibapl.spsw.provider.osgi-tests</module>
         <module>de.ibapl.spsw.provider.osgi-integration-tests</module>
-        <module>de.ibapl.spsw.elfreader</module>
     </modules>
 
     <!-- Dependency Management and Dependencies to Inherit -->
@@ -177,7 +176,7 @@
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-surefire-plugin</artifactId>
-                    <version>3.0.0-M2</version>
+                    <version>3.0.0-M3</version>
                 </plugin>
                 <plugin>
                     <groupId>org.codehaus.mojo</groupId>
@@ -193,11 +192,6 @@
                         <target>${compile.target}</target>
                         <encoding>${sourceEncoding}</encoding>
                     </configuration>
-                </plugin>
-                <plugin>
-                    <groupId>org.codehaus.mojo</groupId>
-                    <artifactId>native-maven-plugin</artifactId>
-                    <version>1.0-alpha-8</version>
                 </plugin>
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>

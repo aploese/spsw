@@ -42,6 +42,10 @@ public class TimeoutIOException extends InterruptedIOException {
 		super(message);
 	}
 
+	public TimeoutIOException(String message, int bytesTransferred) {
+		super(message);
+                this.bytesTransferred = bytesTransferred;
+	}
 	/**
 	 * Construct a new TimeoutIOException with no detailed message.
 	 */

@@ -89,7 +89,6 @@
                 <includeJunit5Tags>RtsCts</includeJunit5Tags>
             </properties>
         </profile>
-
     </profiles>
 
     <build>
@@ -124,5 +123,5 @@
         </plugins>
     </build>
 
-    <description>Provider which accesses the native resources with a Java Native Runtime (JNR) binding.</description>
+    <description>Provider which accesses the native resources with a Java Native Header Wrapper (JNHW) binding.</description>
 </project>

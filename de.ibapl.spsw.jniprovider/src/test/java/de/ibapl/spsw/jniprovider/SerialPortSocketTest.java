@@ -52,18 +52,6 @@ import de.ibapl.spsw.api.SerialPortSocketFactory;
  */
 public class SerialPortSocketTest {
 
-	// TODO add test methods here.
-	// The methods must be annotated with annotation @Test. For example:
-	//
-	// @Test
-	// public void hello() {}
-	@Test
-	public void testSPSWProps() {
-		URL u = AbstractSerialPortSocket.class.getClassLoader()
-				.getResource(SerialPortSocketFactoryImpl.SPSW_PROPERTIES);
-		assertNotNull(u);
-	}
-
 	@Test
 	public void testLoadLib() {
 		SerialPortSocketFactoryImpl spsf = new SerialPortSocketFactoryImpl();

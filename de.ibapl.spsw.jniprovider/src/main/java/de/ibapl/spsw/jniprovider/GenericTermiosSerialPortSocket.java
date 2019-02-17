@@ -47,7 +47,8 @@ public class GenericTermiosSerialPortSocket extends AbstractSerialPortSocket<Gen
 	 * The close event file descriptor or handle proper multi threaded closing for
 	 * this Port
 	 */
-	private int closeEventFd = -1;
+	private int closeEventReadFd = -1;
+	private int closeEventWriteFd = -1;
 
 	private int outByteTime = -1;
 	/**

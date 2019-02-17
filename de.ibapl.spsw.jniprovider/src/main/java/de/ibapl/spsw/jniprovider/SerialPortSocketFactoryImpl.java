@@ -27,6 +27,9 @@
  */
 package de.ibapl.spsw.jniprovider;
 
+import de.ibapl.jnhw.LibJnhwLoader;
+import de.ibapl.jnhw.MultiarchTupelBuilder;
+import de.ibapl.jnhw.OS;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -77,116 +80,19 @@ public class SerialPortSocketFactoryImpl implements SerialPortSocketFactory {
 	public SerialPortSocketFactoryImpl() {
 	}
 
-	private static boolean libLoaded;
-	private static String libName;
-	public final static String SPSW_PROPERTIES = "de/ibapl/spsw/jniprovider/spsw.properties";
-	private final static MultiarchTupelBuilder MULTIARCH_TUPEL_BUILDER = new MultiarchTupelBuilder();
+	private final static String LIB_SPSW_NAME = "spsw";
+	private final static int LIB_SPSW_VERSION = 0;
 
 	public static boolean isLibLoaded() {
-		return libLoaded;
+            return (LibJnhwLoader.isLibLoaded(LIB_SPSW_NAME));
 	}
 
 	public static String getLibName() {
-		return libName;
-	}
-
-	/**
-	 * Load the native library spsw. Only this is synchronized to minimize overhead
-	 * at runtime.
-	 * 
-	 * @return
-	 */
-	private static synchronized boolean loadNativeLib() {
-		if (libLoaded) {
-			LOG.log(Level.INFO, "Lib was Loaded");
-			return false;
-		}
-		LOG.log(Level.INFO, "java.library.path: \"{0}\"", System.getProperty("java.library.path"));
-		Properties p = new Properties();
-		try {
-			p.load(SerialPortSocketFactoryImpl.class.getClassLoader().getResourceAsStream(SPSW_PROPERTIES));
-		} catch (IOException ex) {
-			LOG.log(Level.SEVERE, "Can't find spsw.properties");
-			throw new RuntimeException("Can't load version information", ex);
-		}
-
-		for (String multiarchtupel : MULTIARCH_TUPEL_BUILDER.getMultiarchTupels()) {
-
-			libName = String.format("spsw-%s", p.getProperty("version." + multiarchtupel));
-
-			// Try it plain - OSGi will load with the bundle classloader - or if there are
-			// in the "java.library.path"
-			LOG.log(Level.INFO, "Try plain with libName: {0}", libName);
-			try {
-				System.loadLibrary(libName);
-				LOG.log(Level.INFO, "Lib loaded via System.loadLibrary(\"{0}\")", libName);
-				libLoaded = true;
-				return true;
-			} catch (UnsatisfiedLinkError ule) {
-				LOG.log(Level.INFO, "Native lib {0} not loaded: {1}", new String[] { libName, ule.getMessage() });
-			} catch (Throwable t) {
-				LOG.log(Level.INFO, "Native lib not loaded.", t);
-			}
-
-			// Figure out os and arch
-			final String libResourceName = String.format("lib/%s/%s", multiarchtupel, System.mapLibraryName(libName));
-			// Try from filesystem like the tests do
-			libName = SerialPortSocketFactoryImpl.class.getClassLoader().getResource(libResourceName).getFile();
-			if (new File(libName).exists()) {
-				// Unbundled aka not within a jar
-				LOG.log(Level.INFO, "Try from filesystem with libName: {0}", libName);
-				try {
-					System.load(libName);
-					LOG.log(Level.INFO, "Lib loaded via System.load(\"{0}\")", libName);
-					libLoaded = true;
-					return true;
-				} catch (UnsatisfiedLinkError ule) {
-					LOG.log(Level.INFO, "Native lib {0} not loaded: {1}", new String[] { libName, ule.getMessage() });
-				} catch (Throwable t) {
-					LOG.log(Level.INFO, "Native lib not loaded.", t);
-				}
-			}
-
-			// If nothing helps, do it the hard way: unpack to temp and load that.
-			File tmpLib = null;
-			try (InputStream is = SerialPortSocketFactoryImpl.class.getClassLoader()
-					.getResourceAsStream(libResourceName)) {
-				if (is == null) {
-					throw new RuntimeException("Cant find lib: " + libName + "in resources");
-				}
-				int splitPos = libName.lastIndexOf('.');
-				if (splitPos <= 0) {
-					// ERROR
-				}
-				tmpLib = File.createTempFile(libName.substring(0, splitPos), libName.substring(splitPos));
-				tmpLib.deleteOnExit();
-				try (FileOutputStream fos = new FileOutputStream(tmpLib)) {
-					byte[] buff = new byte[1024];
-					int i;
-					while ((i = is.read(buff)) > 0) {
-						fos.write(buff, 0, i);
-					}
-					fos.flush();
-				}
-				LOG.log(Level.INFO, "Try temp copy\nfrom:\t{0}\nto:\t{1}",
-						new String[] { libName, tmpLib.getAbsolutePath() });
-				libName = tmpLib.getAbsolutePath();
-				System.load(libName);
-				libLoaded = true;
-				LOG.log(Level.INFO, "Lib loaded via System.load(\"{0}\")", tmpLib.getAbsolutePath());
-				return true;
-			} catch (Throwable t) {
-				LOG.log(Level.SEVERE, "Can't load the lib \"" + tmpLib.getAbsolutePath() + "\" List System Properties",
-						t);
-			}
-		}
-		LOG.log(Level.SEVERE, "Giving up can't load the lib! Will list System Properties\n{0}",
-				new Object[] { MULTIARCH_TUPEL_BUILDER.listSystemProperties() });
-		throw new RuntimeException("Can't load spsw native lib, giving up! See logs for details!");
+		return LIB_SPSW_NAME;
 	}
 
 	protected String[] getWindowsBasedPortNames() {
-		if (!libLoaded) {
+		if (!isLibLoaded()) {
 			// Make sure lib is loaded to avoid Link error
 			loadNativeLib();
 		}
@@ -196,68 +102,59 @@ public class SerialPortSocketFactoryImpl implements SerialPortSocketFactory {
 	@Override
 	public SerialPortSocket createSerialPortSocket(String portName) {
 		// ServiceLoader instantiates this lazy so this is the last chance to do so
-		if (!libLoaded) {
+		if (!isLibLoaded()) {
 			loadNativeLib();
 		}
 
-		switch (MULTIARCH_TUPEL_BUILDER.getSimpleOsName()) {
-		case "linux":
+		switch (LibJnhwLoader.getOS()) {
+		case LINUX:
 			return new GenericTermiosSerialPortSocket(portName);
-		case "windows":
-			switch (MULTIARCH_TUPEL_BUILDER.os_name) {
-			case "Windows CE":
-				throw new UnsupportedOperationException("Windows CE is currently not supported yet");
-			default:
+		case WINDOWS:
 				return new GenericWinSerialPortSocket(portName);
-			}
 		default:
-			throw new UnsupportedOperationException(
-					MULTIARCH_TUPEL_BUILDER.os_name + " is currently not supported yet\nSystem.properties:\n"
-							+ MULTIARCH_TUPEL_BUILDER.listSystemProperties());
+			throw new UnsupportedOperationException(LibJnhwLoader.getOS() + " is currently not supported yet\nSystem.properties:\n");
 		}
 	}
 
 	protected String getPortnamesPath() {
-		switch (MULTIARCH_TUPEL_BUILDER.getSimpleOsName()) {
-		case "linux": {
+		switch (LibJnhwLoader.getOS()) {
+		case LINUX: {
 			return DEFAULT_LINUX_DEVICE_PATH;
 		}
-		case "SunOS": {
+		case SOLARIS: {
 			return DEFAULT_SUNOS_DEVICE_PATH;
 		}
-		case "Mac OS X":
-		case "Darwin": {
+		case MAC_OS_X: {
 			return DEFAULT_MACOS_DEVICE_PATH;
 		}
-		case "windows": {
+		case WINDOWS: {
 			return DEFAULT_WINDOWS_DEVICE_PATH;
 		}
 		default: {
 			LOG.log(Level.SEVERE, "Unknown OS, os.name: {0} mapped to: {1}",
-					new Object[] { System.getProperty("os.name"), MULTIARCH_TUPEL_BUILDER.os_name });
+					new Object[] { System.getProperty("os.name"), LibJnhwLoader.getOS() });
 			return null;
 		}
 		}
 	}
 
 	protected Pattern getPortnamesRegExp() {
-		switch (MULTIARCH_TUPEL_BUILDER.getSimpleOsName()) {
-		case "linux": {
+		switch (LibJnhwLoader.getOS()) {
+		case LINUX: {
 			return Pattern.compile(DEFAULT_LINUX_PORTNAME_PATTERN);
 		}
-		case "SunOS": {
+		case SOLARIS: {
 			return Pattern.compile(DEFAULT_SUNOS_PORTNAME_PATTERN);
 		}
-		case "Mac OS X":
-		case "Darwin": {
+		case MAC_OS_X: {
 			return Pattern.compile(DEFAULT_MACOS_PORTNAME_PATTERN);
 		}
-		case "windows": {
+		case WINDOWS: {
 			return Pattern.compile(DEFAULT_WINDOWS_PORTNAME_PATTERN);
 		}
 		default: {
 			LOG.log(Level.SEVERE, "Unknown OS, os.name: {0} mapped to: {1}",
-					new Object[] { System.getProperty("os.name"), MULTIARCH_TUPEL_BUILDER.os_name });
+					new Object[] { System.getProperty("os.name"), LibJnhwLoader.getOS()});
 			return null;
 		}
 		}
@@ -269,7 +166,7 @@ public class SerialPortSocketFactoryImpl implements SerialPortSocketFactory {
 	 */
 	@Override
 	public List<String> getPortNames(boolean hideBusyPorts) {
-		if ("windows".equals(MULTIARCH_TUPEL_BUILDER.getSimpleOsName())) {
+		if (OS.WINDOWS == LibJnhwLoader.getOS()) {
 			return getWindowsPortNames("", hideBusyPorts);
 		} else {
 			return getUnixBasedPortNames("", hideBusyPorts);
@@ -281,7 +178,7 @@ public class SerialPortSocketFactoryImpl implements SerialPortSocketFactory {
 		if (portToInclude == null || portToInclude.isEmpty()) {
 			throw new IllegalArgumentException("portToInclude is null or empty");
 		}
-		if ("windows".equals(MULTIARCH_TUPEL_BUILDER.getSimpleOsName())) {
+		if (OS.WINDOWS == LibJnhwLoader.getOS()) {
 			return getWindowsPortNames(portToInclude, hideBusyPorts);
 		} else {
 			return getUnixBasedPortNames(portToInclude, hideBusyPorts);
@@ -367,7 +264,7 @@ public class SerialPortSocketFactoryImpl implements SerialPortSocketFactory {
 	@PostConstruct
 	@Activate
 	public void activate() {
-		if (!libLoaded) {
+		if (!isLibLoaded()) {
 			loadNativeLib();
 		}
 	}
@@ -405,8 +302,8 @@ public class SerialPortSocketFactoryImpl implements SerialPortSocketFactory {
 	@Override
 	public void getPortNames(BiConsumer<String, Boolean> portNameConsumer) {
 		final Pattern pattern = getPortnamesRegExp();
-		switch (MULTIARCH_TUPEL_BUILDER.getSimpleOsName()) {
-		case "windows":
+		switch (LibJnhwLoader.getOS()) {
+		case WINDOWS:
 			String[] portNames = getWindowsBasedPortNames();
 			if (portNames == null) {
 				return;
@@ -445,5 +342,9 @@ public class SerialPortSocketFactoryImpl implements SerialPortSocketFactory {
 			});
 		}
 	}
+
+    private void loadNativeLib() {
+	       LibJnhwLoader.loadNativeLib(LIB_SPSW_NAME, LIB_SPSW_VERSION);
+    }
 
 }
