@@ -77,10 +77,11 @@ JNIEXPORT void JNICALL Java_de_ibapl_spsw_jniprovider_AbstractSerialPortSocket_c
 	(*env)->SetLongField(env, sps, spsw_fd, (uintptr_t)INVALID_HANDLE_VALUE);
 // if only ReadIntervalTimeout is set and port is closed during pending read the read operation will hang forever...
 	if (!CancelIo(hFile)) {
-		//no-op we dont care
-	}
-	if (!CancelIoEx(hFile, NULL)) {
-		//no-op we dont care
+            if (GetLastError() != ERROR_NOT_FOUND) {
+		throw_IOException_NativeError(env, "Can't cancel io for closing");
+                (*env)->SetLongField(env, sps, spsw_fd, (uintptr_t)hFile);
+                return;
+            }
 	}
 
 	if (!CloseHandle(hFile)) {

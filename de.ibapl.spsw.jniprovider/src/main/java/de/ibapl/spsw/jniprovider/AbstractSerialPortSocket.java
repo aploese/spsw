@@ -41,6 +41,7 @@ import de.ibapl.spsw.api.Parity;
 import de.ibapl.spsw.api.SerialPortSocket;
 import de.ibapl.spsw.api.Speed;
 import de.ibapl.spsw.api.StopBits;
+import java.nio.channels.AsynchronousCloseException;
 
 /**
  * Base class for {@linkplain GenericTermiosSerialPortSocket} and
@@ -53,12 +54,15 @@ import de.ibapl.spsw.api.StopBits;
 public abstract class AbstractSerialPortSocket<T extends AbstractSerialPortSocket<T>> implements SerialPortSocket {
 
     private native int read(ByteBuffer dst, int pos, int len) throws IOException;
-    private native int readBytes(byte[] b) throws IOException;;
+
+    private native int readBytes(byte[] b) throws IOException;
+
+    ;
 
 
-    private native int write(ByteBuffer src, int pos, int len)throws IOException;
+    private native int write(ByteBuffer src, int pos, int len) throws IOException;
+
     private native void writeBytes(byte[] b) throws IOException;
-
 
     @Override
     public int read(ByteBuffer dst) throws IOException {
@@ -96,7 +100,11 @@ public abstract class AbstractSerialPortSocket<T extends AbstractSerialPortSocke
 
         @Override
         public int read() throws IOException {
-            return AbstractSerialPortSocket.this.readSingle();
+            try {
+                return AbstractSerialPortSocket.this.readSingle();
+            } catch (AsynchronousCloseException ace) {
+                return -1;
+            }
         }
 
         @Override
@@ -107,7 +115,11 @@ public abstract class AbstractSerialPortSocket<T extends AbstractSerialPortSocke
                 return 0;
             }
 
-            return AbstractSerialPortSocket.this.readBytes(b);
+            try {
+                return AbstractSerialPortSocket.this.readBytes(b);
+            } catch (AsynchronousCloseException ace) {
+                return -1;
+            }
         }
 
         @Override
@@ -120,7 +132,11 @@ public abstract class AbstractSerialPortSocket<T extends AbstractSerialPortSocke
                 return 0;
             }
 
-            return AbstractSerialPortSocket.this.readBytes(b, off, len);
+            try {
+                return AbstractSerialPortSocket.this.readBytes(b, off, len);
+            } catch (AsynchronousCloseException ace) {
+                return -1;
+            }
         }
 
     }

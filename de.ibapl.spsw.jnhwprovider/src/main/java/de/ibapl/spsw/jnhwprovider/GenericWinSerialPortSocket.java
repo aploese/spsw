@@ -391,12 +391,11 @@ public class GenericWinSerialPortSocket extends AbstractSerialPortSocket<Generic
         try {
             Ioapiset.CancelIo(_hFile);
         } catch (NativeErrorException nee) {
-            //no-op we dont care
-        }
-        try {
-            Ioapiset.CancelIoEx(_hFile, null);
-        } catch (NativeErrorException nee) {
-            //no-op we dont care
+                 if (nee.errno != Winerror.ERROR_NOT_FOUND()) {
+                hFile = _hFile;
+		throw new IOException("Can't cancel io for closing", nee);
+            }
+       //no-op we dont care
         }
 
         try {

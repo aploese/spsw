@@ -9,7 +9,7 @@ extern "C" {
     int readBuffer(JNIEnv *env, jobject sps, void *buff, int len) {
         HANDLE hFile = (HANDLE) (uintptr_t) (*env)->GetLongField(env, sps, spsw_fd);
 
-        DWORD dwBytesRead = 0;
+        DWORD dwBytesRead = -1;
         OVERLAPPED overlapped;
         overlapped.Offset = 0;
         overlapped.OffsetHigh = 0;
@@ -19,7 +19,7 @@ extern "C" {
 
             if (GetLastError() != ERROR_IO_PENDING) {
                 if ((HANDLE) (uintptr_t) (*env)->GetLongField(env, sps, spsw_fd) == INVALID_HANDLE_VALUE) {
-                    //closed no-op
+                    throw_AsynchronousCloseException(env);
                 } else {
                     throw_IOException_NativeError(env,
                             "Error readBytes(GetLastError)");
@@ -31,7 +31,7 @@ extern "C" {
             //overlapped path
             if (WaitForSingleObject(overlapped.hEvent, INFINITE) != WAIT_OBJECT_0) {
                 if ((HANDLE) (uintptr_t) (*env)->GetLongField(env, sps, spsw_fd) == INVALID_HANDLE_VALUE) {
-                    //closed no-op
+                    throw_AsynchronousCloseException(env);
                 } else {
                     throw_IOException_NativeError(env,
                             "Error readBytes (WaitForSingleObject)");
@@ -43,13 +43,13 @@ extern "C" {
         }
 
         if (!GetOverlappedResult(hFile, &overlapped, &dwBytesRead, FALSE)) {
+            CloseHandle(overlapped.hEvent);
             if ((HANDLE) (uintptr_t) (*env)->GetLongField(env, sps, spsw_fd) == INVALID_HANDLE_VALUE) {
-                //closed no-op
+                throw_AsynchronousCloseException(env);
             } else {
                 throw_InterruptedIOExceptionWithError(env, dwBytesRead,
                         "Error readBytes (GetOverlappedResult)");
             }
-            CloseHandle(overlapped.hEvent);
             return dwBytesRead;
         }
 
@@ -60,7 +60,7 @@ extern "C" {
             return dwBytesRead;
         } else if (dwBytesRead == 0) {
             if ((HANDLE) (uintptr_t) (*env)->GetLongField(env, sps, spsw_fd) == INVALID_HANDLE_VALUE) {
-                //closed no-op
+                throw_AsynchronousCloseException(env);
             } else {
                 throw_TimeoutIOException(env, dwBytesRead);
             }
@@ -107,7 +107,7 @@ extern "C" {
     int writeBuffer(JNIEnv *env, jobject sps, void *buff, int len) {
         HANDLE hFile = (HANDLE) (uintptr_t) (*env)->GetLongField(env, sps, spsw_fd);
 
-        DWORD dwBytesWritten = 0;
+        DWORD dwBytesWritten = -1;
         OVERLAPPED overlapped;
         overlapped.Offset = 0;
         overlapped.OffsetHigh = 0;
