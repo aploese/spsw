@@ -4,19 +4,34 @@ AM_LDFLAGS = -no-undefined -version-info @JNHW_VERSION_INFO@
 
 LIB_SPSW_NAME=@JNHW_LIB_PREFIX@spsw@JNHW_LIB_SUFFIX@
 LIB_SPSW_RES_NAME=@JNHW_RESOURCES_DIR@/$(LIB_SPSW_NAME)
- 
+
 lib_LTLIBRARIES = libspsw.la
-noinst_LTLIBRARIES = libposix.la
-libspsw_la_LIBADD = ./libposix.la
+
+if USE_WIN_API
+noinst_LTLIBRARIES = libwin-api-spsw.la
+libspsw_la_LIBADD = ./libwin-api-spsw.la
+else
+noinst_LTLIBRARIES = libtermios-spsw.la
+libspsw_la_LIBADD = ./libtermios-spsw.la
+endif
 
 libspsw_la_SOURCES = \
- spsw-jni.c
-
-libposix_la_SOURCES = \
+ spsw-jni.c \
  Exceptions.c \
+ AbstractSerialPortSocketIO.c
+
+if USE_WIN_API
+libwin_api_spsw_la_SOURCES = \
+ WinApiCommon.c \
+ WinApiSettings.c \
+ WinApiIO.c
+else
+libtermios_spsw_la_SOURCES = \
  TermiosCommon.c \
  TermiosSettings.c \
  TermiosIO.c
+endif
+
 
 #hook into make all
 all-local: $(LIB_SPSW_RES_NAME)

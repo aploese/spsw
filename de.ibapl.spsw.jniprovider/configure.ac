@@ -51,12 +51,15 @@ AC_CHECK_HEADERS([sys/eventfd.h])
 
 AC_CHECK_HEADERS([poll.h termios.h sys/ioctl.h string.h stdlib.h stdint.h errno.h])
 
-AC_CHECK_HEADERS([windows.h])
+AC_CHECK_HEADERS([windows.h], [spsw_use_win=true], [spsw_use_win=false],[])
 
 # Checks for typedefs, structures, and compiler characteristics.
 
 # Checks for library functions.
 
 AC_CONFIG_FILES([Makefile src/Makefile src/main/Makefile src/main/native/Makefile])
+
+
+AM_CONDITIONAL([USE_WIN_API], [test x$spsw_use_win = xtrue])
 
 AC_OUTPUT

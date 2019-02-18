@@ -51,7 +51,7 @@
  * web-site: http://scream3r.org | http://code.google.com/p/java-simple-serial-connector/
  */
 #include "spsw-jni.h"
-#ifdef HAVE_TERMIOS_H
+
 #include <termios.h>
 #include <sys/ioctl.h>
 #include "de_ibapl_spsw_jniprovider_GenericTermiosSerialPortSocket.h"
@@ -876,5 +876,4 @@ JNIEXPORT jboolean JNICALL Java_de_ibapl_spsw_jniprovider_GenericTermiosSerialPo
 
 #ifdef __cplusplus
 }
-#endif
 #endif

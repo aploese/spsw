@@ -4,13 +4,13 @@
 extern "C" {
 #endif
 
+jfieldID spsw_fd; /* id for field 'fd'  */
 jfieldID spsw_portName; /* id for field 'portName'  */
 
 #ifdef HAVE_TERMIOS_H    
  jfieldID spsw_interByteReadTimeout; // id for field interByteReadTimeout
  jfieldID spsw_pollReadTimeout; // id for field overallReadTimeout
  jfieldID spsw_pollWriteTimeout; // id for field overallWriteTimeout
- jfieldID spsw_fd; /* id for field 'fd'  */
  jfieldID spsw_closeEventReadFd; /* id for field 'closeEventReadFd'  */
  jfieldID spsw_closeEventWriteFd; /* id for field 'closeEventWriteFd'  */
 #endif
@@ -109,8 +109,16 @@ JNIEXPORT jint JNICALL JNI_OnLoad(JavaVM *jvm, void *reserved) {
         return JNI_ERR;
     }
 #elif defined HAVE_WINDOWS_H
-//#else
-fail
+    //Get field IDs
+    spsw_fd = getFieldId(env, GENERIC_WIN_SERIAL_PORT_SOCKET, "fd", "J");
+    if (spsw_fd == NULL) {
+        return JNI_ERR;
+    }
+    spsw_portName = getFieldId(env, GENERIC_WIN_SERIAL_PORT_SOCKET, "portName", "Ljava/lang/String;");
+    if (spsw_portName == NULL) {
+        return JNI_ERR;
+    }
+    
 #endif
             
     return JNI_VERSION_1_4;
@@ -128,8 +136,8 @@ JNIEXPORT void JNICALL JNI_OnUnLoad(JavaVM *jvm, void *reserved) {
     spsw_pollWriteTimeout = 0;
     spsw_portName = 0;
 #elif defined HAVE_WINDOWS_H
-//#else
-fail
+#else
+    fail
 #endif
 
     if ((*jvm)->GetEnv(jvm, (void **) &env, JNI_VERSION_1_2)) {

@@ -1,11 +1,88 @@
 #ifndef _SPSW_JNI_H
 #define _SPSW_JNI_H
 
-#include <jni.h>
 #include "../../../config.h"
 
-#include "de_ibapl_spsw_jniprovider_AbstractSerialPortSocket.h"
+#ifdef __cplusplus
+extern "C" {
+#endif
 
+#if defined HAVE_TERMIOS_H
+#include <jni.h>
+#include <termios.h>
+
+#undef INVALID_FD
+#define INVALID_FD -1
+#define GENERIC_TERMIOS_SERIAL_PORT_SOCKET "de/ibapl/spsw/jniprovider/GenericTermiosSerialPortSocket"
+
+    extern jfieldID spsw_closeEventReadFd; /* id for field 'closeEventReadFd'  */
+    extern jfieldID spsw_closeEventWriteFd; /* id for field 'closeEventWriteFd'  */
+    extern jfieldID spsw_interByteReadTimeout; // id for field interByteReadTimeout
+    extern jfieldID spsw_pollReadTimeout; // id for field overallReadTimeout
+    extern jfieldID spsw_pollWriteTimeout; // id for field overallWriteTimeout
+    int setParams(JNIEnv *env, jobject sps, struct termios *settings, jint paramBitSet);
+
+#elif defined HAVE_WINDOWS_H
+#define GENERIC_WIN_SERIAL_PORT_SOCKET "de/ibapl/spsw/jniprovider/GenericWinSerialPortSocket"
+#define _WIN32_WINNT 0x600
+#include <jni.h>
+#include <windows.h>
+#undef INVALID_FD
+#define INVALID_FD INVALID_HANDLE_VALUE
+    int setParams(JNIEnv *env, jobject sps, DCB *dcb, jint paramBitSet);
+#else
+    fail
+#endif
+            //Exception names
+#define IO_EXCEPTION "java/io/IOException"
+#define TIMEOUT_IO_EXCEPTION "de/ibapl/spsw/api/TimeoutIOException"
+#define CLASS_NOT_FOUND_EXCEPTION "java/lang/ClassNotFoundException"
+#define NO_SUCH_FIELD_EXCEPTION "java/lang/NoSuchFieldException"
+#define NO_SUCH_METHOD_EXCEPTION "java/lang/NoSuchMethodException"
+#define ARRAY_INDEX_OUT_OF_BOUNDS_EXCEPTION "java/lang/ArrayIndexOutOfBoundsException"
+
+            //Cached
+            extern jfieldID spsw_portName; /* id for field 'portName'  */
+
+    extern jfieldID spsw_fd; /* id for field 'fd'  */
+
+
+    //Cached Exceptions
+    void throw_IOException_NativeError(JNIEnv *env, const char *msg);
+
+    void throw_ClosedOrNativeException(JNIEnv *env, jobject sps, const char *message);
+
+    void throw_IOException(JNIEnv *env, const char* msg, jstring portName);
+
+    void throw_TimeoutIOException(JNIEnv *env, int bytesTransferred);
+
+    void throw_AsynchronousCloseException(JNIEnv *env);
+
+    void throw_IllegalArgumentException(JNIEnv *env, const char *msg);
+
+    void throw_InterruptedIOExceptionWithError(JNIEnv *env, int bytesTransferred, const char *msg);
+
+    void throw_IOException_Opend(JNIEnv *env);
+
+    void throw_ClassNotFoundException(JNIEnv* env, const char* className);
+
+    void throw_NoSuchFieldException(JNIEnv* env, const char* className, const char* fieldName, const char* fieldType);
+
+    void throw_NoSuchMethodException(JNIEnv* env, const char* className, const char* fieldName, const char* fieldType);
+
+    jclass getGlobalClassRef(JNIEnv *env, const char* className);
+
+    jfieldID getFieldId(JNIEnv *env, const char* className, const char* fieldName, const char* fieldType);
+
+    jfieldID getFieldIdOfClassRef(JNIEnv *env, jclass clazz, const char* className, const char* fieldName, const char* fieldType);
+
+    jmethodID getMethodIdOfClassRef(JNIEnv *env, jclass clazz, const char* className, const char* methodName, const char* methodSignature);
+
+    int readBuffer(JNIEnv *env, jobject sps, void *buff, int len);
+
+    int writeBuffer(JNIEnv *env, jobject sps, void *buff, int len);
+
+#include "de_ibapl_spsw_jniprovider_AbstractSerialPortSocket.h"
 #undef SPSW_SPEED_0_BPS
 #define SPSW_SPEED_0_BPS de_ibapl_spsw_jniprovider_AbstractSerialPortSocket_SPEED_0_BPS
 #undef SPSW_SPEED_50_BPS
@@ -115,74 +192,7 @@
 #undef SPSW_NO_PARAMS_TO_SET
 #define SPSW_NO_PARAMS_TO_SET de_ibapl_spsw_jniprovider_AbstractSerialPortSocket_NO_PARAMS_TO_SET
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
-#if defined HAVE_TERMIOS_H
-#undef INVALID_FD
-#define INVALID_FD -1
-#define GENERIC_TERMIOS_SERIAL_PORT_SOCKET "de/ibapl/spsw/jniprovider/GenericTermiosSerialPortSocket"
-
-    extern jfieldID spsw_fd; /* id for field 'fd'  */
-    extern jfieldID spsw_closeEventReadFd; /* id for field 'closeEventReadFd'  */
-    extern jfieldID spsw_closeEventWriteFd; /* id for field 'closeEventWriteFd'  */
-    extern jfieldID spsw_interByteReadTimeout; // id for field interByteReadTimeout
-    extern jfieldID spsw_pollReadTimeout; // id for field overallReadTimeout
-    extern jfieldID spsw_pollWriteTimeout; // id for field overallWriteTimeout
-
-#elif defined HAVE_WINDOWS_H
-    fail
-#else
-    fail
-#endif
-
-
-    //Exception names
-#define IO_EXCEPTION "java/io/IOException"
-#define TIMEOUT_IO_EXCEPTION "de/ibapl/spsw/api/TimeoutIOException"
-#define CLASS_NOT_FOUND_EXCEPTION "java/lang/ClassNotFoundException"
-#define NO_SUCH_FIELD_EXCEPTION "java/lang/NoSuchFieldException"
-#define NO_SUCH_METHOD_EXCEPTION "java/lang/NoSuchMethodException"
-#define ARRAY_INDEX_OUT_OF_BOUNDS_EXCEPTION "java/lang/ArrayIndexOutOfBoundsException"
-    //Important class names
-
     void initExceptions(JNIEnv* env);
-
-    //Cached
-    extern jfieldID spsw_portName; /* id for field 'portName'  */
-
-
-    //Cached Exceptions
-    void throw_IOException_NativeError(JNIEnv *env, const char *msg);
-    
-    void throw_ClosedOrNativeException(JNIEnv *env, jobject sps, const char *message);
-    
-    void throw_IOException(JNIEnv *env, const char* msg, jstring portName);
-    
-    void throw_TimeoutIOException(JNIEnv *env, int bytesTransferred);
-    
-    void throw_AsynchronousCloseException(JNIEnv *env);
-    
-    void throw_IllegalArgumentException(JNIEnv *env, const char *msg);
-    
-    void throw_InterruptedIOExceptionWithError(JNIEnv *env, int bytesTransferred, const char *msg);
-    
-    void throw_IOException_Opend(JNIEnv *env);
-
-    void throw_ClassNotFoundException(JNIEnv* env, const char* className);
-
-    void throw_NoSuchFieldException(JNIEnv* env, const char* className, const char* fieldName, const char* fieldType);
-
-    void throw_NoSuchMethodException(JNIEnv* env, const char* className, const char* fieldName, const char* fieldType);
-
-    jclass getGlobalClassRef(JNIEnv *env, const char* className);
-
-    jfieldID getFieldId(JNIEnv *env, const char* className, const char* fieldName, const char* fieldType);
-
-    jfieldID getFieldIdOfClassRef(JNIEnv *env, jclass clazz, const char* className, const char* fieldName, const char* fieldType);
-
-    jmethodID getMethodIdOfClassRef(JNIEnv *env, jclass clazz, const char* className, const char* methodName, const char* methodSignature);
 
 #ifdef __cplusplus
 }

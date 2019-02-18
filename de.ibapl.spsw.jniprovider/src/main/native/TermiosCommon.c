@@ -1,6 +1,5 @@
 #include "spsw-jni.h"
 
-#ifdef HAVE_TERMIOS_H
 #include <termios.h>
 #include <unistd.h>
 #include <sys/ioctl.h>
@@ -16,9 +15,6 @@
 extern "C" {
 #endif
   
-//TODO move to header???    
-extern int setParams(JNIEnv *env, jobject sps, struct termios *settings, jint paramBitSet);
-
 /*
  * Class:     de_ibapl_spsw_jniprovider_AbstractSerialPortSocket
  * Method:    close0
@@ -263,5 +259,4 @@ JNIEXPORT void JNICALL Java_de_ibapl_spsw_jniprovider_GenericTermiosSerialPortSo
 
 #ifdef __cplusplus
 }
-#endif
 #endif    

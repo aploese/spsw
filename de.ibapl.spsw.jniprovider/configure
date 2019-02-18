@@ -636,6 +636,8 @@ ac_subst_vars='am__EXEEXT_FALSE
 am__EXEEXT_TRUE
 LTLIBOBJS
 LIBOBJS
+USE_WIN_API_FALSE
+USE_WIN_API_TRUE
 JNHW_COMMON_SRC_DIR
 JNI_HEADER_DIR
 JNHW_RESOURCES_DIR
@@ -13175,7 +13177,9 @@ if test "x$ac_cv_header_windows_h" = xyes; then :
   cat >>confdefs.h <<_ACEOF
 #define HAVE_WINDOWS_H 1
 _ACEOF
-
+ spsw_use_win=true
+else
+  spsw_use_win=false
 fi
 
 done
@@ -13186,6 +13190,16 @@ done
 # Checks for library functions.
 
 ac_config_files="$ac_config_files Makefile src/Makefile src/main/Makefile src/main/native/Makefile"
+
+
+
+ if test x$spsw_use_win = xtrue; then
+  USE_WIN_API_TRUE=
+  USE_WIN_API_FALSE='#'
+else
+  USE_WIN_API_TRUE='#'
+  USE_WIN_API_FALSE=
+fi
 
 
 cat >confcache <<\_ACEOF
@@ -13327,6 +13341,10 @@ Usually this means the macro was only invoked conditionally." "$LINENO" 5
 fi
 if test -z "${am__fastdepCC_TRUE}" && test -z "${am__fastdepCC_FALSE}"; then
   as_fn_error $? "conditional \"am__fastdepCC\" was never defined.
+Usually this means the macro was only invoked conditionally." "$LINENO" 5
+fi
+if test -z "${USE_WIN_API_TRUE}" && test -z "${USE_WIN_API_FALSE}"; then
+  as_fn_error $? "conditional \"USE_WIN_API\" was never defined.
 Usually this means the macro was only invoked conditionally." "$LINENO" 5
 fi
 
