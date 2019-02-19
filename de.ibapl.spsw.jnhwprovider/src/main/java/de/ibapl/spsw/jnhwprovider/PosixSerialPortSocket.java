@@ -152,10 +152,11 @@ public class PosixSerialPortSocket extends AbstractSerialPortSocket<PosixSerialP
     private int interByteReadTimeout = 100;
     private int pollReadTimeout = -1;
     private int pollWriteTimeout = -1;
-    private final static int CMSPAR_OR_PAREXT;
-    private final static boolean JNHW_HAVE_SYS_EVENTFD_H = Eventfd.HAVE_SYS_EVENTFD_H();
+    private final int CMSPAR_OR_PAREXT;
+    private final boolean JNHW_HAVE_SYS_EVENTFD_H;;
 
-    static {
+    public PosixSerialPortSocket(String portName) {
+        super(portName);
         int value;
         try {
             value = Termios.CMSPAR();
@@ -167,10 +168,7 @@ public class PosixSerialPortSocket extends AbstractSerialPortSocket<PosixSerialP
             }
         }
         CMSPAR_OR_PAREXT = value;
-    }
-
-    public PosixSerialPortSocket(String portName) {
-        super(portName);
+        JNHW_HAVE_SYS_EVENTFD_H = Eventfd.HAVE_SYS_EVENTFD_H();
     }
 
     @Override
