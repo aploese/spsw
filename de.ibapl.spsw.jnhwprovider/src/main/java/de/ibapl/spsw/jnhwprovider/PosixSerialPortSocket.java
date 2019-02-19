@@ -152,28 +152,21 @@ public class PosixSerialPortSocket extends AbstractSerialPortSocket<PosixSerialP
     private int interByteReadTimeout = 100;
     private int pollReadTimeout = -1;
     private int pollWriteTimeout = -1;
-    private final int CMSPAR_OR_PAREXT_OR_PARMRK;
+    private final int CMSPAR_OR_PAREXT;
     private final boolean JNHW_HAVE_SYS_EVENTFD_H;
-
-    ;
 
     public PosixSerialPortSocket(String portName) {
         super(portName);
-        int value;
+        int value = 0;
         try {
             value = Termios.CMSPAR();
         } catch (NotDefinedException nde) {
             try {
                 value = Termios.PAREXT();
             } catch (NotDefinedException nde1) {
-                try {
-                    value = Termios.PARMRK();
-                } catch (NotDefinedException nde2) {
-                    throw new RuntimeException("Neither CMSPAR nor PAREXT not PARMRK are defined in termios.h");
-                }
             }
         }
-        CMSPAR_OR_PAREXT_OR_PARMRK = value;
+        CMSPAR_OR_PAREXT = value;
         JNHW_HAVE_SYS_EVENTFD_H = Eventfd.HAVE_SYS_EVENTFD_H();
     }
 
@@ -326,14 +319,14 @@ public class PosixSerialPortSocket extends AbstractSerialPortSocket<PosixSerialP
         if ((termios.c_cflag() & PARENB()) == 0) {
             return Parity.NONE;
         } else if ((termios.c_cflag() & PARODD()) == 0) {
-            if ((termios.c_cflag() & CMSPAR_OR_PAREXT_OR_PARMRK) == 0) {
+            if ((termios.c_cflag() & CMSPAR_OR_PAREXT) == 0) {
                 return Parity.EVEN;
             } else {
                 return Parity.SPACE;
             }
         } else {
             // ODD or MARK
-            if ((termios.c_cflag() & CMSPAR_OR_PAREXT_OR_PARMRK) == 0) {
+            if ((termios.c_cflag() & CMSPAR_OR_PAREXT) == 0) {
                 return Parity.ODD;
             } else {
                 return Parity.MARK;
@@ -924,7 +917,7 @@ public class PosixSerialPortSocket extends AbstractSerialPortSocket<PosixSerialP
         }
 
         if (parity != null) {
-            termios.c_cflag(termios.c_cflag() & ~(PARENB() | PARODD() | CMSPAR_OR_PAREXT_OR_PARMRK)); // Clear parity settings
+            termios.c_cflag(termios.c_cflag() & ~(PARENB() | PARODD() | CMSPAR_OR_PAREXT)); // Clear parity settings
             switch (parity) {
                 case NONE:
                     termios.c_iflag(termios.c_iflag() & ~INPCK()); // switch parity input checking off
@@ -938,11 +931,11 @@ public class PosixSerialPortSocket extends AbstractSerialPortSocket<PosixSerialP
                     termios.c_iflag(termios.c_iflag() | INPCK());
                     break;
                 case MARK:
-                    termios.c_cflag(termios.c_cflag() | (PARENB() | PARODD() | CMSPAR_OR_PAREXT_OR_PARMRK));
+                    termios.c_cflag(termios.c_cflag() | (PARENB() | PARODD() | CMSPAR_OR_PAREXT));
                     termios.c_iflag(termios.c_iflag() | INPCK());
                     break;
                 case SPACE:
-                    termios.c_cflag(termios.c_cflag() | (PARENB() | CMSPAR_OR_PAREXT_OR_PARMRK));
+                    termios.c_cflag(termios.c_cflag() | (PARENB() | CMSPAR_OR_PAREXT));
                     termios.c_iflag(termios.c_iflag() | INPCK());
                     break;
                 default:

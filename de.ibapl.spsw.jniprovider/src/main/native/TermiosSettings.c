@@ -374,6 +374,8 @@ static int getParams(JNIEnv *env, jobject sps, jint* paramBitSet) {
             } else {
                 result |= SPSW_PARITY_SPACE;
             }
+#else
+             result |= SPSW_PARITY_EVEN;
 #endif
         } else {
             // ODD or MARK
@@ -389,6 +391,8 @@ static int getParams(JNIEnv *env, jobject sps, jint* paramBitSet) {
             } else {
                 result |= SPSW_PARITY_MARK;
             }
+#else
+            result |= SPSW_PARITY_ODD;
 #endif
         }
         if (!(result & SPSW_PARITY_MASK)) {
@@ -518,22 +522,26 @@ int setParams(JNIEnv *env, jobject sps, struct termios *settings, jint paramBitS
                 break;
             case SPSW_PARITY_MARK:
                 //Parity MARK
+                settings->c_iflag |= INPCK;
 #ifdef PAREXT
                 settings->c_cflag |= (PARENB | PARODD | PAREXT);
-                settings->c_iflag |= INPCK;
 #elif defined CMSPAR
                 settings->c_cflag |= (PARENB | PARODD | CMSPAR);
-                settings->c_iflag |= INPCK;
+#else
+//We can't set mark parity getParams will fail therefore
+                settings->c_cflag |= (PARENB | PARODD);
 #endif
                 break;
             case SPSW_PARITY_SPACE:
                 //Parity SPACE
+                settings->c_iflag |= INPCK;
 #ifdef PAREXT
                 settings->c_cflag |= (PARENB | PAREXT);
-                settings->c_iflag |= INPCK;
 #elif defined CMSPAR
                 settings->c_cflag |= (PARENB | CMSPAR);
-                settings->c_iflag |= INPCK;
+#else
+//We can't set space parity getParams will fail therefore
+                settings->c_cflag |= (PARENB);
 #endif
                 break;
             default:
