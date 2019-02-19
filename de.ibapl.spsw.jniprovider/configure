@@ -781,6 +781,7 @@ with_aix_soname
 with_gnu_ld
 with_sysroot
 enable_libtool_lock
+with_jni_include_dir
 '
       ac_precious_vars='build_alias
 host_alias
@@ -1448,6 +1449,7 @@ Optional Packages:
   --with-gnu-ld           assume the C compiler uses GNU ld [default=no]
   --with-sysroot[=DIR]    Search for dependent libraries within DIR (or the
                           compiler's sysroot if not specified).
+  --with-jni-include-dir  set the jni include dir manually
 
 Some influential environment variables:
   CC          C compiler command
@@ -12903,7 +12905,12 @@ fi
 
 
 
-# Check for jni header files.
+# Check or manually define jni header files.
+
+# Check whether --with-jni-include-dir was given.
+if test "${with_jni_include_dir+set}" = set; then :
+  withval=$with_jni_include_dir; JNI_INCLUDE_DIRS="$with_jni_include_dir"
+else
 
 
 JNI_INCLUDE_DIRS=""
@@ -13041,6 +13048,8 @@ if test "x$ac_cv_jni_header_path" != "xnone"; then
          JNI_INCLUDE_DIRS="$JNI_INCLUDE_DIRS $_JTOPDIR/include/$JINCSUBDIR"
     fi
   done
+fi
+
 fi
 
 
