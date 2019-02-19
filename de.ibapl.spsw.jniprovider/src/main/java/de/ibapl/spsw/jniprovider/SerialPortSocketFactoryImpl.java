@@ -27,17 +27,13 @@
  */
 package de.ibapl.spsw.jniprovider;
 
-import de.ibapl.jnhw.LibJnhwLoader;
-import de.ibapl.jnhw.MultiarchTupelBuilder;
+import de.ibapl.jnhw.NativeLibLoader;
 import de.ibapl.jnhw.OS;
 import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Properties;
 import java.util.Set;
 import java.util.function.BiConsumer;
 import java.util.logging.Level;
@@ -84,7 +80,7 @@ public class SerialPortSocketFactoryImpl implements SerialPortSocketFactory {
 	private final static int LIB_SPSW_VERSION = 0;
 
 	public static boolean isLibLoaded() {
-            return (LibJnhwLoader.isLibLoaded(LIB_SPSW_NAME));
+            return (NativeLibLoader.isLibLoaded(LIB_SPSW_NAME));
 	}
 
 	public static String getLibName() {
@@ -106,18 +102,18 @@ public class SerialPortSocketFactoryImpl implements SerialPortSocketFactory {
 			loadNativeLib();
 		}
 
-		switch (LibJnhwLoader.getOS()) {
+		switch (NativeLibLoader.getOS()) {
 		case LINUX:
 			return new GenericTermiosSerialPortSocket(portName);
 		case WINDOWS:
 				return new GenericWinSerialPortSocket(portName);
 		default:
-			throw new UnsupportedOperationException(LibJnhwLoader.getOS() + " is currently not supported yet\nSystem.properties:\n");
+			throw new UnsupportedOperationException(NativeLibLoader.getOS() + " is currently not supported yet\nSystem.properties:\n");
 		}
 	}
 
 	protected String getPortnamesPath() {
-		switch (LibJnhwLoader.getOS()) {
+		switch (NativeLibLoader.getOS()) {
 		case LINUX: {
 			return DEFAULT_LINUX_DEVICE_PATH;
 		}
@@ -132,14 +128,14 @@ public class SerialPortSocketFactoryImpl implements SerialPortSocketFactory {
 		}
 		default: {
 			LOG.log(Level.SEVERE, "Unknown OS, os.name: {0} mapped to: {1}",
-					new Object[] { System.getProperty("os.name"), LibJnhwLoader.getOS() });
+					new Object[] { System.getProperty("os.name"), NativeLibLoader.getOS() });
 			return null;
 		}
 		}
 	}
 
 	protected Pattern getPortnamesRegExp() {
-		switch (LibJnhwLoader.getOS()) {
+		switch (NativeLibLoader.getOS()) {
 		case LINUX: {
 			return Pattern.compile(DEFAULT_LINUX_PORTNAME_PATTERN);
 		}
@@ -154,7 +150,7 @@ public class SerialPortSocketFactoryImpl implements SerialPortSocketFactory {
 		}
 		default: {
 			LOG.log(Level.SEVERE, "Unknown OS, os.name: {0} mapped to: {1}",
-					new Object[] { System.getProperty("os.name"), LibJnhwLoader.getOS()});
+					new Object[] { System.getProperty("os.name"), NativeLibLoader.getOS()});
 			return null;
 		}
 		}
@@ -166,7 +162,7 @@ public class SerialPortSocketFactoryImpl implements SerialPortSocketFactory {
 	 */
 	@Override
 	public List<String> getPortNames(boolean hideBusyPorts) {
-		if (OS.WINDOWS == LibJnhwLoader.getOS()) {
+		if (OS.WINDOWS == NativeLibLoader.getOS()) {
 			return getWindowsPortNames("", hideBusyPorts);
 		} else {
 			return getUnixBasedPortNames("", hideBusyPorts);
@@ -178,7 +174,7 @@ public class SerialPortSocketFactoryImpl implements SerialPortSocketFactory {
 		if (portToInclude == null || portToInclude.isEmpty()) {
 			throw new IllegalArgumentException("portToInclude is null or empty");
 		}
-		if (OS.WINDOWS == LibJnhwLoader.getOS()) {
+		if (OS.WINDOWS == NativeLibLoader.getOS()) {
 			return getWindowsPortNames(portToInclude, hideBusyPorts);
 		} else {
 			return getUnixBasedPortNames(portToInclude, hideBusyPorts);
@@ -302,7 +298,7 @@ public class SerialPortSocketFactoryImpl implements SerialPortSocketFactory {
 	@Override
 	public void getPortNames(BiConsumer<String, Boolean> portNameConsumer) {
 		final Pattern pattern = getPortnamesRegExp();
-		switch (LibJnhwLoader.getOS()) {
+		switch (NativeLibLoader.getOS()) {
 		case WINDOWS:
 			String[] portNames = getWindowsBasedPortNames();
 			if (portNames == null) {
@@ -344,7 +340,7 @@ public class SerialPortSocketFactoryImpl implements SerialPortSocketFactory {
 	}
 
     private void loadNativeLib() {
-	       LibJnhwLoader.loadNativeLib(LIB_SPSW_NAME, LIB_SPSW_VERSION);
+	       NativeLibLoader.loadNativeLib(LIB_SPSW_NAME, LIB_SPSW_VERSION);
     }
 
 }
