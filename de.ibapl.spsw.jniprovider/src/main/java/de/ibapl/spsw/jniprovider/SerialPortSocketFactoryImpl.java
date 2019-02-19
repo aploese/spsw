@@ -105,6 +105,8 @@ public class SerialPortSocketFactoryImpl implements SerialPortSocketFactory {
 		switch (NativeLibLoader.getOS()) {
 		case LINUX:
 			return new GenericTermiosSerialPortSocket(portName);
+		case FREE_BSD:
+			return new GenericTermiosSerialPortSocket(portName);
 		case WINDOWS:
 				return new GenericWinSerialPortSocket(portName);
 		default:
@@ -116,6 +118,9 @@ public class SerialPortSocketFactoryImpl implements SerialPortSocketFactory {
 		switch (NativeLibLoader.getOS()) {
 		case LINUX: {
 			return DEFAULT_LINUX_DEVICE_PATH;
+		}
+		case FREE_BSD: {
+			return DEFAULT_FREE_BSD_DEVICE_PATH;
 		}
 		case SOLARIS: {
 			return DEFAULT_SUNOS_DEVICE_PATH;
@@ -138,6 +143,9 @@ public class SerialPortSocketFactoryImpl implements SerialPortSocketFactory {
 		switch (NativeLibLoader.getOS()) {
 		case LINUX: {
 			return Pattern.compile(DEFAULT_LINUX_PORTNAME_PATTERN);
+		}
+		case FREE_BSD: {
+			return Pattern.compile(DEFAULT_FREE_BSD_PORTNAME_PATTERN);
 		}
 		case SOLARIS: {
 			return Pattern.compile(DEFAULT_SUNOS_PORTNAME_PATTERN);

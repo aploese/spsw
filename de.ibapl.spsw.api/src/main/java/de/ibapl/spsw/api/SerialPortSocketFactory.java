@@ -62,6 +62,14 @@ public interface SerialPortSocketFactory {
 	 */
 	public final String DEFAULT_LINUX_PORTNAME_PATTERN = "(ttyS|ttyUSB|ttyACM|ttyAMA|rfcomm|ttyO)[0-9]{1,3}";
 	/**
+	 * {@value #DEFAULT_FREE_BSD_DEVICE_PATH}
+	 */
+	public final String DEFAULT_FREE_BSD_DEVICE_PATH = "/dev/";
+	/**
+	 * {@value #DEFAULT_FREE_BSD_PORTNAME_PATTERN}
+	 */
+	public final String DEFAULT_FREE_BSD_PORTNAME_PATTERN = "(cua)[0-9]{1,3}";
+	/**
 	 * {@value #DEFAULT_MACOS_DEVICE_PATH}
 	 */
 	public final String DEFAULT_MACOS_DEVICE_PATH = "/dev/";

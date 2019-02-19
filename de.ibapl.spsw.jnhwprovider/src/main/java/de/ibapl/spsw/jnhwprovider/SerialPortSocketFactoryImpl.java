@@ -63,10 +63,12 @@ public class SerialPortSocketFactoryImpl implements SerialPortSocketFactory {
         switch (MULTIARCH_TUPEL_BUILDER.getOs()) {
             case LINUX:
                 return new PosixSerialPortSocket(portName);
+            case FREE_BSD:
+                return new PosixSerialPortSocket(portName);
             case WINDOWS:
                 return new GenericWinSerialPortSocket(portName);
             default:
-                throw new RuntimeException();
+                throw new RuntimeException("Cant handle OS: " + MULTIARCH_TUPEL_BUILDER.getOs());
         }
     }
 
@@ -139,6 +141,8 @@ public class SerialPortSocketFactoryImpl implements SerialPortSocketFactory {
         switch (MULTIARCH_TUPEL_BUILDER.getOs()) {
             case LINUX:
                 return DEFAULT_LINUX_DEVICE_PATH;
+            case FREE_BSD:
+                return DEFAULT_FREE_BSD_DEVICE_PATH;
             case SOLARIS:
                 return DEFAULT_SUNOS_DEVICE_PATH;
             case MAC_OS_X:
@@ -156,6 +160,8 @@ public class SerialPortSocketFactoryImpl implements SerialPortSocketFactory {
         switch (MULTIARCH_TUPEL_BUILDER.getOs()) {
             case LINUX:
                 return Pattern.compile(DEFAULT_LINUX_PORTNAME_PATTERN);
+            case FREE_BSD:
+                return Pattern.compile(DEFAULT_FREE_BSD_PORTNAME_PATTERN);
             case SOLARIS:
                 return Pattern.compile(DEFAULT_SUNOS_PORTNAME_PATTERN);
             case MAC_OS_X:
