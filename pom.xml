@@ -48,11 +48,6 @@
     <!-- Licenses -->
     <licenses>
         <license>
-            <name>Eclipse Public License - v 2.0</name>
-            <url>https://www.eclipse.org/org/documents/epl-2.0/EPL-2.0.txt</url>
-            <distribution>repo</distribution>
-        </license>
-        <license>
             <name>GNU LESSER GENERAL PUBLIC LICENSE, Version 3</name>
             <url>http://www.gnu.org/licenses/lgpl.txt</url>
             <distribution>repo</distribution>
@@ -81,6 +76,41 @@
     <!--pluginRepositories> <pluginRepository> <id>bnd-snapshots</id> <url>https://bndtools.ci.cloudbees.com/job/bnd.master/lastSuccessfulBuild/artifact/dist/bundles/</url>
     <layout>default</layout> <snapshots> <enabled>true</enabled> </snapshots>
     </pluginRepository> </pluginRepositories -->
+    <profiles>
+
+        <profile>
+            <id>release</id>
+            <properties>
+                <!-- Exclude all HW tests -->
+                <excludeJunit5Tags>Baseline,DtrDsr,HighSpeed,LowSpeed,NotSupportedByDevice,RtsCts,SlowTest</excludeJunit5Tags>
+                <includeJunit5Tags />
+            </properties>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-gpg-plugin</artifactId>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+
+        <profile>
+            <id>BaselineTests</id>
+            <properties>
+                <excludeJunit5Tags />
+                <includeJunit5Tags>Baseline</includeJunit5Tags>
+            </properties>
+        </profile>
+        
+        <profile>
+            <id>RtsCtsTests</id>
+            <properties>
+                <excludeJunit5Tags />
+                <includeJunit5Tags>RtsCts</includeJunit5Tags>
+            </properties>
+        </profile>
+    </profiles>
 
 
     <distributionManagement>
@@ -202,16 +232,9 @@
                     </configuration>
                 </plugin>
                 <plugin>
-                    <groupId>org.codehaus.mojo</groupId>
+                    <groupId>com.mycila</groupId>
                     <artifactId>license-maven-plugin</artifactId>
-                    <version>1.16</version>
-                    <configuration>
-                        <excludes>
-                            <exclude>**/*.txt</exclude>
-                            <exclude>**/*.js</exclude>
-                            <exclude>**/*.json</exclude>
-                        </excludes>
-                    </configuration>
+                    <version>3.0</version>
                 </plugin>
 
                 <plugin>
@@ -319,21 +342,60 @@
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-release-plugin</artifactId>
             </plugin>
+            <plugin>
+                <groupId>com.mycila</groupId>
+                <artifactId>license-maven-plugin</artifactId>
+                <inherited>false</inherited>
+                <configuration>
+                    <failIfMissing>true</failIfMissing>
+                    <aggregate>true</aggregate>
+                    <strictCheck>true</strictCheck>
+                    <properties>
+                        <copyright-range>${project.inceptionYear}-2019</copyright-range>
+                    </properties>
+                </configuration>
+                <executions>
+                    <execution>
+                        <id>check-java-headers</id>
+                        <phase>verify</phase>
+                        <goals>
+                            <goal>check</goal>
+                        </goals>
+                        <configuration>
+                            <header>header-template-lgpl-java.txt</header>
+                            <mapping>
+                                <java>SLASHSTAR_STYLE</java>
+                            </mapping>
+                            <includes>
+                                <include>**/*.java</include>
+                            </includes>
+                            <excludes>
+                            </excludes>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>check-c-headers-and-sources</id>
+                        <phase>verify</phase>
+                        <goals>
+                            <goal>check</goal>
+                        </goals>
+                        <configuration>
+                            <header>header-template-lgpl-java.txt</header>
+                            <mapping>
+                                <c>SLASHSTAR_STYLE</c>
+                            </mapping>
+                            <includes>
+                                <include>**/*.c</include>
+                                <include>**/*.h</include>
+                            </includes>
+                            <excludes>
+                                <exclude>**/jni-includes/**</exclude>
+                            </excludes>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
         </plugins>
     </build>
-
-    <profiles>
-        <profile>
-            <id>release</id>
-            <build>
-                <plugins>
-                    <plugin>
-                        <groupId>org.apache.maven.plugins</groupId>
-                        <artifactId>maven-gpg-plugin</artifactId>
-                    </plugin>
-                </plugins>
-            </build>
-        </profile>
-    </profiles>
 
 </project>
