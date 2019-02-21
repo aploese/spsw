@@ -31,7 +31,6 @@ import de.ibapl.jnhw.NativeLibLoader;
 import de.ibapl.jnhw.OS;
 import java.io.File;
 import java.io.IOException;
-import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;

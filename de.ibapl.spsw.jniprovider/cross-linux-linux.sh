@@ -30,6 +30,6 @@ make clean
 make
 make install
 
-mvn install
+mvn install -P BaselineTests 
 
 

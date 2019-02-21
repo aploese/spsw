@@ -33,12 +33,12 @@
         <dependency>
             <groupId>de.ibapl.jnhw</groupId>
             <artifactId>de.ibapl.jnhw.posix</artifactId>
-            <version>0.0.0-SNAPSHOT</version>
+            <version>1.0.0-SNAPSHOT</version>
         </dependency>
         <dependency>
             <groupId>de.ibapl.jnhw</groupId>
             <artifactId>de.ibapl.jnhw.winapi</artifactId>
-            <version>0.0.0-SNAPSHOT</version>
+            <version>1.0.0-SNAPSHOT</version>
         </dependency>
         <dependency>
             <groupId>de.ibapl.spsw</groupId>
