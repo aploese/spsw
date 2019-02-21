@@ -390,6 +390,7 @@
                             </includes>
                             <excludes>
                                 <exclude>**/jni-includes/**</exclude>
+                                <exclude>de.ibapl.spsw.jniprovider/config.h</exclude>
                             </excludes>
                         </configuration>
                     </execution>
