@@ -1,6 +1,7 @@
 package de.ibapl.spsw.jnhwprovider;
 
 import de.ibapl.jnhw.IntRef;
+import de.ibapl.jnhw.LibJnhwPosixLoader;
 import de.ibapl.jnhw.NativeErrorException;
 import de.ibapl.jnhw.winapi.Fileapi;
 import java.io.IOException;
@@ -99,6 +100,9 @@ public class GenericWinSerialPortSocket extends AbstractSerialPortSocket<Generic
     private HANDLE hFile = INVALID_HANDLE_VALUE;
 
     public static List<String> getWindowsBasedPortNames() {
+        if (!LibJnhwPosixLoader.isLibJnhwLoaded()) {
+            throw new RuntimeException("Could not load native lib", LibJnhwPosixLoader.getLoadException());
+        }
         LinkedList<String> result = new LinkedList<>();
 
         PHKEY phkResult = new PHKEY();
@@ -134,6 +138,9 @@ public class GenericWinSerialPortSocket extends AbstractSerialPortSocket<Generic
 
     public GenericWinSerialPortSocket(String portName) {
         super(portName);
+        if (!LibJnhwPosixLoader.isLibJnhwLoaded()) {
+            throw new RuntimeException("Could not load native lib", LibJnhwPosixLoader.getLoadException());
+        }
     }
 
     private IOException createNativeException(int errno, String formatString, Object... args) {

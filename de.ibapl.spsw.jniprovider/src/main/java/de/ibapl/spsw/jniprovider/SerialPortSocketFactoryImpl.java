@@ -87,19 +87,21 @@ public class SerialPortSocketFactoryImpl implements SerialPortSocketFactory {
 		return LIB_SPSW_NAME;
 	}
 
-	protected String[] getWindowsBasedPortNames() {
+	protected LinkedList<String> getWindowsBasedPortNames() {
 		if (!isLibLoaded()) {
 			// Make sure lib is loaded to avoid Link error
-			loadNativeLib();
+			loadNativeLib(false);
 		}
-		return GenericWinSerialPortSocket.getWindowsBasedPortNames();
+                LinkedList<String> portNames = new LinkedList<>();
+		GenericWinSerialPortSocket.getWindowsBasedPortNames(portNames);
+                return portNames;
 	}
 
 	@Override
 	public SerialPortSocket createSerialPortSocket(String portName) {
 		// ServiceLoader instantiates this lazy so this is the last chance to do so
 		if (!isLibLoaded()) {
-			loadNativeLib();
+			loadNativeLib(false);
 		}
 
 		switch (NativeLibLoader.getOS()) {
@@ -195,27 +197,21 @@ public class SerialPortSocketFactoryImpl implements SerialPortSocketFactory {
 	 * @since 2.3.0
 	 */
 	protected List<String> getWindowsPortNames(String portToInclude, boolean hideBusyPorts) {
-		String[] portNames = getWindowsBasedPortNames();
-		if (portNames == null) {
-			return Collections.emptyList();
-		}
+		LinkedList<String> result = getWindowsBasedPortNames();
 		final Pattern pattern = getPortnamesRegExp();
-		List<String> result = new LinkedList<>();
-		for (String portName : portNames) {
+		for (String portName : result) {
 			if (pattern.matcher(portName).find()) {
 				if (hideBusyPorts) {
 					try (SerialPortSocket sp = createSerialPortSocket(portName)) {
 						sp.open();
-						result.add(portName);
 					} catch (IOException ex) {
 						if (!portToInclude.isEmpty() && portToInclude.equals(portName)) {
-							result.add(portName);
 						} else {
+							result.remove(portName);
 							LOG.log(Level.FINEST, "found busy port: " + portName, ex);
 						}
 					}
 				} else {
-					result.add(portName);
 				}
 			}
 		}
@@ -269,7 +265,7 @@ public class SerialPortSocketFactoryImpl implements SerialPortSocketFactory {
 	@Activate
 	public void activate() {
 		if (!isLibLoaded()) {
-			loadNativeLib();
+			loadNativeLib(false);
 		}
 	}
 
@@ -308,10 +304,7 @@ public class SerialPortSocketFactoryImpl implements SerialPortSocketFactory {
 		final Pattern pattern = getPortnamesRegExp();
 		switch (NativeLibLoader.getOS()) {
 		case WINDOWS:
-			String[] portNames = getWindowsBasedPortNames();
-			if (portNames == null) {
-				return;
-			}
+			LinkedList<String> portNames = getWindowsBasedPortNames();
 			for (String portName : portNames) {
 				if (pattern.matcher(portName).find()) {
 					boolean busy = true;
@@ -347,8 +340,14 @@ public class SerialPortSocketFactoryImpl implements SerialPortSocketFactory {
 		}
 	}
 
-    private void loadNativeLib() {
-	       NativeLibLoader.loadNativeLib(LIB_SPSW_NAME, LIB_SPSW_VERSION);
+    private boolean loadNativeLib(boolean supressException) {
+        if (NativeLibLoader.loadNativeLib(LIB_SPSW_NAME, LIB_SPSW_VERSION)) {
+            return true;
+        } else if (supressException) {
+            return false;
+        } else {
+            throw  new RuntimeException("Could not load native lib", NativeLibLoader.getLoadError(LIB_SPSW_NAME));
+        }
     }
 
 }

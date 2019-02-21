@@ -29,6 +29,7 @@ package de.ibapl.spsw.jniprovider;
 
 import java.io.IOException;
 import java.nio.channels.ByteChannel;
+import java.util.List;
 
 /**
 /**
@@ -39,7 +40,7 @@ import java.nio.channels.ByteChannel;
  */
 public class GenericWinSerialPortSocket extends AbstractSerialPortSocket<GenericWinSerialPortSocket> {
 
-	static native String[] getWindowsBasedPortNames();
+	static native void getWindowsBasedPortNames(List list);
 
 	/**
 	 * The file descriptor or handle for this Port

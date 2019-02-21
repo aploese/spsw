@@ -130,6 +130,7 @@ import static de.ibapl.jnhw.posix.Termios.tcsendbreak;
 import static de.ibapl.jnhw.posix.Termios.tcdrain;
 
 import de.ibapl.jnhw.IntRef;
+import de.ibapl.jnhw.LibJnhwPosixLoader;
 import de.ibapl.jnhw.linux.sys.Eventfd;
 import de.ibapl.jnhw.posix.Termios;
 import de.ibapl.spsw.api.DataBits;
@@ -157,6 +158,10 @@ public class PosixSerialPortSocket extends AbstractSerialPortSocket<PosixSerialP
 
     public PosixSerialPortSocket(String portName) {
         super(portName);
+        //Check that the libs are loaded
+        if (!LibJnhwPosixLoader.isLibJnhwLoaded()) {
+            throw new RuntimeException("Could not load native lib", LibJnhwPosixLoader.getLoadException());
+        }
         int value = 0;
         try {
             value = Termios.CMSPAR();

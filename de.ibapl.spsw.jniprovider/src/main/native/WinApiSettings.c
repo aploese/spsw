@@ -462,31 +462,31 @@ int setParams(JNIEnv *env, jobject sps, DCB *dcb, jint paramBitSet) {
 		if ((paramsRead & SPSW_SPEED_MASK)
 				!= (paramBitSet & SPSW_SPEED_MASK)) {
 			snprintf(buf, sizeof(buf),
-					"Could not set Speed! NATIVE: paramsRead(0x%08x) != paramBitSet(0x%08x)",
+					"Could not set Speed! NATIVE: paramsRead(0x%08lx) != paramBitSet(0x%08lx)",
 					paramsRead, paramBitSet);
 		} else if ((paramsRead & SPSW_DATA_BITS_MASK)
 				!= (paramBitSet & SPSW_DATA_BITS_MASK)) {
 			snprintf(buf, sizeof(buf),
-					"Could not set DataBits! NATIVE: paramsRead(0x%08x) != paramBitSet(0x%08x)",
+					"Could not set DataBits! NATIVE: paramsRead(0x%08lx) != paramBitSet(0x%08lx)",
 					paramsRead, paramBitSet);
 		} else if ((paramsRead & SPSW_STOP_BITS_MASK)
 				!= (paramBitSet & SPSW_STOP_BITS_MASK)) {
 			snprintf(buf, sizeof(buf),
-					"Could not set StopBits! NATIVE: paramsRead(0x%08x) != paramBitSet(0x%08x)",
+					"Could not set StopBits! NATIVE: paramsRead(0x%08lx) != paramBitSet(0x%08lx)",
 					paramsRead, paramBitSet);
 		} else if ((paramsRead & SPSW_PARITY_MASK)
 				!= (paramBitSet & SPSW_PARITY_MASK)) {
 			snprintf(buf, sizeof(buf),
-					"Could not set Parity! NATIVE: paramsRead(0x%08x) != paramBitSet(0x%08x)",
+					"Could not set Parity! NATIVE: paramsRead(0x%08lx) != paramBitSet(0x%08lx)",
 					paramsRead, paramBitSet);
 		} else if ((paramsRead & SPSW_FLOW_CONTROL_MASK)
 				!= (paramBitSet & SPSW_FLOW_CONTROL_MASK)) {
 			snprintf(buf, sizeof(buf),
-					"Could not set FlowControl! NATIVE: paramsRead(0x%08x) != paramBitSet(0x%08x)",
+					"Could not set FlowControl! NATIVE: paramsRead(0x%08lx) != paramBitSet(0x%08lx)",
 					paramsRead, paramBitSet);
 		} else {
 			snprintf(buf, sizeof(buf),
-					"Could not set unknown parameter! NATIVE: paramsRead(0x%08x) != paramBitSet(0x%08x)",
+					"Could not set unknown parameter! NATIVE: paramsRead(0x%08lx) != paramBitSet(0x%08lx)",
 					paramsRead, paramBitSet);
 
 		}
