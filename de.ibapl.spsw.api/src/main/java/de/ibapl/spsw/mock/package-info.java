@@ -23,5 +23,5 @@
  * Provides classes to mock the behavior of a
  * {@link de.ibapl.spsw.api.SerialPortSocket} for testing.
  */
-@org.osgi.annotation.versioning.Version("2.0.0")
+@org.osgi.annotation.versioning.Version("2.1.0")
 package de.ibapl.spsw.mock;

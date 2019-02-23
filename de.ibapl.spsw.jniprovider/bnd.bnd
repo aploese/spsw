@@ -1,0 +1,5 @@
+Export-Package: \
+	de.ibapl.spsw.ser2net,\
+	de.ibapl.spsw.logging,\
+	de.ibapl.jnhw.libloader,\
+	de.ibapl.spsw.api

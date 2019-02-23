@@ -25,5 +25,5 @@
  * 
  * @author Arne Plöse
  */
-@org.osgi.annotation.versioning.Version("2.0.0")
+@org.osgi.annotation.versioning.Version("2.1.0")
 package de.ibapl.spsw.api;

@@ -22,8 +22,8 @@
 package de.ibapl.spsw.jnhwprovider;
 
 import de.ibapl.jnhw.IntRef;
-import de.ibapl.jnhw.LibJnhwPosixLoader;
 import de.ibapl.jnhw.NativeErrorException;
+import de.ibapl.jnhw.util.posix.LibJnhwPosixLoader;
 import de.ibapl.jnhw.winapi.Fileapi;
 import java.io.IOException;
 import java.nio.ByteBuffer;

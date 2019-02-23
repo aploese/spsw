@@ -21,8 +21,8 @@
  */
 package de.ibapl.spsw.jnhwprovider;
 
-import de.ibapl.jnhw.MultiarchTupelBuilder;
-import de.ibapl.jnhw.OS;
+import de.ibapl.jnhw.libloader.MultiarchTupelBuilder;
+import de.ibapl.jnhw.libloader.OS;
 import java.io.File;
 import java.io.IOException;
 import java.util.Collections;

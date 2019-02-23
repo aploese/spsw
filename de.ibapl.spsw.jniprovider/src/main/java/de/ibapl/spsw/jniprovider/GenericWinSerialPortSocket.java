@@ -34,7 +34,7 @@ import java.util.List;
  */
 public class GenericWinSerialPortSocket extends AbstractSerialPortSocket<GenericWinSerialPortSocket> {
 
-	static native void getWindowsBasedPortNames(List list);
+	static native void getWindowsBasedPortNames(List<String> list);
 
 	/**
 	 * The file descriptor or handle for this Port

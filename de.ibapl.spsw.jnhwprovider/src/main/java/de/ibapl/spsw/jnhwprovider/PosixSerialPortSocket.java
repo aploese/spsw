@@ -132,9 +132,9 @@ import static de.ibapl.jnhw.posix.Termios.tcsendbreak;
 import static de.ibapl.jnhw.posix.Termios.tcdrain;
 
 import de.ibapl.jnhw.IntRef;
-import de.ibapl.jnhw.LibJnhwPosixLoader;
 import de.ibapl.jnhw.linux.sys.Eventfd;
 import de.ibapl.jnhw.posix.Termios;
+import de.ibapl.jnhw.util.posix.LibJnhwPosixLoader;
 import de.ibapl.spsw.api.DataBits;
 import de.ibapl.spsw.api.FlowControl;
 import de.ibapl.spsw.api.Parity;

@@ -22,6 +22,7 @@
 package de.ibapl.spsw.osgi.tests;
 
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.fail;
 
 import org.junit.Test;
 import org.osgi.framework.BundleContext;
@@ -62,14 +63,11 @@ public class SerialPortSocketFactoryTest {
 
 	private final BundleContext context = FrameworkUtil.getBundle(this.getClass()).getBundleContext();
 
-	;
-
 	// Why is ref == null ???
 	@Test
 	// @Ignore
 	public void testSerialPortSocketFactory() throws Exception {
 		System.out.println("RUN de.ibapl.spsw.osgi.tests.SerialPortSocketFactoryTest.testSerialPortSocketFactory()");
-
 		ServiceReference<SerialPortSocketFactory> ref = context.getServiceReference(SerialPortSocketFactory.class);
 		assertNotNull("No such service", ref);
 		SerialPortSocketFactory serialPortSocketFactory = context.getService(ref);
