@@ -269,7 +269,7 @@
                 <plugin>
                     <groupId>biz.aQute.bnd</groupId>
                     <artifactId>bnd-maven-plugin</artifactId>
-                    <version>4.1.0</version>
+                    <version>3.5.0</version>
                     <executions>
                         <execution>
                             <goals>
@@ -282,7 +282,7 @@
                 <plugin>
                     <groupId>biz.aQute.bnd</groupId>
                     <artifactId>bnd-testing-maven-plugin</artifactId>
-                    <version>4.1.0</version>
+                    <version>3.5.0</version>
                     <executions>
                         <execution>
                             <goals>
