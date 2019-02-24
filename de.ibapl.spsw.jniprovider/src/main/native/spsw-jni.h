@@ -61,6 +61,8 @@ extern "C" {
 #define NO_SUCH_FIELD_EXCEPTION "java/lang/NoSuchFieldException"
 #define NO_SUCH_METHOD_EXCEPTION "java/lang/NoSuchMethodException"
 #define ARRAY_INDEX_OUT_OF_BOUNDS_EXCEPTION "java/lang/ArrayIndexOutOfBoundsException"
+#define ASYNCHRONOUS_CLOSE_EXCEPTION "java/nio/channels/AsynchronousCloseException"
+#define INTERRUPTED_IO_EXCEPTION "java/io/InterruptedIOException"
 
             //Cached
             extern jfieldID spsw_portName; /* id for field 'portName'  */
@@ -213,7 +215,8 @@ extern "C" {
 #undef SPSW_NO_PARAMS_TO_SET
 #define SPSW_NO_PARAMS_TO_SET de_ibapl_spsw_jniprovider_AbstractSerialPortSocket_NO_PARAMS_TO_SET
 
-    void initExceptions(JNIEnv* env);
+    jboolean initExceptions(JNIEnv* env);
+    void cleanupExceptions(JNIEnv* env);
 
 #ifdef __cplusplus
 }

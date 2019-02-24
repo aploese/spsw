@@ -49,7 +49,7 @@ public class SerialPortSocketTest {
 	public void testLoadLib() {
 		SerialPortSocketFactoryImpl spsf = new SerialPortSocketFactoryImpl();
 		spsf.activate();
-		assertTrue(SerialPortSocketFactoryImpl.isLibLoaded());
+		assertTrue(SerialPortSocketFactoryImpl.touchNativeLib());
 	}
 
 	@Test

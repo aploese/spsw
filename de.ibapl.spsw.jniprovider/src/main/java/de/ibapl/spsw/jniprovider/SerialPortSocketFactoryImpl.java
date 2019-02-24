@@ -72,9 +72,23 @@ public class SerialPortSocketFactoryImpl implements SerialPortSocketFactory {
 
     private final static String LIB_SPSW_NAME = "spsw";
     private final static int LIB_SPSW_VERSION = 0;
-
-    public static boolean isLibLoaded() {
-        return (NativeLibLoader.isLibLoaded(LIB_SPSW_NAME));
+    private static Object LIB_SPSW_LOAD_RESULT;
+        
+    public static boolean touchNativeLib() {
+        if (LIB_SPSW_LOAD_RESULT instanceof String) {
+            return true;
+        } 
+        if (LIB_SPSW_LOAD_RESULT == null) {
+            try {   
+            LIB_SPSW_LOAD_RESULT = new NativeLibLoader() {}.loadNativeLib(LIB_SPSW_NAME, LIB_SPSW_VERSION);
+            } catch (IOException ioe) {
+                LIB_SPSW_LOAD_RESULT = ioe;
+            }
+        }
+        if (LIB_SPSW_LOAD_RESULT instanceof Throwable) {
+                throw new RuntimeException((Throwable)LIB_SPSW_LOAD_RESULT);
+        }
+        return true;
     }
 
     public static String getLibName() {
@@ -82,10 +96,8 @@ public class SerialPortSocketFactoryImpl implements SerialPortSocketFactory {
     }
 
     protected LinkedList<String> getWindowsBasedPortNames() {
-        if (!isLibLoaded()) {
-            // Make sure lib is loaded to avoid Link error
-            loadNativeLib(false);
-        }
+        // ServiceLoader instantiates this lazy so this is the last chance to do so
+        touchNativeLib();
         LinkedList<String> portNames = new LinkedList<>();
         GenericWinSerialPortSocket.getWindowsBasedPortNames(portNames);
         return portNames;
@@ -94,9 +106,7 @@ public class SerialPortSocketFactoryImpl implements SerialPortSocketFactory {
     @Override
     public SerialPortSocket createSerialPortSocket(String portName) {
         // ServiceLoader instantiates this lazy so this is the last chance to do so
-        if (!isLibLoaded()) {
-            loadNativeLib(false);
-        }
+        touchNativeLib();
 
         switch (NativeLibLoader.getOS()) {
             case LINUX:
@@ -259,9 +269,7 @@ public class SerialPortSocketFactoryImpl implements SerialPortSocketFactory {
     @PostConstruct
     @Activate
     public void activate() {
-        if (!isLibLoaded()) {
-            loadNativeLib(false);
-        }
+        touchNativeLib();
     }
 
     @PreDestroy
@@ -332,16 +340,6 @@ public class SerialPortSocketFactoryImpl implements SerialPortSocketFactory {
                     }
                     return false;
                 });
-        }
-    }
-
-    private boolean loadNativeLib(boolean supressException) {
-        if (NativeLibLoader.loadNativeLib(LIB_SPSW_NAME, LIB_SPSW_VERSION)) {
-            return true;
-        } else if (supressException) {
-            return false;
-        } else {
-            throw new RuntimeException("Could not load native lib", NativeLibLoader.getLoadError(LIB_SPSW_NAME));
         }
     }
 

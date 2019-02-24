@@ -69,7 +69,6 @@ Bundle-NativeCode: \
   osname=Linux; \
   processor=x86-64
 ]]></bnd>
-<!--
 Bundle-NativeCode: \
  lib/arm-linux-gnueabihf/libspsw.so.0; \
   osname=Linux; \
@@ -101,8 +100,6 @@ Bundle-NativeCode: \
  lib/x86-windows-pe32/libspsw.0.dll; \
   osname=Windows7; osname=Windows8; osname=Windows10; \
   processor=x86
-
-                    -->                
                 </configuration>
             </plugin>
             <plugin>

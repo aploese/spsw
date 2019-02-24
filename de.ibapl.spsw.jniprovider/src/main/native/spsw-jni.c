@@ -96,7 +96,9 @@ JNIEXPORT jint JNICALL JNI_OnLoad(JavaVM *jvm, void *reserved) {
         return JNI_ERR;
     }
 
-    initExceptions(env);
+    if (!initExceptions(env)) {
+        return JNI_ERR;
+    }
     
 #ifdef HAVE_TERMIOS_H    
     //Get field IDs
@@ -147,8 +149,13 @@ JNIEXPORT jint JNICALL JNI_OnLoad(JavaVM *jvm, void *reserved) {
 
 JNIEXPORT void JNICALL JNI_OnUnLoad(JavaVM *jvm, void *reserved) {
     JNIEnv *env;
+    //TODO delete GlobalRefs
+    if ((*jvm)->GetEnv(jvm, (void **) &env, JNI_VERSION_1_4)) {
+      cleanupExceptions(env);
+    }
+    
 #ifdef HAVE_TERMIOS_H    
-   
+    
     spsw_fd = 0;
     spsw_closeEventReadFd = 0;
     spsw_closeEventWriteFd = 0;
@@ -161,9 +168,6 @@ JNIEXPORT void JNICALL JNI_OnUnLoad(JavaVM *jvm, void *reserved) {
     fail
 #endif
 
-    if ((*jvm)->GetEnv(jvm, (void **) &env, JNI_VERSION_1_2)) {
-        return;
-    }
 }
 
 

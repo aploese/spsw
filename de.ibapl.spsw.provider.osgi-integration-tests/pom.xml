@@ -13,7 +13,7 @@
 
 	<artifactId>de.ibapl.spsw.provider.osgi-integrationtests</artifactId>
 	<name>SPSW OSGi Integration Tests</name>
-	<packaging>pom</packaging>
+	<packaging>jar</packaging>
 
 	<properties>
 		<license.licenseResolver>${project.baseUri}/../src/licenses</license.licenseResolver>
