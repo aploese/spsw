@@ -48,10 +48,13 @@ public enum Parity {
 	/**
 	 * 
 	 * No parity, the parity bit is always the mark signal condition (logical 1).
+         * Not available on all platforms (no POSIX). Not on MacOS and FreeBSD.
 	 */
 	MARK,
 	/**
 	 * No parity, the parity bit is always the space signal condition (logical 0).
+         * Not available on all platforms (no POSIX). Not on MacOS and FreeBSD.
+         * 
 	 */
 	SPACE;
 
