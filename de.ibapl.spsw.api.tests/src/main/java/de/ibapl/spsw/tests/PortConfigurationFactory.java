@@ -21,6 +21,8 @@
  */
 package de.ibapl.spsw.tests;
 
+import de.ibapl.jnhw.libloader.NativeLibLoader;
+import de.ibapl.jnhw.libloader.OS;
 import java.util.Iterator;
 import java.util.Set;
 
@@ -133,7 +135,17 @@ public class PortConfigurationFactory {
 
 			@Override
 			public boolean hasNext() {
-				return currentIndex < parities.length;
+                            //FreeBSD and macos have no Parity Mark and Space
+                            while (currentIndex < parities.length) {
+                                Parity parity = parities[currentIndex];
+                                if ((parity == Parity.MARK || parity == Parity.MARK) && 
+                                    (NativeLibLoader.getOS() == OS.FREE_BSD || NativeLibLoader.getOS() == OS.MAC_OS_X)) {
+                                currentIndex++; 
+                            } else {
+                                    return true;
+                                }
+                            }
+                            return false;
 			}
 
 			@Override
@@ -210,6 +222,10 @@ public class PortConfigurationFactory {
 	}
 
 	public PortConfigurationFactory setParity(Parity parity) {
+            if ((parity == Parity.MARK || parity == Parity.MARK) && 
+                                    (NativeLibLoader.getOS() == OS.FREE_BSD || NativeLibLoader.getOS() == OS.MAC_OS_X)) {
+                throw new IllegalArgumentException("Parity MARK and SPACE are not supported under MAcOS and FreeBSD");
+            }
 		portConfigurationImpl.parity = parity;
 		return this;
 	}

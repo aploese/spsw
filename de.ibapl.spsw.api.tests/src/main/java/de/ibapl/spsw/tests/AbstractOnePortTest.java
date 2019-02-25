@@ -21,6 +21,7 @@
  */
 package de.ibapl.spsw.tests;
 
+import de.ibapl.jnhw.libloader.NativeLibLoader;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNull;
@@ -811,9 +812,16 @@ public abstract class AbstractOnePortTest extends AbstractPortTest {
 		openDefault();
 
 		for (Parity p : Parity.values()) {
+                                if ((p == Parity.MARK || p == Parity.MARK) && 
+                                        (NativeLibLoader.getOS() == de.ibapl.jnhw.libloader.OS.FREE_BSD || NativeLibLoader.getOS() == de.ibapl.jnhw.libloader.OS.MAC_OS_X)) {
+                                    assertThrows(IllegalArgumentException.class, ()->{
+			readSpc.setParity(p);
+                                    });
+                                } else {
 			readSpc.setParity(p);
 			assertEquals(p, readSpc.getParity());
 		}
+                }
 	}
 
 	@BaselineTest
