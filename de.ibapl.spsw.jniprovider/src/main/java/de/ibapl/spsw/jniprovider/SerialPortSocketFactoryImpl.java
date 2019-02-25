@@ -50,6 +50,7 @@ import de.ibapl.spsw.api.SerialPortSocket;
 import de.ibapl.spsw.api.SerialPortSocketFactory;
 import de.ibapl.spsw.api.Speed;
 import de.ibapl.spsw.api.StopBits;
+import de.ibapl.spsw.api.TimeoutIOException;
 import java.util.Iterator;
 
 /**
@@ -63,6 +64,8 @@ public class SerialPortSocketFactoryImpl implements SerialPortSocketFactory {
 
     protected final static Logger LOG = Logger.getLogger("de.ibapl.spsw.jniprovider");
 
+    private static native boolean initNative(Class<TimeoutIOException> timeoutIOExceptionClass, Class<GenericTermiosSerialPortSocket> genericTermiosSerialPortSocketClass, Class<GenericWinSerialPortSocket> genericWinSerialPortSocketClass);
+
     /**
      * Do not load the native library here on failure it may throw up the
      * running framework (OSGi, JEE, Spring...)
@@ -70,6 +73,9 @@ public class SerialPortSocketFactoryImpl implements SerialPortSocketFactory {
     public SerialPortSocketFactoryImpl() {
     }
 
+    //Hold this here so loading the lib wont fail for OSGi
+    private final static Class<TimeoutIOException> T_CLASS = TimeoutIOException.class;
+    
     private final static String LIB_SPSW_NAME = "spsw";
     private final static int LIB_SPSW_VERSION = 0;
     private static Object LIB_SPSW_LOAD_RESULT;
@@ -88,6 +94,7 @@ public class SerialPortSocketFactoryImpl implements SerialPortSocketFactory {
         if (LIB_SPSW_LOAD_RESULT instanceof Throwable) {
                 throw new RuntimeException((Throwable)LIB_SPSW_LOAD_RESULT);
         }
+        initNative(TimeoutIOException.class, GenericTermiosSerialPortSocket.class, GenericWinSerialPortSocket.class);
         return true;
     }
 

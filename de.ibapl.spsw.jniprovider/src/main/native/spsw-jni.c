@@ -95,63 +95,7 @@ JNIEXPORT jint JNICALL JNI_OnLoad(JavaVM *jvm, void *reserved) {
     if ((*jvm)->GetEnv(jvm, (void **) &env, JNI_VERSION_1_4)) {
         return JNI_ERR;
     }
-
-    if (!initExceptions(env)) {
-        return JNI_ERR;
-    }
-
-#ifdef HAVE_TERMIOS_H
-    //Get field IDs
-    spsw_fd = getFieldId(env, GENERIC_TERMIOS_SERIAL_PORT_SOCKET, "fd", "I");
-    if (spsw_fd == NULL) {
-        return JNI_ERR;
-    }
-
-    spsw_closeEventReadFd = getFieldId(env, GENERIC_TERMIOS_SERIAL_PORT_SOCKET, "closeEventReadFd", "I");
-    if (spsw_closeEventReadFd == NULL) {
-        return JNI_ERR;
-    }
-
-    spsw_closeEventWriteFd = getFieldId(env, GENERIC_TERMIOS_SERIAL_PORT_SOCKET, "closeEventWriteFd", "I");
-    if (spsw_closeEventWriteFd == NULL) {
-        return JNI_ERR;
-    }
-
-    spsw_interByteReadTimeout = getFieldId(env, GENERIC_TERMIOS_SERIAL_PORT_SOCKET, "interByteReadTimeout", "I");
-    if (spsw_interByteReadTimeout == NULL) {
-        return JNI_ERR;
-    }
-//SIGSEV ???
-    spsw_pollReadTimeout = getFieldId(env, GENERIC_TERMIOS_SERIAL_PORT_SOCKET, "pollReadTimeout", "I");
-    if (spsw_pollReadTimeout == NULL) {
-        return JNI_ERR;
-    }
-
-    spsw_pollWriteTimeout = getFieldId(env, GENERIC_TERMIOS_SERIAL_PORT_SOCKET, "pollWriteTimeout", "I");
-    if (spsw_pollWriteTimeout == NULL) {
-        return JNI_ERR;
-    }
-//return JNI_VERSION_1_4;
-    spsw_portName = getFieldId(env, GENERIC_TERMIOS_SERIAL_PORT_SOCKET, "portName", "Ljava/lang/String;");
-    if (spsw_portName == NULL) {
-        return JNI_ERR;
-    }
-
-#elif defined HAVE_WINDOWS_H
-    //Get field IDs
-    spsw_fd = getFieldId(env, GENERIC_WIN_SERIAL_PORT_SOCKET, "fd", "J");
-    if (spsw_fd == NULL) {
-        return JNI_ERR;
-    }
-    spsw_portName = getFieldId(env, GENERIC_WIN_SERIAL_PORT_SOCKET, "portName", "Ljava/lang/String;");
-    if (spsw_portName == NULL) {
-        return JNI_ERR;
-    }
-
-#endif
-
     return JNI_VERSION_1_4;
-
 }
 
 JNIEXPORT void JNICALL JNI_OnUnLoad(JavaVM *jvm, void *reserved) {
