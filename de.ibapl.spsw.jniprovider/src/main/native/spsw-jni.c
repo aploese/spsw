@@ -28,7 +28,7 @@ extern "C" {
 jfieldID spsw_fd; /* id for field 'fd'  */
 jfieldID spsw_portName; /* id for field 'portName'  */
 
-#ifdef HAVE_TERMIOS_H    
+#ifdef HAVE_TERMIOS_H
  jfieldID spsw_interByteReadTimeout; // id for field interByteReadTimeout
  jfieldID spsw_pollReadTimeout; // id for field overallReadTimeout
  jfieldID spsw_pollWriteTimeout; // id for field overallWriteTimeout
@@ -99,19 +99,21 @@ JNIEXPORT jint JNICALL JNI_OnLoad(JavaVM *jvm, void *reserved) {
     if (!initExceptions(env)) {
         return JNI_ERR;
     }
-    
-#ifdef HAVE_TERMIOS_H    
+
+#ifdef HAVE_TERMIOS_H
     //Get field IDs
     spsw_fd = getFieldId(env, GENERIC_TERMIOS_SERIAL_PORT_SOCKET, "fd", "I");
     if (spsw_fd == NULL) {
         return JNI_ERR;
     }
+
     spsw_closeEventReadFd = getFieldId(env, GENERIC_TERMIOS_SERIAL_PORT_SOCKET, "closeEventReadFd", "I");
     if (spsw_closeEventReadFd == NULL) {
         return JNI_ERR;
     }
+
     spsw_closeEventWriteFd = getFieldId(env, GENERIC_TERMIOS_SERIAL_PORT_SOCKET, "closeEventWriteFd", "I");
-    if (spsw_closeEventReadFd == NULL) {
+    if (spsw_closeEventWriteFd == NULL) {
         return JNI_ERR;
     }
 
@@ -119,18 +121,22 @@ JNIEXPORT jint JNICALL JNI_OnLoad(JavaVM *jvm, void *reserved) {
     if (spsw_interByteReadTimeout == NULL) {
         return JNI_ERR;
     }
+//SIGSEV ???
     spsw_pollReadTimeout = getFieldId(env, GENERIC_TERMIOS_SERIAL_PORT_SOCKET, "pollReadTimeout", "I");
     if (spsw_pollReadTimeout == NULL) {
         return JNI_ERR;
     }
+
     spsw_pollWriteTimeout = getFieldId(env, GENERIC_TERMIOS_SERIAL_PORT_SOCKET, "pollWriteTimeout", "I");
     if (spsw_pollWriteTimeout == NULL) {
         return JNI_ERR;
     }
+//return JNI_VERSION_1_4;
     spsw_portName = getFieldId(env, GENERIC_TERMIOS_SERIAL_PORT_SOCKET, "portName", "Ljava/lang/String;");
     if (spsw_portName == NULL) {
         return JNI_ERR;
     }
+
 #elif defined HAVE_WINDOWS_H
     //Get field IDs
     spsw_fd = getFieldId(env, GENERIC_WIN_SERIAL_PORT_SOCKET, "fd", "J");
@@ -141,10 +147,11 @@ JNIEXPORT jint JNICALL JNI_OnLoad(JavaVM *jvm, void *reserved) {
     if (spsw_portName == NULL) {
         return JNI_ERR;
     }
-    
+
 #endif
-            
+
     return JNI_VERSION_1_4;
+
 }
 
 JNIEXPORT void JNICALL JNI_OnUnLoad(JavaVM *jvm, void *reserved) {
@@ -153,9 +160,9 @@ JNIEXPORT void JNICALL JNI_OnUnLoad(JavaVM *jvm, void *reserved) {
     if ((*jvm)->GetEnv(jvm, (void **) &env, JNI_VERSION_1_4)) {
       cleanupExceptions(env);
     }
-    
-#ifdef HAVE_TERMIOS_H    
-    
+
+#ifdef HAVE_TERMIOS_H
+
     spsw_fd = 0;
     spsw_closeEventReadFd = 0;
     spsw_closeEventWriteFd = 0;
