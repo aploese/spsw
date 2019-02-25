@@ -18,8 +18,7 @@ endif
 libspsw_la_SOURCES = \
  spsw-jni.c \
  Exceptions.c \
- AbstractSerialPortSocketIO.c \
- SerialPortSocketFactoryImpl.c
+ AbstractSerialPortSocketIO.c
 
 if USE_WIN_API
 libwin_api_spsw_la_SOURCES = \

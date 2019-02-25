@@ -64,8 +64,6 @@ public class SerialPortSocketFactoryImpl implements SerialPortSocketFactory {
     
     protected final static Logger LOG = Logger.getLogger("de.ibapl.spsw.jniprovider");
     
-    private static native boolean initNative(Class<TimeoutIOException> timeoutIOExceptionClass, Class<GenericTermiosSerialPortSocket> genericTermiosSerialPortSocketClass, Class<GenericWinSerialPortSocket> genericWinSerialPortSocketClass);
-
     /**
      * Do not load the native library here on failure it may throw up the
      * running framework (OSGi, JEE, Spring...)
@@ -99,7 +97,6 @@ public class SerialPortSocketFactoryImpl implements SerialPortSocketFactory {
         if (LIB_SPSW_LOAD_RESULT instanceof Throwable) {
             throw new RuntimeException((Throwable) LIB_SPSW_LOAD_RESULT);
         }
-        initNative(TimeoutIOException.class, GenericTermiosSerialPortSocket.class, GenericWinSerialPortSocket.class);
         return true;
     }
     

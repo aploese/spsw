@@ -215,7 +215,7 @@ extern "C" {
 #undef SPSW_NO_PARAMS_TO_SET
 #define SPSW_NO_PARAMS_TO_SET de_ibapl_spsw_jniprovider_AbstractSerialPortSocket_NO_PARAMS_TO_SET
 
-    jboolean initExceptions(JNIEnv* env, jclass timeoutIOExceptionClass);
+    jboolean initExceptions(JNIEnv* env);
     void cleanupExceptions(JNIEnv* env);
 
 #ifdef __cplusplus

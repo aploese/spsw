@@ -135,7 +135,7 @@ LTLIBRARIES = $(lib_LTLIBRARIES) $(noinst_LTLIBRARIES)
 @USE_WIN_API_FALSE@libspsw_la_DEPENDENCIES = ./libtermios-spsw.la
 @USE_WIN_API_TRUE@libspsw_la_DEPENDENCIES = ./libwin-api-spsw.la
 am_libspsw_la_OBJECTS = spsw-jni.lo Exceptions.lo \
-	AbstractSerialPortSocketIO.lo SerialPortSocketFactoryImpl.lo
+	AbstractSerialPortSocketIO.lo
 libspsw_la_OBJECTS = $(am_libspsw_la_OBJECTS)
 AM_V_lt = $(am__v_lt_@AM_V@)
 am__v_lt_ = $(am__v_lt_@AM_DEFAULT_V@)
@@ -171,12 +171,10 @@ DEFAULT_INCLUDES = -I.@am__isrc@ -I$(top_builddir)
 depcomp = $(SHELL) $(top_srcdir)/depcomp
 am__maybe_remake_depfiles = depfiles
 am__depfiles_remade = ./$(DEPDIR)/AbstractSerialPortSocketIO.Plo \
-	./$(DEPDIR)/Exceptions.Plo \
-	./$(DEPDIR)/SerialPortSocketFactoryImpl.Plo \
-	./$(DEPDIR)/TermiosCommon.Plo ./$(DEPDIR)/TermiosIO.Plo \
-	./$(DEPDIR)/TermiosSettings.Plo ./$(DEPDIR)/WinApiCommon.Plo \
-	./$(DEPDIR)/WinApiIO.Plo ./$(DEPDIR)/WinApiSettings.Plo \
-	./$(DEPDIR)/spsw-jni.Plo
+	./$(DEPDIR)/Exceptions.Plo ./$(DEPDIR)/TermiosCommon.Plo \
+	./$(DEPDIR)/TermiosIO.Plo ./$(DEPDIR)/TermiosSettings.Plo \
+	./$(DEPDIR)/WinApiCommon.Plo ./$(DEPDIR)/WinApiIO.Plo \
+	./$(DEPDIR)/WinApiSettings.Plo ./$(DEPDIR)/spsw-jni.Plo
 am__mv = mv -f
 COMPILE = $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) \
 	$(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS)
@@ -369,8 +367,7 @@ lib_LTLIBRARIES = libspsw.la
 libspsw_la_SOURCES = \
  spsw-jni.c \
  Exceptions.c \
- AbstractSerialPortSocketIO.c \
- SerialPortSocketFactoryImpl.c
+ AbstractSerialPortSocketIO.c
 
 @USE_WIN_API_TRUE@libwin_api_spsw_la_SOURCES = \
 @USE_WIN_API_TRUE@ WinApiCommon.c \
@@ -479,7 +476,6 @@ distclean-compile:
 
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/AbstractSerialPortSocketIO.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Exceptions.Plo@am__quote@ # am--include-marker
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/SerialPortSocketFactoryImpl.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/TermiosCommon.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/TermiosIO.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/TermiosSettings.Plo@am__quote@ # am--include-marker
@@ -651,7 +647,6 @@ clean-am: clean-generic clean-libLTLIBRARIES clean-libtool \
 distclean: distclean-am
 		-rm -f ./$(DEPDIR)/AbstractSerialPortSocketIO.Plo
 	-rm -f ./$(DEPDIR)/Exceptions.Plo
-	-rm -f ./$(DEPDIR)/SerialPortSocketFactoryImpl.Plo
 	-rm -f ./$(DEPDIR)/TermiosCommon.Plo
 	-rm -f ./$(DEPDIR)/TermiosIO.Plo
 	-rm -f ./$(DEPDIR)/TermiosSettings.Plo
@@ -706,7 +701,6 @@ installcheck-am:
 maintainer-clean: maintainer-clean-am
 		-rm -f ./$(DEPDIR)/AbstractSerialPortSocketIO.Plo
 	-rm -f ./$(DEPDIR)/Exceptions.Plo
-	-rm -f ./$(DEPDIR)/SerialPortSocketFactoryImpl.Plo
 	-rm -f ./$(DEPDIR)/TermiosCommon.Plo
 	-rm -f ./$(DEPDIR)/TermiosIO.Plo
 	-rm -f ./$(DEPDIR)/TermiosSettings.Plo

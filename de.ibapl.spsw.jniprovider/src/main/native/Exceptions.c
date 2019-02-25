@@ -48,7 +48,7 @@ extern "C" {
     static jclass TimeoutIOExceptionClass = NULL;
     static jmethodID TimeoutIOExceptionInit = NULL;
 
-    jboolean initExceptions(JNIEnv* env, jclass timeoutIOExceptionClass) {
+    jboolean initExceptions(JNIEnv* env) {
         if (ClassNotFoundExceptionClass == NULL) {
             ClassNotFoundExceptionClass = getGlobalClassRef(env, CLASS_NOT_FOUND_EXCEPTION);
             if (ClassNotFoundExceptionClass == NULL) {
@@ -98,7 +98,6 @@ extern "C" {
             }
         }
         if (TimeoutIOExceptionClass == NULL) {
-//            TimeoutIOExceptionClass = timeoutIOExceptionClass;
             TimeoutIOExceptionClass = getGlobalClassRef(env, TIMEOUT_IO_EXCEPTION);
             TimeoutIOExceptionInit = getMethodIdOfClassRef(env, TimeoutIOExceptionClass, TIMEOUT_IO_EXCEPTION, "<init>", "(Ljava/lang/String;I)V");
             if (TimeoutIOExceptionInit == NULL) {
