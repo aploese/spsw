@@ -24,7 +24,6 @@ package de.ibapl.spsw.jnhwprovider;
 import de.ibapl.jnhw.IntRef;
 import de.ibapl.jnhw.NativeErrorException;
 import de.ibapl.jnhw.util.winapi.LibJnhwWinApiLoader;
-import de.ibapl.jnhw.winapi.Fileapi;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.util.LinkedList;
@@ -122,7 +121,7 @@ public class GenericWinSerialPortSocket extends AbstractSerialPortSocket<Generic
 
     public static List<String> getWindowsBasedPortNames() {
         if (!LibJnhwWinApiLoader.touch()) {
-            throw new RuntimeException("Could not load native lib", LibJnhwWinApiLoader.LIB_JNHW_WINAPI_LOAD_ERROR);
+            throw new RuntimeException("Could not load native lib", LibJnhwWinApiLoader.LIB_JNHW_WINAPI_LOAD_RESULT.loadError);
         }
         LinkedList<String> result = new LinkedList<>();
 
@@ -160,7 +159,7 @@ public class GenericWinSerialPortSocket extends AbstractSerialPortSocket<Generic
     public GenericWinSerialPortSocket(String portName) {
         super(portName);
         if (!LibJnhwWinApiLoader.touch()) {
-            throw new RuntimeException("Could not load native lib", LibJnhwWinApiLoader.LIB_JNHW_WINAPI_LOAD_ERROR);
+            throw new RuntimeException("Could not load native lib", LibJnhwWinApiLoader.LIB_JNHW_WINAPI_LOAD_RESULT.loadError);
         }
     }
 

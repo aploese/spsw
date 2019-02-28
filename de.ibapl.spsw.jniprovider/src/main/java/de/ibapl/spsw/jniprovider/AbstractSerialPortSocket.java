@@ -51,9 +51,6 @@ public abstract class AbstractSerialPortSocket<T extends AbstractSerialPortSocke
 
     private native int readBytes(byte[] b) throws IOException;
 
-    ;
-
-
     private native int write(ByteBuffer src, int pos, int len) throws IOException;
 
     private native void writeBytes(byte[] b) throws IOException;
@@ -74,15 +71,8 @@ public abstract class AbstractSerialPortSocket<T extends AbstractSerialPortSocke
 
     @Override
     public int write(ByteBuffer src) throws IOException {
-        int toWrite = src.remaining();
-        int result = write(src, src.position(), toWrite);
+        final int result = write(src, src.position(), src.remaining());
         // now update src
-        if (result < 0) {
-            throw new IllegalArgumentException("Wriiten < 0: " + result);
-        }
-        if (result > src.remaining()) {
-            throw new IllegalArgumentException("Written after limit: " + toWrite + " != " + result + " pos: " + src.position()  + " limit: " + src.limit());
-        }
         src.position(src.position() + result);
         return result;
     }

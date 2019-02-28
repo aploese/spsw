@@ -21,6 +21,7 @@
  */
 package de.ibapl.spsw.jniprovider;
 
+import de.ibapl.jnhw.libloader.LoadResult;
 import de.ibapl.jnhw.libloader.NativeLibLoader;
 import de.ibapl.jnhw.libloader.OS;
 import java.io.File;
@@ -76,26 +77,22 @@ public class SerialPortSocketFactoryImpl implements SerialPortSocketFactory {
     
     private final static String LIB_SPSW_NAME = "spsw";
     private final static int LIB_SPSW_VERSION = 0;
-    private static Object LIB_SPSW_LOAD_RESULT;
+    private static LoadResult LIB_SPSW_LOAD_RESULT;
     
                     protected static void doSystemLoad(String absoluteLibName) {
                         System.load(absoluteLibName);
                     }
     public static boolean touchNativeLib() {
-        if (LIB_SPSW_LOAD_RESULT instanceof String) {
-            return true;
-        }        
         if (LIB_SPSW_LOAD_RESULT == null) {
-            try {                
                 LIB_SPSW_LOAD_RESULT = NativeLibLoader.loadNativeLib(LIB_SPSW_NAME, LIB_SPSW_VERSION, SerialPortSocketFactoryImpl::doSystemLoad);
-            } catch (IOException ioe) {
-                LIB_SPSW_LOAD_RESULT = ioe;
-            }
         }
-        if (LIB_SPSW_LOAD_RESULT instanceof Throwable) {
-            throw new RuntimeException((Throwable) LIB_SPSW_LOAD_RESULT);
-        }
-        return true;
+        if (LIB_SPSW_LOAD_RESULT.isLoaded()) {
+            return true;
+        } else if (LIB_SPSW_LOAD_RESULT.isError()) {
+            throw new RuntimeException(LIB_SPSW_LOAD_RESULT.loadError);
+        } else {
+            throw new RuntimeException("Should never happen: lib spsw not loaded for unknow reason.");
+        }      
     }
     
     public static String getLibName() {

@@ -162,7 +162,7 @@ public class PosixSerialPortSocket extends AbstractSerialPortSocket<PosixSerialP
         super(portName);
         //Check that the libs are loaded
         if (!LibJnhwPosixLoader.touch()) {
-            throw new RuntimeException("Could not load native lib", LibJnhwPosixLoader.LIB_JNHW_POSIX_LOAD_ERROR);
+            throw new RuntimeException("Could not load native lib", LibJnhwPosixLoader.LIB_JNHW_POSIX_LOAD_RESULT.loadError);
         }
         int value = 0;
         try {
