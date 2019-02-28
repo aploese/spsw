@@ -1,8 +1,8 @@
 #!/bin/sh
 
-autoreconf -i
+#autoreconf -i
 
-mvn clean compile
+mvn compile
 
 # "x86_64-linux-gnu"
 # "i386-linux-gnu"
@@ -30,6 +30,6 @@ make clean
 make
 make install
 
-mvn install -P BaselineTests 
+mvn install
 
 
