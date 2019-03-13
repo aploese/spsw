@@ -456,27 +456,8 @@ public class LogWriter {
 		log.flush();
 	}
 
-	public void afterbuffChannelRead(final Instant ts, ByteBuffer buffer) {
-		log.append(formatTs(ts)).append("CH").append(ACION_RETURN).append(" read:\t\"");
-		for (int i = buffer.position(); i < buffer.limit(); i++) {
-			appendByte(buffer.get(i));
-		}
-		if (timeStampLogging != TimeStampLogging.NONE) {
-			final Duration d = Duration.between(channelReadStartTS, ts);
-			if (d.isZero()) {
-				log.append("\"");
-			} else {
-				log.append("\"\tduration: ").append(d.toString());
-			}
-		} else {
-			log.append("\"");
-		}
-		log.println();
-		log.flush();
-	}
-
-	void afterChannelRead(final Instant ts, IOException e) {
-		log.append(formatTs(ts)).append("CH").append(ACION_RETURN).append(" read:\t").print(e.toString());
+	void afterChannelRead(final Instant ts, ByteBuffer buff, IOException e) {
+		log.append(formatTs(ts)).append("CH").append(ACION_RETURN).format(" read: buff.position=%d, buff.remaining=%d\t", buff.position(), buff.remaining()).print(e.toString());
 		if (timeStampLogging != TimeStampLogging.NONE) {
 			final Duration d = Duration.between(channelReadStartTS, ts);
 			if (d.isZero()) {
@@ -775,11 +756,11 @@ public class LogWriter {
 		log.flush();
 	}
 
-	void afterChannelWrite(Instant ts, IOException e) {
+	void afterChannelWrite(Instant ts, ByteBuffer buff, IOException e) {
 		if (!verbose) {
 			return;
 		}
-		log.append(formatTs(ts)).append("CH").append(ACION_RETURN).append(" write:\t").print(e.toString());
+		log.append(formatTs(ts)).append("CH").append(ACION_RETURN).format(" write: buff.position=%d, buff.remaining=%d\t", buff.position(), buff.remaining()).print(e.toString());
 		if (timeStampLogging != TimeStampLogging.NONE) {
 			final Duration d = Duration.between(channelWriteStartTS, ts);
 			if (d.isZero()) {

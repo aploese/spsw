@@ -926,6 +926,10 @@ public class GenericWinSerialPortSocket extends AbstractSerialPortSocket<Generic
 
     @Override
     public int read(ByteBuffer b) throws IOException {
+        
+        if (!b.hasRemaining()) {
+            return 0;
+        }
 
         OVERLAPPED overlapped = new OVERLAPPED(true);
 
@@ -1006,6 +1010,10 @@ public class GenericWinSerialPortSocket extends AbstractSerialPortSocket<Generic
 
     @Override
     public int write(ByteBuffer b) throws IOException {
+
+        if (!b.hasRemaining()) {
+            return 0;
+        }
 
         OVERLAPPED overlapped = new OVERLAPPED(true);
         try {

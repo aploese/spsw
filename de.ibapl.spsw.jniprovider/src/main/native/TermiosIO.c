@@ -36,6 +36,10 @@ extern "C" {
     
 int readBuffer(JNIEnv *env, jobject sps, void *buff, int len) {
 
+    if (len == 0) {
+        return 0;
+    }
+    
     struct pollfd fds[2];
     fds[0].fd = (*env)->GetIntField(env, sps, spsw_fd);
     fds[0].events = POLLIN;
@@ -173,6 +177,10 @@ JNIEXPORT void JNICALL Java_de_ibapl_spsw_jniprovider_AbstractSerialPortSocket_s
 }
 
 int writeBuffer(JNIEnv *env, jobject sps, void *buff, int len) {
+    if (len == 0) {
+        return 0;
+    }
+    
     const int fd = (*env)->GetIntField(env, sps, spsw_fd);
     const int pollTimeout = (*env)->GetIntField(env, sps, spsw_pollWriteTimeout);
 

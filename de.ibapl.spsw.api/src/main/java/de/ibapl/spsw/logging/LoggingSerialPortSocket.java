@@ -137,7 +137,7 @@ public class LoggingSerialPortSocket implements SerialPortSocket {
 				logWriter.afterChannelRead(Instant.now(), dst, position);
 				return result;
 			} catch (IOException e) {
-				logWriter.afterChannelRead(Instant.now(), e);
+				logWriter.afterChannelRead(Instant.now(),dst,  e);
 				throw e;
 			}
 		}
@@ -150,7 +150,7 @@ public class LoggingSerialPortSocket implements SerialPortSocket {
 				logWriter.afterChannelWrite(Instant.now());
 				return result;
 			} catch (IOException e) {
-				logWriter.afterChannelWrite(Instant.now(), e);
+				logWriter.afterChannelWrite(Instant.now(), src, e);
 				throw e;
 			}
 		}

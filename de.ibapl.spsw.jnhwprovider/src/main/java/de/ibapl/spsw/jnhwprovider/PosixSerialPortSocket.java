@@ -1154,6 +1154,10 @@ public class PosixSerialPortSocket extends AbstractSerialPortSocket<PosixSerialP
 
     @Override
     public int write(ByteBuffer b) throws IOException {
+        if (!b.hasRemaining()) {
+            return 0;
+        }
+
         // TODO wait infinite...
         // See javaTimeNanos() in file src/os/linux/vm/os_linux.cpp of hotspot sources
         final long endTime = System.nanoTime() + pollWriteTimeout == -1 ? 0 : pollWriteTimeout * 1000000L;
@@ -1238,6 +1242,10 @@ public class PosixSerialPortSocket extends AbstractSerialPortSocket<PosixSerialP
 
     @Override
     public int read(ByteBuffer b) throws IOException {
+        if (!b.hasRemaining()) {
+            return 0;
+        }
+
         // TODO honor overall read timeout
         PollFds fds = new PollFds(2);
         fds.get(0).fd(fd);
