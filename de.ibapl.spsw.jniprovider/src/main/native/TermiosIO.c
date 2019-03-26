@@ -36,6 +36,7 @@ extern "C" {
     
 int readBuffer(JNIEnv *env, jobject sps, void *buff, int len) {
 
+    //special case: we should read nothing... so stop here before getting a timeout because poll is waiting for bytes which do not arrive.
     if (len == 0) {
         return 0;
     }
@@ -62,8 +63,8 @@ int readBuffer(JNIEnv *env, jobject sps, void *buff, int len) {
     }
 
     if (nread == 0) {
-        //Nothing read yet
-
+        //Nothing read yet so use the pollReadTimeout to wait for any data 
+        // a guard is needed for len == 0 so we do not wait here...
         const int pollTimeout = (*env)->GetIntField(env, sps,
                 spsw_pollReadTimeout);
         int poll_result = poll(&fds[0], 2, pollTimeout);

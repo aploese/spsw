@@ -22,7 +22,7 @@
 package de.ibapl.spsw.jniprovider;
 
 import de.ibapl.jnhw.libloader.LoadResult;
-import de.ibapl.jnhw.libloader.NativeLibLoader;
+import de.ibapl.jnhw.libloader.NativeLibResolver;
 import de.ibapl.jnhw.libloader.OS;
 import java.io.File;
 import java.io.IOException;
@@ -84,7 +84,7 @@ public class SerialPortSocketFactoryImpl implements SerialPortSocketFactory {
                     }
     public static boolean touchNativeLib() {
         if (LIB_SPSW_LOAD_RESULT == null) {
-                LIB_SPSW_LOAD_RESULT = NativeLibLoader.loadNativeLib(LIB_SPSW_NAME, LIB_SPSW_VERSION, SerialPortSocketFactoryImpl::doSystemLoad);
+                LIB_SPSW_LOAD_RESULT = NativeLibResolver.loadNativeLib(LIB_SPSW_NAME, LIB_SPSW_VERSION, SerialPortSocketFactoryImpl::doSystemLoad);
         }
         if (LIB_SPSW_LOAD_RESULT.isLoaded()) {
             return true;
@@ -112,7 +112,7 @@ public class SerialPortSocketFactoryImpl implements SerialPortSocketFactory {
         // ServiceLoader instantiates this lazy so this is the last chance to do so
         touchNativeLib();
         
-        switch (NativeLibLoader.getOS()) {
+        switch (NativeLibResolver.getOS()) {
             case LINUX:
                 return new GenericTermiosSerialPortSocket(portName);
             case FREE_BSD:
@@ -120,12 +120,12 @@ public class SerialPortSocketFactoryImpl implements SerialPortSocketFactory {
             case WINDOWS:
                 return new GenericWinSerialPortSocket(portName);
             default:
-                throw new UnsupportedOperationException(NativeLibLoader.getOS() + " is currently not supported yet\nSystem.properties:\n");
+                throw new UnsupportedOperationException(NativeLibResolver.getOS() + " is currently not supported yet\nSystem.properties:\n");
         }
     }
     
     protected String getPortnamesPath() {
-        switch (NativeLibLoader.getOS()) {
+        switch (NativeLibResolver.getOS()) {
             case LINUX: {
                 return DEFAULT_LINUX_DEVICE_PATH;
             }
@@ -143,14 +143,14 @@ public class SerialPortSocketFactoryImpl implements SerialPortSocketFactory {
             }
             default: {
                 LOG.log(Level.SEVERE, "Unknown OS, os.name: {0} mapped to: {1}",
-                        new Object[]{System.getProperty("os.name"), NativeLibLoader.getOS()});
+                        new Object[]{System.getProperty("os.name"), NativeLibResolver.getOS()});
                 return null;
             }
         }
     }
     
     protected Pattern getPortnamesRegExp() {
-        switch (NativeLibLoader.getOS()) {
+        switch (NativeLibResolver.getOS()) {
             case LINUX: {
                 return Pattern.compile(DEFAULT_LINUX_PORTNAME_PATTERN);
             }
@@ -168,7 +168,7 @@ public class SerialPortSocketFactoryImpl implements SerialPortSocketFactory {
             }
             default: {
                 LOG.log(Level.SEVERE, "Unknown OS, os.name: {0} mapped to: {1}",
-                        new Object[]{System.getProperty("os.name"), NativeLibLoader.getOS()});
+                        new Object[]{System.getProperty("os.name"), NativeLibResolver.getOS()});
                 return null;
             }
         }
@@ -180,7 +180,7 @@ public class SerialPortSocketFactoryImpl implements SerialPortSocketFactory {
      */
     @Override
     public List<String> getPortNames(boolean hideBusyPorts) {
-        if (OS.WINDOWS == NativeLibLoader.getOS()) {
+        if (OS.WINDOWS == NativeLibResolver.getOS()) {
             return getWindowsPortNames("", hideBusyPorts);
         } else {
             return getUnixBasedPortNames("", hideBusyPorts);
@@ -192,7 +192,7 @@ public class SerialPortSocketFactoryImpl implements SerialPortSocketFactory {
         if (portToInclude == null || portToInclude.isEmpty()) {
             throw new IllegalArgumentException("portToInclude is null or empty");
         }
-        if (OS.WINDOWS == NativeLibLoader.getOS()) {
+        if (OS.WINDOWS == NativeLibResolver.getOS()) {
             return getWindowsPortNames(portToInclude, hideBusyPorts);
         } else {
             return getUnixBasedPortNames(portToInclude, hideBusyPorts);
@@ -309,7 +309,7 @@ public class SerialPortSocketFactoryImpl implements SerialPortSocketFactory {
     @Override
     public void getPortNames(BiConsumer<String, Boolean> portNameConsumer) {
         final Pattern pattern = getPortnamesRegExp();
-        switch (NativeLibLoader.getOS()) {
+        switch (NativeLibResolver.getOS()) {
             case WINDOWS:
                 LinkedList<String> portNames = getWindowsBasedPortNames();
                 for (String portName : portNames) {
