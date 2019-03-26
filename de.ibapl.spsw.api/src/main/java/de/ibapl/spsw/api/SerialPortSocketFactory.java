@@ -70,7 +70,7 @@ public interface SerialPortSocketFactory {
 	/**
 	 * {@value #DEFAULT_FREE_BSD_PORTNAME_PATTERN}
 	 */
-	public final String DEFAULT_FREE_BSD_PORTNAME_PATTERN = "(cua)[0-9]{1,3}";
+	public final String DEFAULT_FREE_BSD_PORTNAME_PATTERN = "(cua|cuaU)[0-9]{1,3}";
 	/**
 	 * {@value #DEFAULT_MACOS_DEVICE_PATH}
 	 */
