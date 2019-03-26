@@ -135,7 +135,7 @@ public class PortConfigurationFactory {
 
 			@Override
 			public boolean hasNext() {
-                            //FreeBSD and macos have no Parity Mark and Space
+                            //FreeBSD and macos have no mark or space parity
                             while (currentIndex < parities.length) {
                                 Parity parity = parities[currentIndex];
                                 if ((parity == Parity.MARK || parity == Parity.MARK) && 

@@ -147,12 +147,12 @@ public abstract class AbstractPortTest {
                             } else {
                                 fail("Unknow error: Read result count is 0 and no timeout");
                             }
-                            
+
                         }
                         break;
                         case CHANNEL: {
                             final int count = sps.read(recBuffer);
-                            
+
                             if (count > 0) {
                                 for (int i = 0; i < count; i++) {
                                     final int pos = currentRecOffset + i;
@@ -173,7 +173,7 @@ public abstract class AbstractPortTest {
                             } else {
                                 fail("Unknow error: Read result count is 0 and no timeout");
                             }
-                            
+
                         }
                         break;
                     }
@@ -406,7 +406,12 @@ public abstract class AbstractPortTest {
     protected void open(Speed speed, DataBits dataBits, StopBits stopBits, Parity parity, Set<FlowControl> flowControl)
             throws Exception {
         if (readSpc != null) {
-            readSpc.open(speed, dataBits, stopBits, parity, flowControl);
+            try {
+                readSpc.open(speed, dataBits, stopBits, parity, flowControl);
+            } catch (Exception e) {
+                LOG.log(Level.SEVERE, "Error during readSpc.open(" + speed + ", " + dataBits + ", " + stopBits + ", " + parity + ", " + flowControl + ");", e);
+                throw e;
+            }
             assertEquals(0, readSpc.getOutBufferBytesCount(), "Can't start test: OutBuffer is not empty");
             while (readSpc.getInBufferBytesCount() > 0) {
                 readSpc.getInputStream().read(new byte[readSpc.getInBufferBytesCount()]);
@@ -416,7 +421,12 @@ public abstract class AbstractPortTest {
 
         }
         if (writeSpc != null && writeSpc != readSpc) {
-            writeSpc.open(speed, dataBits, stopBits, parity, flowControl);
+            try {
+                writeSpc.open(speed, dataBits, stopBits, parity, flowControl);
+            } catch (Exception e) {
+                LOG.log(Level.SEVERE, "Error during writeSpc.open(" + speed + ", " + dataBits + ", " + stopBits + ", " + parity + ", " + flowControl + ");", e);
+                throw e;
+            }
             assertEquals(0, writeSpc.getOutBufferBytesCount(), "Can't start test: OutBuffer is not empty");
             while (writeSpc.getInBufferBytesCount() > 0) {
                 writeSpc.getInputStream().read(new byte[writeSpc.getInBufferBytesCount()]);
