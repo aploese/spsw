@@ -43,11 +43,11 @@ public abstract class AbstractReadWriteAllSpeedsTest extends AbstractReadWriteTe
 	}
 
 	public Iterator<PortConfiguration> getHighSpeedPortConfigurations() {
-		return new PortConfigurationFactory().setBuffersize(64).getSpeedIterator(Speed._38400_BPS, Speed._4000000_BPS);
+		return new PortConfigurationFactory().setBuffersize(64).getSpeedIterator(Speed._19200_BPS, Speed._4000000_BPS);
 	}
 
 	public Iterator<PortConfiguration> getBaselinePortConfigurations() {
-		return new PortConfigurationFactory().setBuffersize(64).getSpeedIterator(Speed._1200_BPS, Speed._19200_BPS);
+		return new PortConfigurationFactory().setBuffersize(64).getSpeedIterator(Speed._1200_BPS, Speed._9600_BPS);
 	}
 
 	@IOStreamTest
