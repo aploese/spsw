@@ -36,7 +36,7 @@ import de.ibapl.spsw.tests.tags.IOStreamTest;
 public abstract class AbstractReadWriteAllParitiesTest extends AbstractReadWriteTest {
 
 	public Iterator<PortConfiguration> getBaselinePortConfigurations() {
-		return new PortConfigurationFactory().setBuffersize(64).getParityIterator();
+		return new PortConfigurationFactory().setBuffersize(64).getBaselineParityIterator();
 	}
 
 	@IOStreamTest

@@ -31,213 +31,205 @@ import de.ibapl.spsw.api.FlowControl;
 import de.ibapl.spsw.api.Parity;
 import de.ibapl.spsw.api.Speed;
 import de.ibapl.spsw.api.StopBits;
+import java.util.EnumSet;
 
 /**
  * Helper class for iterative tests.
- * 
+ *
  * @author Arne Plöse
  *
  */
 public class PortConfigurationFactory {
 
-	class PortConfigurationImpl implements PortConfiguration {
-		private int bufferSize = 1024;
-		private DataBits dataBits = DataBits.DB_8;
-		private Set<FlowControl> flowControl = FlowControl.getFC_NONE(); // getFC_RTS_CTS();
-		private int interByteReadTimeout = 100;
-		private int overallReadTimeout = 2000;
-		private int overallWriteTimeout = 2000;
-		private Parity parity = Parity.NONE;
-		private Speed speed = Speed._9600_BPS;
-		private StopBits stopBits = StopBits.SB_1;
+    class PortConfigurationImpl implements PortConfiguration {
 
-		public PortConfigurationImpl() {
-		}
+        private int bufferSize = 1024;
+        private DataBits dataBits = DataBits.DB_8;
+        private Set<FlowControl> flowControl = FlowControl.getFC_NONE(); // getFC_RTS_CTS();
+        private int interByteReadTimeout = 100;
+        private int overallReadTimeout = 2000;
+        private int overallWriteTimeout = 2000;
+        private Parity parity = Parity.NONE;
+        private Speed speed = Speed._9600_BPS;
+        private StopBits stopBits = StopBits.SB_1;
 
-		public PortConfigurationImpl(PortConfigurationImpl portConfigurationImpl) {
-			this.bufferSize = portConfigurationImpl.bufferSize;
-			this.flowControl = portConfigurationImpl.flowControl;
-			this.parity = portConfigurationImpl.parity;
-			this.stopBits = portConfigurationImpl.stopBits;
-			this.dataBits = portConfigurationImpl.dataBits;
-			this.speed = portConfigurationImpl.speed;
-			this.interByteReadTimeout = portConfigurationImpl.interByteReadTimeout;
-			this.overallReadTimeout = portConfigurationImpl.overallReadTimeout;
-			this.overallWriteTimeout = portConfigurationImpl.overallWriteTimeout;
-		}
+        public PortConfigurationImpl() {
+        }
 
-		public void adjustTimeouts() {
-			overallReadTimeout = calcMaxTransferTime();
-			overallWriteTimeout = overallReadTimeout;
-		}
+        public PortConfigurationImpl(PortConfigurationImpl portConfigurationImpl) {
+            this.bufferSize = portConfigurationImpl.bufferSize;
+            this.flowControl = portConfigurationImpl.flowControl;
+            this.parity = portConfigurationImpl.parity;
+            this.stopBits = portConfigurationImpl.stopBits;
+            this.dataBits = portConfigurationImpl.dataBits;
+            this.speed = portConfigurationImpl.speed;
+            this.interByteReadTimeout = portConfigurationImpl.interByteReadTimeout;
+            this.overallReadTimeout = portConfigurationImpl.overallReadTimeout;
+            this.overallWriteTimeout = portConfigurationImpl.overallWriteTimeout;
+        }
 
-		@Override
-		public int getBufferSize() {
-			return bufferSize;
-		}
+        public void adjustTimeouts() {
+            overallReadTimeout = calcMaxTransferTime();
+            overallWriteTimeout = overallReadTimeout;
+        }
 
-		@Override
-		public DataBits getDataBits() {
-			return dataBits;
-		}
+        @Override
+        public int getBufferSize() {
+            return bufferSize;
+        }
 
-		@Override
-		public Set<FlowControl> getFlowControl() {
-			return flowControl;
-		}
+        @Override
+        public DataBits getDataBits() {
+            return dataBits;
+        }
 
-		@Override
-		public int getInterByteReadTimeout() {
-			return interByteReadTimeout;
-		}
+        @Override
+        public Set<FlowControl> getFlowControl() {
+            return flowControl;
+        }
 
-		@Override
-		public int getOverallReadTimeout() {
-			return overallReadTimeout;
-		}
+        @Override
+        public int getInterByteReadTimeout() {
+            return interByteReadTimeout;
+        }
 
-		@Override
-		public int getOverallWriteTimeout() {
-			return overallWriteTimeout;
-		}
+        @Override
+        public int getOverallReadTimeout() {
+            return overallReadTimeout;
+        }
 
-		@Override
-		public Parity getParity() {
-			return parity;
-		}
+        @Override
+        public int getOverallWriteTimeout() {
+            return overallWriteTimeout;
+        }
 
-		@Override
-		public Speed getSpeed() {
-			return speed;
-		}
+        @Override
+        public Parity getParity() {
+            return parity;
+        }
 
-		@Override
-		public StopBits getStopBits() {
-			return stopBits;
-		}
+        @Override
+        public Speed getSpeed() {
+            return speed;
+        }
 
-		@Override
-		public String toString() {
-			return String.format("Port Configuration %s, %s, %s, %s, fC: %s, iBTO: %d, oRTO: %d, oWTO: %d, bS: %d",
-					speed, dataBits, stopBits, parity, flowControl, interByteReadTimeout, overallReadTimeout,
-					overallWriteTimeout, bufferSize);
-		}
+        @Override
+        public StopBits getStopBits() {
+            return stopBits;
+        }
 
-	}
+        @Override
+        public String toString() {
+            return String.format("Port Configuration %s, %s, %s, %s, fC: %s, iBTO: %d, oRTO: %d, oWTO: %d, bS: %d",
+                    speed, dataBits, stopBits, parity, flowControl, interByteReadTimeout, overallReadTimeout,
+                    overallWriteTimeout, bufferSize);
+        }
 
-	private PortConfigurationImpl portConfigurationImpl = new PortConfigurationImpl();
+    }
 
-	public Iterator<PortConfiguration> getParityIterator() {
-		return new Iterator<PortConfiguration>() {
+    private PortConfigurationImpl portConfigurationImpl = new PortConfigurationImpl();
 
-			int currentIndex = 0;
-			Parity parities[] = Parity.values();
+    public Iterator<PortConfiguration> getBaselineParityIterator() {
+        return new Iterator<PortConfiguration>() {
 
-			@Override
-			public boolean hasNext() {
-                            //FreeBSD and macos have no mark or space parity
-                            while (currentIndex < parities.length) {
-                                Parity parity = parities[currentIndex];
-                                if ((parity == Parity.MARK || parity == Parity.MARK) && 
-                                    (NativeLibResolver.getOS() == OS.FREE_BSD || NativeLibResolver.getOS() == OS.MAC_OS_X)) {
-                                currentIndex++; 
-                            } else {
-                                    return true;
-                                }
-                            }
-                            return false;
-			}
+            //FreeBSD does not support Parity.MARK and Parity.SPACE so drop it for the baseline tests
+            Iterator<Parity> parities = EnumSet.of(Parity.NONE, Parity.ODD, Parity.EVEN).iterator();
 
-			@Override
-			public PortConfiguration next() {
-				return of(parities[currentIndex++]);
-			}
-
-		};
-	}
-
-	public Iterator<PortConfiguration> getSpeedIterator(final Speed first, final Speed last) {
-		if (last.ordinal() < first.ordinal()) {
-			throw new IllegalArgumentException("Last must be greater than first speed");
-		}
-		return new Iterator<PortConfiguration>() {
-
-			int currentIndex = first.ordinal();
-			int lastIndex = last.ordinal();
-			Speed speeds[] = Speed.values();
-
-			@Override
-			public boolean hasNext() {
-				return currentIndex <= lastIndex;
-			}
-
-			@Override
-			public PortConfiguration next() {
-				return of(speeds[currentIndex++]);
-			}
-		};
-
-	}
-
-	public PortConfiguration of(Parity parity) {
-		final PortConfigurationImpl result = new PortConfigurationImpl(portConfigurationImpl);
-		result.parity = parity;
-		result.adjustTimeouts();
-		return result;
-	}
-
-	public PortConfiguration of(Speed speed) {
-		final PortConfigurationImpl result = new PortConfigurationImpl(portConfigurationImpl);
-		result.speed = speed;
-		result.adjustTimeouts();
-		return result;
-	}
-
-	public PortConfiguration ofBuffersize(int bufferSize) {
-		final PortConfigurationImpl result = new PortConfigurationImpl(portConfigurationImpl);
-		result.bufferSize = bufferSize;
-		result.adjustTimeouts();
-		return result;
-	}
-
-	public PortConfiguration ofCurrent() {
-		final PortConfigurationImpl result = new PortConfigurationImpl(portConfigurationImpl);
-		result.adjustTimeouts();
-		return result;
-	}
-
-	public PortConfigurationFactory setBuffersize(int bufferSize) {
-		portConfigurationImpl.bufferSize = bufferSize;
-		return this;
-	}
-
-	public PortConfigurationFactory setDataBits(DataBits dataBits) {
-		portConfigurationImpl.dataBits = dataBits;
-		return this;
-	}
-
-	public PortConfigurationFactory setFlowControl(Set<FlowControl> flowControl) {
-		portConfigurationImpl.flowControl = flowControl;
-		return this;
-	}
-
-	public PortConfigurationFactory setParity(Parity parity) {
-            if ((parity == Parity.MARK || parity == Parity.MARK) && 
-                                    (NativeLibResolver.getOS() == OS.FREE_BSD || NativeLibResolver.getOS() == OS.MAC_OS_X)) {
-                throw new IllegalArgumentException("Parity MARK and SPACE are not supported under MAcOS and FreeBSD");
+            @Override
+            public boolean hasNext() {
+                return parities.hasNext();
             }
-		portConfigurationImpl.parity = parity;
-		return this;
-	}
 
-	public PortConfigurationFactory setSpeed(Speed speed) {
-		portConfigurationImpl.speed = speed;
-		return this;
-	}
+            @Override
+            public PortConfiguration next() {
+                return of(parities.next());
+            }
 
-	public PortConfigurationFactory setStopBits(StopBits stopBits) {
-		portConfigurationImpl.stopBits = stopBits;
-		return this;
-	}
+        };
+    }
+
+    public Iterator<PortConfiguration> getSpeedIterator(final Speed first, final Speed last) {
+        if (last.ordinal() < first.ordinal()) {
+            throw new IllegalArgumentException("Last must be greater than first speed");
+        }
+        return new Iterator<PortConfiguration>() {
+
+            int currentIndex = first.ordinal();
+            int lastIndex = last.ordinal();
+            Speed speeds[] = Speed.values();
+
+            @Override
+            public boolean hasNext() {
+                return currentIndex <= lastIndex;
+            }
+
+            @Override
+            public PortConfiguration next() {
+                return of(speeds[currentIndex++]);
+            }
+        };
+
+    }
+
+    public PortConfiguration of(Parity parity) {
+        final PortConfigurationImpl result = new PortConfigurationImpl(portConfigurationImpl);
+        result.parity = parity;
+        result.adjustTimeouts();
+        return result;
+    }
+
+    public PortConfiguration of(Speed speed) {
+        final PortConfigurationImpl result = new PortConfigurationImpl(portConfigurationImpl);
+        result.speed = speed;
+        result.adjustTimeouts();
+        return result;
+    }
+
+    public PortConfiguration ofBuffersize(int bufferSize) {
+        final PortConfigurationImpl result = new PortConfigurationImpl(portConfigurationImpl);
+        result.bufferSize = bufferSize;
+        result.adjustTimeouts();
+        return result;
+    }
+
+    public PortConfiguration ofCurrent() {
+        final PortConfigurationImpl result = new PortConfigurationImpl(portConfigurationImpl);
+        result.adjustTimeouts();
+        return result;
+    }
+
+    public PortConfigurationFactory setBuffersize(int bufferSize) {
+        portConfigurationImpl.bufferSize = bufferSize;
+        return this;
+    }
+
+    public PortConfigurationFactory setDataBits(DataBits dataBits) {
+        portConfigurationImpl.dataBits = dataBits;
+        return this;
+    }
+
+    public PortConfigurationFactory setFlowControl(Set<FlowControl> flowControl) {
+        portConfigurationImpl.flowControl = flowControl;
+        return this;
+    }
+
+    public PortConfigurationFactory setParity(Parity parity) {
+        if ((parity == Parity.MARK || parity == Parity.MARK)
+                && (NativeLibResolver.getOS() == OS.FREE_BSD || NativeLibResolver.getOS() == OS.MAC_OS_X)) {
+            throw new IllegalArgumentException("Parity MARK and SPACE are not supported under MAcOS and FreeBSD");
+        }
+        portConfigurationImpl.parity = parity;
+        return this;
+    }
+
+    public PortConfigurationFactory setSpeed(Speed speed) {
+        portConfigurationImpl.speed = speed;
+        return this;
+    }
+
+    public PortConfigurationFactory setStopBits(StopBits stopBits) {
+        portConfigurationImpl.stopBits = stopBits;
+        return this;
+    }
 
 }
