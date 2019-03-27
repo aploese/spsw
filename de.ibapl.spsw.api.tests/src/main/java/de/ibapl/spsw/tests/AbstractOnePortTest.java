@@ -847,6 +847,14 @@ public abstract class AbstractOnePortTest extends AbstractPortTest {
                     case _134_BPS:
                     case _150_BPS:
                     case _200_BPS:
+                        
+//                    case _115200_BPS:
+//                    case _230400_BPS:
+//                    case _460800_BPS:
+//                    case _576000_BPS:
+//                    case _1000000_BPS:
+                    case _1152000_BPS:
+                    case _1500000_BPS:
                     case _2000000_BPS:
                     case _2500000_BPS:
                     case _3000000_BPS:
