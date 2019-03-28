@@ -34,10 +34,6 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.regex.Pattern;
 
-import javax.annotation.PostConstruct;
-import javax.annotation.PreDestroy;
-import javax.inject.Singleton;
-
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Deactivate;
@@ -59,7 +55,6 @@ import java.util.Iterator;
  *
  * @author Arne Plöse
  */
-@Singleton
 @Component(name = "de.ibapl.spsw.jniprovider", scope = ServiceScope.SINGLETON, immediate = true)
 public class SerialPortSocketFactoryImpl implements SerialPortSocketFactory {
     
@@ -270,13 +265,11 @@ public class SerialPortSocketFactoryImpl implements SerialPortSocketFactory {
      * Load the native library in the right lifecycle for the running framework
      * (OSGi, JEE, Spring).
      */
-    @PostConstruct
     @Activate
     public void activate() {
         touchNativeLib();
     }
     
-    @PreDestroy
     @Deactivate
     public void deActivate() {
     }

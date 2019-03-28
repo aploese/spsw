@@ -26,8 +26,6 @@ import java.util.List;
 import java.util.Set;
 import java.util.function.BiConsumer;
 
-import javax.inject.Named;
-
 import org.osgi.annotation.versioning.ProviderType;
 
 /**
@@ -51,7 +49,6 @@ import org.osgi.annotation.versioning.ProviderType;
  * 
  * @author Arne Plöse
  */
-@Named
 @ProviderType()
 public interface SerialPortSocketFactory {
 

@@ -34,8 +34,6 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.regex.Pattern;
 
-import javax.inject.Singleton;
-
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.ServiceScope;
 
@@ -53,7 +51,6 @@ import de.ibapl.spsw.api.StopBits;
  *
  * @author Arne Plöse
  */
-@Singleton
 @Component(name = "de.ibapl.spsw.jnrprovider", scope = ServiceScope.SINGLETON, immediate = true)
 public class SerialPortSocketFactoryImpl implements SerialPortSocketFactory {
 

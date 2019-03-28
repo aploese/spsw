@@ -158,11 +158,6 @@
                 <version>6.0.0</version>
             </dependency>
             <dependency>
-                <groupId>org.apache.servicemix.bundles</groupId>
-                <artifactId>org.apache.servicemix.bundles.javax-inject</artifactId>
-                <version>1_3</version>
-            </dependency>
-            <dependency>
                 <groupId>org.osgi</groupId>
                 <artifactId>org.osgi.framework</artifactId>
                 <version>1.8.0</version>
