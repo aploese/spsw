@@ -145,9 +145,9 @@ if you want the bytes passed as hex use `LoggingSerialPortSocket.wrapWithHexOutp
 4.  Run `mvn -PBaselineTests test` for the Baseline tests. This tests should never fail.
 5.  `mvn  test` to execute all tests - some will fail. Look at the test itself and on the outcome to device whats up.
 
-##Demos
+## Demos
 
-###Print ports to stdandard out
+### Print ports to stdandard out
 
 goto it/print-ports and execute
 '''
