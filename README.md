@@ -156,6 +156,7 @@ Go to the subdirectory it/print-ports and execute
 `
 mvn exec:java -Dexec.mainClass="de.ibapl.spsw.demo.print.PrintPortsDemoMain"
 `
+
 to list all ports and their state.
 
 
