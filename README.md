@@ -152,11 +152,8 @@ First go to the subdirectory it and execute `mvn package` to build all demos, bu
 
 ### Print ports to stdandard out
 
-Go to the subdirectory it/print-ports and execute
-`
-mvn exec:java -Dexec.mainClass="de.ibapl.spsw.demo.print.PrintPortsDemoMain"
-`
-
+Go to the subdirectory it/print-ports and execute  
+`mvn exec:java -Dexec.mainClass="de.ibapl.spsw.demo.print.PrintPortsDemoMain"`  
 to list all ports and their state.
 
 
