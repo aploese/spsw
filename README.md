@@ -34,13 +34,6 @@ Just use the OSGi annotation @Reference.
 List<SerialPortSocketFactory> loader;
 ```
 
-#### Spring, JEE (JSR 330)
-Use the @Inject annotation.
-```
-@Inject
-List<SerialPortSocketFactory> loader;
-```
-
 #### J2SE with java.util.ServiceLoader
 
 Use the ServiceLoader to load all instances of SerialPortSocketFactory. Usually there should be only one - but prepared for the other.
@@ -122,8 +115,25 @@ try {
 } finally {
 	serialPortSocket.close();
 }
+
 ```
 
+## Logging
+
+To create an ascii logger do the following
+
+```
+ServiceLoader<SerialPortSocketFactory> sl = ServiceLoader.load(SerialPortSocketFactory.class);
+Iterator<SerialPortSocketFactory> i = sl.iterator();
+if (!i.hasNext()) {
+	throw new RuntimeException("No provider for SerialPortSocketFactory found, pleas add one to you class path ");
+}
+final SerialPortSocketFactory serialPortSocketFactory = i.next();
+File logFile = File.createTempFile("Log_" + portName, ".txt");
+SerialPortSocket serialPort = LoggingSerialPortSocket.wrapWithAsciiOutputStream(serialPortSocketFactory.createSerialPortSocket(portName), new FileOutputStream(logFile), false, TimeStampLogging.NONE);
+
+```
+if you want the bytes passed as hex use `LoggingSerialPortSocket.wrapWithHexOutputStream` instead.
 
 
 ## Testing Hardware
@@ -134,3 +144,16 @@ try {
 3.  Edit the portnames in `src/test/resources/junit-spsw-config.properties`. If you have a "cross connected" device use the same name for readPort a writePort.
 4.  Run `mvn -PBaselineTests test` for the Baseline tests. This tests should never fail.
 5.  `mvn  test` to execute all tests - some will fail. Look at the test itself and on the outcome to device whats up.
+
+##Demos
+
+###Print ports to stdandard out
+
+goto it/print-ports and execute
+'''
+mvn exec:java -Dexec.mainClass="de.ibapl.spsw.demo.print.PrintPortsDemoMain"
+'''
+to list all ports and their state.
+
+
+ 

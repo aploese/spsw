@@ -91,8 +91,8 @@ public class PrintPortCapabillitiesMain {
 						} catch (IOException spe) {
 							System.err.println("Error: set Parity to: " + p);
 							System.err.println(spe);
-							Thread.sleep(10);
 						}
+                                                System.err.flush();
 						printPort(serialPortSocket);
 					}
 				}
@@ -111,6 +111,7 @@ public class PrintPortCapabillitiesMain {
 	private static void printPort(SerialPortSocket sPort) throws IOException {
 		System.out.println(String.format("%-20d%-20d%-20f%-20s", sPort.getSpeed().value, sPort.getDatatBits().value,
 				sPort.getStopBits().value, sPort.getParity().name()));
+                System.out.flush();
 	}
 
 }

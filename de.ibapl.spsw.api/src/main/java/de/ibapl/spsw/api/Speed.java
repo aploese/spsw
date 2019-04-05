@@ -71,12 +71,13 @@ public enum Speed {
     _3500000_BPS(3500000),
     _4000000_BPS(4000000);
 
-    public static Speed fromValue(int baudrate) {
-        return fromNative(baudrate);
-    }
 
-    public static Speed fromNative(int baudrate) {
-        switch (baudrate) {
+    /**
+     *
+     * @param speed in bit/s
+     */
+    public static Speed fromNative(int speed) {
+        switch (speed) {
             case 0:
                 return _0_BPS;
             case 50:
@@ -140,7 +141,7 @@ public enum Speed {
             case 4000000:
                 return _4000000_BPS;
             default:
-                throw new IllegalArgumentException("Non standard baudrate: " + baudrate);
+                throw new IllegalArgumentException("Non standard speed: " + speed);
         }
     }
 

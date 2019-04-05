@@ -54,5 +54,18 @@ public enum StopBits {
 	private StopBits(float value) {
 		this.value = value;
 	}
+    /**
+     *
+     * @param stopbits
+     */
+    public static StopBits fromNative(float stopbits) {
+        if (stopbits == 1.0) {
+            return SB_1;
+        } else if (stopbits == 1.5) {
+            return SB_1_5;
+        } else if (stopbits == 2.0) {
+            return SB_2;
+        } else throw  new IllegalArgumentException("Unrecocnized number of stopbits: " + stopbits);
+    }
 
 }
