@@ -147,12 +147,12 @@ if you want the bytes passed as hex use `LoggingSerialPortSocket.wrapWithHexOutp
 
 ## Demos
 
-First go to the subdirectory it and execute 'mvn package' to build all demos, but not install them.
+First go to the subdirectory it and execute `mvn package` to build all demos, but not install them.
 
 ### Print ports to stdandard out
 
 Go to the subdirectory it/print-ports and execute
-`mvn exec:java -Dexec.mainClass="de.ibapl.spsw.demo.print.PrintPortsDemoMain"`
+```mvn exec:java -Dexec.mainClass="de.ibapl.spsw.demo.print.PrintPortsDemoMain"```
 to list all ports and their state.
 
 
