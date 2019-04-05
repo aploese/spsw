@@ -133,7 +133,8 @@ File logFile = File.createTempFile("Log_" + portName, ".txt");
 SerialPortSocket serialPort = LoggingSerialPortSocket.wrapWithAsciiOutputStream(serialPortSocketFactory.createSerialPortSocket(portName), new FileOutputStream(logFile), false, TimeStampLogging.NONE);
 
 ```
-if you want the bytes passed as hex use `LoggingSerialPortSocket.wrapWithHexOutputStream` instead.
+
+If you want the bytes passed formatted as hex use `LoggingSerialPortSocket.wrapWithHexOutputStream` instead.
 
 
 ## Testing Hardware
@@ -152,7 +153,9 @@ First go to the subdirectory it and execute `mvn package` to build all demos, bu
 ### Print ports to stdandard out
 
 Go to the subdirectory it/print-ports and execute
-```mvn exec:java -Dexec.mainClass="de.ibapl.spsw.demo.print.PrintPortsDemoMain"```
+```
+mvn exec:java -Dexec.mainClass="de.ibapl.spsw.demo.print.PrintPortsDemoMain"
+```
 to list all ports and their state.
 
 
