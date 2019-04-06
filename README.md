@@ -136,6 +136,10 @@ SerialPortSocket serialPort = LoggingSerialPortSocket.wrapWithAsciiOutputStream(
 
 If you want the bytes passed formatted as hex use `LoggingSerialPortSocket.wrapWithHexOutputStream` instead.
 
+## Ser2Net
+
+Use `Ser2NetProvider(host, dataPort)` to get an instance of `SerialPortSocket`.
+
 
 ## Testing Hardware
 
