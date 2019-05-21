@@ -29,7 +29,7 @@ In the final application add this implementation to the runtime only.
 
 #### OSGi
 Just use the OSGi annotation @Reference. 
-```
+```java
 @Reference
 List<SerialPortSocketFactory> loader;
 ```
@@ -38,7 +38,7 @@ List<SerialPortSocketFactory> loader;
 
 Use the ServiceLoader to load all instances of SerialPortSocketFactory. Usually there should be only one - but prepared for the other.
 
-```
+```java
 ServiceLoader<SerialPortSocketFactory> loader = ServiceLoader.load(SerialPortSocketFactory.class);
 Iterator<SerialPortSocketFactory> iterator = loader.iterator();
 if (!iterator.hasNext()) {
@@ -56,7 +56,8 @@ if (iterator.hasNext()) {
 ```
 
 ### Open Try With Resource
-```
+
+```java
 try (SerialPortSocket serialPortSocket = serialPortSocketFactory.open(PORT_NAME) {
 	serialPortSocket.open();
 	serialPortSocket.getOutputStream().write("Hello World!".getBytes());
@@ -65,8 +66,9 @@ try (SerialPortSocket serialPortSocket = serialPortSocketFactory.open(PORT_NAME)
 }
 ```
 
-### Open Try With Resource And Parameters 
-```
+### Open Try With Resource And Parameters
+
+```java
 try (SerialPortSocket serialPortSocket = serialPortSocketFactory.open(PORT_NAME, Speed._9600_BPS, DataBits.DB_8, StopBits.SB_1, Parity.NONE, FlowControl.getFC_NONE()) {
 	serialPortSocket.open();
 	serialPortSocket.getOutputStream().write("Hello World!".getBytes());
@@ -75,8 +77,9 @@ try (SerialPortSocket serialPortSocket = serialPortSocketFactory.open(PORT_NAME,
 }
 ```
 
-### Create and Open 
-```
+### Create and Open
+
+```java
 SerialPortSocket serialPortSocket = serialPortSocketFactory.createSerialPortSocket(PORT_NAME);
 	serialPortSocket.open(Speed._9600_BPS, DataBits.DB_8, StopBits.SB_1, Parity.NONE, FlowControl.getFC_NONE());
 	try {
@@ -95,7 +98,7 @@ Set the read timeout to 1000 ms.
 Set the write timeout to 2000 ms.
 Be aware that the read amount of wait time is implementation dependant.  
 
-```
+```java
 serialPortSocket.open();
 try {
 	serialPortSocket.setTimeouts(100, 1000, 2000);
@@ -122,7 +125,7 @@ try {
 
 To create an ascii logger do the following
 
-```
+```java
 ServiceLoader<SerialPortSocketFactory> sl = ServiceLoader.load(SerialPortSocketFactory.class);
 Iterator<SerialPortSocketFactory> i = sl.iterator();
 if (!i.hasNext()) {
@@ -152,9 +155,9 @@ Use `Ser2NetProvider(host, dataPort)` to get an instance of `SerialPortSocket`.
 
 ## Demos
 
-First go to the subdirectory it and execute `mvn package` to build all demos, but not install them.
+First go to the [subdirectory it](./it) and execute `mvn package` to build all demos, but not install them.
 
-### Print ports to stdandard out
+### Print ports to standard out
 
 Go to the subdirectory it/print-ports and execute  
 `mvn exec:java -Dexec.mainClass="de.ibapl.spsw.demo.print.PrintPortsDemoMain"`  
