@@ -168,6 +168,21 @@
                 <artifactId>osgi.enroute.pom.distro</artifactId>
                 <version>2.1.0</version>
             </dependency>
+            <dependency>
+            <groupId>de.ibapl.jnhw</groupId>
+            <artifactId>de.ibapl.jnhw.libloader</artifactId>
+            <version>1.0.0</version>
+        </dependency>
+        <dependency>
+            <groupId>de.ibapl.jnhw</groupId>
+            <artifactId>de.ibapl.jnhw.posix</artifactId>
+            <version>1.0.0</version>
+        </dependency>
+        <dependency>
+            <groupId>de.ibapl.jnhw</groupId>
+            <artifactId>de.ibapl.jnhw.winapi</artifactId>
+            <version>1.0.0</version>
+        </dependency>
 
             <dependency>
                 <groupId>org.junit.jupiter</groupId>

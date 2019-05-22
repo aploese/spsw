@@ -32,7 +32,6 @@
 		<dependency>
 			<groupId>de.ibapl.jnhw</groupId>
 			<artifactId>de.ibapl.jnhw.libloader</artifactId>
-			<version>1.0.0</version>
 		</dependency>
 		<dependency>
 			<groupId>org.junit.jupiter</groupId>
