@@ -12,12 +12,6 @@
 	<artifactId>de.ibapl.spsw.api.test</artifactId>
 	<name>SPSW API Tests</name>
 
-
-	<properties>
-		<license.licenseResolver>${project.baseUri}/../src/licenses</license.licenseResolver>
-		<license.licenseName>${license.licenseName.epl}</license.licenseName>
-	</properties>
-
 	<dependencies>
 		<dependency>
 			<groupId>de.ibapl.spsw</groupId>

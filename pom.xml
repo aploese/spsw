@@ -25,9 +25,6 @@
 		<compile.target>1.8</compile.target>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<license.licenseName.lgpl>spsw-lgpl-3</license.licenseName.lgpl>
-		<license.licenseName.epl>spsw-epl-2</license.licenseName.epl>
-		<license.licenseResolver>${project.baseUri}/src/licenses</license.licenseResolver>
-		<license.licenseName>${license.licenseName.epl}</license.licenseName>
 	</properties>
 
 	<developers>

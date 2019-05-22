@@ -12,11 +12,6 @@
     <artifactId>de.ibapl.spsw.api</artifactId>
     <name>SPSW API</name>
     
-    <properties>
-        <license.licenseResolver>${project.baseUri}/../src/licenses</license.licenseResolver>
-        <license.licenseName>${license.licenseName.epl}</license.licenseName>
-    </properties>
-
     <dependencies>
         <dependency>
             <groupId>org.osgi</groupId>
