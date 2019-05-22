@@ -1,12 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0"
-	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>de.ibapl.spsw</groupId>
 	<artifactId>spsw-project</artifactId>
 	<packaging>pom</packaging>
-	<version>2.1.0-SNAPSHOT</version>
+	<version>2.1.0</version>
 	<name>SPSW</name>
 	<url>https://github.com/aploese/spsw</url>
 	<inceptionYear>2009</inceptionYear>
@@ -124,7 +122,8 @@
 		<url>https://github.com/aploese/spsw</url>
 		<connection>scm:git:https://github.com/aploese/spsw.git</connection>
 		<developerConnection>scm:git:git@github.com:aploese/spsw.git</developerConnection>
-	</scm>
+	  <tag>spsw-project-2.1.0</tag>
+  </scm>
 
 
 	<modules>
