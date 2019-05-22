@@ -49,7 +49,7 @@
         <dependency>
             <groupId>de.ibapl.jnhw</groupId>
             <artifactId>de.ibapl.jnhw.libloader</artifactId>
-            <version>1.0.0-SNAPSHOT</version>
+            <version>1.0.0</version>
         </dependency>
     </dependencies>
 
@@ -58,45 +58,6 @@
             <plugin>
                 <groupId>biz.aQute.bnd</groupId>
                 <artifactId>bnd-maven-plugin</artifactId>
-                <configuration>
-                    <bnd><![CDATA[
-Bundle-NativeCode: \
- lib/x86_64-linux-gnu/libspsw.so.0; \
-  osname=Linux; \
-  processor=x86-64
-]]></bnd>
-Bundle-NativeCode: \
- lib/arm-linux-gnueabihf/libspsw.so.0; \
-  osname=Linux; \
-  processor=arm,\
- lib/aarch64-linux-gnu/libspsw.so.0; \
-  osname=Linux; \
-  processor=arm64,\
- lib/i386-linux-gnu/libspsw.so.0; \
-  osname=Linux; \
-  processor=x86,\
- lib/x86_64-linux-gnu/libspsw.so.0; \
-  osname=Linux; \
-  processor=x86-64,\
- lib/mips-linux-gnu/libspsw.so.0; \
-  osname=Linux; \
-  processor=mips,\
- lib/mipsel-linux-gnu/libspsw.so.0; \
-  osname=Linux; \
-  processor=mipsel,\
- lib/mips64-linux-gnuabi64/libspsw.so.0; \
-  osname=Linux; \
-  processor=mips64,\
- lib/mips64el-linux-gnuabi64/libspsw.so.0; \
-  osname=Linux; \
-  processor=mips64el,\
- lib/x86_64-windows-pe32+/libspsw.0.dll; \
-  osname=Windows7; osname=Windows8; osname=Windows10; \
-  processor=x86-64,\
- lib/x86-windows-pe32/libspsw.0.dll; \
-  osname=Windows7; osname=Windows8; osname=Windows10; \
-  processor=x86
-                </configuration>
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
