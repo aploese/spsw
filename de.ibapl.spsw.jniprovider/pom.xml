@@ -12,12 +12,6 @@
     <artifactId>de.ibapl.spsw.jniprovider</artifactId>
     <name>SPSW JNI Provider</name>
 
-    <properties>
-        <license.licenseResolver>${project.baseUri}/../src/licenses</license.licenseResolver>
-        <license.licenseName>${license.licenseName.lgpl}</license.licenseName>
-    </properties>
-
-
     <dependencies>
         <dependency>
             <groupId>org.osgi</groupId>
