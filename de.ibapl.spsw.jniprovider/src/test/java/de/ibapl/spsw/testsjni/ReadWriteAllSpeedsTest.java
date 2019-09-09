@@ -19,12 +19,14 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-package de.ibapl.spsw.tests;
+package de.ibapl.spsw.testsjni;
+
+import de.ibapl.spsw.tests.AbstractReadWriteAllSpeedsTest;
 
 /**
  *
  * @author Arne Plöse
  */
-public class ReadWriteRtsCtsTests extends AbstractReadWriteRtsCtsTests {
+public class ReadWriteAllSpeedsTest extends AbstractReadWriteAllSpeedsTest {
 
 }

@@ -34,10 +34,10 @@ import org.junit.jupiter.api.Test;
  * @author Arne Plöse
  *
  */
-class PortnamesComparatorTest {
+public class PortnamesComparatorTest {
 
 	@Test
-	void testCompareLinux() {
+	public void testCompareLinux() {
 		PortnamesComparator pnc = new PortnamesComparator();
 
 		assertEquals(-2, "".compareTo("0a"));
@@ -63,7 +63,7 @@ class PortnamesComparatorTest {
 	}
 
 	@Test
-	void testCompareLinux1() {
+	public void testCompareLinux1() {
 		PortnamesComparator pnc = new PortnamesComparator();
 
 		assertEquals(-1, pnc.compare("ttyUSB08", "ttyUSB008"));
@@ -86,7 +86,7 @@ class PortnamesComparatorTest {
 	}
 
 	@Test
-	void testCompareLinux2() {
+	public void testCompareLinux2() {
 		PortnamesComparator pnc = new PortnamesComparator();
 		LinkedList<String> list = new LinkedList<>();
 		list.add("USB");

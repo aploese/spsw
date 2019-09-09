@@ -23,10 +23,6 @@ package de.ibapl.spsw.api;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-import org.junit.jupiter.api.AfterAll;
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 /**
@@ -34,26 +30,10 @@ import org.junit.jupiter.api.Test;
  * @author Arne Plöse
  *
  */
-class SerialPortSocketTest {
-
-	@BeforeAll
-	static void setUpBeforeClass() throws Exception {
-	}
-
-	@AfterAll
-	static void tearDownAfterClass() throws Exception {
-	}
-
-	@BeforeEach
-	void setUp() throws Exception {
-	}
-
-	@AfterEach
-	void tearDown() throws Exception {
-	}
+public class SerialPortSocketTest {
 
 	@Test
-	void testCalculateMillisForCharacters() {
+	public void testCalculateMillisForCharacters() {
 		int result = SerialPortSocket.calculateMillisForCharacters(1024, Speed._50_BPS, DataBits.DB_8, StopBits.SB_2,
 				Parity.EVEN);
 		assertEquals(245760, result);
@@ -88,7 +68,7 @@ class SerialPortSocketTest {
 	}
 
 	@Test
-	void testCalculateMillisPerCharacter() {
+	public void testCalculateMillisPerCharacter() {
 		// Longest Time
 		double result = SerialPortSocket.calculateMillisPerCharacter(Speed._50_BPS, DataBits.DB_8, StopBits.SB_2,
 				Parity.EVEN);
@@ -116,7 +96,7 @@ class SerialPortSocketTest {
 	}
 
 	@Test
-	void calculateSpeedInCharactersPerSecond() {
+	public void calculateSpeedInCharactersPerSecond() {
 		// Lowest speed
 		double result = SerialPortSocket.calculateSpeedInCharactersPerSecond(Speed._50_BPS, DataBits.DB_8,
 				StopBits.SB_2, Parity.EVEN);

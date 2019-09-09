@@ -19,7 +19,7 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-package de.ibapl.spsw.tests;
+package de.ibapl.spsw.testsjnhw;
 
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -29,6 +29,7 @@ import java.util.logging.Level;
 import org.junit.jupiter.api.Test;
 
 import de.ibapl.spsw.jnhwprovider.PosixSerialPortSocket;
+import de.ibapl.spsw.tests.AbstractOnePortTest;
 import de.ibapl.spsw.tests.tags.DtrDsrTest;
 import de.ibapl.spsw.tests.tags.RtsCtsTest;
 

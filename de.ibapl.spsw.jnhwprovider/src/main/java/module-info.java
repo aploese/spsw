@@ -19,13 +19,13 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-package de.ibapl.spsw.tests;
-
-/**
- * 
- * @author Arne Plöse
- *
- */
-public class TwoPortsBaselineTest extends AbstractReadWriteBaselineTest {
-
+module de.ibapl.spsw.jnhwprovider {
+	requires java.logging;
+	requires osgi.annotation;
+	requires org.osgi.service.component.annotations;
+	requires de.ibapl.spsw.api;
+	requires de.ibapl.jnhw.posix;
+	requires de.ibapl.jnhw.winapi;
+	
+	provides de.ibapl.spsw.api.SerialPortSocketFactory with de.ibapl.spsw.jnhwprovider.SerialPortSocketFactoryImpl;
 }

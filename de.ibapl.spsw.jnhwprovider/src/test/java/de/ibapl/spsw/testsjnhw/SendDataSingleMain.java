@@ -19,7 +19,7 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-package de.ibapl.spsw.tests;
+package de.ibapl.spsw.testsjnhw;
 
 import java.time.Instant;
 import java.time.format.DateTimeFormatter;
@@ -30,7 +30,7 @@ import de.ibapl.spsw.api.Parity;
 import de.ibapl.spsw.api.SerialPortSocket;
 import de.ibapl.spsw.api.Speed;
 import de.ibapl.spsw.api.StopBits;
-import de.ibapl.spsw.jniprovider.SerialPortSocketFactoryImpl;
+import de.ibapl.spsw.jnhwprovider.SerialPortSocketFactoryImpl;
 
 /**
  * 

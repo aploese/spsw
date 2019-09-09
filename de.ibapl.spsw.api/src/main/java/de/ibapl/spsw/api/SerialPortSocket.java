@@ -27,7 +27,9 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.lang.annotation.Native;
 import java.nio.channels.ByteChannel;
+import java.time.Duration;
 import java.util.Set;
+import java.util.concurrent.TimeUnit;
 
 import org.osgi.annotation.versioning.ProviderType;
 

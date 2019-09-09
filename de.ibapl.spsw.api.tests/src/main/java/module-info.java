@@ -19,16 +19,14 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-package de.ibapl.spsw.tests;
-
-import org.junit.jupiter.api.Disabled;
-
-/**
- * 
- * @author Arne Plöse
- *
- */
-@Disabled
-public class TwoPortsBaselineRxTxTest extends AbstractTwoPortsBaselineRxTxTest {
-
+module de.ibapl.spsw.api.test {
+	requires java.logging;
+	requires de.ibapl.spsw.api;
+	requires org.junit.jupiter.api;
+	requires org.junit.jupiter.params;
+	requires de.ibapl.jnhw.libloader;
+	requires rxtx;
+	
+	exports de.ibapl.spsw.tests;
+	exports de.ibapl.spsw.tests.tags;
 }

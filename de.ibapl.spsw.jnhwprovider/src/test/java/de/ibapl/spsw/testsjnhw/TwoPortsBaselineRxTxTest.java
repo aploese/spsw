@@ -19,12 +19,17 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-package de.ibapl.spsw.tests;
+package de.ibapl.spsw.testsjnhw;
+
+import de.ibapl.spsw.tests.AbstractTwoPortsBaselineRxTxTest;
+import org.junit.jupiter.api.Disabled;
 
 /**
- *
+ * 
  * @author Arne Plöse
+ *
  */
-public class ReadWriteAllSpeedsTest extends AbstractReadWriteAllSpeedsTest {
+@Disabled
+public class TwoPortsBaselineRxTxTest extends AbstractTwoPortsBaselineRxTxTest {
 
 }

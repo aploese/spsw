@@ -6,7 +6,7 @@
         <groupId>de.ibapl.spsw</groupId>
         <artifactId>spsw-project</artifactId>
         <version>2.1.1-SNAPSHOT</version>
-        <relativePath>..</relativePath>
+        <relativePath>../pom.xml</relativePath>
     </parent>
   
     <artifactId>de.ibapl.spsw.api</artifactId>
@@ -19,7 +19,7 @@
         </dependency>
         <dependency>
             <groupId>org.osgi</groupId>
-            <artifactId>org.osgi.annotation</artifactId>
+            <artifactId>osgi.annotation</artifactId>
         </dependency>
         <dependency>
             <groupId>org.junit.jupiter</groupId>

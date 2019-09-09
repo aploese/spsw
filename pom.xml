@@ -19,8 +19,8 @@
 
 	<properties>
 		<project.scm.id>github</project.scm.id>
-		<compile.source>1.8</compile.source>
-		<compile.target>1.8</compile.target>
+		<compile.source>11</compile.source>
+		<compile.target>11</compile.target>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 	</properties>
 
@@ -128,8 +128,8 @@
 		<dependencies>
 			<dependency>
 				<groupId>org.osgi</groupId>
-				<artifactId>org.osgi.annotation</artifactId>
-				<version>6.0.0</version>
+				<artifactId>osgi.annotation</artifactId>
+				<version>7.0.0</version>
 			</dependency>
 			<dependency>
 				<groupId>org.osgi</groupId>
@@ -141,34 +141,37 @@
 			<dependency>
 				<groupId>de.ibapl.jnhw</groupId>
 				<artifactId>de.ibapl.jnhw.libloader</artifactId>
-				<version>[1.0.0,2.0.0)</version>
+				<version>1.0.1-SNAPSHOT</version>
+				<!--version>[1.0.1,2.0.0)</version-->
 			</dependency>
 			<dependency>
 				<groupId>de.ibapl.jnhw</groupId>
 				<artifactId>de.ibapl.jnhw.posix</artifactId>
-				<version>[1.0.0,2.0.0)</version>
+				<version>1.0.1-SNAPSHOT</version>
+				<!--version>[1.0.1,2.0.0)</version-->
 			</dependency>
 			<dependency>
 				<groupId>de.ibapl.jnhw</groupId>
 				<artifactId>de.ibapl.jnhw.winapi</artifactId>
-				<version>[1.0.0,2.0.0)</version>
+				<version>1.0.1-SNAPSHOT</version>
+				<!--version>[1.0.1,2.0.0)</version-->
 			</dependency>
 			<dependency>
 				<groupId>org.junit.jupiter</groupId>
 				<artifactId>junit-jupiter-api</artifactId>
-				<version>5.4.2</version>
+				<version>5.5.1</version>
 				<scope>test</scope>
 			</dependency>
 			<dependency>
 				<groupId>org.junit.jupiter</groupId>
 				<artifactId>junit-jupiter-engine</artifactId>
-				<version>5.4.2</version>
+				<version>5.5.1</version>
 				<scope>test</scope>
 			</dependency>
 			<dependency>
 				<groupId>org.junit.jupiter</groupId>
 				<artifactId>junit-jupiter-params</artifactId>
-				<version>5.4.2</version>
+				<version>5.5.1</version>
 				<scope>test</scope>
 			</dependency>
 		</dependencies>
@@ -236,7 +239,7 @@
 				<plugin>
 					<groupId>org.apache.maven.plugins</groupId>
 					<artifactId>maven-javadoc-plugin</artifactId>
-					<version>3.1.0</version>
+					<version>3.1.1</version>
 				</plugin>
 				<plugin>
 					<groupId>org.apache.maven.plugins</groupId>
