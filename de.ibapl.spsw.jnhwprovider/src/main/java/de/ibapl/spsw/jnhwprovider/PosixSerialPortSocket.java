@@ -198,7 +198,7 @@ public class PosixSerialPortSocket extends AbstractSerialPortSocket<PosixSerialP
             }
 
             try {
-                tcflush(fd, TCIOFLUSH());
+                tcflush(tempFd, TCIOFLUSH());
             } catch (NativeErrorException nee) {
                 //no-op
             }
