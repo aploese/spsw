@@ -38,6 +38,7 @@ import de.ibapl.spsw.api.Parity;
 import de.ibapl.spsw.api.SerialPortSocket;
 import de.ibapl.spsw.api.Speed;
 import de.ibapl.spsw.api.StopBits;
+import java.lang.ref.Cleaner;
 
 /**
  * A wrapper around an {@link SerialPortSocket} to log its activity. Use the
@@ -51,6 +52,28 @@ import de.ibapl.spsw.api.StopBits;
  */
 @ProviderType
 public class LoggingSerialPortSocket implements SerialPortSocket {
+
+    	private static final Cleaner cleaner = Cleaner.create();
+
+	static class LogWriterCloser implements Runnable {
+
+		final LogWriter logWriter;
+
+		LogWriterCloser(final LogWriter logWriter) {
+			this.logWriter = logWriter;
+		}
+
+		public void run() {
+			try {
+			if (logWriter != null) {
+				logWriter.close();
+			}
+			} catch (Throwable t) {
+                            t.printStackTrace();
+			}
+
+		}
+	}
 
 	private class LIS extends InputStream {
 
@@ -283,7 +306,7 @@ public class LoggingSerialPortSocket implements SerialPortSocket {
 			boolean verbose, TimeStampLogging timeStampLogging) throws FileNotFoundException {
 		this.serialPortSocket = serialPortSocket;
 		this.logWriter = new LogWriter(logOs, ascii, timeStampLogging, verbose);
-
+		cleaner.register(this, new LogWriterCloser(this.logWriter));
 	}
 
 	@Override
@@ -297,17 +320,6 @@ public class LoggingSerialPortSocket implements SerialPortSocket {
 		} catch (IOException e) {
 			logWriter.afterSpClose(Instant.now(), e);
 			throw e;
-		}
-	}
-
-	@Override
-	protected void finalize() throws Throwable {
-		try {
-			if (logWriter != null) {
-				logWriter.close();
-			}
-		} finally {
-			super.finalize();
 		}
 	}
 

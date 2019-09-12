@@ -242,7 +242,7 @@ public class GenericWinSerialPortSocket extends AbstractSerialPortSocket<Generic
             ClearCommError(hFile, lpErrors, result);
             return result;
         } catch (NativeErrorException nee) {
-            throw createClosedOrNativeException(nee.errno, "native call ClearCommError lpError %0x", lpErrors.value);
+            throw createClosedOrNativeException(nee.errno, "native call ClearCommError lpError 0x%08x", lpErrors.value);
         }
     }
 

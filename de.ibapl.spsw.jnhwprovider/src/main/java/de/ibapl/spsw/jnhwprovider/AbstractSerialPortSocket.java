@@ -204,6 +204,9 @@ public abstract class AbstractSerialPortSocket<T extends AbstractSerialPortSocke
      */
     protected abstract void drainOutputBuffer() throws IOException;
 
+    
+    //TODO JAVA 9 finalze
+    @Deprecated
     @Override
     protected final void finalize() throws Throwable {
         try {
