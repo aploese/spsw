@@ -27,7 +27,6 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.lang.annotation.Native;
 import java.nio.channels.ByteChannel;
-import java.time.Duration;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
@@ -77,6 +76,12 @@ public interface SerialPortSocket extends ByteChannel {
 	 */
 	@Native
 	public final static String PORT_IS_CLOSED = "Port is closed";
+	/**
+	 * {@value #PORT_FD_INVALID}. This should be the message of the IOException, if
+	 * the file descriptor of the port is invalid. For instance unplugged USB serial adapter.
+	 */
+	@Native
+	public final static String PORT_FD_INVALID = "File descriptor of serial port is invalid";
 	/**
 	 * {@value #PORT_IS_OPEN}. This should be the message of the IOException, if the
 	 * operation is not allowed on an open port.
@@ -375,7 +380,7 @@ public interface SerialPortSocket extends ByteChannel {
 	boolean isDSR() throws IOException;
 
 	/**
-	 * Returns the open state of the port.
+	 * Returns the open state of the port. 
 	 *
 	 * @return true if port is open, otherwise false.
 	 * @see #open()

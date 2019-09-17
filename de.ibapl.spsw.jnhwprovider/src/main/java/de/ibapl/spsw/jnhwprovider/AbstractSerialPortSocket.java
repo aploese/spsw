@@ -204,27 +204,6 @@ public abstract class AbstractSerialPortSocket<T extends AbstractSerialPortSocke
      */
     protected abstract void drainOutputBuffer() throws IOException;
 
-    
-    //TODO JAVA 9 finalze
-    @Deprecated
-    @Override
-    protected final void finalize() throws Throwable {
-        try {
-            if (isOpen()) {
-                close();
-            }
-        } catch (Exception ex) {
-            // This should always work
-            System.err.println("SerialPortSocket " + getPortName() + " finalize() exception: " + ex);
-        } catch (Error err) {
-            // Leave a trace what hit us...
-            System.err.println("SerialPortSocket " + getPortName() + " finalize() error: " + err);
-            throw err;
-        } finally {
-            super.finalize();
-        }
-    }
-
     @Override
     public synchronized InputStream getInputStream() throws IOException {
         if (!isOpen()) {

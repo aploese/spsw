@@ -32,6 +32,7 @@ import static de.ibapl.jnhw.linux.sys.Eventfd.EFD_NONBLOCK;
 import static de.ibapl.jnhw.linux.sys.Eventfd.eventfd;
 
 import static de.ibapl.jnhw.posix.Errno.EACCES;
+import static de.ibapl.jnhw.posix.Errno.EBADF;
 import static de.ibapl.jnhw.posix.Errno.EAGAIN;
 import static de.ibapl.jnhw.posix.Errno.ENOTTY;
 import static de.ibapl.jnhw.posix.Errno.EIO;
@@ -44,6 +45,7 @@ import static de.ibapl.jnhw.posix.Fcntl.O_NONBLOCK;
 import static de.ibapl.jnhw.posix.Fcntl.F_SETFL;
 
 import static de.ibapl.jnhw.posix.Poll.POLLIN;
+import static de.ibapl.jnhw.posix.Poll.POLLHUP;
 import static de.ibapl.jnhw.posix.Poll.POLLOUT;
 import static de.ibapl.jnhw.posix.Poll.PollFds;
 import static de.ibapl.jnhw.posix.Poll.poll;
@@ -141,10 +143,52 @@ import de.ibapl.spsw.api.Parity;
 import de.ibapl.spsw.api.Speed;
 import de.ibapl.spsw.api.StopBits;
 import de.ibapl.spsw.api.TimeoutIOException;
+import java.lang.ref.Cleaner;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+/*
+int is_valid_fd(int fd)
+{
+    return fcntl(fd, F_GETFL) != -1 || errno != EBADF;
+}
+ */
 public class PosixSerialPortSocket extends AbstractSerialPortSocket<PosixSerialPortSocket> {
+
+    public final static Cleaner CLEANER = Cleaner.create();
+
+    static class FdCleaner implements Runnable {
+
+        int fd = INVALID_FD;
+        int close_event_write_fd = INVALID_FD;
+        int close_event_read_fd = INVALID_FD;
+
+        @Override
+        public void run() {
+            if (fd != PosixSerialPortSocket.INVALID_FD) {
+                try {
+                    Unistd.close(fd);
+                } catch (NativeErrorException ex) {
+                    LOG.severe("can't clean fd");
+                }
+            }
+            if (close_event_write_fd != PosixSerialPortSocket.INVALID_FD) {
+                try {
+                    Unistd.close(close_event_write_fd);
+                } catch (NativeErrorException ex) {
+                    LOG.severe("can't clean close_event_write_fd");
+                }
+            }
+            if (close_event_read_fd != PosixSerialPortSocket.INVALID_FD) {
+                try {
+                    Unistd.close(close_event_read_fd);
+                } catch (NativeErrorException ex) {
+                    LOG.severe("can't clean close_event_read_fd");
+                }
+            }
+        }
+
+    }
 
     private final static Logger LOG = Logger.getLogger(PosixSerialPortSocket.class.getCanonicalName());
 
@@ -157,9 +201,11 @@ public class PosixSerialPortSocket extends AbstractSerialPortSocket<PosixSerialP
     private int pollWriteTimeout = -1;
     private final int CMSPAR_OR_PAREXT;
     private final boolean JNHW_HAVE_SYS_EVENTFD_H;
+    private FdCleaner fdCleaner = new FdCleaner();
 
     public PosixSerialPortSocket(String portName) {
         super(portName);
+        CLEANER.register(this, fdCleaner);
         //Check that the libs are loaded
         if (!LibJnhwPosixLoader.touch()) {
             throw new RuntimeException("Could not load native lib", LibJnhwPosixLoader.LIB_JNHW_POSIX_LOAD_RESULT.loadError);
@@ -201,10 +247,14 @@ public class PosixSerialPortSocket extends AbstractSerialPortSocket<PosixSerialP
                 tcflush(tempFd, TCIOFLUSH());
             } catch (NativeErrorException nee) {
                 //no-op
+                LOG.log(Level.SEVERE, "Native Error flushing " + Errno.getErrnoSymbol(nee.errno), nee);
+            } catch (Throwable t) {
+                LOG.log(Level.SEVERE, "unknown Error flushing ", t);
             }
 
             try {
                 Unistd.close(tempFd);
+                fdCleaner.fd = INVALID_FD;
                 try {
                     //eventfd
                     if (close_event_read_fd == close_event_write_fd) {
@@ -216,12 +266,15 @@ public class PosixSerialPortSocket extends AbstractSerialPortSocket<PosixSerialP
                     }
                     close_event_read_fd = INVALID_FD;
                     close_event_write_fd = INVALID_FD;
+                    fdCleaner.close_event_read_fd = INVALID_FD;
+                    fdCleaner.close_event_write_fd = INVALID_FD;
                 } catch (NativeErrorException ex) {
-
+                    System.err.println(ex.toString());
                 }
             } catch (NativeErrorException nee) {
-                fd = tempFd;
-                throw new IOException("close => POSIX errno: " + Errno.getErrnoSymbol(nee.errno));
+                //TODO after poll POLLHUP ???
+                // fd = tempFd;
+                LOG.log(Level.SEVERE, "unknown Error during closing " + Errno.getErrnoSymbol(nee.errno), nee);
             }
         }
     }
@@ -279,11 +332,7 @@ public class PosixSerialPortSocket extends AbstractSerialPortSocket<PosixSerialP
             ioctl(fd, FIONREAD(), returnValueRef);
             return returnValueRef.value;
         } catch (NativeErrorException nee) {
-            if (fd == INVALID_FD) {
-                throw new IOException(PORT_IS_CLOSED);
-            } else {
-                throw new IOException("Can't read in buffer size " + Errno.getErrnoSymbol(nee.errno));
-            }
+            throw new IOException(formatMsg(nee, "Can't read in buffer size "));
         }
     }
 
@@ -299,11 +348,7 @@ public class PosixSerialPortSocket extends AbstractSerialPortSocket<PosixSerialP
             ioctl(fd, TIOCOUTQ(), returnValueRef);
             return returnValueRef.value;
         } catch (NativeErrorException nee) {
-            if (fd == INVALID_FD) {
-                throw new IOException(PORT_IS_CLOSED);
-            } else {
-                throw new IOException("Can't read out buffer size " + Errno.getErrnoSymbol(nee.errno));
-            }
+            throw new IOException(formatMsg(nee, "Can't read out buffer size "));
         }
     }
 
@@ -672,6 +717,20 @@ public class PosixSerialPortSocket extends AbstractSerialPortSocket<PosixSerialP
         return fd != INVALID_FD;
     }
 
+    private boolean isFdValid() {
+        try {
+            return Fcntl.fcntl(fd, Fcntl.F_GETFL()) != INVALID_FD;
+        } catch (NativeErrorException nee) {
+            if (nee.errno == EBADF()) {
+                LOG.log(Level.SEVERE, "Port {0} has invalid file descriptor", portName);
+                return false;
+            } else {
+                LOG.log(Level.SEVERE, "file descriptor of port " + portName + " not valid unknown Native exception " + Errno.getErrnoSymbol(nee.errno), nee);
+                return false;
+            }
+        }
+    }
+
     @Override
     public boolean isRI() throws IOException {
         return getLineStatus(TIOCM_RNG());
@@ -705,7 +764,7 @@ public class PosixSerialPortSocket extends AbstractSerialPortSocket<PosixSerialP
             }
         }
 
-        StructTermios termios = new StructTermios();
+        final StructTermios termios = new StructTermios();
         try {
             tcgetattr(fd, termios);
         } catch (NativeErrorException nee) {
@@ -733,7 +792,7 @@ public class PosixSerialPortSocket extends AbstractSerialPortSocket<PosixSerialP
                 fd = INVALID_FD;
             } catch (NativeErrorException nee1) {
             }
-            new IOException("Can't set exclusive access errno: " + Errno.getErrnoSymbol(nee.errno));
+            throw new IOException("Can't set exclusive access errno: " + Errno.getErrnoSymbol(nee.errno));
         }
 
         // TODO Linux?? posix.cfmakeraw(termios);
@@ -758,7 +817,6 @@ public class PosixSerialPortSocket extends AbstractSerialPortSocket<PosixSerialP
             throw t;
         }
 
-        termios = getTermios();
         // flush the device
         try {
             tcflush(fd, TCIOFLUSH());
@@ -795,6 +853,9 @@ public class PosixSerialPortSocket extends AbstractSerialPortSocket<PosixSerialP
             }
             throw new IOException("Can't create close_event_fd");
         }
+        fdCleaner.fd = fd;
+        fdCleaner.close_event_read_fd = close_event_read_fd;
+        fdCleaner.close_event_write_fd = close_event_write_fd;
     }
 
     @Override
@@ -805,7 +866,7 @@ public class PosixSerialPortSocket extends AbstractSerialPortSocket<PosixSerialP
         try {
             tcsendbreak(fd, duration);
         } catch (NativeErrorException nee) {
-            throw createClosedOrNativeException(nee.errno, "Can't sendBreak");
+            throw new IOException(formatMsg(nee, "Can't sendBreak"));
         }
     }
 
@@ -830,11 +891,7 @@ public class PosixSerialPortSocket extends AbstractSerialPortSocket<PosixSerialP
         try {
             ioctl(fd, arg);
         } catch (NativeErrorException nee) {
-            if (fd == INVALID_FD) {
-                throw new IOException(PORT_IS_CLOSED);
-            } else {
-                throw new IOException("Can't set Break " + Errno.getErrnoSymbol(nee.errno));
-            }
+            throw new IOException(formatMsg(nee, "Can't set Break "));
         }
     }
 
@@ -859,7 +916,7 @@ public class PosixSerialPortSocket extends AbstractSerialPortSocket<PosixSerialP
             tcgetattr(fd, termios);
             return termios;
         } catch (NativeErrorException nee) {
-            throw createClosedOrNativeException(nee.errno, "Native port error => open tcgetattr (%s)", portName);
+            throw new IOException(formatMsg(nee, "Native port error => open tcgetattr (%s)", portName));
         }
     }
 
@@ -872,7 +929,7 @@ public class PosixSerialPortSocket extends AbstractSerialPortSocket<PosixSerialP
             try {
                 cfsetspeed(termios, speedValue);
             } catch (NativeErrorException nee) {
-                throw createClosedOrNativeException(nee.errno, "Can't set Speed cfsetspeed(settings, speedValue)");
+                throw new IOException(formatMsg(nee, "Can't set Speed cfsetspeed(settings, speedValue)"));
             }
         }
 
@@ -1049,11 +1106,7 @@ public class PosixSerialPortSocket extends AbstractSerialPortSocket<PosixSerialP
         try {
             ioctl(fd, TIOCMGET(), lineStatusRef);
         } catch (NativeErrorException nee) {
-            if (fd == INVALID_FD) {
-                throw new IOException(PORT_IS_CLOSED);
-            } else {
-                throw new IOException("Can't get line status " + Errno.getErrnoSymbol(nee.errno));
-            }
+            throw new IOException(formatMsg(nee, "Can't get line status "));
         }
         return (lineStatusRef.value & bitMask) == bitMask;
     }
@@ -1063,11 +1116,7 @@ public class PosixSerialPortSocket extends AbstractSerialPortSocket<PosixSerialP
         try {
             ioctl(fd, TIOCMGET(), lineStatusRef);
         } catch (NativeErrorException nee) {
-            if (fd == INVALID_FD) {
-                throw new IOException(PORT_IS_CLOSED);
-            } else {
-                throw new IOException("Can't get line status " + Errno.getErrnoSymbol(nee.errno));
-            }
+            throw new IOException(formatMsg(nee, "Can't get line status "));
         }
         if (enabled) {
             lineStatusRef.value |= bitMask;
@@ -1077,11 +1126,7 @@ public class PosixSerialPortSocket extends AbstractSerialPortSocket<PosixSerialP
         try {
             ioctl(fd, TIOCMSET(), lineStatusRef);
         } catch (NativeErrorException nee) {
-            if (fd == INVALID_FD) {
-                throw new IOException(PORT_IS_CLOSED);
-            } else {
-                throw new IOException("Can't set line status " + Errno.getErrnoSymbol(nee.errno));
-            }
+            throw new IOException(formatMsg(nee, "Can't set line status"));
         }
     }
 
@@ -1111,7 +1156,7 @@ public class PosixSerialPortSocket extends AbstractSerialPortSocket<PosixSerialP
         try {
             tcsetattr(fd, TCSANOW(), termios);
         } catch (NativeErrorException nee) {
-            throw createClosedOrNativeException(nee.errno, "setXOFFChar tcsetattr");
+            throw new IOException(formatMsg(nee, "setXOFFChar tcsetattr"));
         }
 
         if (getXOFFChar() != c) {
@@ -1119,17 +1164,14 @@ public class PosixSerialPortSocket extends AbstractSerialPortSocket<PosixSerialP
         }
     }
 
-    private void throwNativeException(int errno, String formatString, Object... args) throws IOException {
-        throw new IOException(String.format("Native port error on %s, \"%d\" %s", portName, Errno.getErrnoSymbol(errno),
-                String.format(formatString, args)));
-    }
-
-    private IOException createClosedOrNativeException(int errno, String formatString, Object... args) {
+    private String formatMsg(NativeErrorException nee, String formatString, Object... args) {
         if (fd == INVALID_FD) {
-            return new IOException(PORT_IS_CLOSED);
+            return PORT_IS_CLOSED;
+        } else if (isFdValid()) {
+            return String.format("Native port error on %s, \"%s\" %s", portName, Errno.getErrnoSymbol(nee.errno),
+                    String.format(formatString, args));
         } else {
-            return new IOException(String.format("Native port error on %s, \"%d\" %s", portName, Errno.getErrnoSymbol(errno),
-                    String.format(formatString, args)));
+            return PORT_FD_INVALID;
         }
     }
 
@@ -1141,7 +1183,7 @@ public class PosixSerialPortSocket extends AbstractSerialPortSocket<PosixSerialP
         try {
             tcsetattr(fd, TCSANOW(), termios);
         } catch (NativeErrorException nee) {
-            throw createClosedOrNativeException(nee.errno, "setXONChar tcsetattr ");
+            throw new IOException(formatMsg(nee, "setXONChar tcsetattr "));
         }
         if (getXONChar() != c) {
             throw new RuntimeException("Cant't set XON char");
@@ -1173,12 +1215,12 @@ public class PosixSerialPortSocket extends AbstractSerialPortSocket<PosixSerialP
         } catch (NativeErrorException nee) {
             if (nee.errno == EAGAIN()) {
                 written = 0;
+            } else if (fd == INVALID_FD) {
+                throw new AsynchronousCloseException();
+            } else if (nee.errno == EBADF()) {
+                throw new InterruptedIOException(PORT_FD_INVALID);
             } else {
-                if (fd == INVALID_FD) {
-                    throw new AsynchronousCloseException();
-                } else {
-                    throw new InterruptedIOException("unknown port error writeBytes " + Errno.getErrnoSymbol(nee.errno));
-                }
+                throw new InterruptedIOException(formatMsg(nee, "unknown port error write "));
             }
         }
 
@@ -1209,16 +1251,17 @@ public class PosixSerialPortSocket extends AbstractSerialPortSocket<PosixSerialP
                         throw new AsynchronousCloseException();
                     } else if (fds.get(0).revents() == POLLOUT()) {
                         // Happy path all is right...
+                    } else if ((fds.get(0).revents() & POLLHUP()) == POLLHUP()) {
+                        throw new InterruptedIOException(PORT_FD_INVALID);
                     } else {
                         InterruptedIOException iioe = new InterruptedIOException(
-                                "poll returned with poll event writeBytes ");
+                                "poll returned with poll event write ");
                         iioe.bytesTransferred = (int) offset;
                         throw iioe;
                     }
                 }
             } catch (NativeErrorException nee) {
-                InterruptedIOException iioe = new InterruptedIOException(
-                        "poll timeout with error in writeBytes errno: " + Errno.getErrnoSymbol(nee.errno));
+                InterruptedIOException iioe = new InterruptedIOException(formatMsg(nee, "poll timeout with error in write "));
                 iioe.bytesTransferred = (int) offset;
                 throw iioe;
             }
@@ -1228,9 +1271,10 @@ public class PosixSerialPortSocket extends AbstractSerialPortSocket<PosixSerialP
             } catch (NativeErrorException nee) {
                 if (fd == INVALID_FD) {
                     throw new AsynchronousCloseException();
+                } else if (nee.errno == EBADF()) {
+                    throw new InterruptedIOException(PORT_FD_INVALID);
                 } else {
-                    InterruptedIOException iioe = new InterruptedIOException(
-                            "poll timeout with error writeBytes " + Errno.getErrnoSymbol(nee.errno));
+                    InterruptedIOException iioe = new InterruptedIOException(formatMsg(nee, "error during Unistd.write"));
                     iioe.bytesTransferred = (int) offset;
                     throw iioe;
                 }
@@ -1246,26 +1290,32 @@ public class PosixSerialPortSocket extends AbstractSerialPortSocket<PosixSerialP
             return 0;
         }
 
+        int nread;
+        try {
+            nread = Unistd.read(fd, b);
+        } catch (NativeErrorException nee) {
+            if (fd == INVALID_FD) {
+                throw new AsynchronousCloseException();
+            } else if (nee.errno == EAGAIN()) {
+                nread = 0;
+            } else if (nee.errno == EBADF()) {
+                throw new InterruptedIOException(PORT_FD_INVALID);
+            } else {
+                throw new InterruptedIOException(
+                        "read: read error during first invocation of read() " + Errno.getErrnoSymbol(nee.errno));
+            }
+        }
+
+        if (!b.hasRemaining()) {
+            return nread;
+        }
+
         // TODO honor overall read timeout
         PollFds fds = new PollFds(2);
         fds.get(0).fd(fd);
         fds.get(0).events(POLLIN());
         fds.get(1).fd(close_event_read_fd);
         fds.get(1).events(POLLIN());
-
-        int nread;
-        try {
-            nread = Unistd.read(fds.get(0).fd(), b);
-        } catch (NativeErrorException nee) {
-            if (fd == INVALID_FD) {
-                throw new AsynchronousCloseException();
-            } else if (nee.errno == EAGAIN()) {
-                nread = 0;
-            } else {
-                throw new InterruptedIOException(
-                        "readBytes: read error during first invocation of read() " + Errno.getErrnoSymbol(nee.errno));
-            }
-        }
 
         if (nread == 0) {
             // Nothing read yet
@@ -1287,19 +1337,23 @@ public class PosixSerialPortSocket extends AbstractSerialPortSocket<PosixSerialP
                         } catch (NativeErrorException nee) {
                             if (fd == INVALID_FD) {
                                 throw new AsynchronousCloseException();
+                            } else if (nee.errno == EBADF()) {
+                                throw new InterruptedIOException(PORT_FD_INVALID);
                             } else if (nread == 0) {
-                                throw new TimeoutIOException(); // Is this right???
+                                throw new IOException("read: nothing to read after successful polling: Should never happen "
+                                        + Errno.getErrnoSymbol(nee.errno));
                             } else {
-                                throw new InterruptedIOException(
-                                        "readBytes read error: Should never happen " + Errno.getErrnoSymbol(nee.errno));
+                                throw new IOException("read read error: Should never happen " + Errno.getErrnoSymbol(nee.errno));
                             }
                         }
+                    } else if ((fds.get(0).revents() & POLLHUP()) == POLLHUP()) {
+                        throw new InterruptedIOException(PORT_FD_INVALID);
                     } else {
-                        throw new InterruptedIOException("readBytes poll: received poll event fds:\n" + fds.toString());
+                        throw new InterruptedIOException("read poll: received poll event fds:\n" + fds.toString());
                     }
                 }
             } catch (NativeErrorException nee) {
-                throw new InterruptedIOException("readBytes poll: Error during poll errno: " + Errno.getErrnoSymbol(nee.errno));
+                throw new InterruptedIOException("read poll: Error during poll errno: " + Errno.getErrnoSymbol(nee.errno));
             }
         }
 
@@ -1322,12 +1376,14 @@ public class PosixSerialPortSocket extends AbstractSerialPortSocket<PosixSerialP
                         return -1;
                     } else if (fds.get(0).revents() == POLLIN()) {
                         // Happy path
+                    } else if ((fds.get(0).revents() & POLLHUP()) == POLLHUP()) {
+                        throw new InterruptedIOException(PORT_FD_INVALID);
                     } else {
-                        throw new InterruptedIOException("readBytes poll: received poll event fds:\n" + fds.toString());
+                        throw new InterruptedIOException("read poll: received poll event fds:\n" + fds.toString());
                     }
                 }
             } catch (NativeErrorException nee) {
-                throw new InterruptedIOException("readBytes poll: Error during poll " + Errno.getErrnoSymbol(nee.errno));
+                throw new InterruptedIOException("read poll: Error during poll " + Errno.getErrnoSymbol(nee.errno));
             }
             // OK No timeout and no error, we should read at least one byte without
             // blocking.
@@ -1336,12 +1392,13 @@ public class PosixSerialPortSocket extends AbstractSerialPortSocket<PosixSerialP
             } catch (NativeErrorException nee) {
                 if (fd == INVALID_FD) {
                     throw new AsynchronousCloseException();
+                } else if (nee.errno == EBADF()) {
+                    throw new InterruptedIOException(PORT_FD_INVALID);
                 } else if (nread == 0) {
-                    throw new InterruptedIOException(
-                            "readBytes: nothing to read after successful polling: Should never happen "
+                    throw new IOException("read: nothing to read after successful polling: Should never happen "
                             + Errno.getErrnoSymbol(nee.errno));
                 } else {
-                    throw new InterruptedIOException("readBytes read error: Should never happen " + Errno.getErrnoSymbol(nee.errno));
+                    throw new IOException("read read error: Should never happen " + Errno.getErrnoSymbol(nee.errno));
                 }
             }
         }
@@ -1369,6 +1426,8 @@ public class PosixSerialPortSocket extends AbstractSerialPortSocket<PosixSerialP
                     throw new IOException(PORT_IS_CLOSED);
                 } else if (fds.get(0).revents() == POLLOUT()) {
                     // Happy path all is right... no-op
+                } else if ((fds.get(0).revents() & POLLHUP()) == POLLHUP()) {
+                    throw new IOException(PORT_FD_INVALID);
                 } else {
                     if (fd == INVALID_FD) {
                         throw new IOException(PORT_IS_CLOSED);
@@ -1378,16 +1437,13 @@ public class PosixSerialPortSocket extends AbstractSerialPortSocket<PosixSerialP
                 }
             }
         } catch (NativeErrorException nee) {
-            throw new IOException("drainOutputBuffer poll: Error during poll " + Errno.getErrnoSymbol(nee.errno));
+            throw new IOException(formatMsg(nee, "drainOutputBuffer poll: Error during poll "));
         }
+
         try {
             tcdrain(fd);
         } catch (NativeErrorException nee) {
-            if (fd == INVALID_FD) {
-                throw new IOException(PORT_IS_CLOSED);
-            } else {
-                throw new IOException("Can't drain the output buffer " + Errno.getErrnoSymbol(nee.errno));
-            }
+            throw new IOException(formatMsg(nee, "Can't drain the output buffer "));
         }
     }
 

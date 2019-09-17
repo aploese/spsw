@@ -112,12 +112,35 @@ import de.ibapl.jnhw.winapi.Winbase;
 import de.ibapl.jnhw.winapi.Winerror;
 import static de.ibapl.jnhw.winapi.Winnt.LPWSTR;
 import de.ibapl.jnhw.winapi.Winreg;
+import java.lang.ref.Cleaner;
 import java.nio.channels.AsynchronousCloseException;
 
 public class GenericWinSerialPortSocket extends AbstractSerialPortSocket<GenericWinSerialPortSocket> {
+    
+    public final static Cleaner CLEANER = Cleaner.create();
+    
+    static class HFileCleaner implements Runnable {
+        
+        HANDLE hFile = Winbase.INVALID_HANDLE_VALUE();
 
+        @Override
+        public void run() {
+            if (Winbase.INVALID_HANDLE_VALUE().value != hFile.value) {
+        try {
+            Ioapiset.CancelIo(hFile);
+        } catch (NativeErrorException nee) {
+                    LOG.log(Level.SEVERE, "can't clean fd " + nee.errno, nee);
+            }
+        }
+        }
+        
+    }
+
+
+    private final static Logger LOG = Logger.getLogger(GenericWinSerialPortSocket.class.getCanonicalName());
     private final static HANDLE INVALID_HANDLE_VALUE = Winbase.INVALID_HANDLE_VALUE();
     private HANDLE hFile = INVALID_HANDLE_VALUE;
+    private HFileCleaner cleaner = new HFileCleaner();
 
     public static List<String> getWindowsBasedPortNames() {
         if (!LibJnhwWinApiLoader.touch()) {
@@ -158,6 +181,7 @@ public class GenericWinSerialPortSocket extends AbstractSerialPortSocket<Generic
 
     public GenericWinSerialPortSocket(String portName) {
         super(portName);
+        CLEANER.register(this, cleaner);
         if (!LibJnhwWinApiLoader.touch()) {
             throw new RuntimeException("Could not load native lib", LibJnhwWinApiLoader.LIB_JNHW_WINAPI_LOAD_RESULT.loadError);
         }
@@ -427,6 +451,7 @@ public class GenericWinSerialPortSocket extends AbstractSerialPortSocket<Generic
 
         try {
             CloseHandle(_hFile);
+            cleaner.hFile = INVALID_HANDLE_VALUE;
         } catch (NativeErrorException nee) {
             throw new IOException("Can't close port", nee);
         }
@@ -705,6 +730,7 @@ public class GenericWinSerialPortSocket extends AbstractSerialPortSocket<Generic
 
             throw new IOException("Open SetCommTimeouts");
         }
+        cleaner.hFile = hFile;
     }
 
     @Override
