@@ -21,12 +21,18 @@
  */
 package de.ibapl.spsw.jniprovider;
 
+import de.ibapl.spsw.api.DataBits;
+import de.ibapl.spsw.api.FlowControl;
+import de.ibapl.spsw.api.Parity;
+import de.ibapl.spsw.api.Speed;
+import de.ibapl.spsw.api.StopBits;
 import java.io.IOException;
-import java.nio.channels.ByteChannel;
+import java.lang.ref.Cleaner;
 import java.util.List;
+import java.util.Set;
 
 /**
-/**
+ * /**
  * JNI wrapper around the Windows DCB structure.
  *
  * @author scream3r
@@ -34,39 +40,109 @@ import java.util.List;
  */
 public class GenericWinSerialPortSocket extends AbstractSerialPortSocket<GenericWinSerialPortSocket> {
 
-	static native void getWindowsBasedPortNames(List<String> list);
+    static native void getWindowsBasedPortNames(List<String> list);
 
-	/**
-	 * The file descriptor or handle for this Port
-	 */
-	private volatile long fd = -1;
+    public final static Cleaner CLEANER = Cleaner.create();
+    private final static long INVALID_FD = -1;
 
-	public GenericWinSerialPortSocket(String portName) {
-		super(portName);
-	}
+    static class FdCleaner implements Runnable {
 
-	@Override
-	public void drainOutputBuffer() throws IOException {
-		// no-op on overlapped...
-	}
+        private native void closeFds(long fd);
 
-	@Override
-	public native int getInterByteReadTimeout() throws IOException;
+        long fd = INVALID_FD;
 
-	@Override
-	public native int getOverallReadTimeout() throws IOException;
+        @Override
+        public void run() {
+            closeFds(fd);
+            /*
+            if (fd != GenericTermiosSerialPortSocket.INVALID_FD) {
+                try {
+                    Unistd.close(fd);
+                } catch (NativeErrorException ex) {
+                    LOG.severe("can't clean fd");
+                }
+            }
+            if (close_event_write_fd != PosixSerialPortSocket.INVALID_FD) {
+                try {
+                    Unistd.close(close_event_write_fd);
+                } catch (NativeErrorException ex) {
+                    LOG.severe("can't clean close_event_write_fd");
+                }
+            }
+            if (close_event_read_fd != PosixSerialPortSocket.INVALID_FD) {
+                try {
+                    Unistd.close(close_event_read_fd);
+                } catch (NativeErrorException ex) {
+                    LOG.severe("can't clean close_event_read_fd");
+                }
+            }
+             */
+        }
 
-	@Override
-	public native int getOverallWriteTimeout() throws IOException;
+    }
 
-	@Override
-	public native void sendXOFF() throws IOException;
+    @Override
+    protected void implCloseChannel() throws IOException {
+        super.implCloseChannel();
+        close0();
+        fdCleaner.fd = INVALID_FD;
+    }
 
-	@Override
-	public native void sendXON() throws IOException;
+    /**
+     * Close port
+     *
+     * @throws java.io.IOException
+     */
+    protected native void close0() throws IOException;
 
-	@Override
-	public native void setTimeouts(int interbyteReadTimeout, int overallReadTimeout, int overallWriteTimeout)
-			throws IOException;
-	
+    /**
+     * The file descriptor or handle for this Port
+     */
+    private volatile long fd = -1;
+    private FdCleaner fdCleaner = new FdCleaner();
+
+    public GenericWinSerialPortSocket(String portName) throws IOException {
+        super(portName);
+        open(portName, 0);
+    }
+
+    public GenericWinSerialPortSocket(String portName, Speed speed, DataBits dataBits, StopBits stopBits, Parity parity,
+            Set<FlowControl> flowControls) throws IOException {
+        super(portName);
+        open(speed, dataBits, stopBits, parity, flowControls);
+    }
+
+    @Override
+    protected void open(String portName, int paramBitSet) throws IOException {
+        open0(portName, paramBitSet);
+        CLEANER.register(this, fdCleaner);
+        fdCleaner.fd = this.fd;
+    }
+
+    private native void open0(String portName, int paramBitSet) throws IOException;
+
+    @Override
+    public void drainOutputBuffer() throws IOException {
+        // no-op on overlapped...
+    }
+
+    @Override
+    public native int getInterByteReadTimeout() throws IOException;
+
+    @Override
+    public native int getOverallReadTimeout() throws IOException;
+
+    @Override
+    public native int getOverallWriteTimeout() throws IOException;
+
+    @Override
+    public native void sendXOFF() throws IOException;
+
+    @Override
+    public native void sendXON() throws IOException;
+
+    @Override
+    public native void setTimeouts(int interbyteReadTimeout, int overallReadTimeout, int overallWriteTimeout)
+            throws IOException;
+
 }

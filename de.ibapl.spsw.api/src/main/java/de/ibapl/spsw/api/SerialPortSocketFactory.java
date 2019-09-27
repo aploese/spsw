@@ -94,23 +94,6 @@ public interface SerialPortSocketFactory {
 	public final String DEFAULT_WINDOWS_PORTNAME_PATTERN = "(COM)[0-9]{1,3}";
 
 	/**
-	 * Create a new SerialPortSocket.
-	 * Simply create a new instance and set the port name.
-	 * 
-	 * @param portName
-	 * 
-	 * @return the new created instance.
-	 * 
-	 * @throws SecurityException
-	 *             if the caller has no read or write permissions to the port.
-	 * @see SecurityManager#checkRead(String)
-	 * @see SecurityManager#checkWrite(String)
-	 * @see java.io.FileOutputStream#FileOutputStream(String)
-	 * @see java.io.FileInputStream#FileInputStream(String).
-	 */
-	SerialPortSocket createSerialPortSocket(String portName);
-
-	/**
 	 * 
 	 * @param portNameConsumer
 	 */

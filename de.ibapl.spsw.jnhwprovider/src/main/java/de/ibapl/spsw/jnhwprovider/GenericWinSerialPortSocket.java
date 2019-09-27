@@ -116,26 +116,25 @@ import java.lang.ref.Cleaner;
 import java.nio.channels.AsynchronousCloseException;
 
 public class GenericWinSerialPortSocket extends AbstractSerialPortSocket<GenericWinSerialPortSocket> {
-    
+
     public final static Cleaner CLEANER = Cleaner.create();
-    
+
     static class HFileCleaner implements Runnable {
-        
+
         HANDLE hFile = Winbase.INVALID_HANDLE_VALUE();
 
         @Override
         public void run() {
             if (Winbase.INVALID_HANDLE_VALUE().value != hFile.value) {
-        try {
-            Ioapiset.CancelIo(hFile);
-        } catch (NativeErrorException nee) {
+                try {
+                    Ioapiset.CancelIo(hFile);
+                } catch (NativeErrorException nee) {
                     LOG.log(Level.SEVERE, "can't clean fd " + nee.errno, nee);
+                }
             }
         }
-        }
-        
-    }
 
+    }
 
     private final static Logger LOG = Logger.getLogger(GenericWinSerialPortSocket.class.getCanonicalName());
     private final static HANDLE INVALID_HANDLE_VALUE = Winbase.INVALID_HANDLE_VALUE();
@@ -179,12 +178,20 @@ public class GenericWinSerialPortSocket extends AbstractSerialPortSocket<Generic
         return result;
     }
 
-    public GenericWinSerialPortSocket(String portName) {
+    GenericWinSerialPortSocket(String portName) throws IOException {
         super(portName);
-        CLEANER.register(this, cleaner);
         if (!LibJnhwWinApiLoader.touch()) {
             throw new RuntimeException("Could not load native lib", LibJnhwWinApiLoader.LIB_JNHW_WINAPI_LOAD_RESULT.loadError);
         }
+        open(null, null, null, null, null);
+    }
+
+    GenericWinSerialPortSocket(String portName, Speed speed, DataBits dataBits, StopBits stopBits, Parity parity, Set<FlowControl> flowControls) throws IOException {
+        super(portName);
+        if (!LibJnhwWinApiLoader.touch()) {
+            throw new RuntimeException("Could not load native lib", LibJnhwWinApiLoader.LIB_JNHW_WINAPI_LOAD_RESULT.loadError);
+        }
+        open(speed, dataBits, stopBits, parity, flowControls);
     }
 
     private IOException createNativeException(int errno, String formatString, Object... args) {
@@ -433,20 +440,18 @@ public class GenericWinSerialPortSocket extends AbstractSerialPortSocket<Generic
     }
 
     @Override
-    public synchronized void close() throws IOException {
-        super.close();
-
+    protected void implCloseChannel() throws IOException {
         final HANDLE _hFile = hFile;
         hFile = INVALID_HANDLE_VALUE;
 // if only ReadIntervalTimeout is set and port is closed during pending read the read operation will hang forever...
         try {
             Ioapiset.CancelIo(_hFile);
         } catch (NativeErrorException nee) {
-                 if (nee.errno != Winerror.ERROR_NOT_FOUND()) {
+            if (nee.errno != Winerror.ERROR_NOT_FOUND()) {
                 hFile = _hFile;
-		throw new IOException("Can't cancel io for closing", nee);
+                throw new IOException("Can't cancel io for closing", nee);
             }
-       //no-op we dont care
+            //no-op we dont care
         }
 
         try {
@@ -455,11 +460,6 @@ public class GenericWinSerialPortSocket extends AbstractSerialPortSocket<Generic
         } catch (NativeErrorException nee) {
             throw new IOException("Can't close port", nee);
         }
-    }
-
-    @Override
-    public boolean isClosed() {
-        return INVALID_HANDLE_VALUE.value == hFile.value;
     }
 
     private boolean getCommModemStatus(int bitMask) throws IOException {
@@ -489,18 +489,8 @@ public class GenericWinSerialPortSocket extends AbstractSerialPortSocket<Generic
     }
 
     @Override
-    public boolean isOpen() {
-        return INVALID_HANDLE_VALUE.value != hFile.value;
-    }
-
-    @Override
     public boolean isRI() throws IOException {
         return getCommModemStatus(MS_RING_ON());
-    }
-
-    @Override
-    public void open() throws IOException {
-        open(null, null, null, null, null);
     }
 
     private void setParams(DCB dcb, Speed speed, DataBits dataBits, StopBits stopBits, Parity parity,
@@ -646,8 +636,7 @@ public class GenericWinSerialPortSocket extends AbstractSerialPortSocket<Generic
         }
     }
 
-    @Override
-    public void open(Speed speed, DataBits dataBits, StopBits stopBits, Parity parity, Set<FlowControl> flowControls)
+    private void open(Speed speed, DataBits dataBits, StopBits stopBits, Parity parity, Set<FlowControl> flowControls)
             throws IOException {
 
         if (INVALID_HANDLE_VALUE.value != hFile.value) {
@@ -668,9 +657,9 @@ public class GenericWinSerialPortSocket extends AbstractSerialPortSocket<Generic
         } catch (NativeErrorException nee) {
 
             if (nee.errno == ERROR_ACCESS_DENIED()) {
-                throw new IOException(String.format("Port is busy: (%s)", portName));
+                throw new IOException(String.format("Port is busy: \"%s\"", portName));
             } else if (nee.errno == ERROR_FILE_NOT_FOUND()) {
-                throw new IOException(String.format("Port not found: (%s)", portName));
+                throw new IOException(String.format("Port not found: \"%s\"", portName));
             } else {
                 throw new IOException(String.format("Open: Unknown port error %d", nee.errno));
             }
@@ -686,7 +675,7 @@ public class GenericWinSerialPortSocket extends AbstractSerialPortSocket<Generic
             } catch (NativeErrorException nee1) {
             }
             hFile.value = INVALID_HANDLE_VALUE.value;
-            throw new IOException(String.format("Not a serial port: (%s)", portName));
+            throw new IOException(String.format("Not a serial port: \"%s\"", portName));
         }
 
         //set speed etc.
@@ -731,6 +720,7 @@ public class GenericWinSerialPortSocket extends AbstractSerialPortSocket<Generic
             throw new IOException("Open SetCommTimeouts");
         }
         cleaner.hFile = hFile;
+        CLEANER.register(this, cleaner);
     }
 
     @Override
@@ -745,9 +735,10 @@ public class GenericWinSerialPortSocket extends AbstractSerialPortSocket<Generic
             throw createClosedOrNativeException(nee.errno, "sendBreak SetCommBreak");
         }
 
+        boolean completed = false;
         try {
             Thread.sleep(duration);
-
+            completed = true;
         } catch (InterruptedException ex) {
             Logger.getLogger(GenericWinSerialPortSocket.class
                     .getName()).log(Level.SEVERE, null, ex);
@@ -757,6 +748,10 @@ public class GenericWinSerialPortSocket extends AbstractSerialPortSocket<Generic
             ClearCommBreak(hFile);
         } catch (NativeErrorException nee) {
             throw createClosedOrNativeException(nee.errno, "sendBreak ClearCommBreak");
+        }
+        if (!completed) {
+            close();
+            throw new AsynchronousCloseException();
         }
     }
 
@@ -943,16 +938,25 @@ public class GenericWinSerialPortSocket extends AbstractSerialPortSocket<Generic
 
     @Override
     protected void drainOutputBuffer() throws IOException {
+        //make this blocking IO interruptable
+        boolean completed = false;
         try {
-            FlushFileBuffers(hFile);
-        } catch (NativeErrorException nee) {
-            throw createClosedOrNativeException(nee.errno, "drainOutputBuffer");
+            begin();
+            try {
+                FlushFileBuffers(hFile);
+                completed = true;
+            } catch (NativeErrorException nee) {
+                completed = true;
+                throw createClosedOrNativeException(nee.errno, "drainOutputBuffer");
+            }
+        } finally {
+            end(completed);
         }
     }
 
     @Override
     public int read(ByteBuffer b) throws IOException {
-        
+
         if (!b.hasRemaining()) {
             return 0;
         }
@@ -980,58 +984,74 @@ public class GenericWinSerialPortSocket extends AbstractSerialPortSocket<Generic
                 }
             }
         }
-        //overlapped path
-        final long waitResult = WaitForSingleObject(overlapped.hEvent(), INFINITE());
-        if (waitResult != WAIT_OBJECT_0()) {
+        //make this blocking IO interruptable
+        boolean completed = false;
+        try {
+            begin();
+
+            //overlapped path
+            final long waitResult = WaitForSingleObject(overlapped.hEvent(), INFINITE());
+            if (waitResult != WAIT_OBJECT_0()) {
+                try {
+                    CloseHandle(overlapped.hEvent());
+                } catch (NativeErrorException nee2) {
+                }
+                if (INVALID_HANDLE_VALUE.value == hFile.value) {
+                    completed = true;
+                    throw new AsynchronousCloseException();
+                } else {
+                    completed = true;
+                    throw new InterruptedIOException("Error readBytes (WaitForSingleObject)");
+                }
+            }
+
+            IntRef dwBytesRead = new IntRef(0);
+
+            try {
+                GetOverlappedResult(hFile, overlapped, dwBytesRead, false, b);
+            } catch (NativeErrorException nee) {
+                try {
+                    CloseHandle(overlapped.hEvent());
+                } catch (NativeErrorException nee1) {
+                }
+                if (INVALID_HANDLE_VALUE.value == hFile.value) {
+                    completed = true;
+                    throw new AsynchronousCloseException();
+                } else {
+                    InterruptedIOException iioe = new InterruptedIOException("Error readBytes (GetOverlappedResult)");
+                    iioe.bytesTransferred = (int) dwBytesRead.value;
+                    completed = true;
+                    throw iioe;
+                }
+            }
+
             try {
                 CloseHandle(overlapped.hEvent());
-            } catch (NativeErrorException nee2) {
+            } catch (NativeErrorException nee) {
             }
-            if (INVALID_HANDLE_VALUE.value == hFile.value) {
-                throw new AsynchronousCloseException();
+
+            if (dwBytesRead.value > 0) {
+                //Success
+                completed = true;
+                return (int) dwBytesRead.value;
+            } else if (dwBytesRead.value == 0) {
+                if (INVALID_HANDLE_VALUE.value == hFile.value) {
+                    completed = true;
+                    throw new AsynchronousCloseException();
+                } else {
+                    TimeoutIOException tioe = new TimeoutIOException();
+                    tioe.bytesTransferred = (int) dwBytesRead.value;
+                    completed = true;
+                    throw tioe;
+                }
             } else {
-                throw new InterruptedIOException("Error readBytes (WaitForSingleObject)");
+                completed = true;
+                throw new InterruptedIOException("Should never happen! readBytes dwBytes < 0");
             }
+
+        } finally {
+            end(completed);
         }
-
-        IntRef dwBytesRead = new IntRef(0);
-
-        try {
-            GetOverlappedResult(hFile, overlapped, dwBytesRead, false, b);
-        } catch (NativeErrorException nee) {
-            try {
-                CloseHandle(overlapped.hEvent());
-            } catch (NativeErrorException nee1) {
-            }
-            if (INVALID_HANDLE_VALUE.value == hFile.value) {
-                throw new AsynchronousCloseException();
-            } else {
-                InterruptedIOException iioe = new InterruptedIOException("Error readBytes (GetOverlappedResult)");
-                iioe.bytesTransferred = (int) dwBytesRead.value;
-                throw iioe;
-            }
-        }
-
-        try {
-            CloseHandle(overlapped.hEvent());
-        } catch (NativeErrorException nee) {
-        }
-
-        if (dwBytesRead.value > 0) {
-            //Success
-            return (int) dwBytesRead.value;
-        } else if (dwBytesRead.value == 0) {
-            if (INVALID_HANDLE_VALUE.value == hFile.value) {
-                throw new AsynchronousCloseException();
-            } else {
-                TimeoutIOException tioe = new TimeoutIOException();
-                tioe.bytesTransferred = (int) dwBytesRead.value;
-                throw tioe;
-            }
-        } else {
-            throw new InterruptedIOException("Should never happen! readBytes dwBytes < 0");
-        }
-
     }
 
     @Override
@@ -1064,60 +1084,76 @@ public class GenericWinSerialPortSocket extends AbstractSerialPortSocket<Generic
                 }
             }
         }
-        final long waitResult = WaitForSingleObject(overlapped.hEvent(), INFINITE());
 
-        if (waitResult != WAIT_OBJECT_0()) {
+        //make this blocking IO interruptable
+        boolean completed = false;
+        try {
+            begin();
+
+            final long waitResult = WaitForSingleObject(overlapped.hEvent(), INFINITE());
+
+            if (waitResult != WAIT_OBJECT_0()) {
+                try {
+                    CloseHandle(overlapped.hEvent());
+                } catch (NativeErrorException nee1) {
+                }
+                if (INVALID_HANDLE_VALUE.value == hFile.value) {
+                    completed = true;
+                    throw new AsynchronousCloseException();
+                } else {
+                    completed = true;
+                    throw new InterruptedIOException("Error writeBytes (WaitForSingleObject): " + waitResult);
+                }
+            }
+
+            IntRef dwBytesWritten = new IntRef(0);
+            try {
+                GetOverlappedResult(hFile, overlapped, dwBytesWritten, false, b);
+            } catch (NativeErrorException nee) {
+                try {
+                    CloseHandle(overlapped.hEvent());
+                } catch (NativeErrorException nee1) {
+                }
+                if (INVALID_HANDLE_VALUE.value == hFile.value) {
+                    completed = true;
+                    throw new AsynchronousCloseException();
+                } else {
+                    InterruptedIOException iioe = new InterruptedIOException("Error writeBytes (GetOverlappedResult) errno: " + nee.errno);
+                    iioe.bytesTransferred = (int) dwBytesWritten.value;
+                    completed = true;
+                    throw iioe;
+                }
+            }
+
             try {
                 CloseHandle(overlapped.hEvent());
-            } catch (NativeErrorException nee1) {
+            } catch (NativeErrorException nee) {
             }
-            if (INVALID_HANDLE_VALUE.value == hFile.value) {
-                throw new AsynchronousCloseException();
-            } else {
-                throw new InterruptedIOException("Error writeBytes (WaitForSingleObject): " + waitResult);
-            }
-        }
 
-        IntRef dwBytesWritten = new IntRef(0);
-        try {
-            GetOverlappedResult(hFile, overlapped, dwBytesWritten, false, b);
-        } catch (NativeErrorException nee) {
-            try {
-                CloseHandle(overlapped.hEvent());
-            } catch (NativeErrorException nee1) {
-            }
-            if (INVALID_HANDLE_VALUE.value == hFile.value) {
-                throw new AsynchronousCloseException();
-            } else {
-                InterruptedIOException iioe = new InterruptedIOException("Error writeBytes (GetOverlappedResult) errno: " + nee.errno);
-                iioe.bytesTransferred = (int) dwBytesWritten.value;
-                throw iioe;
-            }
-        }
-
-        try {
-            CloseHandle(overlapped.hEvent());
-        } catch (NativeErrorException nee) {
-        }
-
-        if (b.hasRemaining()) {
-            if (INVALID_HANDLE_VALUE.value == hFile.value) {
-                throw new AsynchronousCloseException();
-            } else {
+            if (b.hasRemaining()) {
+                if (INVALID_HANDLE_VALUE.value == hFile.value) {
+                    completed = true;
+                    throw new AsynchronousCloseException();
+                } else {
 //                if (winbase_H.GetLastError() == Winerr_H.ERROR_IO_PENDING) {
 //                    TimeoutIOException tioe = new TimeoutIOException();
 //                    tioe.bytesTransferred = (int) dwBytesWritten.value;
 //                    throw tioe;
 //                } else {
-                InterruptedIOException iioe = new InterruptedIOException("Error writeBytes too view written");
-                iioe.bytesTransferred = (int) dwBytesWritten.value;
-                throw iioe;
+                    InterruptedIOException iioe = new InterruptedIOException("Error writeBytes too view written");
+                    iioe.bytesTransferred = (int) dwBytesWritten.value;
+                    completed = true;
+                    throw iioe;
 //                }
+                }
             }
-        }
 
-        //Success
-        return (int) dwBytesWritten.value;
+            //Success
+            completed = true;
+            return (int) dwBytesWritten.value;
+        } finally {
+            end(completed);
+        }
     }
 
 }

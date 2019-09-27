@@ -27,6 +27,8 @@ module de.ibapl.spsw.api.test {
 	requires de.ibapl.jnhw.libloader;
 	requires rxtx;
 	
+        uses de.ibapl.spsw.api.SerialPortSocketFactory;
+        
 	exports de.ibapl.spsw.tests;
 	exports de.ibapl.spsw.tests.tags;
 }

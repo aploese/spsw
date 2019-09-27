@@ -62,6 +62,7 @@ import de.ibapl.spsw.tests.tags.NotSupportedByAllDevices;
 import de.ibapl.spsw.tests.tags.RtsCtsTest;
 import de.ibapl.spsw.tests.tags.SlowTest;
 import java.nio.ByteBuffer;
+import java.nio.channels.ClosedByInterruptException;
 import org.junit.jupiter.api.Assertions;
 
 /**
@@ -163,7 +164,7 @@ public abstract class AbstractOnePortTest extends AbstractPortTest {
     public void testRI() throws Exception {
         assumeRTest();
         LOG.log(Level.INFO, "run testIncommingRI");
-        readSpc.open();
+        openDefault();
 
         readSpc.isRI();
     }
@@ -466,7 +467,7 @@ public abstract class AbstractOnePortTest extends AbstractPortTest {
         writeSpc.setFlowControl(FlowControl.getFC_NONE());
         LOG.log(Level.INFO, "will close port");
         writeSpc.close();
-        assertTrue(writeSpc.isClosed());
+        assertFalse(writeSpc.isOpen());
         LOG.log(Level.INFO, "port closed");
     }
 
@@ -531,7 +532,7 @@ public abstract class AbstractOnePortTest extends AbstractPortTest {
         writeSpc.setFlowControl(FlowControl.getFC_NONE());
         LOG.log(Level.INFO, "will close port");
         writeSpc.close();
-        assertTrue(writeSpc.isClosed());
+        assertFalse(writeSpc.isOpen());
         LOG.log(Level.INFO, "port closed");
     }
 
@@ -634,7 +635,7 @@ public abstract class AbstractOnePortTest extends AbstractPortTest {
         LOG.log(Level.INFO, "Wrote: " + dataWritten + " OutBuf:  " + writeSpc.getOutBufferBytesCount());
         LOG.log(Level.INFO, "will close port");
         writeSpc.close();
-        assertTrue(writeSpc.isClosed());
+        assertFalse(writeSpc.isOpen());
         LOG.log(Level.INFO, "port closed");
     }
 
@@ -644,10 +645,11 @@ public abstract class AbstractOnePortTest extends AbstractPortTest {
         assumeRTest();
         LOG.log(Level.INFO, "run testOpenClose");
 
-        readSpc.open();
+        openDefault();
+
         assertTrue(readSpc.isOpen());
         readSpc.close();
-        assertTrue(readSpc.isClosed());
+        assertTrue(!readSpc.isOpen());
     }
 
     @BaselineTest
@@ -656,7 +658,7 @@ public abstract class AbstractOnePortTest extends AbstractPortTest {
         assumeRTest();
         LOG.log(Level.INFO, "run testOpenCloseParams");
 
-        readSpc.open(Speed._9600_BPS, DataBits.DB_8, StopBits.SB_1, Parity.EVEN, FlowControl.getFC_NONE());
+        open(Speed._9600_BPS, DataBits.DB_8, StopBits.SB_1, Parity.EVEN, FlowControl.getFC_NONE());
         assertTrue(readSpc.isOpen());
         assertEquals(Speed._9600_BPS, readSpc.getSpeed());
         assertEquals(DataBits.DB_8, readSpc.getDatatBits());
@@ -664,7 +666,7 @@ public abstract class AbstractOnePortTest extends AbstractPortTest {
         assertEquals(Parity.EVEN, readSpc.getParity());
         assertEquals(FlowControl.getFC_NONE(), readSpc.getFlowControl());
         readSpc.close();
-        assertTrue(readSpc.isClosed());
+        assertFalse(readSpc.isOpen());
     }
 
     @BaselineTest
@@ -672,6 +674,7 @@ public abstract class AbstractOnePortTest extends AbstractPortTest {
     public void testIlleagalStateExceptions() throws Exception {
         assumeRTest();
         IOException ioe = null;
+        openDefault();
         // Make sure port is closed
         readSpc.close();
 
@@ -695,13 +698,12 @@ public abstract class AbstractOnePortTest extends AbstractPortTest {
         });
         assertEquals(SerialPortSocket.PORT_IS_CLOSED, ioe.getMessage());
 
-        readSpc.open();
+        openDefault();
 
         ioe = assertThrows(IOException.class, () -> {
-            readSpc.open();
+            getSerialPortSocketFactory().open(readSpc.getPortName());
         });
-        assertEquals(SerialPortSocket.PORT_IS_OPEN, ioe.getMessage());
-
+        assertEquals(String.format("Port is busy: \"%s\"", readSpc.getPortName()), ioe.getMessage());
     }
 
     @BaselineTest
@@ -779,7 +781,7 @@ public abstract class AbstractOnePortTest extends AbstractPortTest {
         });
 
         readSpc.close();
-        assertTrue(readSpc.isClosed());
+        assertFalse(readSpc.isOpen());
     }
 
     @BaselineTest
@@ -789,11 +791,11 @@ public abstract class AbstractOnePortTest extends AbstractPortTest {
 
         File tmpFile = File.createTempFile("serial", "native");
         tmpFile.deleteOnExit();
-        SerialPortSocket sp = getSerialPortSocketFactory().createSerialPortSocket(tmpFile.getAbsolutePath());
         IOException ioe = assertThrows(IOException.class, () -> {
-            sp.open();
+            SerialPortSocket sp = getSerialPortSocketFactory().open(tmpFile.getAbsolutePath());
+            sp.close();
         });
-        assertEquals(String.format("Not a serial port: (%s)", sp.getPortName()), ioe.getMessage());
+        assertEquals(String.format("Not a serial port: \"%s\"", tmpFile.getAbsolutePath()), ioe.getMessage());
     }
 
     @BaselineTest
@@ -847,7 +849,7 @@ public abstract class AbstractOnePortTest extends AbstractPortTest {
                     case _134_BPS:
                     case _150_BPS:
                     case _200_BPS:
-                        
+
 //                    case _115200_BPS:
 //                    case _230400_BPS:
 //                    case _460800_BPS:
@@ -879,11 +881,11 @@ public abstract class AbstractOnePortTest extends AbstractPortTest {
         LOG.log(Level.INFO, "run testOpen2");
         openDefault();
 
-        SerialPortSocket spc1 = getSerialPortSocketFactory().createSerialPortSocket(readSpc.getPortName());
         IOException ioe = assertThrows(IOException.class, () -> {
-            spc1.open();
+            SerialPortSocket spc1 = getSerialPortSocketFactory().open(readSpc.getPortName());
+            spc1.close();
         });
-        assertEquals(String.format("Port is busy: (%s)", spc1.getPortName()), ioe.getMessage());
+        assertEquals(String.format("Port is busy: \"%s\"", readSpc.getPortName()), ioe.getMessage());
 
         // try to use the "first" port and if its working ... so we call
         // getInBufferBytesCount()
@@ -929,7 +931,7 @@ public abstract class AbstractOnePortTest extends AbstractPortTest {
                     LOG.info("Read done: " + data);
                     if (data == -1) {
                         LOG.log(Level.INFO, "Received -1");
-                        if (readSpc.isClosed()) {
+                        if (!readSpc.isOpen()) {
                             LOG.log(Level.INFO, "Received -1 and port is closed");
                             synchronized (lock) {
                                 done = true;
@@ -973,7 +975,7 @@ public abstract class AbstractOnePortTest extends AbstractPortTest {
             LOG.info("Close Port");
             Thread.sleep(100);
             readSpc.close();
-            assertTrue(readSpc.isClosed());
+            assertFalse(readSpc.isOpen());
             LOG.info("Port closed");
 
             synchronized (tr.lock) {
@@ -989,7 +991,7 @@ public abstract class AbstractOnePortTest extends AbstractPortTest {
         }
         LOG.info("OK Finish");
 
-        assertTrue(readSpc.isClosed());
+        assertFalse(readSpc.isOpen());
     }
 
     @BaselineTest
@@ -1068,17 +1070,54 @@ public abstract class AbstractOnePortTest extends AbstractPortTest {
         LOG.log(Level.INFO, "run testRead0Length");
         openDefault();
         readSpc.setTimeouts(100, 1000, 1000);
-        
+
         byte[] b = new byte[0];
         readSpc.getInputStream().read(b);
-        
+
         ByteBuffer buff = ByteBuffer.allocateDirect(16);
         buff.position(0);
         buff.limit(0);
         readSpc.read(buff);
-        
+
     }
 
+    private ClosedByInterruptException testReadInetrrupted_ClosedByInterruptException;
+
+    /**
+     * We are want to wait read and interrupt the thread.
+     *
+     * @throws Exception
+     */
+    @BaselineTest
+    @Test
+    public void testReadInetrrupted() throws Exception {
+        assumeRTest();
+        LOG.log(Level.INFO, "run testReadInetrrupted");
+        openDefault();
+        readSpc.setTimeouts(100, 1000, 1000);
+        ByteBuffer b = ByteBuffer.allocateDirect(_1MB);
+        testReadInetrrupted_ClosedByInterruptException = null;
+        
+        Thread t = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                testReadInetrrupted_ClosedByInterruptException = assertThrows(ClosedByInterruptException.class, () -> {
+                    readSpc.read(b);
+                });
+            }
+        });
+        t.start();
+        //Wait for the thread to run
+        Thread.sleep(100);
+        t.interrupt();
+        //Wait for the thread to finish...
+        Thread.sleep(100);
+        Assertions.assertNotNull(testReadInetrrupted_ClosedByInterruptException);
+//TODO Write sendBreak drainBuffer too
+    }
+    
+    
+    
     @NotSupportedByAllDevices
     @SlowTest
     @Test
@@ -1203,7 +1242,7 @@ public abstract class AbstractOnePortTest extends AbstractPortTest {
             return readSpc.getInputStream().read();
         });
         assertEquals(-1, result);
-        assertTrue(readSpc.isClosed());
+        assertFalse(readSpc.isOpen());
         // Allow 50ms to recover -on win the next executed test may fail wit port buy
         // otherwise
         Thread.sleep(100);
@@ -1233,7 +1272,7 @@ public abstract class AbstractOnePortTest extends AbstractPortTest {
         });
         assertEquals(-1, result);
 
-        assertTrue(readSpc.isClosed());
+        assertFalse(readSpc.isOpen());
         // Allow 200ms to recover -on win the next executed test may fail with port busy
         // otherwise (FTDI on win)
         Thread.sleep(200);
@@ -1262,7 +1301,7 @@ public abstract class AbstractOnePortTest extends AbstractPortTest {
                 Thread.sleep(100);
                 LOG.log(Level.INFO, "Will now close the port");
                 writeSpc.close();
-                assertTrue(writeSpc.isClosed(), "Port was not closed!");
+                assertFalse(writeSpc.isOpen(), "Port was not closed!");
                 LOG.log(Level.INFO, "Port is closed");
             } catch (Exception e) {
                 fail("Exception occured: " + e);
@@ -1277,7 +1316,7 @@ public abstract class AbstractOnePortTest extends AbstractPortTest {
         });
         LOG.log(Level.INFO, "Poert closed msg:" + ace.getMessage());
 
-        assertTrue(writeSpc.isClosed(), "Port was not closed!");
+        assertFalse(writeSpc.isOpen(), "Port was not closed!");
         // Allow 200ms to recover -on win the next executed test may fail with port busy
         // otherwise (FTDI on win)
         Thread.sleep(200);
@@ -1314,28 +1353,12 @@ public abstract class AbstractOnePortTest extends AbstractPortTest {
         assumeRTest();
         LOG.log(Level.INFO, "run testDefaultTimeouts");
 
-        readSpc.open();
-        SerialPortSocket spc2 = getSerialPortSocketFactory().createSerialPortSocket(readSpc.getPortName());
+        openDefault();
         IOException ioe = assertThrows(IOException.class, () -> {
-            spc2.open();
+            SerialPortSocket spc2 = getSerialPortSocketFactory().open(readSpc.getPortName());
+            spc2.close();
         });
-        assertEquals(String.format("Port is busy: (%s)", spc2.getPortName()), ioe.getMessage());
-        assertFalse(spc2.isOpen());
-    }
-
-    @BaselineTest
-    @Test
-    public void testOpenSamePort2Times() throws IOException {
-        assumeRTest();
-        LOG.log(Level.INFO, "run testOpenSamePort2Times");
-
-        readSpc.open();
-        IOException ioe = assertThrows(IOException.class, () -> {
-            readSpc.open();
-        });
-        assertEquals(SerialPortSocket.PORT_IS_OPEN, ioe.getMessage());
-        assertTrue(readSpc.isOpen());
-
+        assertEquals(String.format("Port is busy: \"%s\"", readSpc.getPortName()), ioe.getMessage());
     }
 
     /**
@@ -1348,11 +1371,11 @@ public abstract class AbstractOnePortTest extends AbstractPortTest {
     @Test
     public void testFinalize() throws IOException, InterruptedException {
         assumeRTest();
+        openDefault();
         LOG.log(Level.INFO, "run testFinalize on " + readSpc.getPortName());
 
         final String serialPortName = readSpc.getPortName();
 
-        readSpc.open();
         WeakReference<SerialPortSocket> refSpc = new WeakReference<>(readSpc);
         if (readSpc == writeSpc) {
             writeSpc = null;
@@ -1376,8 +1399,7 @@ public abstract class AbstractOnePortTest extends AbstractPortTest {
             Thread.sleep(200);
         }
 
-        readSpc = getSerialPortSocketFactory().createSerialPortSocket(serialPortName);
-        readSpc.open();
+        readSpc = getSerialPortSocketFactory().open(serialPortName);
         readSpc.close();
     }
 
@@ -1391,7 +1413,7 @@ public abstract class AbstractOnePortTest extends AbstractPortTest {
     public void testSerialPortSocketFactory_getPortNames() throws Exception {
         assumeRTest();
         LOG.info("Iterating serial ports");
-        readSpc.open();
+        openDefault();
         final List<String> ports = getSerialPortSocketFactory().getPortNames(true);
         final List<String> allPorts = getSerialPortSocketFactory().getPortNames(false);
         final List<String> portsincludingReadScp = getSerialPortSocketFactory().getPortNames(readSpc.getPortName(),

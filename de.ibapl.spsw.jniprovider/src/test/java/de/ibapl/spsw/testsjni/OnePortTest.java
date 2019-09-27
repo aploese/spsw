@@ -75,7 +75,7 @@ public class OnePortTest extends AbstractOnePortTest {
 		}
 
 		writeSpc.close();
-		assertTrue(writeSpc.isClosed());
+		assertFalse(writeSpc.isOpen());
 	}
 
 }

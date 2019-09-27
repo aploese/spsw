@@ -35,13 +35,39 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
+
+/*
+ * Class:     de_ibapl_spsw_jniprovider_GenericTermiosSerialPortSocket_FdCleaner
+ * Method:    closeFds
+ * Signature: (III)V
+ */
+JNIEXPORT void JNICALL Java_de_ibapl_spsw_jniprovider_GenericTermiosSerialPortSocket_00024FdCleaner_closeFds
+  (JNIEnv *env, jobject jobject, jint fd, jint close_event_read_fd, jint close_event_write_fd) {
+    if (fd != -1) {
+    jbyte evt_buff[8];
+    evt_buff[5] = 1;
+    evt_buff[6] = 1;
+    evt_buff[7] = 1;
+    write(close_event_write_fd, &evt_buff, 8);
+
+    usleep(1000); //1ms
+        close(close_event_write_fd);
+    }
+    if (fd != -1) {
+        close(fd);
+    }
+    if (fd != -1) {
+        close(close_event_read_fd);
+    }
+}
+
   
 /*
  * Class:     de_ibapl_spsw_jniprovider_AbstractSerialPortSocket
  * Method:    close0
  * Signature: ()V
  */
-JNIEXPORT void JNICALL Java_de_ibapl_spsw_jniprovider_AbstractSerialPortSocket_close0(
+JNIEXPORT void JNICALL Java_de_ibapl_spsw_jniprovider_GenericTermiosSerialPortSocket_close0(
         JNIEnv *env, jobject sps) {
     //Mark port as closed...
     const int fd = (*env)->GetIntField(env, sps, spsw_fd);
@@ -113,7 +139,7 @@ JNIEXPORT jint JNICALL Java_de_ibapl_spsw_jniprovider_AbstractSerialPortSocket_g
  * Method:    open
  * Signature: (Ljava/lang/String;I)V
  */
-JNIEXPORT void JNICALL Java_de_ibapl_spsw_jniprovider_AbstractSerialPortSocket_open
+JNIEXPORT void JNICALL Java_de_ibapl_spsw_jniprovider_GenericTermiosSerialPortSocket_open0
 (JNIEnv *env, jobject sps, jstring portName, jint paramBitSet) {
 
     //Do not try to reopen port and therefore failing and overriding the file descriptor
@@ -131,16 +157,16 @@ JNIEXPORT void JNICALL Java_de_ibapl_spsw_jniprovider_AbstractSerialPortSocket_o
         (*env)->SetIntField(env, sps, spsw_fd, INVALID_FD);
         switch (errno) {
             case EBUSY:
-                throw_IOException(env, "Port is busy: (%s)", portName);
+                throw_IOException(env, "Port is busy: \"%s\"", portName);
                 break;
             case ENOENT:
-                throw_IOException(env, "Port not found: (%s)", portName);
+                throw_IOException(env, "Port not found: \"%s\"", portName);
                 break;
             case EACCES:
-                throw_IOException(env, "Permission denied: (%s)", portName);
+                throw_IOException(env, "Permission denied: \"%s\"", portName);
                 break;
             case EIO:
-                throw_IOException(env, "Not a serial port: (%s)", portName);
+                throw_IOException(env, "Not a serial port: \"%s\"", portName);
                 break;
             default:
                 throw_IOException_NativeError(env, "open");
@@ -158,7 +184,7 @@ JNIEXPORT void JNICALL Java_de_ibapl_spsw_jniprovider_AbstractSerialPortSocket_o
         (*env)->SetIntField(env, sps, spsw_fd, INVALID_FD);
         switch (errno) {
             case ENOTTY:
-                throw_IOException(env, "Not a serial port: (%s)", portName);
+                throw_IOException(env, "Not a serial port: \"%s\"", portName);
                 break;
             default:
                 throw_IOException_NativeError(env, "open tcgetattr");

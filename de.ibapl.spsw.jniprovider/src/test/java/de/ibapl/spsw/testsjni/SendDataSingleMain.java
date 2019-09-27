@@ -40,8 +40,7 @@ import de.ibapl.spsw.jniprovider.SerialPortSocketFactoryImpl;
 public class SendDataSingleMain {
 
 	public static void main(String[] args) throws Exception {
-		SerialPortSocket serialPortSocket = new SerialPortSocketFactoryImpl().createSerialPortSocket("/dev/ttyUSB0");
-		serialPortSocket.open(Speed._300_BPS, DataBits.DB_8, StopBits.SB_1, Parity.NONE, FlowControl.getFC_NONE());
+		try (SerialPortSocket serialPortSocket = new SerialPortSocketFactoryImpl().open("/dev/ttyUSB0", Speed._300_BPS, DataBits.DB_8, StopBits.SB_1, Parity.NONE, FlowControl.getFC_NONE())) {
 		serialPortSocket.setTimeouts(1000, 0, 0);
 		Thread t = new Thread(() -> {
 			final DateTimeFormatter dtf = DateTimeFormatter.ISO_INSTANT;
@@ -68,7 +67,7 @@ public class SendDataSingleMain {
 				serialPortSocket.getOutputStream().write(data[j]);
 			System.out.println("DataSend: " + s);
 		}
-		// serialPortSocket.close();
+                }
 	}
 
 }

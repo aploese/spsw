@@ -19,11 +19,18 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
+package de.ibapl.spsw.mock;
+
+import java.io.IOException;
+
 /**
- * Provides interfaces, enums and exceptions for accessing, and communicating
- * over, the serial port.
- * 
- * @author Arne Plöse
+ *
+ * @author aploese
  */
-@org.osgi.annotation.versioning.Version("2.1.0")
-package de.ibapl.spsw.api;
+public class MockExceptionRequest extends MockRequest<IOException> {
+    
+    MockExceptionRequest(IOException payload, MockRequestType requestType) {
+        super(payload, requestType);
+    }
+    
+}

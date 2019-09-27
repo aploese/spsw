@@ -28,8 +28,9 @@ import java.nio.ByteBuffer;
 import java.nio.channels.AsynchronousCloseException;
 
 import de.ibapl.spsw.api.SerialPortSocket;
+import java.nio.channels.spi.AbstractInterruptibleChannel;
 
-public abstract class AbstractSerialPortSocket<T extends AbstractSerialPortSocket<T>> implements SerialPortSocket {
+public abstract class AbstractSerialPortSocket<T extends AbstractSerialPortSocket<T>> extends AbstractInterruptibleChannel implements SerialPortSocket {
 
     protected class SerialInputStream extends InputStream {
 
@@ -192,9 +193,15 @@ public abstract class AbstractSerialPortSocket<T extends AbstractSerialPortSocke
     }
 
     @Override
-    public synchronized void close() throws IOException {
+    protected void implCloseChannel() throws IOException {
         is = null;
         os = null;
+    }
+    
+    protected void ensureOpen() throws IOException {
+        if (!isOpen()) {
+            throw new IOException(PORT_IS_CLOSED);
+        }
     }
 
     /**
@@ -206,9 +213,7 @@ public abstract class AbstractSerialPortSocket<T extends AbstractSerialPortSocke
 
     @Override
     public synchronized InputStream getInputStream() throws IOException {
-        if (!isOpen()) {
-            throw new IOException(PORT_IS_CLOSED);
-        }
+        ensureOpen();
         if (is == null) {
             is = new SerialInputStream();
         }
@@ -217,9 +222,7 @@ public abstract class AbstractSerialPortSocket<T extends AbstractSerialPortSocke
 
     @Override
     public synchronized OutputStream getOutputStream() throws IOException {
-        if (!isOpen()) {
-            throw new IOException(PORT_IS_CLOSED);
-        }
+        ensureOpen();
         if (os == null) {
             os = new SerialOutputStream();
         }

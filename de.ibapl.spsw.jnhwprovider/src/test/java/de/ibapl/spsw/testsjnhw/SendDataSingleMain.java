@@ -33,42 +33,42 @@ import de.ibapl.spsw.api.StopBits;
 import de.ibapl.spsw.jnhwprovider.SerialPortSocketFactoryImpl;
 
 /**
- * 
+ *
  * @author Arne Plöse
  *
  */
 public class SendDataSingleMain {
 
-	public static void main(String[] args) throws Exception {
-		SerialPortSocket serialPortSocket = new SerialPortSocketFactoryImpl().createSerialPortSocket("/dev/ttyUSB0");
-		serialPortSocket.open(Speed._300_BPS, DataBits.DB_8, StopBits.SB_1, Parity.NONE, FlowControl.getFC_NONE());
-		serialPortSocket.setTimeouts(1000, 0, 0);
-		Thread t = new Thread(() -> {
-			final DateTimeFormatter dtf = DateTimeFormatter.ISO_INSTANT;
-			try {
-				while (true) {
-					int received = serialPortSocket.getInputStream().read();
-					char data = (char) received;
-					if (received > 0) {
-						System.out.println(dtf.format(Instant.now()) + " DataReceived: \""
-								+ (data == '\\' ? "\\\\" : data) + "\"");
-					}
-				}
-			} catch (Exception e) {
-				System.err.println(e.getMessage());
-			}
-		});
-		t.start();
-		long i = 0;
-		while (true) {
-			String s = String.format("%10d The quick brown fox jumps over the lazy dog\n", i++);
-			byte[] data = s.getBytes();
-			Thread.sleep(1000);
-			for (int j = 0; j < data.length; j++)
-				serialPortSocket.getOutputStream().write(data[j]);
-			System.out.println("DataSend: " + s);
-		}
-		// serialPortSocket.close();
-	}
+    public static void main(String[] args) throws Exception {
+        try (SerialPortSocket serialPortSocket = new SerialPortSocketFactoryImpl().open("/dev/ttyUSB0", Speed._300_BPS, DataBits.DB_8, StopBits.SB_1, Parity.NONE, FlowControl.getFC_NONE())) {
+            serialPortSocket.setTimeouts(1000, 0, 0);
+            Thread t = new Thread(() -> {
+                final DateTimeFormatter dtf = DateTimeFormatter.ISO_INSTANT;
+                try {
+                    while (true) {
+                        int received = serialPortSocket.getInputStream().read();
+                        char data = (char) received;
+                        if (received > 0) {
+                            System.out.println(dtf.format(Instant.now()) + " DataReceived: \""
+                                    + (data == '\\' ? "\\\\" : data) + "\"");
+                        }
+                    }
+                } catch (Exception e) {
+                    System.err.println(e.getMessage());
+                }
+            });
+            t.start();
+            long i = 0;
+            while (true) {
+                String s = String.format("%10d The quick brown fox jumps over the lazy dog\n", i++);
+                byte[] data = s.getBytes();
+                Thread.sleep(1000);
+                for (int j = 0; j < data.length; j++) {
+                    serialPortSocket.getOutputStream().write(data[j]);
+                }
+                System.out.println("DataSend: " + s);
+            }
+        }
+    }
 
 }

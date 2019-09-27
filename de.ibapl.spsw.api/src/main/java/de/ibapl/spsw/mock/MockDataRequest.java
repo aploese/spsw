@@ -19,9 +19,16 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
+package de.ibapl.spsw.mock;
+
 /**
- * Provides classes to access a {@link de.ibapl.spsw.api.SerialPortSocket} over
- * a {@link java.net.Socket}.
+ *
+ * @author aploese
  */
-@org.osgi.annotation.versioning.Version("2.1.0")
-package de.ibapl.spsw.ser2net;
+public class MockDataRequest extends MockRequest<byte[]> {
+    
+    MockDataRequest(byte[] payload, MockRequestType requestType) {
+        super(payload, requestType);
+    }
+    
+}

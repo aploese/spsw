@@ -683,28 +683,6 @@ public class LogWriter {
 		log.flush();
 	}
 
-	public void afterSpOpen(final Instant ts) {
-		if (!verbose) {
-			return;
-		}
-		isReadStartTS = null;
-		channelReadStartTS = null;
-		osWriteStartTS = null;
-		channelWriteStartTS = null;
-		log.append(formatTs(ts)).append("SP").append(ACION_RETURN).println(" open:\t");
-		log.flush();
-	}
-
-	public void afterSpOpen(final Instant ts, IOException e) {
-		isReadStartTS = null;
-		channelReadStartTS = null;
-		osWriteStartTS = null;
-		channelWriteStartTS = null;
-		log.append(formatTs(ts)).append("SP").append(ACION_RETURN).append(" open:\t").println(e.toString());
-		e.printStackTrace(log);
-		log.flush();
-	}
-
 	public void afterOsWrite(Instant ts) {
 		if (!verbose) {
 			return;
@@ -1076,13 +1054,13 @@ public class LogWriter {
 		log.flush();
 	}
 
-	public void beforeSpOpen(final Instant ts, String portname, String args) {
+	public void spOpend(final Instant ts, String portname, String args) {
 		isReadStartTS = null;
 		channelReadStartTS = null;
 		osWriteStartTS = null;
 		channelWriteStartTS = null;
 		baseTimeStamp = Instant.now();
-		log.append("@").append(dateTimeFormatter.format(ts)).append("\tSP").append(ACION_CALL).append(" open:\t\"")
+		log.append("@").append(dateTimeFormatter.format(ts)).append("\tSP").append(ACION_CALL).append(" opend:\t\"")
 				.append(portname).append("\" (").append(args).println(")");
 		log.flush();
 	}

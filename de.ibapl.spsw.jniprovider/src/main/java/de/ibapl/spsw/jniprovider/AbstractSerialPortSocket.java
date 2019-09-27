@@ -36,6 +36,7 @@ import de.ibapl.spsw.api.SerialPortSocket;
 import de.ibapl.spsw.api.Speed;
 import de.ibapl.spsw.api.StopBits;
 import java.nio.channels.AsynchronousCloseException;
+import java.nio.channels.spi.AbstractInterruptibleChannel;
 
 /**
  * Base class for {@linkplain GenericTermiosSerialPortSocket} and
@@ -45,7 +46,7 @@ import java.nio.channels.AsynchronousCloseException;
  * @author scream3r
  * @author Arne Plöse
  */
-public abstract class AbstractSerialPortSocket<T extends AbstractSerialPortSocket<T>> implements SerialPortSocket {
+public abstract class AbstractSerialPortSocket<T extends AbstractSerialPortSocket<T>> extends AbstractInterruptibleChannel implements SerialPortSocket {
 
     private native int read(ByteBuffer dst, int pos, int len) throws IOException;
 
@@ -62,16 +63,41 @@ public abstract class AbstractSerialPortSocket<T extends AbstractSerialPortSocke
         }
 
         // Substitute a native buffer
-        int read = read(dst, dst.position(), dst.remaining());
-        if (read > 0) {
-            dst.position(dst.position() + read);
+        //make this blocking IO interruptable
+        boolean completed = false;
+        int result = 0;
+        try {
+            begin();
+            result = read(dst, dst.position(), dst.remaining());
+            completed = true;
+        } catch (IOException e) {
+            completed = true;
+            throw e;
+        } finally {
+            end(completed);
         }
-        return read;
+
+        if (result > 0) {
+            dst.position(dst.position() + result);
+        }
+        return result;
     }
 
     @Override
     public int write(ByteBuffer src) throws IOException {
-        final int result = write(src, src.position(), src.remaining());
+        //make this blocking IO interruptable
+        boolean completed = false;
+        int result = 0;
+        try {
+            begin();
+            result = write(src, src.position(), src.remaining());
+            completed = true;
+        } catch (IOException e) {
+            completed = true;
+            throw e;
+        } finally {
+            end(completed);
+        }
         // now update src
         src.position(src.position() + result);
         return result;
@@ -91,10 +117,21 @@ public abstract class AbstractSerialPortSocket<T extends AbstractSerialPortSocke
 
         @Override
         public int read() throws IOException {
+            //make this blocking IO interruptable
+            boolean completed = false;
             try {
-                return AbstractSerialPortSocket.this.readSingle();
+                begin();
+                final int result = AbstractSerialPortSocket.this.readSingle();
+                completed = true;
+                return result;
             } catch (AsynchronousCloseException ace) {
+                completed = true;
                 return -1;
+            } catch (IOException e) {
+                completed = true;
+                throw e;
+            } finally {
+                end(completed);
             }
         }
 
@@ -106,10 +143,21 @@ public abstract class AbstractSerialPortSocket<T extends AbstractSerialPortSocke
                 return 0;
             }
 
+            //make this blocking IO interruptable
+            boolean completed = false;
             try {
-                return AbstractSerialPortSocket.this.readBytes(b);
+                begin();
+                final int result = AbstractSerialPortSocket.this.readBytes(b);
+                completed = true;
+                return result;
             } catch (AsynchronousCloseException ace) {
+                completed = true;
                 return -1;
+            } catch (IOException e) {
+                completed = true;
+                throw e;
+            } finally {
+                end(completed);
             }
         }
 
@@ -123,10 +171,21 @@ public abstract class AbstractSerialPortSocket<T extends AbstractSerialPortSocke
                 return 0;
             }
 
+            //make this blocking IO interruptable
+            boolean completed = false;
             try {
-                return AbstractSerialPortSocket.this.readBytes(b, off, len);
+                begin();
+                final int result = AbstractSerialPortSocket.this.readBytes(b, off, len);
+                completed = true;
+                return result;
             } catch (AsynchronousCloseException ace) {
+                completed = true;
                 return -1;
+            } catch (IOException e) {
+                completed = true;
+                throw e;
+            } finally {
+                end(completed);
             }
         }
 
@@ -141,7 +200,18 @@ public abstract class AbstractSerialPortSocket<T extends AbstractSerialPortSocke
 
         @Override
         public void flush() throws IOException {
-            AbstractSerialPortSocket.this.drainOutputBuffer();
+            //make this blocking IO interruptable
+            boolean completed = false;
+            try {
+                begin();
+                AbstractSerialPortSocket.this.drainOutputBuffer();
+                completed = true;
+            } catch (IOException e) {
+                completed = true;
+                throw e;
+            } finally {
+                end(completed);
+            }
         }
 
         @Override
@@ -152,7 +222,18 @@ public abstract class AbstractSerialPortSocket<T extends AbstractSerialPortSocke
                 return;
             }
 
-            AbstractSerialPortSocket.this.writeBytes(b);
+            //make this blocking IO interruptable
+            boolean completed = false;
+            try {
+                begin();
+                AbstractSerialPortSocket.this.writeBytes(b);
+                completed = true;
+            } catch (IOException e) {
+                completed = true;
+                throw e;
+            } finally {
+                end(completed);
+            }
         }
 
         @Override
@@ -165,12 +246,35 @@ public abstract class AbstractSerialPortSocket<T extends AbstractSerialPortSocke
                 return;
             }
 
-            AbstractSerialPortSocket.this.writeBytes(b, off, len);
+            //make this blocking IO interruptable
+            boolean completed = false;
+            try {
+                begin();
+                AbstractSerialPortSocket.this.writeBytes(b, off, len);
+                completed = true;
+            } catch (IOException e) {
+                completed = true;
+                throw e;
+            } finally {
+                end(completed);
+            }
         }
 
         @Override
         public void write(int b) throws IOException {
-            AbstractSerialPortSocket.this.writeSingle(b);
+            //make this blocking IO interruptable
+            boolean completed = false;
+            try {
+                begin();
+                AbstractSerialPortSocket.this.writeSingle(b);
+                completed = true;
+            } catch (IOException e) {
+                completed = true;
+                throw e;
+            } finally {
+                end(completed);
+            }
+
         }
 
     }
@@ -570,8 +674,6 @@ public abstract class AbstractSerialPortSocket<T extends AbstractSerialPortSocke
 
     private final String portName;
 
-    private volatile boolean open;
-
     /**
      * Creates a new Instance and checks read/write permissions with the
      * System.getSecurityManager().
@@ -597,22 +699,10 @@ public abstract class AbstractSerialPortSocket<T extends AbstractSerialPortSocke
     }
 
     @Override
-    public synchronized void close() throws IOException {
-        if (!open) {
-            return;
-        }
-        open = false;
+    protected void implCloseChannel() throws IOException {
         is = null;
         os = null;
-        close0();
     }
-
-    /**
-     * Close port
-     *
-     * @throws java.io.IOException
-     */
-    protected native void close0() throws IOException;
 
     /**
      * writes all data in the output buffer
@@ -620,26 +710,6 @@ public abstract class AbstractSerialPortSocket<T extends AbstractSerialPortSocke
      * @throws IOException
      */
     protected abstract void drainOutputBuffer() throws IOException;
-
-    //TODO JAVA 9 finalze
-    @Override
-    @Deprecated
-    protected final void finalize() throws Throwable {
-        try {
-            if (isOpen()) {
-                close();
-            }
-        } catch (Exception ex) {
-            // This should always work
-            System.err.println("SerialPortSocket " + getPortName() + " finalize() exception: " + ex);
-        } catch (Error err) {
-            // Leave a trace what hit us...
-            System.err.println("SerialPortSocket " + getPortName() + " finalize() error: " + err);
-            throw err;
-        } finally {
-            super.finalize();
-        }
-    }
 
     @Override
     public Speed getSpeed() throws IOException {
@@ -661,9 +731,7 @@ public abstract class AbstractSerialPortSocket<T extends AbstractSerialPortSocke
 
     @Override
     public synchronized InputStream getInputStream() throws IOException {
-        if (!open) {
-            throw new IOException(PORT_IS_CLOSED);
-        }
+        ensureOpen();
         if (is == null) {
             is = new SerialInputStream();
         }
@@ -675,9 +743,7 @@ public abstract class AbstractSerialPortSocket<T extends AbstractSerialPortSocke
 
     @Override
     public synchronized OutputStream getOutputStream() throws IOException {
-        if (!open) {
-            throw new IOException(PORT_IS_CLOSED);
-        }
+        ensureOpen();
         if (os == null) {
             os = new SerialOutputStream();
         }
@@ -715,11 +781,6 @@ public abstract class AbstractSerialPortSocket<T extends AbstractSerialPortSocke
     public native char getXONChar() throws IOException;
 
     @Override
-    public boolean isClosed() {
-        return !open;
-    }
-
-    @Override
     public native boolean isCTS() throws IOException;
 
     @Override
@@ -731,33 +792,20 @@ public abstract class AbstractSerialPortSocket<T extends AbstractSerialPortSocke
     @Override
     public native boolean isRI() throws IOException;
 
-    @Override
-    public boolean isOpen() {
-        return open;
-    }
-
-    @Override
-    public synchronized void open() throws IOException {
-        if (open) {
-            throw new IOException(PORT_IS_OPEN);
+    public void ensureOpen() throws IOException {
+        if (!isOpen()) {
+            throw new IOException(PORT_IS_CLOSED);
         }
-        open(portName, NO_PARAMS_TO_SET);
-        open = true;
     }
 
-    @Override
-    public synchronized void open(Speed speed, DataBits dataBits, StopBits stopBits, Parity parity,
+    protected void open(Speed speed, DataBits dataBits, StopBits stopBits, Parity parity,
             Set<FlowControl> flowControls) throws IOException {
-        if (open) {
-            throw new IOException(PORT_IS_OPEN);
-        }
         int bitset = toBitSet(speed);
         bitset |= toBitSet(dataBits);
         bitset |= toBitSet(stopBits);
         bitset |= toBitSet(parity);
         bitset |= toBitSet(flowControls);
         open(portName, bitset);
-        open = true;
     }
 
     /**
@@ -768,7 +816,7 @@ public abstract class AbstractSerialPortSocket<T extends AbstractSerialPortSocke
      * @throws java.io.IOException
      *
      */
-    protected native void open(String portName, int paramBitSet) throws IOException;
+    protected abstract void open(String portName, int paramBitSet) throws IOException;
 
     /**
      * Read data from port
@@ -783,6 +831,7 @@ public abstract class AbstractSerialPortSocket<T extends AbstractSerialPortSocke
 
     protected native int readSingle() throws IOException;
 
+    //TODO make this interruptable
     @Override
     public native void sendBreak(int duration) throws IOException;
 

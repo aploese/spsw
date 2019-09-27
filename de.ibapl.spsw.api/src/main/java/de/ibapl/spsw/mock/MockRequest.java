@@ -19,5 +19,27 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-@org.osgi.annotation.versioning.Version("2.1.0")
-package de.ibapl.spsw.jnhwprovider;
+package de.ibapl.spsw.mock;
+
+import java.util.Arrays;
+
+public class MockRequest<T> {
+    
+    public final T payload;
+    public final MockRequestType requestType;
+    public final MockRequestStackException stackException;
+
+    /*
+     * We manipulate the stacktrace for better debugging We now 2 method calls away
+     * from the point we want to show first addRequest() second Data() so remove the
+     * last two we are at the point where addRequest() was called...
+     */
+    MockRequest(T payload, MockRequestType requestType) {
+        this.payload = payload;
+        this.requestType = requestType;
+        this.stackException = new MockRequestStackException();
+        final StackTraceElement[] st = this.stackException.getStackTrace();
+        this.stackException.setStackTrace(Arrays.copyOfRange(st, 3, st.length - 3));
+    }
+    
+}

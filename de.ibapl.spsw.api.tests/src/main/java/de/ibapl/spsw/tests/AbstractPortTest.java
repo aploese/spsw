@@ -346,6 +346,7 @@ public abstract class AbstractPortTest {
 
     protected SerialPortSocket readSpc;
     protected SerialPortSocket writeSpc;
+
     protected boolean currentTestFailed;
 
     protected SerialPortSocketFactory getSerialPortSocketFactory() {
@@ -377,11 +378,11 @@ public abstract class AbstractPortTest {
     }
 
     protected void assumeRTest() {
-        assumeTrue(readSpc != null);
+        assumeTrue(readSerialPortName != null);
     }
 
     protected void assumeWTest() {
-        assumeTrue(writeSpc != null);
+        assumeTrue(writeSerialPortName != null);
     }
 
     protected void assumeRWTest() {
@@ -389,7 +390,7 @@ public abstract class AbstractPortTest {
         assumeWTest();
     }
 
-    protected void openDefault() throws Exception {
+    protected void openDefault() throws IOException {
         open(Speed._9600_BPS, DataBits.DB_8, StopBits.SB_1, Parity.NONE, FlowControl.getFC_NONE());
     }
 
@@ -404,10 +405,11 @@ public abstract class AbstractPortTest {
      * @throws Exception
      */
     protected void open(Speed speed, DataBits dataBits, StopBits stopBits, Parity parity, Set<FlowControl> flowControl)
-            throws Exception {
-        if (readSpc != null) {
+            throws IOException {
+        final SerialPortSocketFactory factory = getSerialPortSocketFactory();
+        if (readSerialPortName != null) {
             try {
-                readSpc.open(speed, dataBits, stopBits, parity, flowControl);
+                readSpc = factory.open(readSerialPortName, speed, dataBits, stopBits, parity, flowControl);
             } catch (Exception e) {
                 LOG.log(Level.SEVERE, "Error during readSpc.open(" + speed + ", " + dataBits + ", " + stopBits + ", " + parity + ", " + flowControl + ");", e);
                 throw e;
@@ -415,25 +417,38 @@ public abstract class AbstractPortTest {
             assertEquals(0, readSpc.getOutBufferBytesCount(), "Can't start test: OutBuffer is not empty");
             while (readSpc.getInBufferBytesCount() > 0) {
                 readSpc.getInputStream().read(new byte[readSpc.getInBufferBytesCount()]);
-                Thread.sleep(100);
+                try {
+                    Thread.sleep(100);
+                } catch (InterruptedException ie) {
+                    throw  new RuntimeException(ie);
+                }
             }
             assertEquals(0, readSpc.getInBufferBytesCount(), "Can't start test: InBuffer is not empty");
+//No wrapper			readSpc = LoggingSerialPortSocket.wrapWithHexOutputStream(readSpc, new FileOutputStream("/tmp/test_serial.txt"), true, TimeStampLogging.FROM_OPEN);
+        }
+        if (writeSerialPortName != null) {
+            if (writeSerialPortName.equals(readSerialPortName)) {
+                writeSpc = readSpc;
+            } else {
+                try {
+                    writeSpc = factory.open(writeSerialPortName, speed, dataBits, stopBits, parity, flowControl);
+                } catch (Exception e) {
+                    LOG.log(Level.SEVERE, "Error during writeSpc.open(" + speed + ", " + dataBits + ", " + stopBits + ", " + parity + ", " + flowControl + ");", e);
+                    throw e;
+                }
+                assertEquals(0, writeSpc.getOutBufferBytesCount(), "Can't start test: OutBuffer is not empty");
+                while (writeSpc.getInBufferBytesCount() > 0) {
+                    writeSpc.getInputStream().read(new byte[writeSpc.getInBufferBytesCount()]);
+                try {
+                    Thread.sleep(100);
+                } catch (InterruptedException ie) {
+                    throw  new RuntimeException(ie);
+                }
+                }
+                assertEquals(0, writeSpc.getInBufferBytesCount(), "Can't start test: InBuffer is not empty");
+            }
+        }
 
-        }
-        if (writeSpc != null && writeSpc != readSpc) {
-            try {
-                writeSpc.open(speed, dataBits, stopBits, parity, flowControl);
-            } catch (Exception e) {
-                LOG.log(Level.SEVERE, "Error during writeSpc.open(" + speed + ", " + dataBits + ", " + stopBits + ", " + parity + ", " + flowControl + ");", e);
-                throw e;
-            }
-            assertEquals(0, writeSpc.getOutBufferBytesCount(), "Can't start test: OutBuffer is not empty");
-            while (writeSpc.getInBufferBytesCount() > 0) {
-                writeSpc.getInputStream().read(new byte[writeSpc.getInBufferBytesCount()]);
-                Thread.sleep(100);
-            }
-            assertEquals(0, writeSpc.getInBufferBytesCount(), "Can't start test: InBuffer is not empty");
-        }
     }
 
     protected void setTimeouts(int interByteReadTimeout, int overallReadTimeout, int overallWriteTimeout)
@@ -506,34 +521,25 @@ public abstract class AbstractPortTest {
     @BeforeEach
     public void setUp(TestInfo testInfo) throws Exception {
         LOG.info(MessageFormat.format("do run test : {0}", testInfo.getDisplayName()));
-        if (readSerialPortName != null) {
-            readSpc = getSerialPortSocketFactory().createSerialPortSocket(readSerialPortName);
-//No wrapper			readSpc = LoggingSerialPortSocket.wrapWithHexOutputStream(readSpc, new FileOutputStream("/tmp/test_serial.txt"), true, TimeStampLogging.FROM_OPEN);
-        }
-        if (writeSerialPortName != null) {
-            if (writeSerialPortName.equals(readSerialPortName)) {
-                writeSpc = readSpc;
-            } else {
-                writeSpc = getSerialPortSocketFactory().createSerialPortSocket(writeSerialPortName);
-            }
-        }
+        readSpc = null;
+        writeSpc = null;
     }
 
     @AfterEach
     public void tearDown() throws Exception {
         if (writeSpc != null) {
             if (writeSpc != readSpc) {
-                if (!writeSpc.isClosed()) {
+                if (writeSpc.isOpen()) {
                     writeSpc.close();
-                    assert (writeSpc.isClosed());
+                    assert !writeSpc.isOpen();
                 }
             }
             writeSpc = null;
         }
         if (readSpc != null) {
-            if (!readSpc.isClosed()) {
+            if (readSpc.isOpen()) {
                 readSpc.close();
-                assert (readSpc.isClosed());
+                assert !readSpc.isOpen();
             }
             readSpc = null;
         }

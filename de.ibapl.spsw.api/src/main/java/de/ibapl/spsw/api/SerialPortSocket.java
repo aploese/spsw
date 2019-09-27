@@ -27,6 +27,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.lang.annotation.Native;
 import java.nio.channels.ByteChannel;
+import java.nio.channels.InterruptibleChannel;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
@@ -68,7 +69,7 @@ import org.osgi.annotation.versioning.ProviderType;
  */
 //TODO make SerialportSocket implement ByteChannel itself???	
 @ProviderType
-public interface SerialPortSocket extends ByteChannel {
+public interface SerialPortSocket extends ByteChannel, InterruptibleChannel {
 
 	/**
 	 * {@value #PORT_IS_CLOSED}. This should be the message of the IOException, if
@@ -175,14 +176,6 @@ public interface SerialPortSocket extends ByteChannel {
 	default double calculateSpeedInCharactersPerSecond() throws IOException {
 		return calculateSpeedInCharactersPerSecond(getSpeed(), getDatatBits(), getStopBits(), getParity());
 	}
-
-	/**
-	 * Close port. The port should be reopenable after closure.
-	 *
-	 * @throws IOException
-	 */
-	@Override
-	void close() throws IOException;
 
 	/**
 	 * Read the number of data bits from the port.
@@ -345,8 +338,6 @@ public interface SerialPortSocket extends ByteChannel {
 	 */
 	char getXONChar() throws IOException;
 
-	boolean isClosed();
-
 	/**
 	 * Read the state of the CTS line from the port. Clear To Send (CTS) DTE input,
 	 * DCE is ready to transmit
@@ -397,37 +388,6 @@ public interface SerialPortSocket extends ByteChannel {
 	 *             if port is closed or an error at OS level occurs.
 	 */
 	boolean isRI() throws IOException;
-
-	/**
-	 * Open the port.
-	 * 
-	 * @throws IOException
-	 *             if port is already opened or an error at OS level occurs.
-	 */
-	void open() throws IOException;
-
-	/**
-	 * Setting the parameters of port
-	 *
-	 * @param speed
-	 *            the speed in bit/s.
-	 * @param dataBits
-	 *            the number of data bits.
-	 * @param stopBits
-	 *            the number of stop bits.
-	 * @param parity
-	 *            the parity.
-	 * @param flowControls
-	 *            the flow control.
-	 * 
-	 * @throws IOException
-	 *             if parameters can't be set, port is closed or an error at OS
-	 *             level occurred.
-	 * @throws IllegalArgumentException
-	 *             if one ore more parameters can't be set.
-	 */
-	void open(Speed speed, DataBits dataBits, StopBits stopBits, Parity parity, Set<FlowControl> flowControls)
-			throws IOException;
 
 	/**
 	 * Initiate the port to send break for duration in ms.

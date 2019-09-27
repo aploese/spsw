@@ -43,6 +43,19 @@ extern "C" {
         }
     }
 
+/*
+ * Class:     de_ibapl_spsw_jniprovider_GenericWinSerialPortSocket_FdCleaner
+ * Method:    closeFds
+ * Signature: (J)V
+ */
+JNIEXPORT void JNICALL Java_de_ibapl_spsw_jniprovider_GenericWinSerialPortSocket_00024FdCleaner_closeFds
+  (JNIEnv *env, jobject fdCleaner, jlong hFile) {
+        HANDLE nativeHFile = (HANDLE) (uintptr_t) hFile;
+        CancelIo(nativeHFile);
+        CloseHandle(nativeHFile);
+}
+
+
     /*
      * Class:     de_ibapl_spsw_jniprovider_AbstractSerialPortSocket
      * Method:    isCTS
@@ -88,7 +101,7 @@ extern "C" {
      * Method:    close0
      * Signature: ()V
      */
-    JNIEXPORT void JNICALL Java_de_ibapl_spsw_jniprovider_AbstractSerialPortSocket_close0
+    JNIEXPORT void JNICALL Java_de_ibapl_spsw_jniprovider_GenericWinSerialPortSocket_close0
     (JNIEnv *env, jobject sps) {
 
         HANDLE hFile = (HANDLE) (uintptr_t) (*env)->GetLongField(env, sps, spsw_fd);
@@ -154,7 +167,7 @@ extern "C" {
      * Method:    open
      * Signature: (Ljava/lang/String;I)V
      */
-    JNIEXPORT void JNICALL Java_de_ibapl_spsw_jniprovider_AbstractSerialPortSocket_open
+    JNIEXPORT void JNICALL Java_de_ibapl_spsw_jniprovider_GenericWinSerialPortSocket_open0
     (JNIEnv *env, jobject sps, jstring portName, jint paramBitSet) {
         //Do not try to reopen port and therefore failing and overriding the file descriptor
         if ((HANDLE) (uintptr_t) (*env)->GetLongField(env, sps, spsw_fd) != INVALID_HANDLE_VALUE) {
@@ -185,10 +198,10 @@ extern "C" {
 
             switch (GetLastError()) {
                 case ERROR_ACCESS_DENIED:
-                    throw_IOException(env, "Port is busy: (%s)", portName);
+                    throw_IOException(env, "Port is busy: \"%s\"", portName);
                     break;
                 case ERROR_FILE_NOT_FOUND:
-                    throw_IOException(env, "Port not found: (%s)", portName);
+                    throw_IOException(env, "Port not found: \"%s\"", portName);
                     break;
                 default:
                     throw_IOException_NativeError(env, "Open");
@@ -205,7 +218,7 @@ extern "C" {
 
             (*env)->SetLongField(env, sps, spsw_fd, (uintptr_t) INVALID_HANDLE_VALUE);
 
-            throw_IOException(env, "Not a serial port: (%s)", portName);
+            throw_IOException(env, "Not a serial port: \"%s\"", portName);
             return;
         }
 

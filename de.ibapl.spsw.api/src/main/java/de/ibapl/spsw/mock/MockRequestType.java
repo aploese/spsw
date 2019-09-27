@@ -19,9 +19,13 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-/**
- * Provides classes to mock the behavior of a
- * {@link de.ibapl.spsw.api.SerialPortSocket} for testing.
- */
-@org.osgi.annotation.versioning.Version("2.1.0")
 package de.ibapl.spsw.mock;
+
+/**
+ *
+ * @author aploese
+ */
+public enum MockRequestType {
+    READ, WRITE
+    
+}

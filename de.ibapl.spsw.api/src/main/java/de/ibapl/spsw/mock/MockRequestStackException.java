@@ -19,9 +19,20 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
+package de.ibapl.spsw.mock;
+
 /**
- * Provides classes for low level logging and off site debugging of a
- * {@link de.ibapl.spsw.api.SerialPortSocket}.
+ *
+ * @author aploese
  */
-@org.osgi.annotation.versioning.Version("2.1.0")
-package de.ibapl.spsw.logging;
+public class MockRequestStackException extends Exception {
+    
+    /**
+     *
+     */
+    private static final long serialVersionUID = 1L;
+
+    public MockRequestStackException() {
+    }
+    
+}

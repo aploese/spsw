@@ -41,6 +41,7 @@ import de.ibapl.spsw.api.Speed;
 import de.ibapl.spsw.api.StopBits;
 import de.ibapl.spsw.api.TimeoutIOException;
 import java.nio.ByteBuffer;
+import java.nio.channels.spi.AbstractInterruptibleChannel;
 
 /**
  * Accesses a remote serial device on a differrent machine over
@@ -52,7 +53,7 @@ import java.nio.ByteBuffer;
  *
  */
 @ProviderType
-public class Ser2NetProvider implements SerialPortSocket {
+public class Ser2NetProvider extends AbstractInterruptibleChannel implements SerialPortSocket {
 
     protected class InputStreamWrapper extends InputStream {
 
@@ -159,21 +160,37 @@ public class Ser2NetProvider implements SerialPortSocket {
     private OutputStreamWrapper os;
     private ByteChannel channel;
 
-    public Ser2NetProvider(String host, int dataPort, int controlPort) {
+    public Ser2NetProvider(String host, int dataPort, int controlPort) throws IOException {
         this.host = host;
         this.dataPort = dataPort;
         this.controlPort = controlPort;
+        dataSocket = SocketFactory.getDefault().createSocket(host, dataPort);
+        if (controlPort != -1) {
+            controlSocket = SocketFactory.getDefault().createSocket(host, controlPort);
+        }
+        channel = dataSocket.getChannel();
     }
 
     public Ser2NetProvider(String host, int dataPort) throws IOException {
         this(host, dataPort, -1);
     }
 
-    @Override
-    public boolean isClosed() {
-        return dataSocket == null ? true : dataSocket.isClosed();
+    public Ser2NetProvider(String host, int dataPort, Speed speed, DataBits dataBits, StopBits stopBits, Parity parity, Set<FlowControl> flowControls)
+            throws IOException {
+        this(host, dataPort);
+        this.speed = speed;
+        this.dataBits = dataBits;
+        this.stopBits = stopBits;
+        this.parity = parity;
+        this.flowControl = flowControls;
     }
 
+    protected void ensureOpen() throws IOException {
+        if (!isOpen()) {
+            throw new IOException(PORT_IS_CLOSED);
+        }
+    }
+    
     @Override
     public boolean isCTS() throws IOException {
         // TODO Auto-generated method stub
@@ -200,9 +217,7 @@ public class Ser2NetProvider implements SerialPortSocket {
 
     @Override
     public synchronized InputStream getInputStream() throws IOException {
-        if (isClosed()) {
-            throw new IOException(PORT_IS_CLOSED);
-        }
+        ensureOpen();
         if (is == null) {
             is = new InputStreamWrapper();
         }
@@ -211,9 +226,7 @@ public class Ser2NetProvider implements SerialPortSocket {
 
     @Override
     public synchronized OutputStream getOutputStream() throws IOException {
-        if (isClosed()) {
-            throw new IOException(PORT_IS_CLOSED);
-        }
+        ensureOpen();
         if (os == null) {
             os = new OutputStreamWrapper();
         }
@@ -226,38 +239,7 @@ public class Ser2NetProvider implements SerialPortSocket {
     }
 
     @Override
-    public boolean isOpen() {
-        return !isClosed();
-    }
-
-    @Override
-    public void open() throws IOException {
-        if (isOpen()) {
-            throw new IOException(PORT_IS_OPEN);
-        }
-        dataSocket = SocketFactory.getDefault().createSocket(host, dataPort);
-        if (controlPort != -1) {
-            controlSocket = SocketFactory.getDefault().createSocket(host, controlPort);
-        }
-        channel = dataSocket.getChannel();
-    }
-
-    @Override
-    public void open(Speed speed, DataBits dataBits, StopBits stopBits, Parity parity, Set<FlowControl> flowControls)
-            throws IOException {
-        this.speed = speed;
-        this.dataBits = dataBits;
-        this.stopBits = stopBits;
-        this.parity = parity;
-        this.flowControl = flowControls;
-        this.open();
-    }
-
-    @Override
-    public synchronized void close() throws IOException {
-        if (isClosed()) {
-            return;
-        }
+    protected void implCloseChannel() throws IOException {
 
         final Socket s = dataSocket;
         dataSocket = null;
@@ -274,52 +256,50 @@ public class Ser2NetProvider implements SerialPortSocket {
     @Override
     public void setRTS(boolean value) throws IOException {
         // TODO Auto-generated method stub
-
+        ensureOpen();
     }
 
     @Override
     public void setDTR(boolean value) throws IOException {
         // TODO Auto-generated method stub
-
+        ensureOpen();
     }
 
     @Override
     public void setXONChar(char c) throws IOException {
         // TODO Auto-generated method stub
-
+        ensureOpen();
     }
 
     @Override
     public void setXOFFChar(char c) throws IOException {
         // TODO Auto-generated method stub
-
+        ensureOpen();
     }
 
     @Override
     public char getXONChar() throws IOException {
         // TODO Auto-generated method stub
+        ensureOpen();
         return 0;
     }
 
     @Override
     public char getXOFFChar() throws IOException {
         // TODO Auto-generated method stub
+        ensureOpen();
         return 0;
     }
 
     @Override
     public int read(ByteBuffer dst) throws IOException {
-        if (isClosed()) {
-            throw new IOException(PORT_IS_CLOSED);
-        }
+        ensureOpen();
         return channel.read(dst);
     }
 
     @Override
     public int write(ByteBuffer src) throws IOException {
-        if (isClosed()) {
-            throw new IOException(PORT_IS_CLOSED);
-        }
+        ensureOpen();
         return channel.write(src);
     }
 
@@ -332,102 +312,118 @@ public class Ser2NetProvider implements SerialPortSocket {
     @Override
     public void sendXON() throws IOException {
         // TODO Auto-generated method stub
-
+        ensureOpen();
     }
 
     @Override
     public void sendXOFF() throws IOException {
         // TODO Auto-generated method stub
-
+        ensureOpen();
     }
 
     @Override
     public int getInBufferBytesCount() throws IOException {
+        ensureOpen();
         return dataSocket.getInputStream().available();
     }
 
     @Override
     public int getOutBufferBytesCount() throws IOException {
         // TODO Auto-generated method stub
+        ensureOpen();
         return 0;
     }
 
     @Override
     public void setBreak(boolean value) throws IOException {
         // TODO Auto-generated method stub
-
+        ensureOpen();
     }
 
     @Override
     public void setFlowControl(Set<FlowControl> flowControls) throws IOException {
+        ensureOpen();
         this.flowControl = flowControls;
     }
 
     @Override
     public void setSpeed(Speed speed) throws IOException {
+        ensureOpen();
         this.speed = speed;
     }
 
     @Override
     public void setDataBits(DataBits dataBits) throws IOException {
+        ensureOpen();
         this.dataBits = dataBits;
     }
 
     @Override
     public void setStopBits(StopBits stopBits) throws IOException {
+        ensureOpen();
         this.stopBits = stopBits;
     }
 
     @Override
     public void setParity(Parity parity) throws IOException {
+        ensureOpen();
         this.parity = parity;
     }
 
     @Override
     public Speed getSpeed() throws IOException {
+        ensureOpen();
         return speed;
     }
 
     @Override
     public DataBits getDatatBits() throws IOException {
+        ensureOpen();
         return dataBits;
     }
 
     @Override
     public StopBits getStopBits() throws IOException {
+        ensureOpen();
         return stopBits;
     }
 
     @Override
     public Parity getParity() throws IOException {
+        ensureOpen();
         return parity;
     }
 
     @Override
     public Set<FlowControl> getFlowControl() throws IOException {
+        ensureOpen();
         return flowControl;
     }
 
     @Override
     public int getOverallReadTimeout() throws IOException {
+        ensureOpen();
         return dataSocket.getSoTimeout();
     }
 
     @Override
     public int getInterByteReadTimeout() throws IOException {
         // TODO Auto-generated method stub
+        ensureOpen();
         return 0;
     }
 
     @Override
     public int getOverallWriteTimeout() throws IOException {
         // TODO Auto-generated method stub
+        ensureOpen();
         return 0;
     }
 
     @Override
     public void setTimeouts(int interByteReadTimeout, int overallReadTimeout, int overallWriteTimeout)
             throws IOException {
+        ensureOpen();
         dataSocket.setSoTimeout(overallReadTimeout);
         // TODO Output Timeout??
     }

@@ -165,18 +165,30 @@ public class PosixSerialPortSocket extends AbstractSerialPortSocket<PosixSerialP
 
         @Override
         public void run() {
+            if (close_event_write_fd != PosixSerialPortSocket.INVALID_FD) {
+                byte[] evt_buff = new byte[8];
+                evt_buff[5] = 1;
+                evt_buff[6] = 1;
+                evt_buff[7] = 1;
+
+                try {
+                    //Eventfd.eventfd_write(close_event_fd, 0x0101010000000000L);
+                    Unistd.write(close_event_write_fd, evt_buff);
+                    Unistd.usleep(1000); // 1ms
+                } catch (NativeErrorException nee) {
+                    LOG.log(Level.SEVERE, "Error writing to close_event_fd error: " + Errno.getErrnoSymbol(nee.errno), nee);
+                }
+                try {
+                    Unistd.close(close_event_write_fd);
+                } catch (NativeErrorException ex) {
+                    LOG.severe("can't clean close_event_write_fd");
+                }
+            }
             if (fd != PosixSerialPortSocket.INVALID_FD) {
                 try {
                     Unistd.close(fd);
                 } catch (NativeErrorException ex) {
                     LOG.severe("can't clean fd");
-                }
-            }
-            if (close_event_write_fd != PosixSerialPortSocket.INVALID_FD) {
-                try {
-                    Unistd.close(close_event_write_fd);
-                } catch (NativeErrorException ex) {
-                    LOG.severe("can't clean close_event_write_fd");
                 }
             }
             if (close_event_read_fd != PosixSerialPortSocket.INVALID_FD) {
@@ -199,17 +211,12 @@ public class PosixSerialPortSocket extends AbstractSerialPortSocket<PosixSerialP
     private int interByteReadTimeout = 100;
     private int pollReadTimeout = -1;
     private int pollWriteTimeout = -1;
-    private final int CMSPAR_OR_PAREXT;
-    private final boolean JNHW_HAVE_SYS_EVENTFD_H;
-    private FdCleaner fdCleaner = new FdCleaner();
+    private final FdCleaner fdCleaner = new FdCleaner();
 
-    public PosixSerialPortSocket(String portName) {
-        super(portName);
-        CLEANER.register(this, fdCleaner);
-        //Check that the libs are loaded
-        if (!LibJnhwPosixLoader.touch()) {
-            throw new RuntimeException("Could not load native lib", LibJnhwPosixLoader.LIB_JNHW_POSIX_LOAD_RESULT.loadError);
-        }
+    private static final boolean JNHW_HAVE_SYS_EVENTFD_H = Eventfd.HAVE_SYS_EVENTFD_H();
+    private static final int CMSPAR_OR_PAREXT;
+
+    static {
         int value = 0;
         try {
             value = Termios.CMSPAR();
@@ -220,12 +227,23 @@ public class PosixSerialPortSocket extends AbstractSerialPortSocket<PosixSerialP
             }
         }
         CMSPAR_OR_PAREXT = value;
-        JNHW_HAVE_SYS_EVENTFD_H = Eventfd.HAVE_SYS_EVENTFD_H();
+    }
+
+    PosixSerialPortSocket(String portName) throws IOException {
+        this(portName, null, null, null, null, null);
+    }
+
+    PosixSerialPortSocket(String portName, Speed speed, DataBits dataBits, StopBits stopBits, Parity parity, Set<FlowControl> flowControls) throws IOException {
+        super(portName);
+        //Check that the libs are loaded
+        if (!LibJnhwPosixLoader.touch()) {
+            throw new RuntimeException("Could not load native lib", LibJnhwPosixLoader.LIB_JNHW_POSIX_LOAD_RESULT.loadError);
+        }
+        open(speed, dataBits, stopBits, parity, flowControls);
     }
 
     @Override
-    public synchronized void close() throws IOException {
-        super.close();
+    protected void implCloseChannel() throws IOException {
         if (fd != INVALID_FD) {
             // Mark port as closed...
             int tempFd = fd;
@@ -538,7 +556,7 @@ public class PosixSerialPortSocket extends AbstractSerialPortSocket<PosixSerialP
      * @param speed
      * @return
      */
-    private int speed2speed_t(Speed speed) {
+    private static int speed2speed_t(Speed speed) {
         switch (speed) {
             case _0_BPS:
                 return B0();
@@ -693,11 +711,6 @@ public class PosixSerialPortSocket extends AbstractSerialPortSocket<PosixSerialP
     }
 
     @Override
-    public synchronized boolean isClosed() {
-        return fd == INVALID_FD;
-    }
-
-    @Override
     public boolean isCTS() throws IOException {
         return getLineStatus(TIOCM_CTS());
     }
@@ -710,11 +723,6 @@ public class PosixSerialPortSocket extends AbstractSerialPortSocket<PosixSerialP
     @Override
     public boolean isDSR() throws IOException {
         return getLineStatus(TIOCM_DSR());
-    }
-
-    @Override
-    public boolean isOpen() {
-        return fd != INVALID_FD;
     }
 
     private boolean isFdValid() {
@@ -736,31 +744,21 @@ public class PosixSerialPortSocket extends AbstractSerialPortSocket<PosixSerialP
         return getLineStatus(TIOCM_RNG());
     }
 
-    @Override
-    public synchronized void open() throws IOException {
-        open(null, null, null, null, null);
-    }
-
-    @Override
-    public synchronized void open(Speed speed, DataBits dataBits, StopBits stopBits, Parity parity,
-            Set<FlowControl> flowControls) throws IOException {
-        if (fd != INVALID_FD) {
-            throw new IOException(PORT_IS_OPEN);
-        }
+    private synchronized void open(Speed speed, DataBits dataBits, StopBits stopBits, Parity parity, Set<FlowControl> flowControls) throws IOException {
 
         try {
             fd = Fcntl.open(portName, O_RDWR() | O_NOCTTY() | O_NONBLOCK());
         } catch (NativeErrorException nee) {
             if (nee.errno == EBUSY()) {
-                throw new IOException(String.format("Port is busy: (%s)", portName));
+                throw new IOException(String.format("Port is busy: \"%s\"", portName));
             } else if (nee.errno == ENOENT()) {
-                throw new IOException(String.format("Port not found: (%s)", portName));
+                throw new IOException(String.format("Port not found: \"%s\"", portName));
             } else if (nee.errno == EACCES()) {
-                throw new IOException(String.format("Permission denied: (%s)", portName));
+                throw new IOException(String.format("Permission denied: \"%s\"", portName));
             } else if (nee.errno == EIO()) {
-                throw new IOException(String.format("Not a serial port: (%s)", portName));
+                throw new IOException(String.format("Not a serial port: \"%s\"", portName));
             } else {
-                throw new IOException(String.format("Native port error \"%d:\" open (%s)", Errno.getErrnoSymbol(nee.errno), portName));
+                throw new IOException(String.format("Native port error \"%d:\" open \"%s\"", Errno.getErrnoSymbol(nee.errno), portName));
             }
         }
 
@@ -776,7 +774,7 @@ public class PosixSerialPortSocket extends AbstractSerialPortSocket<PosixSerialP
             fd = INVALID_FD;
             //this is from tcgetattr
             if (nee.errno == ENOTTY()) {
-                throw new IOException(String.format("Not a serial port: (%s)", portName));
+                throw new IOException(String.format("Not a serial port: \"%s\"", portName));
             } else {
                 throw new IOException("open tcgetattr " + Errno.getErrnoSymbol(nee.errno));
             }
@@ -856,17 +854,27 @@ public class PosixSerialPortSocket extends AbstractSerialPortSocket<PosixSerialP
         fdCleaner.fd = fd;
         fdCleaner.close_event_read_fd = close_event_read_fd;
         fdCleaner.close_event_write_fd = close_event_write_fd;
+        CLEANER.register(this, fdCleaner);
     }
 
     @Override
     public void sendBreak(int duration) throws IOException {
         if (duration <= 0) {
-            throw new IllegalArgumentException("sendBreak duration must be grater than 0)");
+            throw new IllegalArgumentException("sendBreak duration must be greater than 0)");
         }
+        //make this blocking IO interruptable
+        boolean completed = false;
         try {
-            tcsendbreak(fd, duration);
-        } catch (NativeErrorException nee) {
-            throw new IOException(formatMsg(nee, "Can't sendBreak"));
+            begin();
+            try {
+                tcsendbreak(fd, duration);
+                completed = true;
+            } catch (NativeErrorException nee) {
+                completed = true;
+                throw new IOException(formatMsg(nee, "Can't sendBreak"));
+            }
+        } finally {
+            end(completed);
         }
     }
 
@@ -1224,74 +1232,93 @@ public class PosixSerialPortSocket extends AbstractSerialPortSocket<PosixSerialP
             }
         }
 
-        PollFds fds = new PollFds(2);
-        fds.get(0).fd(fd);
-        fds.get(0).events(POLLOUT());
-        fds.get(1).fd(close_event_read_fd);
-        fds.get(1).events(POLLIN());
+        //make this blocking IO interruptable
+        boolean completed = false;
+        try {
+            begin();
 
-        int offset = written;
-        // calculate the endtime...
-        do {
-            long currentTime = System.nanoTime();
-            final int currentPollTimeout = pollWriteTimeout == -1 ? pollWriteTimeout
-                    : (int) ((endTime - currentTime) / 1000000L);
+            PollFds fds = new PollFds(2);
+            fds.get(0).fd(fd);
+            fds.get(0).events(POLLOUT());
+            fds.get(1).fd(close_event_read_fd);
+            fds.get(1).events(POLLIN());
 
-            try {
-                final int poll_result = poll(fds, currentPollTimeout);
+            int offset = written;
+            // calculate the endtime...
+            do {
+                long currentTime = System.nanoTime();
+                final int currentPollTimeout = pollWriteTimeout == -1 ? pollWriteTimeout
+                        : (int) ((endTime - currentTime) / 1000000L);
 
-                if (poll_result == 0) {
-                    // Timeout occured
-                    TimeoutIOException tioe = new TimeoutIOException();
-                    tioe.bytesTransferred = written;
-                    throw tioe;
-                } else {
-                    if (fds.get(1).revents() == POLLIN()) {
-                        // we can read from close_event_fd => port is closing
+                try {
+                    final int poll_result = poll(fds, currentPollTimeout);
+
+                    if (poll_result == 0) {
+                        // Timeout occured
+                        TimeoutIOException tioe = new TimeoutIOException();
+                        tioe.bytesTransferred = written;
+                        completed = true;
+                        throw tioe;
+                    } else {
+                        if (fds.get(1).revents() == POLLIN()) {
+                            // we can read from close_event_fd => port is closing
+                            completed = true;
+                            throw new AsynchronousCloseException();
+                        } else if (fds.get(0).revents() == POLLOUT()) {
+                            // Happy path all is right...
+                        } else if ((fds.get(0).revents() & POLLHUP()) == POLLHUP()) {
+                            completed = true;
+                            throw new InterruptedIOException(PORT_FD_INVALID);
+                        } else {
+                            InterruptedIOException iioe = new InterruptedIOException(
+                                    "poll returned with poll event write ");
+                            iioe.bytesTransferred = (int) offset;
+                            completed = true;
+                            throw iioe;
+                        }
+                    }
+                } catch (NativeErrorException nee) {
+                    InterruptedIOException iioe = new InterruptedIOException(formatMsg(nee, "poll timeout with error in write "));
+                    iioe.bytesTransferred = (int) offset;
+                    completed = true;
+                    throw iioe;
+                }
+
+                try {
+                    offset += Unistd.write(fd, b);
+                } catch (NativeErrorException nee) {
+                    if (fd == INVALID_FD) {
+                        completed = true;
                         throw new AsynchronousCloseException();
-                    } else if (fds.get(0).revents() == POLLOUT()) {
-                        // Happy path all is right...
-                    } else if ((fds.get(0).revents() & POLLHUP()) == POLLHUP()) {
+                    } else if (nee.errno == EBADF()) {
+                        completed = true;
                         throw new InterruptedIOException(PORT_FD_INVALID);
                     } else {
-                        InterruptedIOException iioe = new InterruptedIOException(
-                                "poll returned with poll event write ");
+                        InterruptedIOException iioe = new InterruptedIOException(formatMsg(nee, "error during Unistd.write"));
                         iioe.bytesTransferred = (int) offset;
+                        completed = true;
                         throw iioe;
                     }
                 }
-            } catch (NativeErrorException nee) {
-                InterruptedIOException iioe = new InterruptedIOException(formatMsg(nee, "poll timeout with error in write "));
-                iioe.bytesTransferred = (int) offset;
-                throw iioe;
-            }
 
-            try {
-                offset += Unistd.write(fd, b);
-            } catch (NativeErrorException nee) {
-                if (fd == INVALID_FD) {
-                    throw new AsynchronousCloseException();
-                } else if (nee.errno == EBADF()) {
-                    throw new InterruptedIOException(PORT_FD_INVALID);
-                } else {
-                    InterruptedIOException iioe = new InterruptedIOException(formatMsg(nee, "error during Unistd.write"));
-                    iioe.bytesTransferred = (int) offset;
-                    throw iioe;
-                }
-            }
-
-        } while (b.hasRemaining());
-        return (int) offset;
+            } while (b.hasRemaining());
+            completed = true;
+            return (int) offset;
+        } finally {
+            end(completed);
+        }
     }
 
     @Override
     public int read(ByteBuffer b) throws IOException {
         if (!b.hasRemaining()) {
+            //nothing to read
             return 0;
         }
 
         int nread;
         try {
+            //non blocking read
             nread = Unistd.read(fd, b);
         } catch (NativeErrorException nee) {
             if (fd == INVALID_FD) {
@@ -1310,140 +1337,175 @@ public class PosixSerialPortSocket extends AbstractSerialPortSocket<PosixSerialP
             return nread;
         }
 
-        // TODO honor overall read timeout
-        PollFds fds = new PollFds(2);
-        fds.get(0).fd(fd);
-        fds.get(0).events(POLLIN());
-        fds.get(1).fd(close_event_read_fd);
-        fds.get(1).events(POLLIN());
+        //make this blocking IO interruptable
+        boolean completed = false;
+        try {
+            begin();
+            // TODO honor overall read timeout
+            PollFds fds = new PollFds(2);
+            fds.get(0).fd(fd);
+            fds.get(0).events(POLLIN());
+            fds.get(1).fd(close_event_read_fd);
+            fds.get(1).events(POLLIN());
 
-        if (nread == 0) {
-            // Nothing read yet
+            if (nread == 0) {
+                // Nothing read yet
+
+                try {
+                    final int poll_result = poll(fds, pollReadTimeout);
+
+                    if (poll_result == 0) {
+                        // Timeout
+                        completed = true;
+                        throw new TimeoutIOException();
+                    } else {
+                        if (fds.get(1).revents() == POLLIN()) {
+                            // we can read from close_event_fd => port is closing
+                            completed = true;
+                            throw new AsynchronousCloseException();
+                        } else if (fds.get(0).revents() == POLLIN()) {
+                            // Happy path just check if its the right event...
+                            try {
+                                nread = Unistd.read(fds.get(0).fd(), b);
+                            } catch (NativeErrorException nee) {
+                                if (fd == INVALID_FD) {
+                                    completed = true;
+                                    throw new AsynchronousCloseException();
+                                } else if (nee.errno == EBADF()) {
+                                    completed = true;
+                                    throw new InterruptedIOException(PORT_FD_INVALID);
+                                } else if (nread == 0) {
+                                    completed = true;
+                                    throw new IOException("read: nothing to read after successful polling: Should never happen "
+                                            + Errno.getErrnoSymbol(nee.errno));
+                                } else {
+                                    completed = true;
+                                    throw new IOException("read read error: Should never happen " + Errno.getErrnoSymbol(nee.errno));
+                                }
+                            }
+                        } else if ((fds.get(0).revents() & POLLHUP()) == POLLHUP()) {
+                            completed = true;
+                            throw new InterruptedIOException(PORT_FD_INVALID);
+                        } else {
+                            completed = true;
+                            throw new InterruptedIOException("read poll: received poll event fds:\n" + fds.toString());
+                        }
+                    }
+                } catch (NativeErrorException nee) {
+                    completed = true;
+                    throw new InterruptedIOException("read poll: Error during poll errno: " + Errno.getErrnoSymbol(nee.errno));
+                }
+            }
+
+            long overallRead = nread;
+
+            // Loop over poll and read to aquire as much bytes as possible either
+            // a poll timeout, a full read buffer or an error
+            // breaks the loop
+            while (b.hasRemaining()) {
+
+                try {
+                    final int poll_result = poll(fds, interByteReadTimeout);
+
+                    if (poll_result == 0) {
+                        // This is the interbyte timeout - We are done
+                        completed = true;
+                        return (int) overallRead; // TODO overflow???
+                    } else {
+                        if (fds.get(1).revents() == POLLIN()) {
+                            // we can read from close_event_fd => port is closing
+                            completed = true;
+                            return -1;
+                        } else if (fds.get(0).revents() == POLLIN()) {
+                            // Happy path
+                        } else if ((fds.get(0).revents() & POLLHUP()) == POLLHUP()) {
+                            completed = true;
+                            throw new InterruptedIOException(PORT_FD_INVALID);
+                        } else {
+                            completed = true;
+                            throw new InterruptedIOException("read poll: received poll event fds:\n" + fds.toString());
+                        }
+                    }
+                } catch (NativeErrorException nee) {
+                    completed = true;
+                    throw new InterruptedIOException("read poll: Error during poll " + Errno.getErrnoSymbol(nee.errno));
+                }
+                // OK No timeout and no error, we should read at least one byte without
+                // blocking.
+                try {
+                    overallRead += Unistd.read(fds.get(0).fd(), b);
+                } catch (NativeErrorException nee) {
+                    if (fd == INVALID_FD) {
+                        completed = true;
+                        throw new AsynchronousCloseException();
+                    } else if (nee.errno == EBADF()) {
+                        completed = true;
+                        throw new InterruptedIOException(PORT_FD_INVALID);
+                    } else if (nread == 0) {
+                        completed = true;
+                        throw new IOException("read: nothing to read after successful polling: Should never happen "
+                                + Errno.getErrnoSymbol(nee.errno));
+                    } else {
+                        completed = true;
+                        throw new IOException("read read error: Should never happen " + Errno.getErrnoSymbol(nee.errno));
+                    }
+                }
+            }
+            // We reached this, because the read buffer is full.
+            completed = true;
+            return (int) overallRead;
+        } finally {
+            end(completed);
+        }
+    }
+
+    @Override
+    protected void drainOutputBuffer() throws IOException {
+        //make this blocking IO interruptable
+        boolean completed = false;
+        try {
+            begin();
+            PollFds fds = new PollFds(2);
+            fds.get(0).fd(fd);
+            fds.get(0).events(POLLOUT());
+            fds.get(1).fd(close_event_read_fd);
+            fds.get(1).events(POLLIN());
 
             try {
-                final int poll_result = poll(fds, pollReadTimeout);
+                final int poll_result = poll(fds, pollWriteTimeout);
 
                 if (poll_result == 0) {
                     // Timeout
                     throw new TimeoutIOException();
                 } else {
                     if (fds.get(1).revents() == POLLIN()) {
-                        // we can read from close_event_fd => port is closing
-                        throw new AsynchronousCloseException();
-                    } else if (fds.get(0).revents() == POLLIN()) {
-                        // Happy path just check if its the right event...
-                        try {
-                            nread = Unistd.read(fds.get(0).fd(), b);
-                        } catch (NativeErrorException nee) {
-                            if (fd == INVALID_FD) {
-                                throw new AsynchronousCloseException();
-                            } else if (nee.errno == EBADF()) {
-                                throw new InterruptedIOException(PORT_FD_INVALID);
-                            } else if (nread == 0) {
-                                throw new IOException("read: nothing to read after successful polling: Should never happen "
-                                        + Errno.getErrnoSymbol(nee.errno));
-                            } else {
-                                throw new IOException("read read error: Should never happen " + Errno.getErrnoSymbol(nee.errno));
-                            }
-                        }
-                    } else if ((fds.get(0).revents() & POLLHUP()) == POLLHUP()) {
-                        throw new InterruptedIOException(PORT_FD_INVALID);
-                    } else {
-                        throw new InterruptedIOException("read poll: received poll event fds:\n" + fds.toString());
-                    }
-                }
-            } catch (NativeErrorException nee) {
-                throw new InterruptedIOException("read poll: Error during poll errno: " + Errno.getErrnoSymbol(nee.errno));
-            }
-        }
-
-        long overallRead = nread;
-
-        // Loop over poll and read to aquire as much bytes as possible either
-        // a poll timeout, a full read buffer or an error
-        // breaks the loop
-        while (b.hasRemaining()) {
-
-            try {
-                final int poll_result = poll(fds, interByteReadTimeout);
-
-                if (poll_result == 0) {
-                    // This is the interbyte timeout - We are done
-                    return (int) overallRead; // TODO overflow???
-                } else {
-                    if (fds.get(1).revents() == POLLIN()) {
-                        // we can read from close_event_fd => port is closing
-                        return -1;
-                    } else if (fds.get(0).revents() == POLLIN()) {
-                        // Happy path
-                    } else if ((fds.get(0).revents() & POLLHUP()) == POLLHUP()) {
-                        throw new InterruptedIOException(PORT_FD_INVALID);
-                    } else {
-                        throw new InterruptedIOException("read poll: received poll event fds:\n" + fds.toString());
-                    }
-                }
-            } catch (NativeErrorException nee) {
-                throw new InterruptedIOException("read poll: Error during poll " + Errno.getErrnoSymbol(nee.errno));
-            }
-            // OK No timeout and no error, we should read at least one byte without
-            // blocking.
-            try {
-                overallRead += Unistd.read(fds.get(0).fd(), b);
-            } catch (NativeErrorException nee) {
-                if (fd == INVALID_FD) {
-                    throw new AsynchronousCloseException();
-                } else if (nee.errno == EBADF()) {
-                    throw new InterruptedIOException(PORT_FD_INVALID);
-                } else if (nread == 0) {
-                    throw new IOException("read: nothing to read after successful polling: Should never happen "
-                            + Errno.getErrnoSymbol(nee.errno));
-                } else {
-                    throw new IOException("read read error: Should never happen " + Errno.getErrnoSymbol(nee.errno));
-                }
-            }
-        }
-        // We reached this, because the read buffer is full.
-        return (int) overallRead;
-    }
-
-    @Override
-    protected void drainOutputBuffer() throws IOException {
-        PollFds fds = new PollFds(2);
-        fds.get(0).fd(fd);
-        fds.get(0).events(POLLOUT());
-        fds.get(1).fd(close_event_read_fd);
-        fds.get(1).events(POLLIN());
-
-        try {
-            final int poll_result = poll(fds, pollWriteTimeout);
-
-            if (poll_result == 0) {
-                // Timeout
-                throw new TimeoutIOException();
-            } else {
-                if (fds.get(1).revents() == POLLIN()) {
-                    // we can read from close_event_ds => port is closing
-                    throw new IOException(PORT_IS_CLOSED);
-                } else if (fds.get(0).revents() == POLLOUT()) {
-                    // Happy path all is right... no-op
-                } else if ((fds.get(0).revents() & POLLHUP()) == POLLHUP()) {
-                    throw new IOException(PORT_FD_INVALID);
-                } else {
-                    if (fd == INVALID_FD) {
+                        // we can read from close_event_ds => port is closing
                         throw new IOException(PORT_IS_CLOSED);
+                    } else if (fds.get(0).revents() == POLLOUT()) {
+                        // Happy path all is right... no-op
+                    } else if ((fds.get(0).revents() & POLLHUP()) == POLLHUP()) {
+                        throw new IOException(PORT_FD_INVALID);
                     } else {
-                        throw new IOException("drainOutputBuffer poll => : received unexpected event and port not closed");
+                        if (fd == INVALID_FD) {
+                            throw new IOException(PORT_IS_CLOSED);
+                        } else {
+                            throw new IOException("drainOutputBuffer poll => : received unexpected event and port not closed");
+                        }
                     }
                 }
+            } catch (NativeErrorException nee) {
+                throw new IOException(formatMsg(nee, "drainOutputBuffer poll: Error during poll "));
             }
-        } catch (NativeErrorException nee) {
-            throw new IOException(formatMsg(nee, "drainOutputBuffer poll: Error during poll "));
-        }
 
-        try {
-            tcdrain(fd);
-        } catch (NativeErrorException nee) {
-            throw new IOException(formatMsg(nee, "Can't drain the output buffer "));
+            try {
+                tcdrain(fd);
+                completed = true;
+            } catch (NativeErrorException nee) {
+                completed = true;
+                throw new IOException(formatMsg(nee, "Can't drain the output buffer "));
+            }
+        } finally {
+            end(completed);
         }
     }
 

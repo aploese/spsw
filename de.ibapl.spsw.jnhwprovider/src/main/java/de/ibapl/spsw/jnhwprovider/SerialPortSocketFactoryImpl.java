@@ -58,7 +58,7 @@ public class SerialPortSocketFactoryImpl implements SerialPortSocketFactory {
     private final static MultiarchTupelBuilder MULTIARCH_TUPEL_BUILDER = new MultiarchTupelBuilder();
 
     @Override
-    public SerialPortSocket createSerialPortSocket(String portName) {
+    public SerialPortSocket open(String portName) throws IOException {
         switch (MULTIARCH_TUPEL_BUILDER.getOs()) {
             case LINUX:
                 return new PosixSerialPortSocket(portName);
@@ -66,6 +66,21 @@ public class SerialPortSocketFactoryImpl implements SerialPortSocketFactory {
                 return new PosixSerialPortSocket(portName);
             case WINDOWS:
                 return new GenericWinSerialPortSocket(portName);
+            default:
+                throw new RuntimeException("Cant handle OS: " + MULTIARCH_TUPEL_BUILDER.getOs());
+        }
+    }
+
+    @Override
+    public SerialPortSocket open(String portName, Speed speed, DataBits dataBits, StopBits stopBits, Parity parity,
+            Set<FlowControl> flowControls) throws IOException {
+        switch (MULTIARCH_TUPEL_BUILDER.getOs()) {
+            case LINUX:
+                return new PosixSerialPortSocket(portName, speed, dataBits, stopBits, parity, flowControls);
+            case FREE_BSD:
+                return new PosixSerialPortSocket(portName, speed, dataBits, stopBits, parity, flowControls);
+            case WINDOWS:
+                return new GenericWinSerialPortSocket(portName, speed, dataBits, stopBits, parity, flowControls);
             default:
                 throw new RuntimeException("Cant handle OS: " + MULTIARCH_TUPEL_BUILDER.getOs());
         }
@@ -83,8 +98,7 @@ public class SerialPortSocketFactoryImpl implements SerialPortSocketFactory {
                 for (String portName : portNames) {
                     if (pattern.matcher(portName).find()) {
                         boolean busy = true;
-                        try (SerialPortSocket sp = createSerialPortSocket(portName)) {
-                            sp.open();
+                        try (SerialPortSocket sp = open(portName)) {
                             busy = false;
                         } catch (IOException ex) {
                         }
@@ -102,8 +116,7 @@ public class SerialPortSocketFactoryImpl implements SerialPortSocketFactory {
                         final String deviceName = deviceFile.getAbsolutePath();
                         if (!deviceFile.isDirectory() && !deviceFile.isFile()) {
                             boolean busy = true;
-                            try (SerialPortSocket sp = createSerialPortSocket(deviceName)) {
-                                sp.open();
+                            try (SerialPortSocket sp = open(deviceName)) {
                                 busy = false;
                             } catch (IOException ex) {
                             }
@@ -190,8 +203,7 @@ public class SerialPortSocketFactoryImpl implements SerialPortSocketFactory {
                 final String deviceName = deviceFile.getAbsolutePath();
                 if (!deviceFile.isDirectory() && !deviceFile.isFile()) {
                     if (hideBusyPorts) {
-                        try (SerialPortSocket sp = createSerialPortSocket(deviceName)) {
-                            sp.open();
+                        try (SerialPortSocket sp = open(deviceName)) {
                             result.add(deviceName);
                         } catch (IOException ex) {
                             if (!portToInclude.isEmpty() && portToInclude.equals(deviceName)) {
@@ -226,8 +238,7 @@ public class SerialPortSocketFactoryImpl implements SerialPortSocketFactory {
         for (String portName : portNames) {
             if (pattern.matcher(portName).find()) {
                 if (hideBusyPorts) {
-                    try (SerialPortSocket sp = createSerialPortSocket(portName)) {
-                        sp.open();
+                    try (SerialPortSocket sp = open(portName)) {
                         result.add(portName);
                     } catch (IOException ex) {
                         if (!portToInclude.isEmpty() && portToInclude.equals(portName)) {
@@ -243,31 +254,6 @@ public class SerialPortSocketFactoryImpl implements SerialPortSocketFactory {
         }
         result.sort(new PortnamesComparator());
         return result;
-    }
-
-    @Override
-    public SerialPortSocket open(String portName) throws IOException, IllegalStateException {
-        final SerialPortSocket result = createSerialPortSocket(portName);
-        try {
-            result.open();
-            return result;
-        } catch (Exception e) {
-            result.close();
-            throw e;
-        }
-    }
-
-    @Override
-    public SerialPortSocket open(String portName, Speed speed, DataBits dataBits, StopBits stopBits, Parity parity,
-            Set<FlowControl> flowControls) throws IOException {
-        final SerialPortSocket result = createSerialPortSocket(portName);
-        try {
-            result.open(speed, dataBits, stopBits, parity, flowControls);
-            return result;
-        } catch (Exception e) {
-            result.close();
-            throw e;
-        }
     }
 
 }

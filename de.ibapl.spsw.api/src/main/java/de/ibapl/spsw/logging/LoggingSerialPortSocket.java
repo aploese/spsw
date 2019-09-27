@@ -261,7 +261,7 @@ public class LoggingSerialPortSocket implements SerialPortSocket {
 	 * @throws FileNotFoundException
 	 */
 	public static LoggingSerialPortSocket wrapWithAsciiOutputStream(SerialPortSocket serialPortSocket,
-			OutputStream logOs, boolean verbose, TimeStampLogging timeStampLogging) throws FileNotFoundException {
+			OutputStream logOs, boolean verbose, TimeStampLogging timeStampLogging) throws FileNotFoundException, IOException {
 		return new LoggingSerialPortSocket(serialPortSocket, logOs, true, verbose, timeStampLogging);
 	}
 
@@ -277,7 +277,7 @@ public class LoggingSerialPortSocket implements SerialPortSocket {
 	 * @throws FileNotFoundException
 	 */
 	public static LoggingSerialPortSocket wrapWithHexOutputStream(SerialPortSocket serialPortSocket, OutputStream logOs,
-			boolean verbose, TimeStampLogging timeStampLogging) throws FileNotFoundException {
+			boolean verbose, TimeStampLogging timeStampLogging) throws FileNotFoundException, IOException {
 		return new LoggingSerialPortSocket(serialPortSocket, logOs, false, verbose, timeStampLogging);
 	}
 
@@ -303,10 +303,13 @@ public class LoggingSerialPortSocket implements SerialPortSocket {
 	 * @throws FileNotFoundException
 	 */
 	private LoggingSerialPortSocket(SerialPortSocket serialPortSocket, OutputStream logOs, boolean ascii,
-			boolean verbose, TimeStampLogging timeStampLogging) throws FileNotFoundException {
+			boolean verbose, TimeStampLogging timeStampLogging) throws FileNotFoundException, IOException {
 		this.serialPortSocket = serialPortSocket;
 		this.logWriter = new LogWriter(logOs, ascii, timeStampLogging, verbose);
 		cleaner.register(this, new LogWriterCloser(this.logWriter));
+
+                logWriter.spOpend(Instant.now(), serialPortSocket.getPortName(), "speed=" + serialPortSocket.getSpeed() + ", dataBits="
+				+ serialPortSocket.getDatatBits() + ", stopBits=" + serialPortSocket.getStopBits() + ", partity=" + serialPortSocket.getParity() + ", flowControl=" + serialPortSocket.getFlowControl());
 	}
 
 	@Override
@@ -511,11 +514,6 @@ public class LoggingSerialPortSocket implements SerialPortSocket {
 	}
 
 	@Override
-	public boolean isClosed() {
-		return serialPortSocket.isClosed();
-	}
-
-	@Override
 	public boolean isCTS() throws IOException {
 		logWriter.beforeIsCTS(Instant.now());
 		try {
@@ -572,32 +570,7 @@ public class LoggingSerialPortSocket implements SerialPortSocket {
 		}
 	}
 
-	@Override
-	public void open() throws IOException {
-		logWriter.beforeSpOpen(Instant.now(), serialPortSocket.getPortName(), "");
-		try {
-			serialPortSocket.open();
-			logWriter.afterSpOpen(Instant.now());
-		} catch (IOException e) {
-			logWriter.afterSpOpen(Instant.now(), e);
-			throw e;
-		}
-	}
-
-	@Override
-	public void open(Speed speed, DataBits dataBits, StopBits stopBits, Parity parity, Set<FlowControl> flowControls)
-			throws IOException {
-		logWriter.beforeSpOpen(Instant.now(), serialPortSocket.getPortName(), "speed=" + speed + ", dataBits="
-				+ dataBits + ", stopBits=" + stopBits + ", partity=" + parity + ", flowControl=" + flowControls);
-		try {
-			serialPortSocket.open(speed, dataBits, stopBits, parity, flowControls);
-			logWriter.afterSpOpen(Instant.now());
-		} catch (IOException e) {
-			logWriter.afterSpOpen(Instant.now(), e);
-			throw e;
-		}
-	}
-
+        
 	@Override
 	public void sendBreak(int duration) throws IOException {
 		logWriter.beforeSendBreak(Instant.now(), duration);

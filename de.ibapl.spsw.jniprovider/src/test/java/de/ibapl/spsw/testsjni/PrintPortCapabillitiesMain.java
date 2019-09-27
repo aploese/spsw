@@ -51,8 +51,7 @@ public class PrintPortCapabillitiesMain {
 				serialPortName = p.getProperty("writePort");
 			}
 		}
-		SerialPortSocket serialPortSocket = new SerialPortSocketFactoryImpl().createSerialPortSocket(serialPortName);
-		serialPortSocket.open();
+		try (SerialPortSocket serialPortSocket = new SerialPortSocketFactoryImpl().open(serialPortName)) {
 		System.out.println("Use device: " + serialPortSocket.getPortName());
 		System.out.println(String.format("%-20s%-20s%-20s%-20s", "Speed", "DataBits", "StopBits", "Parity"));
 
@@ -105,7 +104,7 @@ public class PrintPortCapabillitiesMain {
 				}
 			}
 		}
-		serialPortSocket.close();
+                }
 	}
 
 	private static void printPort(SerialPortSocket sPort) throws IOException {

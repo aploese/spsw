@@ -93,21 +93,6 @@ public class Ser2NetProviderTest {
 	}
 
 	/**
-	 * Test of isClosed method, of class Ser2NetProvider.
-	 */
-	@Test
-	@Disabled
-	public void testIsClosed() throws Exception {
-		System.out.println("isClosed");
-		Ser2NetProvider instance = null;
-		boolean expResult = false;
-		boolean result = instance.isClosed();
-		assertEquals(expResult, result);
-		// TODO review the generated test code and remove the default call to fail.
-		fail("The test case is a prototype.");
-	}
-
-	/**
 	 * Test of isCTS method, of class Ser2NetProvider.
 	 */
 	@Test
@@ -223,37 +208,6 @@ public class Ser2NetProviderTest {
 		boolean expResult = false;
 		boolean result = instance.isOpen();
 		assertEquals(expResult, result);
-		// TODO review the generated test code and remove the default call to fail.
-		fail("The test case is a prototype.");
-	}
-
-	/**
-	 * Test of openRaw method, of class Ser2NetProvider.
-	 */
-	@Test
-	@Disabled
-	public void testOpen_0args() throws Exception {
-		System.out.println("openRaw");
-		Ser2NetProvider instance = null;
-		instance.open();
-		// TODO review the generated test code and remove the default call to fail.
-		fail("The test case is a prototype.");
-	}
-
-	/**
-	 * Test of openRaw method, of class Ser2NetProvider.
-	 */
-	@Test
-	@Disabled
-	public void testOpen_5args() throws Exception {
-		System.out.println("openRaw");
-		Speed baudRate = null;
-		DataBits dataBits = null;
-		StopBits stopBits = null;
-		Parity parity = null;
-		Set<FlowControl> flowControls = null;
-		Ser2NetProvider instance = null;
-		instance.open(baudRate, dataBits, stopBits, parity, flowControls);
 		// TODO review the generated test code and remove the default call to fail.
 		fail("The test case is a prototype.");
 	}

@@ -103,7 +103,7 @@ public class SerialPortSocketFactoryImpl implements SerialPortSocketFactory {
     }
     
     @Override
-    public SerialPortSocket createSerialPortSocket(String portName) {
+    public SerialPortSocket open(String portName) throws IOException {
         // ServiceLoader instantiates this lazy so this is the last chance to do so
         touchNativeLib();
         
@@ -208,8 +208,7 @@ public class SerialPortSocketFactoryImpl implements SerialPortSocketFactory {
             final String portName = iter.next();
             if (pattern.matcher(portName).find()) {
                 if (hideBusyPorts) {
-                    try (SerialPortSocket sp = createSerialPortSocket(portName)) {
-                        sp.open();
+                    try (SerialPortSocket sp = open(portName)) {
                     } catch (IOException ex) {
                         if (!portName.equals(portToInclude)) {
                             iter.remove();
@@ -239,8 +238,7 @@ public class SerialPortSocketFactoryImpl implements SerialPortSocketFactory {
                 final String deviceName = deviceFile.getAbsolutePath();
                 if (!deviceFile.isDirectory() && !deviceFile.isFile()) {
                     if (hideBusyPorts) {
-                        try (SerialPortSocket sp = createSerialPortSocket(deviceName)) {
-                            sp.open();
+                        try (SerialPortSocket sp = open(deviceName)) {
                             result.add(deviceName);
                         } catch (IOException ex) {
                             if (!portToInclude.isEmpty() && portToInclude.equals(deviceName)) {
@@ -275,27 +273,20 @@ public class SerialPortSocketFactoryImpl implements SerialPortSocketFactory {
     }
     
     @Override
-    public SerialPortSocket open(String portName) throws IOException, IllegalStateException {
-        final SerialPortSocket result = createSerialPortSocket(portName);
-        try {
-            result.open();
-            return result;
-        } catch (Exception e) {
-            result.close();
-            throw e;
-        }
-    }
-    
-    @Override
     public SerialPortSocket open(String portName, Speed speed, DataBits dataBits, StopBits stopBits, Parity parity,
             Set<FlowControl> flowControls) throws IOException, IllegalStateException {
-        final SerialPortSocket result = createSerialPortSocket(portName);
-        try {
-            result.open(speed, dataBits, stopBits, parity, flowControls);
-            return result;
-        } catch (Exception e) {
-            result.close();
-            throw e;
+        // ServiceLoader instantiates this lazy so this is the last chance to do so
+        touchNativeLib();
+        
+        switch (NativeLibResolver.getOS()) {
+            case LINUX:
+                return new GenericTermiosSerialPortSocket(portName, speed, dataBits, stopBits, parity, flowControls);
+            case FREE_BSD:
+                return new GenericTermiosSerialPortSocket(portName, speed, dataBits, stopBits, parity, flowControls);
+            case WINDOWS:
+                return new GenericWinSerialPortSocket(portName, speed, dataBits, stopBits, parity, flowControls);
+            default:
+                throw new UnsupportedOperationException(NativeLibResolver.getOS() + " is currently not supported yet\nSystem.properties:\n");
         }
     }
     
@@ -308,8 +299,7 @@ public class SerialPortSocketFactoryImpl implements SerialPortSocketFactory {
                 for (String portName : portNames) {
                     if (pattern.matcher(portName).find()) {
                         boolean busy = true;
-                        try (SerialPortSocket sp = createSerialPortSocket(portName)) {
-                            sp.open();
+                        try (SerialPortSocket sp = open(portName)) {
                             busy = false;
                         } catch (IOException ex) {
                         }
@@ -327,8 +317,7 @@ public class SerialPortSocketFactoryImpl implements SerialPortSocketFactory {
                         final String deviceName = deviceFile.getAbsolutePath();
                         if (!deviceFile.isDirectory() && !deviceFile.isFile()) {
                             boolean busy = true;
-                            try (SerialPortSocket sp = createSerialPortSocket(deviceName)) {
-                                sp.open();
+                            try (SerialPortSocket sp = open(deviceName)) {
                                 busy = false;
                             } catch (IOException ex) {
                             }
