@@ -99,10 +99,10 @@ extern "C" {
 
     /*
      * Class:     de_ibapl_spsw_jniprovider_AbstractSerialPortSocket
-     * Method:    sendBreak
+     * Method:    sendBreak0
      * Signature: (I)V
      */
-    JNIEXPORT void JNICALL Java_de_ibapl_spsw_jniprovider_AbstractSerialPortSocket_sendBreak
+    JNIEXPORT void JNICALL Java_de_ibapl_spsw_jniprovider_AbstractSerialPortSocket_sendBreak0
     (JNIEnv *env, jobject sps, jint duration) {
 
         if (duration <= 0) {

@@ -136,7 +136,7 @@ JNIEXPORT jint JNICALL Java_de_ibapl_spsw_jniprovider_AbstractSerialPortSocket_g
 
 /*
  * Class:     de_ibapl_spsw_jniprovider_AbstractSerialPortSocket
- * Method:    open
+ * Method:    open0
  * Signature: (Ljava/lang/String;I)V
  */
 JNIEXPORT void JNICALL Java_de_ibapl_spsw_jniprovider_GenericTermiosSerialPortSocket_open0

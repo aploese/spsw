@@ -831,9 +831,23 @@ public abstract class AbstractSerialPortSocket<T extends AbstractSerialPortSocke
 
     protected native int readSingle() throws IOException;
 
-    //TODO make this interruptable
     @Override
-    public native void sendBreak(int duration) throws IOException;
+    public void sendBreak(int duration) throws IOException {
+        //make this blocking IO interruptable
+        boolean completed = false;
+        try {
+            begin();
+            sendBreak0(duration);
+            completed = true;
+        } catch (IOException e) {
+            completed = true;
+            throw e;
+        } finally {
+            end(completed);
+        }
+    }
+
+    private native void sendBreak0(int duration) throws IOException;
 
     @Override
     public void setSpeed(Speed speed) throws IOException {

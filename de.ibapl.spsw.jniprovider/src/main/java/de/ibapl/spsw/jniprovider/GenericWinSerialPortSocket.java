@@ -47,36 +47,13 @@ public class GenericWinSerialPortSocket extends AbstractSerialPortSocket<Generic
 
     static class FdCleaner implements Runnable {
 
-        private native void closeFds(long fd);
+        private native void closeFd(long fd);
 
         long fd = INVALID_FD;
 
         @Override
         public void run() {
-            closeFds(fd);
-            /*
-            if (fd != GenericTermiosSerialPortSocket.INVALID_FD) {
-                try {
-                    Unistd.close(fd);
-                } catch (NativeErrorException ex) {
-                    LOG.severe("can't clean fd");
-                }
-            }
-            if (close_event_write_fd != PosixSerialPortSocket.INVALID_FD) {
-                try {
-                    Unistd.close(close_event_write_fd);
-                } catch (NativeErrorException ex) {
-                    LOG.severe("can't clean close_event_write_fd");
-                }
-            }
-            if (close_event_read_fd != PosixSerialPortSocket.INVALID_FD) {
-                try {
-                    Unistd.close(close_event_read_fd);
-                } catch (NativeErrorException ex) {
-                    LOG.severe("can't clean close_event_read_fd");
-                }
-            }
-             */
+            closeFd(fd);
         }
 
     }

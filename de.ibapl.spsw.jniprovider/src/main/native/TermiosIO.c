@@ -80,6 +80,7 @@ int readBuffer(JNIEnv *env, jobject sps, void *buff, int len) {
         } else {
             if (fds[1].revents == POLLIN) {
                 //we can read from close_event_fd => port is closing
+                throw_AsynchronousCloseException(env);
                 return -1;
             } else if (fds[0].revents == POLLIN) {
                 //Happy path just check if its the right event...
@@ -97,6 +98,9 @@ int readBuffer(JNIEnv *env, jobject sps, void *buff, int len) {
                         return -1;
                     }
                 }
+            } else if ((fds[0].revents & POLLHUP) == POLLHUP) {
+                throw_AsynchronousCloseException(env);
+                return -1;
             } else {
                 throw_InterruptedIOExceptionWithError(env, 0,
                         "readBytes poll: received poll event");
@@ -127,10 +131,14 @@ int readBuffer(JNIEnv *env, jobject sps, void *buff, int len) {
         } else {
             if (fds[1].revents == POLLIN) {
                 //we can read from close_event_fd => port is closing
+                throw_AsynchronousCloseException(env);
                 return -1;
             } else if (fds[0].revents == POLLIN) {
                 //Happy path
-            } else {
+            } else if ((fds[0].revents & POLLHUP) == POLLHUP) {
+                throw_AsynchronousCloseException(env);
+                return -1;
+           } else {
                 throw_InterruptedIOExceptionWithError(env, 0,
                         "readBytes poll: received poll event");
                 return -1;
@@ -161,10 +169,10 @@ int readBuffer(JNIEnv *env, jobject sps, void *buff, int len) {
 
 /*
  * Class:     de_ibapl_spsw_jniprovider_AbstractSerialPortSocket
- * Method:    sendBreak
+ * Method:    sendBreak0
  * Signature: (I)V
  */
-JNIEXPORT void JNICALL Java_de_ibapl_spsw_jniprovider_AbstractSerialPortSocket_sendBreak(
+JNIEXPORT void JNICALL Java_de_ibapl_spsw_jniprovider_AbstractSerialPortSocket_sendBreak0(
         JNIEnv *env, jobject sps, jint duration) {
     if (duration <= 0) {
         throw_IllegalArgumentException(env, "sendBreak duration must be grater than 0");
@@ -249,6 +257,9 @@ int writeBuffer(JNIEnv *env, jobject sps, void *buff, int len) {
                 return written;
             } else if (fds[0].revents == POLLOUT) {
                 //Happy path all is right...
+            } else if ((fds[0].revents & POLLHUP) == POLLHUP) {
+                throw_AsynchronousCloseException(env);
+                return -1;
             } else {
                 throw_InterruptedIOExceptionWithError(env, offset, "poll returned with poll event writeBytes");
                 return written;
