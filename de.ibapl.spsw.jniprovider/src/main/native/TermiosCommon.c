@@ -157,16 +157,16 @@ extern "C" {
             (*env)->SetIntField(env, sps, spsw_fd, INVALID_FD);
             switch (errno) {
                 case EBUSY:
-                    throw_IOException(env, "Port is busy: \"%s\"", portName);
+                    throw_IOException_withPortName(env, "Port is busy: \"%s\"", portName);
                     break;
                 case ENOENT:
-                    throw_IOException(env, "Port not found: \"%s\"", portName);
+                    throw_IOException_withPortName(env, "Port not found: \"%s\"", portName);
                     break;
                 case EACCES:
-                    throw_IOException(env, "Permission denied: \"%s\"", portName);
+                    throw_IOException_withPortName(env, "Permission denied: \"%s\"", portName);
                     break;
                 case EIO:
-                    throw_IOException(env, "Not a serial port: \"%s\"", portName);
+                    throw_IOException_withPortName(env, "Not a serial port: \"%s\"", portName);
                     break;
                 default:
                     throw_IOException_NativeError(env, "open");
@@ -184,7 +184,7 @@ extern "C" {
             (*env)->SetIntField(env, sps, spsw_fd, INVALID_FD);
             switch (errno) {
                 case ENOTTY:
-                    throw_IOException(env, "Not a serial port: \"%s\"", portName);
+                    throw_IOException_withPortName(env, "Not a serial port: \"%s\"", portName);
                     break;
                 default:
                     throw_IOException_NativeError(env, "open tcgetattr");

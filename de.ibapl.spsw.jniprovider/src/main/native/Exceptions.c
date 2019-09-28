@@ -124,7 +124,11 @@ extern "C" {
         (*env)->ThrowNew(env, RuntimeExceptionClass, className);
     }
 
-    void throw_IOException(JNIEnv *env, const char* msg, jstring portName) {
+    void throw_IOException(JNIEnv *env, const char* msg) {
+        (*env)->ThrowNew(env, IOExceptionClass, msg);
+    }
+
+    void throw_IOException_withPortName(JNIEnv *env, const char* msg, jstring portName) {
         const char* port = (*env)->GetStringUTFChars(env, portName, JNI_FALSE);
         char buf[2048];
         snprintf(buf, sizeof (buf), msg, port);

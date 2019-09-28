@@ -78,7 +78,9 @@ extern "C" {
 
     void throw_ClosedOrNativeException(JNIEnv *env, jobject sps, const char *message);
 
-    void throw_IOException(JNIEnv *env, const char* msg, jstring portName);
+    void throw_IOException(JNIEnv *env, const char* msg);
+
+    void throw_IOException_withPortName(JNIEnv *env, const char* msg, jstring portName);
 
     void throw_TimeoutIOException(JNIEnv *env, int bytesTransferred);
 

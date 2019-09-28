@@ -197,10 +197,10 @@ extern "C" {
 
             switch (GetLastError()) {
                 case ERROR_ACCESS_DENIED:
-                    throw_IOException(env, "Port is busy: \"%s\"", portName);
+                    throw_IOException_withPortName(env, "Port is busy: \"%s\"", portName);
                     break;
                 case ERROR_FILE_NOT_FOUND:
-                    throw_IOException(env, "Port not found: \"%s\"", portName);
+                    throw_IOException_withPortName(env, "Port not found: \"%s\"", portName);
                     break;
                 default:
                     throw_IOException_NativeError(env, "Open");
@@ -217,7 +217,7 @@ extern "C" {
 
             (*env)->SetLongField(env, sps, spsw_fd, (uintptr_t) INVALID_HANDLE_VALUE);
 
-            throw_IOException(env, "Not a serial port: \"%s\"", portName);
+            throw_IOException_withPortName(env, "Not a serial port: \"%s\"", portName);
             return;
         }
 
