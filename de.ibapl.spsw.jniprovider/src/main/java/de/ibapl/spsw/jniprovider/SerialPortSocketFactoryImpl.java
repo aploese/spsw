@@ -57,9 +57,9 @@ import java.util.Iterator;
  */
 @Component(name = "de.ibapl.spsw.jniprovider", scope = ServiceScope.SINGLETON, immediate = true)
 public class SerialPortSocketFactoryImpl implements SerialPortSocketFactory {
-    
+
     protected final static Logger LOG = Logger.getLogger("de.ibapl.spsw.jniprovider");
-    
+
     /**
      * Do not load the native library here on failure it may throw up the
      * running framework (OSGi, JEE, Spring...)
@@ -69,17 +69,18 @@ public class SerialPortSocketFactoryImpl implements SerialPortSocketFactory {
 
     //Hold this here so loading the lib wont fail for OSGi
     private final static Class<TimeoutIOException> T_CLASS = TimeoutIOException.class;
-    
+
     private final static String LIB_SPSW_NAME = "spsw";
     private final static int LIB_SPSW_VERSION = 0;
     private static LoadResult LIB_SPSW_LOAD_RESULT;
-    
-                    protected static void doSystemLoad(String absoluteLibName) {
-                        System.load(absoluteLibName);
-                    }
+
+    protected static void doSystemLoad(String absoluteLibName) {
+        System.load(absoluteLibName);
+    }
+
     public static boolean touchNativeLib() {
         if (LIB_SPSW_LOAD_RESULT == null) {
-                LIB_SPSW_LOAD_RESULT = NativeLibResolver.loadNativeLib(LIB_SPSW_NAME, LIB_SPSW_VERSION, SerialPortSocketFactoryImpl::doSystemLoad);
+            LIB_SPSW_LOAD_RESULT = NativeLibResolver.loadNativeLib(LIB_SPSW_NAME, LIB_SPSW_VERSION, SerialPortSocketFactoryImpl::doSystemLoad);
         }
         if (LIB_SPSW_LOAD_RESULT.isLoaded()) {
             return true;
@@ -87,13 +88,13 @@ public class SerialPortSocketFactoryImpl implements SerialPortSocketFactory {
             throw new RuntimeException(LIB_SPSW_LOAD_RESULT.loadError);
         } else {
             throw new RuntimeException("Should never happen: lib spsw not loaded for unknow reason.");
-        }      
+        }
     }
-    
+
     public static String getLibName() {
         return LIB_SPSW_NAME;
     }
-    
+
     protected LinkedList<String> getWindowsBasedPortNames() {
         // ServiceLoader instantiates this lazy so this is the last chance to do so
         touchNativeLib();
@@ -101,12 +102,12 @@ public class SerialPortSocketFactoryImpl implements SerialPortSocketFactory {
         GenericWinSerialPortSocket.getWindowsBasedPortNames(portNames);
         return portNames;
     }
-    
+
     @Override
     public SerialPortSocket open(String portName) throws IOException {
         // ServiceLoader instantiates this lazy so this is the last chance to do so
         touchNativeLib();
-        
+
         switch (NativeLibResolver.getOS()) {
             case LINUX:
                 return new GenericTermiosSerialPortSocket(portName);
@@ -118,7 +119,7 @@ public class SerialPortSocketFactoryImpl implements SerialPortSocketFactory {
                 throw new UnsupportedOperationException(NativeLibResolver.getOS() + " is currently not supported yet\nSystem.properties:\n");
         }
     }
-    
+
     protected String getPortnamesPath() {
         switch (NativeLibResolver.getOS()) {
             case LINUX: {
@@ -143,7 +144,7 @@ public class SerialPortSocketFactoryImpl implements SerialPortSocketFactory {
             }
         }
     }
-    
+
     protected Pattern getPortnamesRegExp() {
         switch (NativeLibResolver.getOS()) {
             case LINUX: {
@@ -181,7 +182,7 @@ public class SerialPortSocketFactoryImpl implements SerialPortSocketFactory {
             return getUnixBasedPortNames("", hideBusyPorts);
         }
     }
-    
+
     @Override
     public List<String> getPortNames(String portToInclude, boolean hideBusyPorts) {
         if (portToInclude == null || portToInclude.isEmpty()) {
@@ -203,7 +204,7 @@ public class SerialPortSocketFactoryImpl implements SerialPortSocketFactory {
         LinkedList<String> result = getWindowsBasedPortNames();
         final Pattern pattern = getPortnamesRegExp();
         Iterator<String> iter = result.iterator();
-        
+
         while (iter.hasNext()) {
             final String portName = iter.next();
             if (pattern.matcher(portName).find()) {
@@ -254,7 +255,7 @@ public class SerialPortSocketFactoryImpl implements SerialPortSocketFactory {
             }
             return false;
         });
-        
+
         result.sort(new PortnamesComparator());
         return result;
     }
@@ -267,17 +268,17 @@ public class SerialPortSocketFactoryImpl implements SerialPortSocketFactory {
     public void activate() {
         touchNativeLib();
     }
-    
+
     @Deactivate
     public void deActivate() {
     }
-    
+
     @Override
     public SerialPortSocket open(String portName, Speed speed, DataBits dataBits, StopBits stopBits, Parity parity,
             Set<FlowControl> flowControls) throws IOException, IllegalStateException {
         // ServiceLoader instantiates this lazy so this is the last chance to do so
         touchNativeLib();
-        
+
         switch (NativeLibResolver.getOS()) {
             case LINUX:
                 return new GenericTermiosSerialPortSocket(portName, speed, dataBits, stopBits, parity, flowControls);
@@ -289,7 +290,7 @@ public class SerialPortSocketFactoryImpl implements SerialPortSocketFactory {
                 throw new UnsupportedOperationException(NativeLibResolver.getOS() + " is currently not supported yet\nSystem.properties:\n");
         }
     }
-    
+
     @Override
     public void getPortNames(BiConsumer<String, Boolean> portNameConsumer) {
         final Pattern pattern = getPortnamesRegExp();
@@ -328,5 +329,5 @@ public class SerialPortSocketFactoryImpl implements SerialPortSocketFactory {
                 });
         }
     }
-    
+
 }

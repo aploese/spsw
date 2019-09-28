@@ -43,18 +43,17 @@ extern "C" {
         }
     }
 
-/*
- * Class:     de_ibapl_spsw_jniprovider_GenericWinSerialPortSocket_FdCleaner
- * Method:    closeFd
- * Signature: (J)V
- */
-JNIEXPORT void JNICALL Java_de_ibapl_spsw_jniprovider_GenericWinSerialPortSocket_00024FdCleaner_closeFd
-  (JNIEnv *env, jobject fdCleaner, jlong hFile) {
+    /*
+     * Class:     de_ibapl_spsw_jniprovider_GenericWinSerialPortSocket_FdCleaner
+     * Method:    closeFd
+     * Signature: (J)V
+     */
+    JNIEXPORT void JNICALL Java_de_ibapl_spsw_jniprovider_GenericWinSerialPortSocket_00024FdCleaner_closeFd
+    (JNIEnv *env, jobject fdCleaner, jlong hFile) {
         HANDLE nativeHFile = (HANDLE) (uintptr_t) hFile;
         CancelIo(nativeHFile);
         CloseHandle(nativeHFile);
-}
-
+    }
 
     /*
      * Class:     de_ibapl_spsw_jniprovider_AbstractSerialPortSocket
