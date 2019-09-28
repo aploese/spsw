@@ -129,8 +129,14 @@ public class GenericWinSerialPortSocket extends AbstractSerialPortSocket<Generic
                 try {
                     Ioapiset.CancelIo(hFile);
                 } catch (NativeErrorException nee) {
-                    LOG.log(Level.SEVERE, "can't clean fd " + nee.errno, nee);
+                    LOG.log(Level.SEVERE, "can't Cancel IO on fd " + nee.errno, nee);
                 }
+                try {
+                            CloseHandle(hFile);
+                } catch (NativeErrorException nee) {
+                    LOG.log(Level.SEVERE, "can't properly close fd " + nee.errno, nee);
+                }
+
             }
         }
 
@@ -138,8 +144,8 @@ public class GenericWinSerialPortSocket extends AbstractSerialPortSocket<Generic
 
     private final static Logger LOG = Logger.getLogger(GenericWinSerialPortSocket.class.getCanonicalName());
     private final static HANDLE INVALID_HANDLE_VALUE = Winbase.INVALID_HANDLE_VALUE();
-    private HANDLE hFile = INVALID_HANDLE_VALUE;
-    private HFileCleaner cleaner = new HFileCleaner();
+    private volatile HANDLE hFile = INVALID_HANDLE_VALUE;
+    private final HFileCleaner cleaner = new HFileCleaner();
 
     public static List<String> getWindowsBasedPortNames() {
         if (!LibJnhwWinApiLoader.touch()) {
