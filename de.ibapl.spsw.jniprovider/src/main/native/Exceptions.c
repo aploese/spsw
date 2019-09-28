@@ -33,9 +33,7 @@
 extern "C" {
 #endif
 
-    static jclass ClassNotFoundExceptionClass = NULL;
-    static jclass NoSuchFieldExceptionClass = NULL;
-    static jclass NoSuchMethodExceptionClass = NULL;
+    static jclass RuntimeExceptionClass = NULL;
     static jclass IOExceptionClass = NULL;
 
     static jclass InterruptedIOExceptionClass = NULL;
@@ -49,21 +47,9 @@ extern "C" {
     static jmethodID TimeoutIOExceptionInit = NULL;
 
     jboolean initExceptions(JNIEnv* env) {
-        if (ClassNotFoundExceptionClass == NULL) {
-            ClassNotFoundExceptionClass = getGlobalClassRef(env, CLASS_NOT_FOUND_EXCEPTION);
-            if (ClassNotFoundExceptionClass == NULL) {
-                return JNI_FALSE;
-            }
-        }
-        if (NoSuchFieldExceptionClass == NULL) {
-            NoSuchFieldExceptionClass = getGlobalClassRef(env, NO_SUCH_FIELD_EXCEPTION);
-            if (NoSuchFieldExceptionClass == NULL) {
-                return JNI_FALSE;
-            }
-        }
-        if (NoSuchMethodExceptionClass == NULL) {
-            NoSuchMethodExceptionClass = getGlobalClassRef(env, NO_SUCH_METHOD_EXCEPTION);
-            if (NoSuchMethodExceptionClass == NULL) {
+        if (RuntimeExceptionClass == NULL) {
+            RuntimeExceptionClass = getGlobalClassRef(env, RUNTIME_EXCEPTION);
+            if (RuntimeExceptionClass == NULL) {
                 return JNI_FALSE;
             }
         }
@@ -108,17 +94,9 @@ extern "C" {
     }
 
     void cleanupExceptions(JNIEnv* env) {
-        if (ClassNotFoundExceptionClass != NULL) {
-            (*env)->DeleteLocalRef(env, ClassNotFoundExceptionClass);
-            ClassNotFoundExceptionClass = NULL;
-        }
-        if (NoSuchFieldExceptionClass != NULL) {
-            (*env)->DeleteLocalRef(env, NoSuchFieldExceptionClass);
-            NoSuchFieldExceptionClass = NULL;
-        }
-        if (NoSuchMethodExceptionClass != NULL) {
-            (*env)->DeleteLocalRef(env, NoSuchMethodExceptionClass);
-            NoSuchMethodExceptionClass = NULL;
+        if (RuntimeExceptionClass != NULL) {
+            (*env)->DeleteLocalRef(env, RuntimeExceptionClass);
+            RuntimeExceptionClass = NULL;
         }
         if (IOExceptionClass != NULL) {
             (*env)->DeleteLocalRef(env, IOExceptionClass);
@@ -142,20 +120,8 @@ extern "C" {
         }
     }
 
-    void throw_ClassNotFoundException(JNIEnv* env, const char* className) {
-        (*env)->ThrowNew(env, ClassNotFoundExceptionClass, className);
-    }
-
-    void throw_NoSuchFieldException(JNIEnv* env, const char* className, const char* fieldName, const char* fieldType) {
-        char buf[1024] = {0};
-        snprintf(buf, sizeof (buf) - 1, "Get FieldID of (%s) %s.%s", fieldType, className, fieldName);
-        (*env)->ThrowNew(env, NoSuchFieldExceptionClass, buf);
-    }
-
-    void throw_NoSuchMethodException(JNIEnv* env, const char* className, const char* methodName, const char* methodSignature) {
-        char buf[1024] = {0};
-        snprintf(buf, sizeof (buf) - 1, "Get FieldID of (%s) %s.%s", methodSignature, className, methodName);
-        (*env)->ThrowNew(env, NoSuchFieldExceptionClass, buf);
+    void throw_RuntimeException(JNIEnv* env, const char* className) {
+        (*env)->ThrowNew(env, RuntimeExceptionClass, className);
     }
 
     void throw_IOException(JNIEnv *env, const char* msg, jstring portName) {
@@ -218,7 +184,7 @@ extern "C" {
 #else
         if ((*env)->GetIntField(env, sps, spsw_fd) == INVALID_FD) {
 #endif
-            (*env)->ThrowNew(env, IOExceptionClass, "Port is closed");
+            (*env)->ThrowNew(env, IOExceptionClass, PORT_IS_CLOSED);
         } else {
             throw_IOException_NativeError(env, message);
         }

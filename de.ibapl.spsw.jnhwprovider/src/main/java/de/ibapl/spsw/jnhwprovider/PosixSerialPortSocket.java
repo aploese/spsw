@@ -1267,6 +1267,7 @@ public class PosixSerialPortSocket extends AbstractSerialPortSocket<PosixSerialP
                         } else if (fds.get(0).revents() == POLLOUT()) {
                             // Happy path all is right...
                         } else if ((fds.get(0).revents() & POLLHUP()) == POLLHUP()) {
+                    //i.e. happens when the USB to serial adapter is removed
                             completed = true;
                             throw new InterruptedIOException(PORT_FD_INVALID);
                         } else {
@@ -1384,6 +1385,7 @@ public class PosixSerialPortSocket extends AbstractSerialPortSocket<PosixSerialP
                                 }
                             }
                         } else if ((fds.get(0).revents() & POLLHUP()) == POLLHUP()) {
+                    //i.e. happens when the USB to serial adapter is removed
                             completed = true;
                             throw new InterruptedIOException(PORT_FD_INVALID);
                         } else {
@@ -1419,6 +1421,7 @@ public class PosixSerialPortSocket extends AbstractSerialPortSocket<PosixSerialP
                         } else if (fds.get(0).revents() == POLLIN()) {
                             // Happy path
                         } else if ((fds.get(0).revents() & POLLHUP()) == POLLHUP()) {
+                    //i.e. happens when the USB to serial adapter is removed
                             completed = true;
                             throw new InterruptedIOException(PORT_FD_INVALID);
                         } else {
@@ -1484,6 +1487,7 @@ public class PosixSerialPortSocket extends AbstractSerialPortSocket<PosixSerialP
                     } else if (fds.get(0).revents() == POLLOUT()) {
                         // Happy path all is right... no-op
                     } else if ((fds.get(0).revents() & POLLHUP()) == POLLHUP()) {
+                    //i.e. happens when the USB to serial adapter is removed
                         throw new IOException(PORT_FD_INVALID);
                     } else {
                         if (fd == INVALID_FD) {

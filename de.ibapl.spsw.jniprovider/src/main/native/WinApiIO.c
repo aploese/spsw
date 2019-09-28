@@ -28,6 +28,12 @@ extern "C" {
 #endif
 
     int readBuffer(JNIEnv *env, jobject sps, void *buff, int len) {
+
+        //special case: we should read nothing... so stop here before getting a timeout because poll is waiting for bytes which do not arrive.
+        if (len == 0) {
+            return 0;
+        }
+
         HANDLE hFile = (HANDLE) (uintptr_t) (*env)->GetLongField(env, sps, spsw_fd);
 
         DWORD dwBytesRead = -1;
@@ -126,6 +132,10 @@ extern "C" {
     }
 
     int writeBuffer(JNIEnv *env, jobject sps, void *buff, int len) {
+        if (len == 0) {
+            return 0;
+        }
+        
         HANDLE hFile = (HANDLE) (uintptr_t) (*env)->GetLongField(env, sps, spsw_fd);
 
         DWORD dwBytesWritten = -1;

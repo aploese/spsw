@@ -99,7 +99,8 @@ extern "C" {
                         }
                     }
                 } else if ((fds[0].revents & POLLHUP) == POLLHUP) {
-                    throw_AsynchronousCloseException(env);
+                    //i.e. happens when the USB to serial adapter is removed
+                    throw_IOException(env, PORT_FD_INVALID);
                     return -1;
                 } else {
                     throw_InterruptedIOExceptionWithError(env, 0,
@@ -136,7 +137,8 @@ extern "C" {
                 } else if (fds[0].revents == POLLIN) {
                     //Happy path
                 } else if ((fds[0].revents & POLLHUP) == POLLHUP) {
-                    throw_AsynchronousCloseException(env);
+                    //i.e. happens when the USB to serial adapter is removed
+                    throw_IOException(env, PORT_FD_INVALID);
                     return -1;
                 } else {
                     throw_InterruptedIOExceptionWithError(env, 0,
@@ -258,7 +260,8 @@ extern "C" {
                 } else if (fds[0].revents == POLLOUT) {
                     //Happy path all is right...
                 } else if ((fds[0].revents & POLLHUP) == POLLHUP) {
-                    throw_AsynchronousCloseException(env);
+                    //i.e. happens when the USB to serial adapter is removed
+                    throw_IOException(env, PORT_FD_INVALID);
                     return -1;
                 } else {
                     throw_InterruptedIOExceptionWithError(env, offset, "poll returned with poll event writeBytes");

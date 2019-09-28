@@ -2,7 +2,7 @@
 # Process this file with autoconf to produce a configure script.
 
 AC_PREREQ([2.69])
-AC_INIT([spsw-jni-provider], [2.1.0], [aploese@gmx.de])
+AC_INIT([spsw-jni-provider], [3.0.0], [aploese@gmx.de])
 AM_INIT_AUTOMAKE([-Wall -Werror foreign])
 AM_MAINTAINER_MODE
 
@@ -30,9 +30,9 @@ do
 done
 AC_SUBST(JNI_INCLUDE_FLAGS)
 
-JNHW_VERSION_INFO="0:0:0"
+JNHW_VERSION_INFO="1:0:0"
 AC_SUBST(JNHW_VERSION_INFO)
-JNHW_VERSION="0"
+JNHW_VERSION="1"
 AC_SUBST(JNHW_VERSION)
 
 JW_MULTIARCHTUPEL()
@@ -43,10 +43,6 @@ AC_SUBST(JNHW_RESOURCES_DIR)
 
 JNI_HEADER_DIR="\$(top_builddir)/target/generated-sources/include"
 AC_SUBST(JNI_HEADER_DIR)
-
-#get path of jnhw.h - The Quick and Dirty way....
-JNHW_COMMON_SRC_DIR="\$(top_builddir)/../de.ibapl.jnhw.common/src/main/native"
-AC_SUBST(JNHW_COMMON_SRC_DIR)
 
 # Checks for libraries.
 

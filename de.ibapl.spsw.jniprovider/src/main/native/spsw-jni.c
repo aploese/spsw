@@ -39,14 +39,12 @@ extern "C" {
     jclass getGlobalClassRef(JNIEnv *env, const char* className) {
         jclass clazz = (*env)->FindClass(env, className);
         if (clazz == NULL) {
-            throw_ClassNotFoundException(env, className);
             return NULL;
         }
         jclass result = (*env)->NewGlobalRef(env, clazz);
         (*env)->DeleteLocalRef(env, clazz);
         if (result == NULL) {
-            //TODO what ex to throw???
-            throw_ClassNotFoundException(env, className);
+            throw_RuntimeException(env, "(*env)->NewGlobalRef(env, clazz) return NULL >> Out of memory??");
         }
         return result;
 
@@ -56,14 +54,12 @@ extern "C" {
 
         jclass clazz = (*env)->FindClass(env, className);
         if (clazz == NULL) {
-            throw_ClassNotFoundException(env, className);
             return NULL;
         }
 
         jfieldID result = (*env)->GetFieldID(env, clazz, fieldName, fieldType);
         (*env)->DeleteLocalRef(env, clazz);
         if (result == NULL) {
-            throw_NoSuchFieldException(env, className, fieldName, fieldType);
             return NULL;
         }
         return result;
@@ -73,7 +69,6 @@ extern "C" {
 
         jfieldID result = (*env)->GetFieldID(env, clazz, fieldName, fieldType);
         if (result == NULL) {
-            throw_NoSuchFieldException(env, className, fieldName, fieldName);
             return NULL;
         }
         return result;
@@ -83,7 +78,6 @@ extern "C" {
 
         jmethodID result = (*env)->GetMethodID(env, clazz, methodName, methodSignature);
         if (result == NULL) {
-            throw_NoSuchMethodException(env, className, methodName, methodSignature);
             return NULL;
         }
         return result;

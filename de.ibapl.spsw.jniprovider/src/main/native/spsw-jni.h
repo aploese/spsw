@@ -57,12 +57,15 @@ extern "C" {
             //Exception names
 #define IO_EXCEPTION "java/io/IOException"
 #define TIMEOUT_IO_EXCEPTION "de/ibapl/spsw/api/TimeoutIOException"
-#define CLASS_NOT_FOUND_EXCEPTION "java/lang/ClassNotFoundException"
-#define NO_SUCH_FIELD_EXCEPTION "java/lang/NoSuchFieldException"
-#define NO_SUCH_METHOD_EXCEPTION "java/lang/NoSuchMethodException"
+#define RUNTIME_EXCEPTION "java/lang/RuntimeException"
 #define ARRAY_INDEX_OUT_OF_BOUNDS_EXCEPTION "java/lang/ArrayIndexOutOfBoundsException"
 #define ASYNCHRONOUS_CLOSE_EXCEPTION "java/nio/channels/AsynchronousCloseException"
 #define INTERRUPTED_IO_EXCEPTION "java/io/InterruptedIOException"
+
+            //Defined here de.ibapl.api.SerialPortSocket.PORT_IS_CLOSED
+#define PORT_IS_CLOSED "Port is closed"
+            //Defined here de.ibapl.api.SerialPortSocket.PORT_FD_INVALID
+#define PORT_FD_INVALID "File descriptor of serial port is invalid"
 
             //Cached
             extern jfieldID spsw_portName; /* id for field 'portName'  */
@@ -87,11 +90,7 @@ extern "C" {
 
     void throw_IOException_Opend(JNIEnv *env);
 
-    void throw_ClassNotFoundException(JNIEnv* env, const char* className);
-
-    void throw_NoSuchFieldException(JNIEnv* env, const char* className, const char* fieldName, const char* fieldType);
-
-    void throw_NoSuchMethodException(JNIEnv* env, const char* className, const char* fieldName, const char* fieldType);
+    void throw_RuntimeException(JNIEnv* env, const char* cause);
 
     jclass getGlobalClassRef(JNIEnv *env, const char* className);
 

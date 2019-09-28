@@ -267,11 +267,15 @@ extern "C" {
 
         static jmethodID list_addID;
         if (list_addID == NULL) {
-            list_addID = (*env)->GetMethodID(env, list, "add", "(Ljava/lang/Object;)B");
+            jclass cls = (*env)->GetObjectClass(env, list);
+
+            list_addID = (*env)->GetMethodID(env, cls, "add", "(Ljava/lang/Object;)Z");
+            //            hier ist der fehler ...
             if (list_addID == NULL) {
-                throw_NoSuchMethodException(env, "java/util/List", "add", "(Ljava/lang/Object;)B");
+                return;
             }
         }
+
         HKEY phkResult;
         LPCWSTR lpSubKey = L"HARDWARE\\DEVICEMAP\\SERIALCOMM\\";
         if (RegOpenKeyExW(HKEY_LOCAL_MACHINE, lpSubKey, 0, KEY_READ, &phkResult)
@@ -291,9 +295,12 @@ extern "C" {
                         &lpcchValueName, NULL, &lpType, (LPBYTE) & lpData, &lpcbData);
                 if (result == ERROR_SUCCESS) {
                     if (lpType == REG_SZ) {
-                        jvalue args;
-                        args.l = (*env)->NewString(env, (jchar*) lpData, lpcbData / sizeof (WCHAR) - 1);
-                        (*env)->CallVoidMethodA(env, list, list_addID, &args);
+                        jvalue pName;
+                        pName.l = (*env)->NewString(env, (jchar*) lpData, lpcbData / sizeof (WCHAR) - 1);
+                        if (pName.l == NULL) {
+                            return;
+                        }
+                        (*env)->CallBooleanMethodA(env, list, list_addID, &pName);
                     } else {
                         //no-op just ignore 
                     }
