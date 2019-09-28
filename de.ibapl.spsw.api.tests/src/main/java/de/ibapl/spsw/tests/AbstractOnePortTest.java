@@ -1097,7 +1097,7 @@ public abstract class AbstractOnePortTest extends AbstractPortTest {
         readSpc.setTimeouts(100, 1000, 1000);
         ByteBuffer b = ByteBuffer.allocateDirect(_1MB);
         testReadInetrrupted_ClosedByInterruptException = null;
-        
+
         Thread t = new Thread(new Runnable() {
             @Override
             public void run() {
@@ -1115,9 +1115,7 @@ public abstract class AbstractOnePortTest extends AbstractPortTest {
         Assertions.assertNotNull(testReadInetrrupted_ClosedByInterruptException);
 //TODO Write sendBreak drainBuffer too
     }
-    
-    
-    
+
     @NotSupportedByAllDevices
     @SlowTest
     @Test

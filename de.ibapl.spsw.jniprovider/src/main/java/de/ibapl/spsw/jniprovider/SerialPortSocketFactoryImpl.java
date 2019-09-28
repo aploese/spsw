@@ -97,7 +97,7 @@ public class SerialPortSocketFactoryImpl implements SerialPortSocketFactory {
     protected LinkedList<String> getWindowsBasedPortNames() {
         // ServiceLoader instantiates this lazy so this is the last chance to do so
         touchNativeLib();
-        LinkedList<String> portNames = new LinkedList<>();
+        final LinkedList<String> portNames = new LinkedList<>();
         GenericWinSerialPortSocket.getWindowsBasedPortNames(portNames);
         return portNames;
     }
