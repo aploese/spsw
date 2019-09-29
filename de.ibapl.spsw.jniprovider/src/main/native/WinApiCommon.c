@@ -267,10 +267,9 @@ extern "C" {
 
         static jmethodID list_addID;
         if (list_addID == NULL) {
-            jclass cls = (*env)->GetObjectClass(env, list);
-
+            jclass cls = (*env)->FindClass(env, "java/util/List");
             list_addID = (*env)->GetMethodID(env, cls, "add", "(Ljava/lang/Object;)Z");
-            //            hier ist der fehler ...
+            (*env)->DeleteLocalRef(env, cls);
             if (list_addID == NULL) {
                 return;
             }
