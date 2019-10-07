@@ -9,7 +9,7 @@
 	</parent>
 
 	<artifactId>de.ibapl.spsw.jnhwprovider</artifactId>
-	<name>SPSW JNHW Provider</name>
+	<name>SPSW :: JNHW Provider</name>
 
 	<dependencies>
 		<dependency>

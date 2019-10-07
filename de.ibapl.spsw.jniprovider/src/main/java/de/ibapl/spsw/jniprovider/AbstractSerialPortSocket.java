@@ -56,12 +56,94 @@ public abstract class AbstractSerialPortSocket<T extends AbstractSerialPortSocke
 
     private native void writeBytes(byte[] b) throws IOException;
 
+    /**
+     * Read data from port
+     *
+     * @param b the data to be written
+     * @param off the start offset in the data
+     * @param len the number of bytes that are written
+     * @return the readed bytes
+     * @exception IOException If an I/O error has occurred.
+     */
+    private native int readBytes(byte[] b, int off, int len) throws IOException;
+
+    private native int readSingle() throws IOException;
+
+    private native void sendBreak0(int duration) throws IOException;
+
+    private native void setBreak0(boolean value) throws IOException;
+
+
+    @Override
+    public native char getXOFFChar() throws IOException;
+
+    @Override
+    public native char getXONChar() throws IOException;
+
+    @Override
+    public native boolean isCTS() throws IOException;
+
+    @Override
+    public native boolean isDSR() throws IOException;
+
+    @Override
+    public native boolean isDCD() throws IOException;
+
+    @Override
+    public native boolean isRI() throws IOException;
+
+
+    /**
+     * Returns the parameters as masked bit set.
+     *
+     * @return the parameters as masked bit set.
+     *
+     * @throws IOException
+     */
+    protected native int getParameters(int parameterBitSetMask) throws IOException;
+
+    @Override
+    public native int getInBufferBytesCount() throws IOException;
+
+    @Override
+    public native int getOutBufferBytesCount() throws IOException;
+
+     @Override
+    public native void setDTR(boolean value) throws IOException;
+
+    /**
+     * Set the parameters that are set in the parameterBitSet.
+     *
+     * @param parameterBitSet the parameters to set in a masked bit set.
+     * @throws IOException
+     */
+    protected native void setParameters(int parameterBitSet) throws IOException;
+
+    @Override
+    public native void setXOFFChar(char c) throws IOException;
+
+    @Override
+    public native void setXONChar(char c) throws IOException;
+
+    /**
+     * Write data to port
+     *
+     * @param b
+     * @param off the start offset in the data.
+     * @param len the number of bytes to write.
+     * @throws java.io.IOException
+     *
+     */
+    protected native void writeBytes(byte[] b, int off, int len) throws IOException;
+
+    protected native void writeSingle(int b) throws IOException;
+   
     @Override
     public int read(ByteBuffer dst) throws IOException {
         if (dst.isReadOnly()) {
             throw new IllegalArgumentException("Read-only buffer");
         }
-
+        synchronized (readLock) {
         // Substitute a native buffer
         //make this blocking IO interruptable
         boolean completed = false;
@@ -81,10 +163,12 @@ public abstract class AbstractSerialPortSocket<T extends AbstractSerialPortSocke
             dst.position(dst.position() + result);
         }
         return result;
+        }
     }
 
     @Override
     public int write(ByteBuffer src) throws IOException {
+        synchronized (writeLock) {
         //make this blocking IO interruptable
         boolean completed = false;
         int result = 0;
@@ -101,6 +185,7 @@ public abstract class AbstractSerialPortSocket<T extends AbstractSerialPortSocke
         // now update src
         src.position(src.position() + result);
         return result;
+        }
     }
 
     protected class SerialInputStream extends InputStream {
@@ -117,6 +202,7 @@ public abstract class AbstractSerialPortSocket<T extends AbstractSerialPortSocke
 
         @Override
         public int read() throws IOException {
+            synchronized (readLock) {
             //make this blocking IO interruptable
             boolean completed = false;
             try {
@@ -133,6 +219,7 @@ public abstract class AbstractSerialPortSocket<T extends AbstractSerialPortSocke
             } finally {
                 end(completed);
             }
+            }
         }
 
         @Override
@@ -143,6 +230,7 @@ public abstract class AbstractSerialPortSocket<T extends AbstractSerialPortSocke
                 return 0;
             }
 
+            synchronized (readLock) {
             //make this blocking IO interruptable
             boolean completed = false;
             try {
@@ -160,6 +248,7 @@ public abstract class AbstractSerialPortSocket<T extends AbstractSerialPortSocke
                 end(completed);
             }
         }
+        }
 
         @Override
         public int read(byte b[], int off, int len) throws IOException {
@@ -170,7 +259,7 @@ public abstract class AbstractSerialPortSocket<T extends AbstractSerialPortSocke
             } else if (len == 0) {
                 return 0;
             }
-
+synchronized (readLock) {
             //make this blocking IO interruptable
             boolean completed = false;
             try {
@@ -188,7 +277,7 @@ public abstract class AbstractSerialPortSocket<T extends AbstractSerialPortSocke
                 end(completed);
             }
         }
-
+        }
     }
 
     protected class SerialOutputStream extends OutputStream {
@@ -200,6 +289,7 @@ public abstract class AbstractSerialPortSocket<T extends AbstractSerialPortSocke
 
         @Override
         public void flush() throws IOException {
+            synchronized (writeLock) {
             //make this blocking IO interruptable
             boolean completed = false;
             try {
@@ -212,6 +302,7 @@ public abstract class AbstractSerialPortSocket<T extends AbstractSerialPortSocke
             } finally {
                 end(completed);
             }
+            }
         }
 
         @Override
@@ -222,6 +313,7 @@ public abstract class AbstractSerialPortSocket<T extends AbstractSerialPortSocke
                 return;
             }
 
+            synchronized (writeLock) {
             //make this blocking IO interruptable
             boolean completed = false;
             try {
@@ -233,6 +325,7 @@ public abstract class AbstractSerialPortSocket<T extends AbstractSerialPortSocke
                 throw e;
             } finally {
                 end(completed);
+            }
             }
         }
 
@@ -246,6 +339,7 @@ public abstract class AbstractSerialPortSocket<T extends AbstractSerialPortSocke
                 return;
             }
 
+            synchronized (writeLock) {
             //make this blocking IO interruptable
             boolean completed = false;
             try {
@@ -258,11 +352,13 @@ public abstract class AbstractSerialPortSocket<T extends AbstractSerialPortSocke
             } finally {
                 end(completed);
             }
+            }
         }
 
         @Override
         public void write(int b) throws IOException {
-            //make this blocking IO interruptable
+             synchronized (writeLock) {
+           //make this blocking IO interruptable
             boolean completed = false;
             try {
                 begin();
@@ -274,7 +370,7 @@ public abstract class AbstractSerialPortSocket<T extends AbstractSerialPortSocke
             } finally {
                 end(completed);
             }
-
+             }
         }
 
     }
@@ -673,6 +769,8 @@ public abstract class AbstractSerialPortSocket<T extends AbstractSerialPortSocke
     protected SerialOutputStream os;
 
     private final String portName;
+    private final Object readLock = new Object();
+    private final Object writeLock = new Object();
 
     /**
      * Creates a new Instance and checks read/write permissions with the
@@ -727,9 +825,6 @@ public abstract class AbstractSerialPortSocket<T extends AbstractSerialPortSocke
     }
 
     @Override
-    public native int getInBufferBytesCount() throws IOException;
-
-    @Override
     public synchronized InputStream getInputStream() throws IOException {
         ensureOpen();
         if (is == null) {
@@ -739,9 +834,6 @@ public abstract class AbstractSerialPortSocket<T extends AbstractSerialPortSocke
     }
 
     @Override
-    public native int getOutBufferBytesCount() throws IOException;
-
-    @Override
     public synchronized OutputStream getOutputStream() throws IOException {
         ensureOpen();
         if (os == null) {
@@ -749,16 +841,6 @@ public abstract class AbstractSerialPortSocket<T extends AbstractSerialPortSocke
         }
         return os;
     }
-
-    /**
-     * Returns the parameters as masked bit set.
-     *
-     * @return the parameters as masked bit set.
-     *
-     * @throws IOException
-     */
-    protected native int getParameters(int parameterBitSetMask) throws IOException;
-
     @Override
     public Parity getParity() throws IOException {
         return parityFromBitSet(getParameters(PARITY_MASK));
@@ -773,24 +855,6 @@ public abstract class AbstractSerialPortSocket<T extends AbstractSerialPortSocke
     public StopBits getStopBits() throws IOException {
         return stopBitsFromBitSet(getParameters(STOP_BITS_MASK));
     }
-
-    @Override
-    public native char getXOFFChar() throws IOException;
-
-    @Override
-    public native char getXONChar() throws IOException;
-
-    @Override
-    public native boolean isCTS() throws IOException;
-
-    @Override
-    public native boolean isDSR() throws IOException;
-
-    @Override
-    public native boolean isDCD() throws IOException;
-
-    @Override
-    public native boolean isRI() throws IOException;
 
     public void ensureOpen() throws IOException {
         if (!isOpen()) {
@@ -818,21 +882,9 @@ public abstract class AbstractSerialPortSocket<T extends AbstractSerialPortSocke
      */
     protected abstract void open(String portName, int paramBitSet) throws IOException;
 
-    /**
-     * Read data from port
-     *
-     * @param b the data to be written
-     * @param off the start offset in the data
-     * @param len the number of bytes that are written
-     * @return the readed bytes
-     * @exception IOException If an I/O error has occurred.
-     */
-    protected native int readBytes(byte[] b, int off, int len) throws IOException;
-
-    protected native int readSingle() throws IOException;
-
     @Override
     public void sendBreak(int duration) throws IOException {
+            synchronized (writeLock) {
         //make this blocking IO interruptable
         boolean completed = false;
         try {
@@ -845,9 +897,8 @@ public abstract class AbstractSerialPortSocket<T extends AbstractSerialPortSocke
         } finally {
             end(completed);
         }
+            }
     }
-
-    private native void sendBreak0(int duration) throws IOException;
 
     @Override
     public void setSpeed(Speed speed) throws IOException {
@@ -859,7 +910,11 @@ public abstract class AbstractSerialPortSocket<T extends AbstractSerialPortSocke
     }
 
     @Override
-    public native void setBreak(boolean value) throws IOException;
+    public void setBreak(boolean value) throws IOException {
+                    synchronized (writeLock) {
+                    setBreak0(value);
+                    }
+    }
 
     @Override
     public void setDataBits(DataBits dataBits) throws IOException {
@@ -873,20 +928,9 @@ public abstract class AbstractSerialPortSocket<T extends AbstractSerialPortSocke
     }
 
     @Override
-    public native void setDTR(boolean value) throws IOException;
-
-    @Override
     public void setFlowControl(Set<FlowControl> flowControls) throws IOException {
         setParameters(toBitSet(flowControls));
     }
-
-    /**
-     * Set the parameters that are set in the parameterBitSet.
-     *
-     * @param parameterBitSet the parameters to set in a masked bit set.
-     * @throws IOException
-     */
-    protected native void setParameters(int parameterBitSet) throws IOException;
 
     @Override
     public void setParity(Parity parity) throws IOException {
@@ -906,12 +950,6 @@ public abstract class AbstractSerialPortSocket<T extends AbstractSerialPortSocke
     }
 
     @Override
-    public native void setXOFFChar(char c) throws IOException;
-
-    @Override
-    public native void setXONChar(char c) throws IOException;
-
-    @Override
     public String toString() {
         try {
             return String.format("[portname=%s, speed= %s, dataBits= %s, stopBits= %s, parity= %s, flowControl= %s]",
@@ -920,18 +958,5 @@ public abstract class AbstractSerialPortSocket<T extends AbstractSerialPortSocke
             return "Internal Error " + e;
         }
     }
-
-    /**
-     * Write data to port
-     *
-     * @param b
-     * @param off the start offset in the data.
-     * @param len the number of bytes to write.
-     * @throws java.io.IOException
-     *
-     */
-    protected native void writeBytes(byte[] b, int off, int len) throws IOException;
-
-    protected native void writeSingle(int b) throws IOException;
 
 }

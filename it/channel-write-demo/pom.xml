@@ -21,5 +21,5 @@
             <artifactId>de.ibapl.spsw.jnhwprovider</artifactId>
         </dependency>
     </dependencies>
-    
+    <name>SPSW :: Demos :: ChannelWriteDemo</name>
 </project>

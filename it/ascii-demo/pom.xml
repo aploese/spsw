@@ -54,5 +54,5 @@
             </plugin>
         </plugins>
     </build>
-
+    <name>SPSW :: Demos :: AsciiDemo</name>
 </project>

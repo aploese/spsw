@@ -10,7 +10,7 @@
     </parent>
   
     <artifactId>de.ibapl.spsw.api</artifactId>
-    <name>SPSW API</name>
+    <name>SPSW :: API</name>
     
     <dependencies>
         <dependency>

@@ -146,6 +146,8 @@ public class GenericWinSerialPortSocket extends AbstractSerialPortSocket<Generic
     private final static HANDLE INVALID_HANDLE_VALUE = Winbase.INVALID_HANDLE_VALUE();
     private volatile HANDLE hFile = INVALID_HANDLE_VALUE;
     private final HFileCleaner cleaner = new HFileCleaner();
+    private final Object readLock = new Object();
+    private final Object writeLock = new Object();
 
     public static List<String> getWindowsBasedPortNames() {
         if (!LibJnhwWinApiLoader.touch()) {

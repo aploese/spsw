@@ -61,32 +61,31 @@ public class ChannelReadDemoMain {
     public static void main(String[] args) {
         final SerialPortSocketFactory spsf = getSerialPortSocketFactory();
 
-        ReadableByteChannel channel;
-
-        try {
-            SerialPortSocket sps = spsf.open(args[0], Speed._9600_BPS, DataBits.DB_8, StopBits.SB_1, Parity.NONE, FlowControl.getFC_NONE());
+        try (SerialPortSocket sps = spsf.open(args[0], Speed._9600_BPS, DataBits.DB_8, StopBits.SB_1, Parity.NONE, FlowControl.getFC_NONE())) {
             sps.setTimeouts(100, 0, 0);
-            channel = sps;
+            
+            final ReadableByteChannel channel = sps;
+            final ByteBuffer buffer = ByteBuffer.allocateDirect(2048);
+            while (channel.isOpen()) {
+                try {
+                    buffer.clear();
+                    int count = channel.read(buffer);
+                    buffer.flip();
+                    for (int i = 0; i < count; i++) {
+                        System.out.append((char) buffer.get());
+                    }
+                    System.out.flush();
+                } catch (AsynchronousCloseException ace) {
+                } catch (TimeoutIOException tioe) {
+                } catch (IOException ioe) {
+                }
+            }
+
         } catch (IOException ioe) {
             System.out.println("de.ibapl.spsw.demo.asciidemo.ChannelReadDemoMain.main() Ex: " + ioe);
             return;
         }
 
-        final ByteBuffer buffer = ByteBuffer.allocateDirect(2048);
-        while (channel.isOpen()) {
-            try {
-                buffer.clear();
-                int count = channel.read(buffer);
-                buffer.flip();
-                for (int i = 0; i < count; i++) {
-                    System.out.append((char)buffer.get());
-                }
-                System.out.flush();
-            } catch (AsynchronousCloseException ace) {
-            } catch (TimeoutIOException tioe) {
-            } catch (IOException ioe) {
-            }
-        }
     }
 
 }

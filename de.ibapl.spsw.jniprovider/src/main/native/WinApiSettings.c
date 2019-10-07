@@ -570,10 +570,10 @@ extern "C" {
 
     /*
      * Class:     de_ibapl_spsw_jniprovider_AbstractSerialPortSocket
-     * Method:    setBreak
+     * Method:    setBreak0
      * Signature: (Z)V
      */
-    JNIEXPORT void JNICALL Java_de_ibapl_spsw_jniprovider_AbstractSerialPortSocket_setBreak
+    JNIEXPORT void JNICALL Java_de_ibapl_spsw_jniprovider_AbstractSerialPortSocket_setBreak0
     (JNIEnv *env, jobject sps, jboolean enabled) {
         DWORD dwFunc = (enabled == JNI_TRUE) ? SETBREAK : CLRBREAK;
 
@@ -581,7 +581,7 @@ extern "C" {
 
         if (!EscapeCommFunction(hFile, dwFunc)) {
             if (GetLastError() == ERROR_INVALID_PARAMETER) {
-                throw_IllegalArgumentException(env, "setBreak: Wrong value");
+                throw_IllegalArgumentException(env, "setBreak0: Wrong value");
             } else {
                 throw_ClosedOrNativeException(env, sps, "Can't set/clear BREAK");
             }

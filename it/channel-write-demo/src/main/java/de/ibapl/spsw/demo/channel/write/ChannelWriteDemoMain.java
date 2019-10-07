@@ -60,26 +60,24 @@ public class ChannelWriteDemoMain {
     public static void main(String[] args) {
         final SerialPortSocketFactory spsf = getSerialPortSocketFactory();
 
-        WritableByteChannel channel;
-        try {
-            SerialPortSocket sps = spsf.open(args[0], Speed._9600_BPS, DataBits.DB_8, StopBits.SB_1, Parity.NONE, FlowControl.getFC_NONE());
+        try (SerialPortSocket sps = spsf.open(args[0], Speed._9600_BPS, DataBits.DB_8, StopBits.SB_1, Parity.NONE, FlowControl.getFC_NONE())) {
             sps.setTimeouts(100, 0, 0);
-            channel = sps;
+            final WritableByteChannel channel = sps;
+            ByteBuffer buffer = ByteBuffer.allocateDirect(2048);
+            try {
+                while (true) {
+                    String textToSent = String.format("%s: the quick brown fox jumps over the lazy dog!\r\n", LocalDateTime.now());
+                    buffer.clear();
+                    buffer.put(textToSent.getBytes(), 0, textToSent.length());
+                    buffer.flip();
+                    channel.write(buffer);
+                }
+            } catch (IOException ex) {
+            }
+
         } catch (IOException ioe) {
             System.out.println("de.ibapl.spsw.demo.asciidemo.ChannelWriteDemoMain.main() Ex: " + ioe);
             return;
-        }
-
-        ByteBuffer buffer = ByteBuffer.allocateDirect(2048);
-        try {
-            while (true) {
-                String textToSent = String.format("%s: the quick brown fox jumps over the lazy dog!\r\n", LocalDateTime.now());
-                buffer.clear();
-                buffer.put(textToSent.getBytes(), 0, textToSent.length());
-                buffer.flip();
-                channel.write(buffer);
-            }
-        } catch (IOException ex) {
         }
 
     }

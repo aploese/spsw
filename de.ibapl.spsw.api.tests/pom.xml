@@ -9,7 +9,7 @@
 	</parent>
 
 	<artifactId>de.ibapl.spsw.api.test</artifactId>
-	<name>SPSW API Tests</name>
+	<name>SPSW :: API Tests</name>
 
 	<dependencies>
 		<dependency>

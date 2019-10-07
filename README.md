@@ -1,6 +1,10 @@
 # SPSW Serial Port Socket Wrapper
 
 Access the serial device like UART, usb to serial converter or even a TCP bridge to an serial device on a different machine.
+It implements ByteChannel and InterruptableChannel so any IO-operation can be interruped with ioThread.interrupt(). 
+This results then in an ClosedByInterruptException. Where ioTread is the thread that handles the IO.
+Any read operations are synchronized as well as all write operations.
+Closing an socket with pending IO operations will unblock said operations ant throw an AsynchonousCloseException
 
 ## Maven Dependencies
 
@@ -9,16 +13,25 @@ In your library add this dependency.
 <dependency>
     <groupId>de.ibapl.spsw</groupId>
     <artifactId>de.ibapl.spsw.api</artifactId>
-    <version>2.0.0</version>
+    <version>3.0.0-SNAPSHOT</version>
 </dependency>
 ```
 
-In the final application add this implementation to the runtime only.
+In the final application add one of this providers to the runtime only.
+```
+<dependency>
+    <groupId>de.ibapl.spsw</groupId>
+    <artifactId>de.ibapl.spsw.jnhwprovider</artifactId>
+    <version>2.0.0-SNAPSHOT</version>
+    <scope>runtime</scope>
+</dependency>
+```
+or
 ```
 <dependency>
     <groupId>de.ibapl.spsw</groupId>
     <artifactId>de.ibapl.spsw.jniprovider</artifactId>
-    <version>2.0.0</version>
+    <version>2.0.0-SNAPSHOT</version>
     <scope>runtime</scope>
 </dependency>
 ```
@@ -59,7 +72,6 @@ if (iterator.hasNext()) {
 
 ```java
 try (SerialPortSocket serialPortSocket = serialPortSocketFactory.open(PORT_NAME) {
-	serialPortSocket.open();
 	serialPortSocket.getOutputStream().write("Hello World!".getBytes());
 } catch (IOException ioe) {
 	System.err.println(ioe);
@@ -70,7 +82,6 @@ try (SerialPortSocket serialPortSocket = serialPortSocketFactory.open(PORT_NAME)
 
 ```java
 try (SerialPortSocket serialPortSocket = serialPortSocketFactory.open(PORT_NAME, Speed._9600_BPS, DataBits.DB_8, StopBits.SB_1, Parity.NONE, FlowControl.getFC_NONE()) {
-	serialPortSocket.open();
 	serialPortSocket.getOutputStream().write("Hello World!".getBytes());
 } catch (IOException ioe) {
 	System.err.println(ioe);
@@ -80,8 +91,7 @@ try (SerialPortSocket serialPortSocket = serialPortSocketFactory.open(PORT_NAME,
 ### Create and Open
 
 ```java
-SerialPortSocket serialPortSocket = serialPortSocketFactory.createSerialPortSocket(PORT_NAME);
-serialPortSocket.open(Speed._9600_BPS, DataBits.DB_8, StopBits.SB_1, Parity.NONE, FlowControl.getFC_NONE());
+SerialPortSocket serialPortSocket = serialPortSocketFactory.open(PORT_NAME, Speed._9600_BPS, DataBits.DB_8, StopBits.SB_1, Parity.NONE, FlowControl.getFC_NONE());
 try {
     serialPortSocket.getOutputStream().write("Hello World!".getBytes());
 } catch (IOException ioe) {
@@ -101,7 +111,6 @@ Set the `overallWriteTimeout` to 2000 ms.
 Be aware that the read amount of wait time is implementation dependant.  
 
 ```java
-serialPortSocket.open();
 try {
 	serialPortSocket.setTimeouts(100, 1000, 2000);
 	serialPortSocket.getOutputStream().write("Hello World!".getBytes());

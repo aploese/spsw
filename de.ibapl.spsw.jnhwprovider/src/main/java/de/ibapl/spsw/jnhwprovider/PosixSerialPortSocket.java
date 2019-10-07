@@ -212,6 +212,8 @@ public class PosixSerialPortSocket extends AbstractSerialPortSocket<PosixSerialP
     private int pollReadTimeout = -1;
     private int pollWriteTimeout = -1;
     private final FdCleaner fdCleaner = new FdCleaner();
+    private final Object readLock = new Object();
+    private final Object writeLock = new Object();
 
     private static final boolean JNHW_HAVE_SYS_EVENTFD_H = Eventfd.HAVE_SYS_EVENTFD_H();
     private static final int CMSPAR_OR_PAREXT;
@@ -758,7 +760,7 @@ public class PosixSerialPortSocket extends AbstractSerialPortSocket<PosixSerialP
             } else if (nee.errno == EIO()) {
                 throw new IOException(String.format("Not a serial port: \"%s\"", portName));
             } else {
-                throw new IOException(String.format("Native port error \"%d:\" open \"%s\"", Errno.getErrnoSymbol(nee.errno), portName));
+                throw new IOException(String.format("Native port error \"%s:\" open \"%s\"", Errno.getErrnoSymbol(nee.errno), portName));
             }
         }
 
@@ -859,6 +861,7 @@ public class PosixSerialPortSocket extends AbstractSerialPortSocket<PosixSerialP
 
     @Override
     public void sendBreak(int duration) throws IOException {
+        synchronized (writeLock) {
         if (duration <= 0) {
             throw new IllegalArgumentException("sendBreak duration must be greater than 0)");
         }
@@ -876,6 +879,7 @@ public class PosixSerialPortSocket extends AbstractSerialPortSocket<PosixSerialP
         } finally {
             end(completed);
         }
+        }
     }
 
     @Override
@@ -890,6 +894,7 @@ public class PosixSerialPortSocket extends AbstractSerialPortSocket<PosixSerialP
 
     @Override
     public void setBreak(boolean enabled) throws IOException {
+        synchronized (writeLock) {
         int arg;
         if (enabled) {
             arg = TIOCSBRK();
@@ -900,6 +905,7 @@ public class PosixSerialPortSocket extends AbstractSerialPortSocket<PosixSerialP
             ioctl(fd, arg);
         } catch (NativeErrorException nee) {
             throw new IOException(formatMsg(nee, "Can't set Break "));
+        }
         }
     }
 
@@ -1204,6 +1210,7 @@ public class PosixSerialPortSocket extends AbstractSerialPortSocket<PosixSerialP
 
     @Override
     public int write(ByteBuffer b) throws IOException {
+        synchronized (writeLock) {
         if (!b.hasRemaining()) {
             return 0;
         }
@@ -1308,10 +1315,12 @@ public class PosixSerialPortSocket extends AbstractSerialPortSocket<PosixSerialP
         } finally {
             end(completed);
         }
+        }
     }
 
     @Override
     public int read(ByteBuffer b) throws IOException {
+        synchronized (readLock) {
         if (!b.hasRemaining()) {
             //nothing to read
             return 0;
@@ -1460,10 +1469,12 @@ public class PosixSerialPortSocket extends AbstractSerialPortSocket<PosixSerialP
         } finally {
             end(completed);
         }
+        }
     }
 
     @Override
     protected void drainOutputBuffer() throws IOException {
+        synchronized (writeLock) {
         //make this blocking IO interruptable
         boolean completed = false;
         try {
@@ -1510,6 +1521,7 @@ public class PosixSerialPortSocket extends AbstractSerialPortSocket<PosixSerialP
             }
         } finally {
             end(completed);
+        }
         }
     }
 

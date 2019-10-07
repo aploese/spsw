@@ -755,10 +755,10 @@ extern "C" {
 
     /*
      * Class:     de_ibapl_spsw_jniprovider_AbstractSerialPortSocket
-     * Method:    setBreak
+     * Method:    setBreak0
      * Signature: (Z)V
      */
-    JNIEXPORT void JNICALL Java_de_ibapl_spsw_jniprovider_AbstractSerialPortSocket_setBreak
+    JNIEXPORT void JNICALL Java_de_ibapl_spsw_jniprovider_AbstractSerialPortSocket_setBreak0
     (JNIEnv *env, jobject sps, jboolean enabled) {
         const int fd = (*env)->GetIntField(env, sps, spsw_fd);
         int arg;
