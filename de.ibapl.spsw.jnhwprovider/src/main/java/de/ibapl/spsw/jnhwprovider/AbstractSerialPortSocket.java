@@ -50,19 +50,22 @@ public abstract class AbstractSerialPortSocket<T extends AbstractSerialPortSocke
         public int read() throws IOException {
             if (singleReadBuffer == null) {
                 singleReadBuffer = ByteBuffer.allocateDirect(1);
-            } else {
-                singleReadBuffer.clear();
             }
-            try {
-                int result = AbstractSerialPortSocket.this.read(singleReadBuffer);
-                if (result == 1) {
-                    singleReadBuffer.flip();
-                    return singleReadBuffer.get() & 0xff;
-                } else {
-                    return result;
+            final ByteBuffer bb = singleReadBuffer;
+            synchronized (bb) {
+                bb.clear();
+
+                try {
+                    int result = AbstractSerialPortSocket.this.read(bb);
+                    if (result == 1) {
+                        bb.flip();
+                        return bb.get() & 0xff;
+                    } else {
+                        return result;
+                    }
+                } catch (AsynchronousCloseException ace) {
+                    return -1;
                 }
-            } catch (AsynchronousCloseException ace) {
-                return -1;
             }
         }
 
@@ -73,7 +76,7 @@ public abstract class AbstractSerialPortSocket<T extends AbstractSerialPortSocke
             } else if (b.length == 0) {
                 return 0;
             }
-            ByteBuffer buf = ByteBuffer.allocateDirect(b.length);
+            final ByteBuffer buf = ByteBuffer.allocateDirect(b.length);
             try {
                 int result = AbstractSerialPortSocket.this.read(buf);
                 buf.flip();
@@ -93,7 +96,7 @@ public abstract class AbstractSerialPortSocket<T extends AbstractSerialPortSocke
             } else if (len == 0) {
                 return 0;
             }
-            ByteBuffer buf = ByteBuffer.allocateDirect(len);
+            final ByteBuffer buf = ByteBuffer.allocateDirect(len);
 
             try {
                 int result = AbstractSerialPortSocket.this.read(buf);
@@ -128,7 +131,7 @@ public abstract class AbstractSerialPortSocket<T extends AbstractSerialPortSocke
             } else if (b.length == 0) {
                 return;
             }
-            ByteBuffer buf = ByteBuffer.allocateDirect(b.length);
+            final ByteBuffer buf = ByteBuffer.allocateDirect(b.length);
             buf.put(b);
             buf.flip();
             AbstractSerialPortSocket.this.write(buf);
@@ -143,7 +146,7 @@ public abstract class AbstractSerialPortSocket<T extends AbstractSerialPortSocke
             } else if (len == 0) {
                 return;
             }
-            ByteBuffer buf = ByteBuffer.allocateDirect(len);
+            final ByteBuffer buf = ByteBuffer.allocateDirect(len);
             buf.put(b, off, len);
             buf.flip();
             AbstractSerialPortSocket.this.write(buf);
@@ -153,12 +156,12 @@ public abstract class AbstractSerialPortSocket<T extends AbstractSerialPortSocke
         public void write(int b) throws IOException {
             if (singleWriteBuffer == null) {
                 singleWriteBuffer = ByteBuffer.allocateDirect(1);
-            } else {
-                singleWriteBuffer.clear();
             }
-            singleWriteBuffer.put((byte) b);
-            singleWriteBuffer.flip();
-            AbstractSerialPortSocket.this.write(singleWriteBuffer);
+            final ByteBuffer bb = singleWriteBuffer;
+            synchronized (bb) {
+                bb.clear().put((byte) b).flip();
+                AbstractSerialPortSocket.this.write(bb);
+            }
         }
 
     }
@@ -197,7 +200,7 @@ public abstract class AbstractSerialPortSocket<T extends AbstractSerialPortSocke
         is = null;
         os = null;
     }
-    
+
     protected void ensureOpen() throws IOException {
         if (!isOpen()) {
             throw new IOException(PORT_IS_CLOSED);
