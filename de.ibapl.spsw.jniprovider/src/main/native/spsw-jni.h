@@ -87,6 +87,8 @@ extern "C" {
     void throw_AsynchronousCloseException(JNIEnv *env);
 
     void throw_IllegalArgumentException(JNIEnv *env, const char *msg);
+    
+    void throw_OutOfMemoryError(JNIEnv *env, const char *msg);
 
     void throw_InterruptedIOExceptionWithError(JNIEnv *env, int bytesTransferred, const char *msg);
 

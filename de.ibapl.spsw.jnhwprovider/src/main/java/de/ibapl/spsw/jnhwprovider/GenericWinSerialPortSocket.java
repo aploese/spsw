@@ -23,6 +23,8 @@ package de.ibapl.spsw.jnhwprovider;
 
 import de.ibapl.jnhw.IntRef;
 import de.ibapl.jnhw.NativeErrorException;
+import de.ibapl.jnhw.libloader.LoadResult;
+import de.ibapl.jnhw.libloader.LoadState;
 import de.ibapl.jnhw.util.winapi.LibJnhwWinApiLoader;
 import java.io.IOException;
 import java.nio.ByteBuffer;
@@ -125,14 +127,14 @@ public class GenericWinSerialPortSocket extends AbstractSerialPortSocket<Generic
 
         @Override
         public void run() {
-            if (Winbase.INVALID_HANDLE_VALUE().value != hFile.value) {
+            if (hFile.isValid()) {
                 try {
                     Ioapiset.CancelIo(hFile);
                 } catch (NativeErrorException nee) {
                     LOG.log(Level.SEVERE, "can't Cancel IO on fd " + nee.errno, nee);
                 }
                 try {
-                            CloseHandle(hFile);
+                    CloseHandle(hFile);
                 } catch (NativeErrorException nee) {
                     LOG.log(Level.SEVERE, "can't properly close fd " + nee.errno, nee);
                 }
@@ -150,16 +152,17 @@ public class GenericWinSerialPortSocket extends AbstractSerialPortSocket<Generic
     private final Object writeLock = new Object();
 
     public static List<String> getWindowsBasedPortNames() {
-        if (!LibJnhwWinApiLoader.touch()) {
-            throw new RuntimeException("Could not load native lib", LibJnhwWinApiLoader.LIB_JNHW_WINAPI_LOAD_RESULT.loadError);
+        if (LoadState.SUCCESS != LibJnhwWinApiLoader.touch()) {
+            throw new RuntimeException("Could not load native lib", LibJnhwWinApiLoader.getLoadResult().loadError);
         }
         LinkedList<String> result = new LinkedList<>();
 
         PHKEY phkResult = new PHKEY();
         String lpSubKey = "HARDWARE\\DEVICEMAP\\SERIALCOMM\\";
-        long errorCode = RegOpenKeyExW(HKEY_LOCAL_MACHINE(), lpSubKey, 0, KEY_READ(), phkResult);
-        if (errorCode != Winerror.ERROR_SUCCESS()) {
-            throw new RuntimeException("Could not open registry errorCode: " + errorCode);
+        try {
+            RegOpenKeyExW(HKEY_LOCAL_MACHINE(), lpSubKey, 0, KEY_READ(), phkResult);
+        } catch (NativeErrorException nee) {
+            throw new RuntimeException("Could not open registry errorCode: " + nee.errno, nee);
         }
         int dwIndex = 0;
         LPWSTR lpValueName = new LPWSTR(256, true);
@@ -168,15 +171,19 @@ public class GenericWinSerialPortSocket extends AbstractSerialPortSocket<Generic
         boolean collecting = true;
         do {
             lpData.clear();
-            errorCode = RegEnumValueW(phkResult, dwIndex, lpValueName, lpType, lpData);
-            if (errorCode == Winerror.ERROR_SUCCESS()) {
-                result.add(LPWSTR.stringValueOfNullTerminated(lpData));
-                dwIndex++;
-                lpValueName.clear();
-            } else if (errorCode == Winerror.ERROR_NO_MORE_ITEMS()) {
-                collecting = false;
-            } else {
-                throw new RuntimeException("Unknown Error in getWindowsBasedPortNames RegEnumValueW errorCode: " + errorCode);
+            try {
+                long errorCode = RegEnumValueW(phkResult, dwIndex, lpValueName, lpType, lpData);
+                if (errorCode == Winerror.ERROR_SUCCESS()) {
+                    result.add(LPWSTR.stringValueOfNullTerminated(lpData));
+                    dwIndex++;
+                    lpValueName.clear();
+                } else if (errorCode == Winerror.ERROR_NO_MORE_ITEMS()) {
+                    collecting = false;
+                } else {
+                    throw new RuntimeException("Should never happen! Unknown Error in getWindowsBasedPortNames RegEnumValueW errorCode: " + errorCode);
+                }
+            } catch (NativeErrorException nee) {
+                throw new RuntimeException("Unknown Error in getWindowsBasedPortNames RegEnumValueW errorCode: " + nee.errno);
             }
         } while (collecting);
         try {
@@ -188,16 +195,16 @@ public class GenericWinSerialPortSocket extends AbstractSerialPortSocket<Generic
 
     GenericWinSerialPortSocket(String portName) throws IOException {
         super(portName);
-        if (!LibJnhwWinApiLoader.touch()) {
-            throw new RuntimeException("Could not load native lib", LibJnhwWinApiLoader.LIB_JNHW_WINAPI_LOAD_RESULT.loadError);
+        if (LoadState.SUCCESS != LibJnhwWinApiLoader.touch()) {
+            throw new RuntimeException("Could not load native lib", LibJnhwWinApiLoader.getLoadResult().loadError);
         }
         open(null, null, null, null, null);
     }
 
     GenericWinSerialPortSocket(String portName, Speed speed, DataBits dataBits, StopBits stopBits, Parity parity, Set<FlowControl> flowControls) throws IOException {
         super(portName);
-        if (!LibJnhwWinApiLoader.touch()) {
-            throw new RuntimeException("Could not load native lib", LibJnhwWinApiLoader.LIB_JNHW_WINAPI_LOAD_RESULT.loadError);
+        if (LoadState.SUCCESS != LibJnhwWinApiLoader.touch()) {
+            throw new RuntimeException("Could not load native lib", LibJnhwWinApiLoader.getLoadResult().loadError);
         }
         open(speed, dataBits, stopBits, parity, flowControls);
     }
@@ -208,11 +215,11 @@ public class GenericWinSerialPortSocket extends AbstractSerialPortSocket<Generic
     }
 
     private IOException createClosedOrNativeException(int errno, String formatString, Object... args) {
-        if (INVALID_HANDLE_VALUE.value == hFile.value) {
-            return new IOException(PORT_IS_CLOSED);
-        } else {
+        if (hFile.isValid()) {
             return new IOException(String.format("Native port error on %s, \"%d\" %s", portName, errno,
                     String.format(formatString, args)));
+        } else {
+            return new IOException(PORT_IS_CLOSED);
         }
     }
 
@@ -647,7 +654,7 @@ public class GenericWinSerialPortSocket extends AbstractSerialPortSocket<Generic
     private void open(Speed speed, DataBits dataBits, StopBits stopBits, Parity parity, Set<FlowControl> flowControls)
             throws IOException {
 
-        if (INVALID_HANDLE_VALUE.value != hFile.value) {
+        if (hFile.isValid()) {
             throw new IOException(PORT_IS_OPEN);
         }
 
@@ -682,7 +689,7 @@ public class GenericWinSerialPortSocket extends AbstractSerialPortSocket<Generic
                 CloseHandle(hFile);
             } catch (NativeErrorException nee1) {
             }
-            hFile.value = INVALID_HANDLE_VALUE.value;
+            hFile.invalidate();
             throw new IOException(String.format("Not a serial port: \"%s\"", portName));
         }
 
@@ -694,7 +701,7 @@ public class GenericWinSerialPortSocket extends AbstractSerialPortSocket<Generic
                 CloseHandle(hFile);
             } catch (NativeErrorException nee) {
             }
-            hFile.value = INVALID_HANDLE_VALUE.value;
+            hFile.invalidate();
             throw t;
         }
 
@@ -706,7 +713,7 @@ public class GenericWinSerialPortSocket extends AbstractSerialPortSocket<Generic
                 CloseHandle(hFile);
             } catch (NativeErrorException nee1) {
             }
-            hFile.value = INVALID_HANDLE_VALUE.value;
+            hFile.invalidate();
             throw new IOException("Open GetCommTimeouts");
         }
 
@@ -723,7 +730,7 @@ public class GenericWinSerialPortSocket extends AbstractSerialPortSocket<Generic
                 CloseHandle(hFile);
             } catch (NativeErrorException nee1) {
             }
-            hFile.value = INVALID_HANDLE_VALUE.value;
+            hFile.invalidate();
 
             throw new IOException("Open SetCommTimeouts");
         }
@@ -985,10 +992,10 @@ public class GenericWinSerialPortSocket extends AbstractSerialPortSocket<Generic
                     CloseHandle(overlapped.hEvent());
                 } catch (NativeErrorException nee1) {
                 }
-                if (INVALID_HANDLE_VALUE.value == hFile.value) {
-                    throw new AsynchronousCloseException();
-                } else {
+                if (hFile.isValid()) {
                     throw new InterruptedIOException("Error readBytes(GetLastError):" + nee.errno);
+                } else {
+                    throw new AsynchronousCloseException();
                 }
             }
         }
@@ -998,38 +1005,46 @@ public class GenericWinSerialPortSocket extends AbstractSerialPortSocket<Generic
             begin();
 
             //overlapped path
-            final long waitResult = WaitForSingleObject(overlapped.hEvent(), INFINITE());
-            if (waitResult != WAIT_OBJECT_0()) {
+            try {
+                final long waitResult = WaitForSingleObject(overlapped.hEvent(), INFINITE());
+                if (waitResult != WAIT_OBJECT_0()) {
+                    try {
+                        CloseHandle(overlapped.hEvent());
+                    } catch (NativeErrorException nee2) {
+                    }
+                    if (hFile.isValid()) {
+                        completed = true;
+                        throw new InterruptedIOException("Error readBytes (WaitForSingleObject): " + waitResult);
+                    } else {
+                        completed = true;
+                        throw new AsynchronousCloseException();
+                    }
+                }
+            } catch (NativeErrorException nee1) {
+                completed = true;
                 try {
                     CloseHandle(overlapped.hEvent());
                 } catch (NativeErrorException nee2) {
                 }
-                if (INVALID_HANDLE_VALUE.value == hFile.value) {
-                    completed = true;
-                    throw new AsynchronousCloseException();
-                } else {
-                    completed = true;
-                    throw new InterruptedIOException("Error readBytes (WaitForSingleObject)");
-                }
+                throw new RuntimeException("NativeError readBytes (WaitForSingleObject)", nee1);
             }
 
-            IntRef dwBytesRead = new IntRef(0);
+            int dwBytesRead = 0;
 
             try {
-                GetOverlappedResult(hFile, overlapped, dwBytesRead, false, b);
+                dwBytesRead = GetOverlappedResult(hFile, overlapped, b, false);
             } catch (NativeErrorException nee) {
                 try {
                     CloseHandle(overlapped.hEvent());
                 } catch (NativeErrorException nee1) {
                 }
-                if (INVALID_HANDLE_VALUE.value == hFile.value) {
-                    completed = true;
-                    throw new AsynchronousCloseException();
-                } else {
+                if (hFile.isValid()) {
                     InterruptedIOException iioe = new InterruptedIOException("Error readBytes (GetOverlappedResult)");
-                    iioe.bytesTransferred = (int) dwBytesRead.value;
                     completed = true;
                     throw iioe;
+                } else {
+                    completed = true;
+                    throw new AsynchronousCloseException();
                 }
             }
 
@@ -1038,19 +1053,19 @@ public class GenericWinSerialPortSocket extends AbstractSerialPortSocket<Generic
             } catch (NativeErrorException nee) {
             }
 
-            if (dwBytesRead.value > 0) {
+            if (dwBytesRead > 0) {
                 //Success
                 completed = true;
-                return (int) dwBytesRead.value;
-            } else if (dwBytesRead.value == 0) {
-                if (INVALID_HANDLE_VALUE.value == hFile.value) {
-                    completed = true;
-                    throw new AsynchronousCloseException();
-                } else {
+                return dwBytesRead;
+            } else if (dwBytesRead == 0) {
+                if (hFile.isValid()) {
                     TimeoutIOException tioe = new TimeoutIOException();
-                    tioe.bytesTransferred = (int) dwBytesRead.value;
+                    tioe.bytesTransferred = dwBytesRead;
                     completed = true;
                     throw tioe;
+                } else {
+                    completed = true;
+                    throw new AsynchronousCloseException();
                 }
             } else {
                 completed = true;
@@ -1084,11 +1099,11 @@ public class GenericWinSerialPortSocket extends AbstractSerialPortSocket<Generic
                 try {
                     CloseHandle(overlapped.hEvent());
                 } catch (NativeErrorException nee1) {
-                };
-                if (INVALID_HANDLE_VALUE.value == hFile.value) {
-                    throw new AsynchronousCloseException();
-                } else {
+                }
+                if (hFile.isValid()) {
                     throw new InterruptedIOException("Error writeBytes (GetLastError): " + nee.errno);
+                } else {
+                    throw new AsynchronousCloseException();
                 }
             }
         }
@@ -1098,38 +1113,47 @@ public class GenericWinSerialPortSocket extends AbstractSerialPortSocket<Generic
         try {
             begin();
 
-            final long waitResult = WaitForSingleObject(overlapped.hEvent(), INFINITE());
+            try {
+                final long waitResult = WaitForSingleObject(overlapped.hEvent(), INFINITE());
 
-            if (waitResult != WAIT_OBJECT_0()) {
+                if (waitResult != WAIT_OBJECT_0()) {
+                    try {
+                        CloseHandle(overlapped.hEvent());
+                    } catch (NativeErrorException nee1) {
+                    }
+                    if (hFile.isValid()) {
+                        completed = true;
+                        throw new InterruptedIOException("Error writeBytes (WaitForSingleObject): " + waitResult);
+                    } else {
+                        completed = true;
+                        throw new AsynchronousCloseException();
+                    }
+                }
+
+            } catch (NativeErrorException nee1) {
+                completed = true;
                 try {
                     CloseHandle(overlapped.hEvent());
-                } catch (NativeErrorException nee1) {
+                } catch (NativeErrorException nee2) {
                 }
-                if (INVALID_HANDLE_VALUE.value == hFile.value) {
-                    completed = true;
-                    throw new AsynchronousCloseException();
-                } else {
-                    completed = true;
-                    throw new InterruptedIOException("Error writeBytes (WaitForSingleObject): " + waitResult);
-                }
+                throw new RuntimeException("NativeError writeBytes (WaitForSingleObject)", nee1);
             }
 
-            IntRef dwBytesWritten = new IntRef(0);
+            int dwBytesWritten = 0;
             try {
-                GetOverlappedResult(hFile, overlapped, dwBytesWritten, false, b);
+                dwBytesWritten = GetOverlappedResult(hFile, overlapped, b, false);
             } catch (NativeErrorException nee) {
                 try {
                     CloseHandle(overlapped.hEvent());
                 } catch (NativeErrorException nee1) {
                 }
-                if (INVALID_HANDLE_VALUE.value == hFile.value) {
-                    completed = true;
-                    throw new AsynchronousCloseException();
-                } else {
+                if (hFile.isValid()) {
                     InterruptedIOException iioe = new InterruptedIOException("Error writeBytes (GetOverlappedResult) errno: " + nee.errno);
-                    iioe.bytesTransferred = (int) dwBytesWritten.value;
                     completed = true;
                     throw iioe;
+                } else {
+                    completed = true;
+                    throw new AsynchronousCloseException();
                 }
             }
 
@@ -1139,26 +1163,26 @@ public class GenericWinSerialPortSocket extends AbstractSerialPortSocket<Generic
             }
 
             if (b.hasRemaining()) {
-                if (INVALID_HANDLE_VALUE.value == hFile.value) {
-                    completed = true;
-                    throw new AsynchronousCloseException();
-                } else {
+                if (hFile.isValid()) {
 //                if (winbase_H.GetLastError() == Winerr_H.ERROR_IO_PENDING) {
 //                    TimeoutIOException tioe = new TimeoutIOException();
 //                    tioe.bytesTransferred = (int) dwBytesWritten.value;
 //                    throw tioe;
 //                } else {
                     InterruptedIOException iioe = new InterruptedIOException("Error writeBytes too view written");
-                    iioe.bytesTransferred = (int) dwBytesWritten.value;
+                    iioe.bytesTransferred = dwBytesWritten;
                     completed = true;
                     throw iioe;
 //                }
+                } else {
+                    completed = true;
+                    throw new AsynchronousCloseException();
                 }
             }
 
             //Success
             completed = true;
-            return (int) dwBytesWritten.value;
+            return dwBytesWritten;
         } finally {
             end(completed);
         }

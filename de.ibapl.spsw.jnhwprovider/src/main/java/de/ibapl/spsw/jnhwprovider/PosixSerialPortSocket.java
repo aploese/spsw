@@ -134,6 +134,7 @@ import static de.ibapl.jnhw.posix.Termios.tcsendbreak;
 import static de.ibapl.jnhw.posix.Termios.tcdrain;
 
 import de.ibapl.jnhw.IntRef;
+import de.ibapl.jnhw.libloader.LoadState;
 import de.ibapl.jnhw.linux.sys.Eventfd;
 import de.ibapl.jnhw.posix.Termios;
 import de.ibapl.jnhw.util.posix.LibJnhwPosixLoader;
@@ -238,8 +239,8 @@ public class PosixSerialPortSocket extends AbstractSerialPortSocket<PosixSerialP
     PosixSerialPortSocket(String portName, Speed speed, DataBits dataBits, StopBits stopBits, Parity parity, Set<FlowControl> flowControls) throws IOException {
         super(portName);
         //Check that the libs are loaded
-        if (!LibJnhwPosixLoader.touch()) {
-            throw new RuntimeException("Could not load native lib", LibJnhwPosixLoader.LIB_JNHW_POSIX_LOAD_RESULT.loadError);
+        if (LoadState.SUCCESS != LibJnhwPosixLoader.touch()) {
+            throw new RuntimeException("Could not load native lib: ", LibJnhwPosixLoader.getLoadResult().loadError);
         }
         open(speed, dataBits, stopBits, parity, flowControls);
     }

@@ -60,8 +60,10 @@ public abstract class AbstractSerialPortSocket<T extends AbstractSerialPortSocke
                     if (result == 1) {
                         bb.flip();
                         return bb.get() & 0xff;
+                    } else if (result == 0) {
+                        return -1;
                     } else {
-                        return result;
+                        throw new RuntimeException("Should never happen single read returns " + result);
                     }
                 } catch (AsynchronousCloseException ace) {
                     return -1;

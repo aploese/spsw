@@ -26,6 +26,10 @@
 #ifndef HAVE_WINDOWS_H
 #include <stdlib.h>
 #endif
+/* The maximum size of a stack-allocated buffer.
+ */
+#define MAX_STACK_BUF_SIZE 8192
+
 
 #ifdef __cplusplus
 extern "C" {
@@ -39,13 +43,27 @@ extern "C" {
     JNIEXPORT jint JNICALL Java_de_ibapl_spsw_jniprovider_AbstractSerialPortSocket_readBytes___3BII
     (JNIEnv *env, jobject sps, jbyteArray bytes, jint off, jint len) {
 
-        jbyte *lpBuffer = (jbyte*) malloc(len);
-
-        jint result = readBuffer(env, sps, lpBuffer, len);
-        if (result > 0) {
-            (*env)->SetByteArrayRegion(env, bytes, off, result, lpBuffer);
+        jbyte stackBuf[len > MAX_STACK_BUF_SIZE ? 0 : len];
+        jbyte *_buf = NULL;
+        if (len == 0) {
+            return 0;
+        } else if (len > MAX_STACK_BUF_SIZE) {
+            _buf = malloc(len);
+            if (_buf == NULL) {
+                throw_OutOfMemoryError(env, "Can`t aquire native memory");
+                return 0;
+            }
+        } else {
+            _buf = stackBuf;
         }
-        free(lpBuffer);
+
+        jint result = readBuffer(env, sps, _buf, len);
+        if (result > 0) {
+            (*env)->SetByteArrayRegion(env, bytes, off, result, _buf);
+        }
+        if (_buf != stackBuf) {
+            free(_buf);
+        }
         return result;
     }
 
@@ -103,13 +121,27 @@ extern "C" {
      */
     JNIEXPORT void JNICALL Java_de_ibapl_spsw_jniprovider_AbstractSerialPortSocket_writeBytes___3BII
     (JNIEnv *env, jobject sps, jbyteArray bytes, jint off, jint len) {
-        void *buff = malloc(len);
-        (*env)->GetByteArrayRegion(env, bytes, off, len, buff);
+        jbyte stackBuf[len > MAX_STACK_BUF_SIZE ? 0 : len]; 
+        jbyte *_buf = NULL;
+        if (len == 0) {
+            return;
+        } else if (len > MAX_STACK_BUF_SIZE) {
+            _buf = malloc(len);
+            if (_buf == NULL) {
+                throw_OutOfMemoryError(env, "Can`t aquire native memory");
+                return;
+            }
+        } else {
+            _buf = stackBuf;
+        }
+        (*env)->GetByteArrayRegion(env, bytes, off, len, _buf);
         if ((*env)->ExceptionOccurred(env)) {
             return;
         }
-        writeBuffer(env, sps, buff, len);
-        free(buff);
+        writeBuffer(env, sps, _buf, len);
+        if (_buf != stackBuf) {
+            free(_buf);
+        }
     }
 
     /*

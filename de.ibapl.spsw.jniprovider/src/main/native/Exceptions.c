@@ -161,6 +161,15 @@ extern "C" {
         }
     }
 
+    void throw_OutOfMemoryError(JNIEnv *env, const char *msg) {
+        const jclass oomeClass = (*env)->FindClass(env,
+                "java/lang/OutOfMemoryError");
+        if (oomeClass != NULL) {
+            (*env)->ThrowNew(env, oomeClass, msg);
+            (*env)->DeleteLocalRef(env, oomeClass);
+        }
+    }
+
     void throw_IOException_Opend(JNIEnv * env) {
         (*env)->ThrowNew(env, IOExceptionClass, "Port is open");
     }

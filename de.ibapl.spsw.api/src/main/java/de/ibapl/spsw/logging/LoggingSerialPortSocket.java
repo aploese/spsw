@@ -50,7 +50,7 @@ import java.lang.ref.Cleaner;
  * @author Arne Plöse
  */
 @ProviderType
-public class LoggingSerialPortSocket implements SerialPortSocket {
+public class LoggingSerialPortSocket implements SerialPortSocket, LogExplainRead, LogExplainWrite {
 
     	private static final Cleaner cleaner = Cleaner.create();
 
@@ -739,5 +739,25 @@ public class LoggingSerialPortSocket implements SerialPortSocket {
 			throw e;
 		}
 	}
+
+    @Override
+    public void explainRead(String fmt, Object... args) {
+	logWriter.explainRead(Instant.now(), fmt, args);
+    }
+
+    @Override
+    public void explainRead(Throwable t) {
+	logWriter.explainRead(Instant.now(), t);
+    }
+
+    @Override
+    public void explainWrite(String fmt, Object... args) {
+	logWriter.explainWrite(Instant.now(), fmt, args);
+    }
+
+    @Override
+    public void explainWrite(Throwable t) {
+	logWriter.explainWrite(Instant.now(), t);
+    }
 
 }
