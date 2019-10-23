@@ -214,8 +214,7 @@ public class PortConfigurationFactory {
     }
 
     public PortConfigurationFactory setParity(Parity parity) {
-        if ((parity == Parity.MARK || parity == Parity.MARK)
-                && (NativeLibResolver.getOS() == OS.FREE_BSD || NativeLibResolver.getOS() == OS.MAC_OS_X)) {
+        if ((parity == Parity.MARK) && (NativeLibResolver.getOS() == OS.FREE_BSD || NativeLibResolver.getOS() == OS.MAC_OS_X)) {
             throw new IllegalArgumentException("Parity MARK and SPACE are not supported under MAcOS and FreeBSD");
         }
         portConfigurationImpl.parity = parity;

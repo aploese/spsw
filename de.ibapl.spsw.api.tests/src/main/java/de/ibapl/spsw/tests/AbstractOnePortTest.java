@@ -817,8 +817,7 @@ public abstract class AbstractOnePortTest extends AbstractPortTest {
         openDefault();
 
         for (Parity p : Parity.values()) {
-            if ((p == Parity.MARK || p == Parity.MARK)
-                    && (NativeLibResolver.getOS() == de.ibapl.jnhw.libloader.OS.FREE_BSD || NativeLibResolver.getOS() == de.ibapl.jnhw.libloader.OS.MAC_OS_X)) {
+            if ((p == Parity.MARK) && (NativeLibResolver.getOS() == de.ibapl.jnhw.libloader.OS.FREE_BSD || NativeLibResolver.getOS() == de.ibapl.jnhw.libloader.OS.MAC_OS_X)) {
                 assertThrows(IllegalArgumentException.class, () -> {
                     readSpc.setParity(p);
                 });
