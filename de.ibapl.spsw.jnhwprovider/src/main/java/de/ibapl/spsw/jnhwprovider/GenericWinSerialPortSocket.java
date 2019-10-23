@@ -1085,7 +1085,7 @@ public class GenericWinSerialPortSocket extends AbstractSerialPortSocket<Generic
                     return dwBytesRead;
                 } else if (dwBytesRead == 0) {
                     if (hFile.isValid()) {
-                        TimeoutIOException tioe = new TimeoutIOException();
+                        TimeoutIOException tioe = new TimeoutIOException("read dwBytesRead == 0");
                         tioe.bytesTransferred = dwBytesRead;
                         completed = true;
                         throw tioe;
