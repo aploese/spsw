@@ -23,7 +23,6 @@ package de.ibapl.spsw.jnhwprovider;
 
 import de.ibapl.jnhw.IntRef;
 import de.ibapl.jnhw.NativeErrorException;
-import de.ibapl.jnhw.libloader.LoadResult;
 import de.ibapl.jnhw.libloader.LoadState;
 import de.ibapl.jnhw.util.winapi.LibJnhwWinApiLoader;
 import java.io.IOException;
@@ -110,6 +109,7 @@ import static de.ibapl.jnhw.winapi.Ioapiset.GetOverlappedResult;
 import static de.ibapl.jnhw.winapi.Minwinbase.OVERLAPPED;
 import static de.ibapl.jnhw.winapi.Minwindef.PHKEY;
 import static de.ibapl.jnhw.winapi.Minwindef.LPBYTE;
+import de.ibapl.jnhw.winapi.Synchapi;
 import de.ibapl.jnhw.winapi.Winbase;
 import de.ibapl.jnhw.winapi.Winerror;
 import static de.ibapl.jnhw.winapi.Winnt.LPWSTR;
@@ -124,9 +124,25 @@ public class GenericWinSerialPortSocket extends AbstractSerialPortSocket<Generic
     static class HFileCleaner implements Runnable {
 
         HANDLE hFile = Winbase.INVALID_HANDLE_VALUE();
+        HANDLE readEvent = Winbase.INVALID_HANDLE_VALUE();
+        HANDLE writeEvent = Winbase.INVALID_HANDLE_VALUE();
 
         @Override
         public void run() {
+            if (readEvent.isValid()) {
+                try {
+                    CloseHandle(readEvent);
+                } catch (NativeErrorException nee) {
+                    LOG.log(Level.SEVERE, "can't properly close readEvent " + nee.errno, nee);
+                }
+            }
+            if (writeEvent.isValid()) {
+                try {
+                    CloseHandle(writeEvent);
+                } catch (NativeErrorException nee) {
+                    LOG.log(Level.SEVERE, "can't properly close writeEvent " + nee.errno, nee);
+                }
+            }
             if (hFile.isValid()) {
                 try {
                     Ioapiset.CancelIo(hFile);
@@ -138,7 +154,6 @@ public class GenericWinSerialPortSocket extends AbstractSerialPortSocket<Generic
                 } catch (NativeErrorException nee) {
                     LOG.log(Level.SEVERE, "can't properly close fd " + nee.errno, nee);
                 }
-
             }
         }
 
@@ -150,6 +165,8 @@ public class GenericWinSerialPortSocket extends AbstractSerialPortSocket<Generic
     private final HFileCleaner cleaner = new HFileCleaner();
     private final Object readLock = new Object();
     private final Object writeLock = new Object();
+    private final OVERLAPPED readOverlapped = new OVERLAPPED(true);
+    private final OVERLAPPED writeOverlapped = new OVERLAPPED(true);
 
     public static List<String> getWindowsBasedPortNames() {
         if (LoadState.SUCCESS != LibJnhwWinApiLoader.touch()) {
@@ -459,12 +476,13 @@ public class GenericWinSerialPortSocket extends AbstractSerialPortSocket<Generic
         final HANDLE _hFile = hFile;
         hFile = INVALID_HANDLE_VALUE;
 // if only ReadIntervalTimeout is set and port is closed during pending read the read operation will hang forever...
+
         try {
             Ioapiset.CancelIo(_hFile);
         } catch (NativeErrorException nee) {
             if (nee.errno != Winerror.ERROR_NOT_FOUND()) {
                 hFile = _hFile;
-                throw new IOException("Can't cancel io for closing", nee);
+                throw new IOException("Can't cancel IO for closing", nee);
             }
             //no-op we dont care
         }
@@ -474,6 +492,24 @@ public class GenericWinSerialPortSocket extends AbstractSerialPortSocket<Generic
             cleaner.hFile = INVALID_HANDLE_VALUE;
         } catch (NativeErrorException nee) {
             throw new IOException("Can't close port", nee);
+        }
+
+        try {
+            HANDLE hEvent = readOverlapped.hEvent();
+            readOverlapped.hEvent(INVALID_HANDLE_VALUE);
+            CloseHandle(hEvent);
+            cleaner.readEvent = INVALID_HANDLE_VALUE;
+        } catch (NativeErrorException nee) {
+            LOG.log(Level.SEVERE, "can't properly close readEvent " + nee.errno, nee);
+        }
+
+        try {
+            HANDLE hEvent = writeOverlapped.hEvent();
+            writeOverlapped.hEvent(INVALID_HANDLE_VALUE);
+            CloseHandle(hEvent);
+            cleaner.writeEvent = INVALID_HANDLE_VALUE;
+        } catch (NativeErrorException nee) {
+            LOG.log(Level.SEVERE, "can't properly close writeEvent " + nee.errno, nee);
         }
     }
 
@@ -734,7 +770,20 @@ public class GenericWinSerialPortSocket extends AbstractSerialPortSocket<Generic
 
             throw new IOException("Open SetCommTimeouts");
         }
+        try {
+            readOverlapped.hEvent(CreateEventW(null, true, false, null));
+        } catch (NativeErrorException nee) {
+            throw new RuntimeException("Can't create readOverlapped.hEvent error: " + nee.errno, nee);
+        }
+        try {
+            writeOverlapped.hEvent(CreateEventW(null, true, false, null));
+        } catch (NativeErrorException nee) {
+            throw new RuntimeException("Can't create writeOverlapped.hEvent error: " + nee.errno, nee);
+        }
+
         cleaner.hFile = hFile;
+        cleaner.readEvent = readOverlapped.hEvent();
+        cleaner.writeEvent = writeOverlapped.hEvent();
         CLEANER.register(this, cleaner);
     }
 
@@ -971,220 +1020,178 @@ public class GenericWinSerialPortSocket extends AbstractSerialPortSocket<Generic
 
     @Override
     public int read(ByteBuffer b) throws IOException {
+        synchronized (readLock) {
+            if (!b.hasRemaining()) {
+                return 0;
+            }
 
-        if (!b.hasRemaining()) {
-            return 0;
-        }
+            try {
+                Synchapi.ResetEvent(readOverlapped.hEvent());
+            } catch (NativeErrorException nee) {
+                throw new IOException("Error read => ResetEvent: " + nee.errno, nee);
+            }
 
-        OVERLAPPED overlapped = new OVERLAPPED(true);
-
-        try {
-            overlapped.hEvent(CreateEventW(null, true, false, null));
-        } catch (NativeErrorException nee) {
-            throw new IOException("Error readBytes => CreateEventW: " + nee.errno);
-        }
-
-        try {
-            ReadFile(hFile, b, overlapped);
-        } catch (NativeErrorException nee) {
-            if (nee.errno != ERROR_IO_PENDING()) {
-                try {
-                    CloseHandle(overlapped.hEvent());
-                } catch (NativeErrorException nee1) {
-                }
-                if (hFile.isValid()) {
-                    throw new InterruptedIOException("Error readBytes(GetLastError):" + nee.errno);
-                } else {
-                    throw new AsynchronousCloseException();
+            try {
+                ReadFile(hFile, b, readOverlapped);
+            } catch (NativeErrorException nee) {
+                if (nee.errno != ERROR_IO_PENDING()) {
+                    if (hFile.isValid()) {
+                        throw new InterruptedIOException("Error readBytes(GetLastError):" + nee.errno);
+                    } else {
+                        throw new AsynchronousCloseException();
+                    }
                 }
             }
-        }
-        //make this blocking IO interruptable
-        boolean completed = false;
-        try {
-            begin();
-
-            //overlapped path
+            //make this blocking IO interruptable
+            boolean completed = false;
             try {
-                final long waitResult = WaitForSingleObject(overlapped.hEvent(), INFINITE());
-                if (waitResult != WAIT_OBJECT_0()) {
-                    try {
-                        CloseHandle(overlapped.hEvent());
-                    } catch (NativeErrorException nee2) {
+                begin();
+
+                //overlapped path
+                try {
+                    final long waitResult = WaitForSingleObject(readOverlapped.hEvent(), INFINITE());
+                    if (waitResult != WAIT_OBJECT_0()) {
+                        if (hFile.isValid()) {
+                            completed = true;
+                            throw new InterruptedIOException("Error readBytes (WaitForSingleObject): " + waitResult);
+                        } else {
+                            completed = true;
+                            throw new AsynchronousCloseException();
+                        }
                     }
+                } catch (NativeErrorException nee1) {
+                    completed = true;
+                    throw new RuntimeException("NativeError readBytes (WaitForSingleObject)", nee1);
+                }
+
+                int dwBytesRead = 0;
+
+                try {
+                    dwBytesRead = GetOverlappedResult(hFile, readOverlapped, b, false);
+                } catch (NativeErrorException nee) {
                     if (hFile.isValid()) {
+                        InterruptedIOException iioe = new InterruptedIOException("Error readBytes (GetOverlappedResult)");
                         completed = true;
-                        throw new InterruptedIOException("Error readBytes (WaitForSingleObject): " + waitResult);
+                        throw iioe;
                     } else {
                         completed = true;
                         throw new AsynchronousCloseException();
                     }
                 }
-            } catch (NativeErrorException nee1) {
-                completed = true;
-                try {
-                    CloseHandle(overlapped.hEvent());
-                } catch (NativeErrorException nee2) {
-                }
-                throw new RuntimeException("NativeError readBytes (WaitForSingleObject)", nee1);
-            }
 
-            int dwBytesRead = 0;
-
-            try {
-                dwBytesRead = GetOverlappedResult(hFile, overlapped, b, false);
-            } catch (NativeErrorException nee) {
-                try {
-                    CloseHandle(overlapped.hEvent());
-                } catch (NativeErrorException nee1) {
-                }
-                if (hFile.isValid()) {
-                    InterruptedIOException iioe = new InterruptedIOException("Error readBytes (GetOverlappedResult)");
+                if (dwBytesRead > 0) {
+                    //Success
                     completed = true;
-                    throw iioe;
+                    return dwBytesRead;
+                } else if (dwBytesRead == 0) {
+                    if (hFile.isValid()) {
+                        TimeoutIOException tioe = new TimeoutIOException();
+                        tioe.bytesTransferred = dwBytesRead;
+                        completed = true;
+                        throw tioe;
+                    } else {
+                        completed = true;
+                        throw new AsynchronousCloseException();
+                    }
                 } else {
                     completed = true;
-                    throw new AsynchronousCloseException();
+                    throw new InterruptedIOException("Should never happen! readBytes dwBytes < 0");
                 }
-            }
 
-            try {
-                CloseHandle(overlapped.hEvent());
-            } catch (NativeErrorException nee) {
+            } finally {
+                end(completed);
             }
-
-            if (dwBytesRead > 0) {
-                //Success
-                completed = true;
-                return dwBytesRead;
-            } else if (dwBytesRead == 0) {
-                if (hFile.isValid()) {
-                    TimeoutIOException tioe = new TimeoutIOException();
-                    tioe.bytesTransferred = dwBytesRead;
-                    completed = true;
-                    throw tioe;
-                } else {
-                    completed = true;
-                    throw new AsynchronousCloseException();
-                }
-            } else {
-                completed = true;
-                throw new InterruptedIOException("Should never happen! readBytes dwBytes < 0");
-            }
-
-        } finally {
-            end(completed);
         }
     }
 
     @Override
     public int write(ByteBuffer b) throws IOException {
+        synchronized (writeLock) {
 
-        if (!b.hasRemaining()) {
-            return 0;
-        }
-
-        OVERLAPPED overlapped = new OVERLAPPED(true);
-        try {
-            overlapped.hEvent(CreateEventW(null, true, false, null));
-        } catch (NativeErrorException nee) {
-            throw new IOException("Error readBytes => CreateEventW: " + nee.errno);
-        }
-
-        try {
-            WriteFile(hFile, b, overlapped);
-        } catch (NativeErrorException nee) {
-
-            if (nee.errno != ERROR_IO_PENDING()) {
-                try {
-                    CloseHandle(overlapped.hEvent());
-                } catch (NativeErrorException nee1) {
-                }
-                if (hFile.isValid()) {
-                    throw new InterruptedIOException("Error writeBytes (GetLastError): " + nee.errno);
-                } else {
-                    throw new AsynchronousCloseException();
-                }
+            if (!b.hasRemaining()) {
+                return 0;
             }
-        }
-
-        //make this blocking IO interruptable
-        boolean completed = false;
-        try {
-            begin();
 
             try {
-                final long waitResult = WaitForSingleObject(overlapped.hEvent(), INFINITE());
+                Synchapi.ResetEvent(writeOverlapped.hEvent());
+            } catch (NativeErrorException nee) {
+                throw new IOException("Error write => ResetEvent: " + nee.errno, nee);
+            }
 
-                if (waitResult != WAIT_OBJECT_0()) {
-                    try {
-                        CloseHandle(overlapped.hEvent());
-                    } catch (NativeErrorException nee1) {
-                    }
+            try {
+                WriteFile(hFile, b, writeOverlapped);
+            } catch (NativeErrorException nee) {
+
+                if (nee.errno != ERROR_IO_PENDING()) {
                     if (hFile.isValid()) {
+                        throw new InterruptedIOException("Error writeBytes (GetLastError): " + nee.errno);
+                    } else {
+                        throw new AsynchronousCloseException();
+                    }
+                }
+            }
+
+            //make this blocking IO interruptable
+            boolean completed = false;
+            try {
+                begin();
+
+                try {
+                    final long waitResult = WaitForSingleObject(writeOverlapped.hEvent(), INFINITE());
+
+                    if (waitResult != WAIT_OBJECT_0()) {
+                        if (hFile.isValid()) {
+                            completed = true;
+                            throw new InterruptedIOException("Error writeBytes (WaitForSingleObject): " + waitResult);
+                        } else {
+                            completed = true;
+                            throw new AsynchronousCloseException();
+                        }
+                    }
+
+                } catch (NativeErrorException nee1) {
+                    completed = true;
+                    throw new RuntimeException("NativeError writeBytes (WaitForSingleObject)", nee1);
+                }
+
+                int dwBytesWritten = 0;
+                try {
+                    dwBytesWritten = GetOverlappedResult(hFile, writeOverlapped, b, false);
+                } catch (NativeErrorException nee) {
+                    if (hFile.isValid()) {
+                        InterruptedIOException iioe = new InterruptedIOException("Error writeBytes (GetOverlappedResult) errno: " + nee.errno);
                         completed = true;
-                        throw new InterruptedIOException("Error writeBytes (WaitForSingleObject): " + waitResult);
+                        throw iioe;
                     } else {
                         completed = true;
                         throw new AsynchronousCloseException();
                     }
                 }
 
-            } catch (NativeErrorException nee1) {
-                completed = true;
-                try {
-                    CloseHandle(overlapped.hEvent());
-                } catch (NativeErrorException nee2) {
-                }
-                throw new RuntimeException("NativeError writeBytes (WaitForSingleObject)", nee1);
-            }
-
-            int dwBytesWritten = 0;
-            try {
-                dwBytesWritten = GetOverlappedResult(hFile, overlapped, b, false);
-            } catch (NativeErrorException nee) {
-                try {
-                    CloseHandle(overlapped.hEvent());
-                } catch (NativeErrorException nee1) {
-                }
-                if (hFile.isValid()) {
-                    InterruptedIOException iioe = new InterruptedIOException("Error writeBytes (GetOverlappedResult) errno: " + nee.errno);
-                    completed = true;
-                    throw iioe;
-                } else {
-                    completed = true;
-                    throw new AsynchronousCloseException();
-                }
-            }
-
-            try {
-                CloseHandle(overlapped.hEvent());
-            } catch (NativeErrorException nee) {
-            }
-
-            if (b.hasRemaining()) {
-                if (hFile.isValid()) {
+                if (b.hasRemaining()) {
+                    if (hFile.isValid()) {
 //                if (winbase_H.GetLastError() == Winerr_H.ERROR_IO_PENDING) {
 //                    TimeoutIOException tioe = new TimeoutIOException();
 //                    tioe.bytesTransferred = (int) dwBytesWritten.value;
 //                    throw tioe;
 //                } else {
-                    InterruptedIOException iioe = new InterruptedIOException("Error writeBytes too view written");
-                    iioe.bytesTransferred = dwBytesWritten;
-                    completed = true;
-                    throw iioe;
+                        InterruptedIOException iioe = new InterruptedIOException("Error writeBytes too view written");
+                        iioe.bytesTransferred = dwBytesWritten;
+                        completed = true;
+                        throw iioe;
 //                }
-                } else {
-                    completed = true;
-                    throw new AsynchronousCloseException();
+                    } else {
+                        completed = true;
+                        throw new AsynchronousCloseException();
+                    }
                 }
-            }
 
-            //Success
-            completed = true;
-            return dwBytesWritten;
-        } finally {
-            end(completed);
+                //Success
+                completed = true;
+                return dwBytesWritten;
+            } finally {
+                end(completed);
+            }
         }
     }
 
