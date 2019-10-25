@@ -107,7 +107,6 @@
         </repository>
     </distributionManagement>
 
-
     <scm>
         <url>https://github.com/aploese/spsw</url>
         <connection>scm:git:https://github.com/aploese/spsw.git</connection>
