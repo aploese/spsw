@@ -95,26 +95,26 @@ extern "C" {
 
     void cleanupExceptions(JNIEnv* env) {
         if (RuntimeExceptionClass != NULL) {
-            (*env)->DeleteLocalRef(env, RuntimeExceptionClass);
+            (*env)->DeleteGlobalRef(env, RuntimeExceptionClass);
             RuntimeExceptionClass = NULL;
         }
         if (IOExceptionClass != NULL) {
-            (*env)->DeleteLocalRef(env, IOExceptionClass);
+            (*env)->DeleteGlobalRef(env, IOExceptionClass);
             IOExceptionClass = NULL;
         }
         if (InterruptedIOExceptionClass != NULL) {
-            (*env)->DeleteLocalRef(env, InterruptedIOExceptionClass);
+            (*env)->DeleteGlobalRef(env, InterruptedIOExceptionClass);
             InterruptedIOExceptionClass = NULL;
             InterruptedIOExceptionInit = NULL;
             InterruptedIOException_bytesTransferred = NULL;
         }
         if (AsynchronousCloseExceptionClass != NULL) {
-            (*env)->DeleteLocalRef(env, AsynchronousCloseExceptionClass);
+            (*env)->DeleteGlobalRef(env, AsynchronousCloseExceptionClass);
             AsynchronousCloseExceptionClass = NULL;
             AsynchronousCloseExceptionInit = NULL;
         }
         if (TimeoutIOExceptionClass != NULL) {
-            (*env)->DeleteLocalRef(env, TimeoutIOExceptionClass);
+            (*env)->DeleteGlobalRef(env, TimeoutIOExceptionClass);
             TimeoutIOExceptionClass = NULL;
             TimeoutIOExceptionInit = NULL;
         }
