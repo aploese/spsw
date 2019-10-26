@@ -67,8 +67,8 @@ extern "C" {
             //Defined here de.ibapl.api.SerialPortSocket.PORT_FD_INVALID
 #define PORT_FD_INVALID "File descriptor of serial port is invalid"
 
-            //Cached
-            extern jfieldID spsw_portName; /* id for field 'portName'  */
+    //Cached
+    extern jfieldID spsw_portName; /* id for field 'portName'  */
 
     extern jfieldID spsw_fd; /* id for field 'fd'  */
 
@@ -87,7 +87,7 @@ extern "C" {
     void throw_AsynchronousCloseException(JNIEnv *env);
 
     void throw_IllegalArgumentException(JNIEnv *env, const char *msg);
-    
+
     void throw_OutOfMemoryError(JNIEnv *env, const char *msg);
 
     void throw_InterruptedIOExceptionWithError(JNIEnv *env, int bytesTransferred, const char *msg);

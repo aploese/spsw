@@ -114,7 +114,7 @@ extern "C" {
         if (spsw_interByteReadTimeout == NULL) {
             return JNI_ERR;
         }
-        //SIGSEV ???
+        
         spsw_pollReadTimeout = getFieldId(env, GENERIC_TERMIOS_SERIAL_PORT_SOCKET, "pollReadTimeout", "I");
         if (spsw_pollReadTimeout == NULL) {
             return JNI_ERR;
