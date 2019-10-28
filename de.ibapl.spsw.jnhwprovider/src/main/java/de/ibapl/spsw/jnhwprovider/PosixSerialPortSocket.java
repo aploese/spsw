@@ -136,7 +136,6 @@ import static de.ibapl.jnhw.posix.Termios.tcdrain;
 import de.ibapl.jnhw.IntRef;
 import de.ibapl.jnhw.libloader.LoadState;
 import de.ibapl.jnhw.linux.sys.Eventfd;
-import de.ibapl.jnhw.posix.Poll;
 import de.ibapl.jnhw.posix.Termios;
 import de.ibapl.jnhw.util.posix.LibJnhwPosixLoader;
 import de.ibapl.spsw.api.DataBits;
@@ -887,12 +886,30 @@ public class PosixSerialPortSocket extends AbstractSerialPortSocket<PosixSerialP
             try {
                 begin();
                 try {
-                    tcsendbreak(fd, duration);
-                    completed = true;
+                    ioctl(fd, TIOCSBRK());
                 } catch (NativeErrorException nee) {
                     completed = true;
-                    throw new IOException(formatMsg(nee, "Can't sendBreak"));
+                    throw new IOException(formatMsg(nee, "Can't set Break "));
                 }
+                try {
+                    Thread.sleep(duration);
+                } catch (InterruptedException ie) {
+                    try {
+                        ioctl(fd, TIOCCBRK());
+                    } catch (NativeErrorException nee) {
+                        completed = true;
+                        throw new IOException(formatMsg(nee, "Can't clear Break after aborted wait"), ie);
+                    }
+                    completed = true;
+                    throw new RuntimeException("Wait interrupted", ie);
+                }
+                try {
+                    ioctl(fd, TIOCCBRK());
+                } catch (NativeErrorException nee) {
+                    completed = true;
+                    throw new IOException(formatMsg(nee, "Can't clear Break "));
+                }
+                completed = true;
             } finally {
                 end(completed);
             }

@@ -27,6 +27,7 @@
 #include <unistd.h>
 #include <stdlib.h>
 #include <time.h>
+#include <sys/ioctl.h>
 
 #include "de_ibapl_spsw_jniprovider_GenericTermiosSerialPortSocket.h"
 
@@ -182,8 +183,17 @@ extern "C" {
         }
 
         const int fd = (*env)->GetIntField(env, sps, spsw_fd);
-        if (tcsendbreak(fd, duration) != 0) {
+        if (ioctl(fd, TIOCSBRK) != 0) {
             throw_ClosedOrNativeException(env, sps, "Can't sendBreak");
+            return;
+        }
+        if (usleep(duration * 1000) != 0) {
+            throw_RuntimeException(env, "Error sendBreak usleep failed");
+            return;
+        }
+        if (ioctl(fd, TIOCCBRK) != 0) {
+            throw_ClosedOrNativeException(env, sps, "Can't sendBreak");
+            return;
         }
     }
 
