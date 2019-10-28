@@ -1288,7 +1288,7 @@ public abstract class AbstractOnePortTest extends AbstractPortTest {
         assumeWTest();
         LOG.log(Level.INFO, "run testCloseDuringBytesRead");
         open(Speed._230400_BPS, DataBits.DB_8, StopBits.SB_1, Parity.EVEN, FlowControl.getFC_NONE());
-        int len = (int) Math.ceil(1000.0 / writeSpc.calculateMillisPerCharacter());
+        int len = (int) Math.ceil(2000.0 / writeSpc.calculateMillisPerCharacter());
 
         byte b[] = new byte[len];
         assertTrue(writeSpc.isOpen());

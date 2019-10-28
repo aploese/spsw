@@ -1081,7 +1081,7 @@ public class PosixSerialPortSocket extends AbstractSerialPortSocket<PosixSerialP
             tcsetattr(fd, TCSANOW(), termios);
         } catch (NativeErrorException nee) {
             throw new IOException(
-                    String.format("Native port error \"%s\" => open tcsetattr (%s)", Errno.getErrnoSymbol(nee.errno), portName));
+                    String.format("Native port error \"%s\" => setParams tcsetattr portname=%s, speed=%s, dataBits=%s, stopBits=%s, parity=%s, flowControls=%s", Errno.getErrnoSymbol(nee.errno), portName, speed, dataBits, stopBits, parity, flowControls));
         }
 
         StringBuilder sb = null;
@@ -1314,7 +1314,8 @@ public class PosixSerialPortSocket extends AbstractSerialPortSocket<PosixSerialP
                             }
                         }
                     } catch (NativeErrorException nee) {
-                        InterruptedIOException iioe = new InterruptedIOException(formatMsg(nee, "poll timeout with error in write "));
+                        InterruptedIOException iioe = new InterruptedIOException(formatMsg(nee, "poll timeout with error in write!"));
+                        iioe.initCause(nee);
                         iioe.bytesTransferred = (int) offset;
                         completed = true;
                         throw iioe;
