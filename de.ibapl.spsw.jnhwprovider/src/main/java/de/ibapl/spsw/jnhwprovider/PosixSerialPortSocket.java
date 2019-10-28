@@ -234,6 +234,8 @@ public class PosixSerialPortSocket extends AbstractSerialPortSocket<PosixSerialP
             try {
                 value = Termios.PAREXT();
             } catch (NotDefinedException nde1) {
+                //This is for FreeBSD No Parity SPACE and MARK
+                LOG.warning("Parites SPACE and MARK will not work!");
             }
         }
         CMSPAR_OR_PAREXT = value;
@@ -399,13 +401,14 @@ public class PosixSerialPortSocket extends AbstractSerialPortSocket<PosixSerialP
         if ((termios.c_cflag() & PARENB()) == 0) {
             return Parity.NONE;
         } else if ((termios.c_cflag() & PARODD()) == 0) {
+            //PARODD not set => EVEN or SPACE
             if ((termios.c_cflag() & CMSPAR_OR_PAREXT) == 0) {
                 return Parity.EVEN;
             } else {
                 return Parity.SPACE;
             }
         } else {
-            // ODD or MARK
+            //PARODD is set => ODD or MARK
             if ((termios.c_cflag() & CMSPAR_OR_PAREXT) == 0) {
                 return Parity.ODD;
             } else {
@@ -1035,7 +1038,7 @@ public class PosixSerialPortSocket extends AbstractSerialPortSocket<PosixSerialP
                     termios.c_iflag(termios.c_iflag() & ~INPCK()); // switch parity input checking off
                     break;
                 case ODD:
-                    termios.c_cflag(termios.c_cflag() | (PARENB() | PARODD()));
+                    termios.c_cflag(termios.c_cflag() | PARENB() | PARODD());
                     termios.c_iflag(termios.c_iflag() | INPCK()); // switch parity input checking On
                     break;
                 case EVEN:
@@ -1043,11 +1046,11 @@ public class PosixSerialPortSocket extends AbstractSerialPortSocket<PosixSerialP
                     termios.c_iflag(termios.c_iflag() | INPCK());
                     break;
                 case MARK:
-                    termios.c_cflag(termios.c_cflag() | (PARENB() | PARODD() | CMSPAR_OR_PAREXT));
+                    termios.c_cflag(termios.c_cflag() | PARENB() | PARODD() | CMSPAR_OR_PAREXT);
                     termios.c_iflag(termios.c_iflag() | INPCK());
                     break;
                 case SPACE:
-                    termios.c_cflag(termios.c_cflag() | (PARENB() | CMSPAR_OR_PAREXT));
+                    termios.c_cflag(termios.c_cflag() | PARENB() | CMSPAR_OR_PAREXT);
                     termios.c_iflag(termios.c_iflag() | INPCK());
                     break;
                 default:
