@@ -85,7 +85,7 @@ extern "C" {
 
     JNIEXPORT jint JNICALL JNI_OnLoad(JavaVM *jvm, void *reserved) {
         JNIEnv *env;
-        if ((*jvm)->GetEnv(jvm, (void **) &env, JNI_VERSION_1_4)) {
+        if ((*jvm)->GetEnv(jvm, (void **) &env, JNI_VERSION_10)) {
             return JNI_ERR;
         }
 
@@ -124,7 +124,7 @@ extern "C" {
         if (spsw_pollWriteTimeout == NULL) {
             return JNI_ERR;
         }
-        //return JNI_VERSION_1_4;
+
         spsw_portName = getFieldId(env, GENERIC_TERMIOS_SERIAL_PORT_SOCKET, "portName", "Ljava/lang/String;");
         if (spsw_portName == NULL) {
             return JNI_ERR;
@@ -143,13 +143,13 @@ extern "C" {
 
 #endif
 
-        return JNI_VERSION_1_4;
+        return JNI_VERSION_10;
     }
 
     JNIEXPORT void JNICALL JNI_OnUnLoad(JavaVM *jvm, void *reserved) {
         JNIEnv *env;
         //TODO delete GlobalRefs
-        if ((*jvm)->GetEnv(jvm, (void **) &env, JNI_VERSION_1_4)) {
+        if ((*jvm)->GetEnv(jvm, (void **) &env, JNI_VERSION_10)) {
             cleanupExceptions(env);
         }
 
