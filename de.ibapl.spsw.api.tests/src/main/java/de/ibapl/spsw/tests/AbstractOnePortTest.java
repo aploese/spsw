@@ -21,6 +21,7 @@
  */
 package de.ibapl.spsw.tests;
 
+import de.ibapl.jnhw.libloader.MultiarchTupelBuilder;
 import de.ibapl.jnhw.libloader.NativeLibResolver;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -64,6 +65,9 @@ import de.ibapl.spsw.tests.tags.SlowTest;
 import java.nio.ByteBuffer;
 import java.nio.channels.ClosedByInterruptException;
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.condition.DisabledOnOs;
+import org.junit.jupiter.params.provider.EnumSource;
 
 /**
  * @author Arne Plöse
@@ -810,21 +814,16 @@ public abstract class AbstractOnePortTest extends AbstractPortTest {
     }
 
     @BaselineTest
-    @Test
-    public void testParity() throws Exception {
-        assumeRTest();
-        LOG.log(Level.INFO, "run testParity");
+    @ParameterizedTest
+    @EnumSource(value = Parity.class)
+    public void testParity(Parity p) throws Exception {
+        LOG.log(Level.INFO, "run testParity({0}) - BaselineTest", p);
         openDefault();
-
-        for (Parity p : Parity.values()) {
-            if ((p == Parity.MARK) && (NativeLibResolver.getOS() == de.ibapl.jnhw.libloader.OS.FREE_BSD || NativeLibResolver.getOS() == de.ibapl.jnhw.libloader.OS.MAC_OS_X)) {
-                assertThrows(IllegalArgumentException.class, () -> {
-                    readSpc.setParity(p);
-                });
-            } else {
-                readSpc.setParity(p);
-                assertEquals(p, readSpc.getParity());
-            }
+        if ((p == Parity.SPACE || p == Parity.MARK) && (de.ibapl.jnhw.libloader.OS.FREE_BSD == new MultiarchTupelBuilder().getOs())) {
+            Assertions.assertThrows(IllegalArgumentException.class, () -> readSpc.setParity(p));
+        } else {
+            readSpc.setParity(p);
+            assertEquals(p, readSpc.getParity());
         }
     }
 
