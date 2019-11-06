@@ -46,6 +46,7 @@
 #include "spsw-jni.h"
 
 #include <termios.h>
+#include <stdint.h>
 #include <sys/ioctl.h>
 #include "de_ibapl_spsw_jniprovider_GenericTermiosSerialPortSocket.h"
 
@@ -438,7 +439,7 @@ extern "C" {
 
         //DataBits
         if (paramBitSet & SPSW_DATA_BITS_MASK) {
-            settings->c_cflag &= ~CSIZE;
+            settings->c_cflag &= (tcflag_t)~CSIZE;
             switch (paramBitSet & SPSW_DATA_BITS_MASK) {
                 case SPSW_DATA_BITS_DB5:
                     settings->c_cflag |= CS5;
@@ -463,7 +464,7 @@ extern "C" {
             switch (paramBitSet & SPSW_STOP_BITS_MASK) {
                 case SPSW_STOP_BITS_1:
                     //1 stop bit (for info see ->> MSDN)
-                    settings->c_cflag &= ~CSTOPB;
+                    settings->c_cflag &= (tcflag_t)~CSTOPB;
                     break;
                 case SPSW_STOP_BITS_1_5:
                     if ((settings->c_cflag & CSIZE) == CS5) {
@@ -492,16 +493,16 @@ extern "C" {
         //Parity
         if (paramBitSet & SPSW_PARITY_MASK) {
 #ifdef PAREXT
-            settings->c_cflag &= ~(PARENB | PARODD | PAREXT); //Clear parity settings
+            settings->c_cflag &= (tcflag_t)~(PARENB | PARODD | PAREXT); //Clear parity settings
 #elif defined CMSPAR
-            settings->c_cflag &= ~(PARENB | PARODD | CMSPAR); //Clear parity settings
+            settings->c_cflag &= (tcflag_t)~(PARENB | PARODD | CMSPAR); //Clear parity settings
 #else
-            settings->c_cflag &= ~(PARENB | PARODD); //Clear parity settings
+            settings->c_cflag &= (tcflag_t)~(PARENB | PARODD); //Clear parity settings
 #endif
             switch (paramBitSet & SPSW_PARITY_MASK) {
                 case SPSW_PARITY_NONE:
                     //Parity NONE
-                    settings->c_iflag &= ~INPCK; // switch parity input checking off
+                    settings->c_iflag &= (tcflag_t)~INPCK; // switch parity input checking off
                     break;
                 case SPSW_PARITY_ODD:
                     //Parity ODD
@@ -547,7 +548,7 @@ extern "C" {
         if (paramBitSet & SPSW_FLOW_CONTROL_MASK) {
             jint mask = paramBitSet & SPSW_FLOW_CONTROL_MASK;
             settings->c_cflag &= ~CRTSCTS;
-            settings->c_iflag &= ~(IXON | IXOFF);
+            settings->c_iflag &= (tcflag_t)~(IXON | IXOFF);
             if (mask != SPSW_FLOW_CONTROL_NONE) {
                 if (((mask & SPSW_FLOW_CONTROL_RTS_CTS_IN)
                         == SPSW_FLOW_CONTROL_RTS_CTS_IN)
@@ -761,7 +762,7 @@ extern "C" {
     JNIEXPORT void JNICALL Java_de_ibapl_spsw_jniprovider_AbstractSerialPortSocket_setBreak0
     (JNIEnv *env, jobject sps, jboolean enabled) {
         const int fd = (*env)->GetIntField(env, sps, spsw_fd);
-        int arg;
+        unsigned long int arg;
         if (enabled == JNI_TRUE) {
             arg = TIOCSBRK;
         } else {
@@ -824,7 +825,7 @@ extern "C" {
             throw_ClosedOrNativeException(env, sps, "setXOFFChar tcgetattr");
             return;
         }
-        settings.c_cc[VSTOP] = c;
+        settings.c_cc[VSTOP] = (uint8_t)c;
 
         if (tcsetattr(fd, TCSANOW, &settings) != 0) {
             throw_ClosedOrNativeException(env, sps, "setXOFFChar tcsetattr");
@@ -846,7 +847,7 @@ extern "C" {
             throw_ClosedOrNativeException(env, sps, "setXONChar tcgetattr");
             return;
         }
-        settings.c_cc[VSTART] = c;
+        settings.c_cc[VSTART] = (uint8_t)c;
 
         if (tcsetattr(fd, TCSANOW, &settings) != 0) {
             //TODO EBADF == errno

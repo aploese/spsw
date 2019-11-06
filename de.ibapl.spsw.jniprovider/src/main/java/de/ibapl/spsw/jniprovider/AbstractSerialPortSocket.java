@@ -48,11 +48,11 @@ import java.nio.channels.spi.AbstractInterruptibleChannel;
  */
 public abstract class AbstractSerialPortSocket<T extends AbstractSerialPortSocket<T>> extends AbstractInterruptibleChannel implements SerialPortSocket {
 
-    private native int read(ByteBuffer dst, int pos, int len) throws IOException;
+    private native int read_ArgsOK(ByteBuffer dst, int pos, int len) throws IOException;
 
     private native int readBytes(byte[] b) throws IOException;
 
-    private native int write(ByteBuffer src, int pos, int len) throws IOException;
+    private native int write_ArgsOK(ByteBuffer src, int pos, int len) throws IOException;
 
     private native void writeBytes(byte[] b) throws IOException;
 
@@ -65,14 +65,13 @@ public abstract class AbstractSerialPortSocket<T extends AbstractSerialPortSocke
      * @return the readed bytes
      * @exception IOException If an I/O error has occurred.
      */
-    private native int readBytes(byte[] b, int off, int len) throws IOException;
+    private native int readBytes_ArgsOK(byte[] b, int off, int len) throws IOException;
 
     private native int readSingle() throws IOException;
 
     private native void sendBreak0(int duration) throws IOException;
 
     private native void setBreak0(boolean value) throws IOException;
-
 
     @Override
     public native char getXOFFChar() throws IOException;
@@ -92,7 +91,6 @@ public abstract class AbstractSerialPortSocket<T extends AbstractSerialPortSocke
     @Override
     public native boolean isRI() throws IOException;
 
-
     /**
      * Returns the parameters as masked bit set.
      *
@@ -108,7 +106,7 @@ public abstract class AbstractSerialPortSocket<T extends AbstractSerialPortSocke
     @Override
     public native int getOutBufferBytesCount() throws IOException;
 
-     @Override
+    @Override
     public native void setDTR(boolean value) throws IOException;
 
     /**
@@ -134,57 +132,65 @@ public abstract class AbstractSerialPortSocket<T extends AbstractSerialPortSocke
      * @throws java.io.IOException
      *
      */
-    protected native void writeBytes(byte[] b, int off, int len) throws IOException;
+    protected native void writeBytes_ParamsOK(byte[] b, int off, int len) throws IOException;
 
     protected native void writeSingle(int b) throws IOException;
-   
+
     @Override
     public int read(ByteBuffer dst) throws IOException {
         if (dst.isReadOnly()) {
             throw new IllegalArgumentException("Read-only buffer");
         }
+            if (!dst.hasRemaining()) {
+                //nothing to read
+                return 0;
+            }
         synchronized (readLock) {
-        // Substitute a native buffer
-        //make this blocking IO interruptable
-        boolean completed = false;
-        int result = 0;
-        try {
-            begin();
-            result = read(dst, dst.position(), dst.remaining());
-            completed = true;
-        } catch (IOException e) {
-            completed = true;
-            throw e;
-        } finally {
-            end(completed);
-        }
+            // Substitute a native buffer
+            //make this blocking IO interruptable
+            boolean completed = false;
+            int result = 0;
+            try {
+                begin();
+                result = read_ArgsOK(dst, dst.position(), dst.remaining());
+                completed = true;
+            } catch (IOException e) {
+                completed = true;
+                throw e;
+            } finally {
+                end(completed);
+            }
 
-        if (result > 0) {
-            dst.position(dst.position() + result);
-        }
-        return result;
+            if (result > 0) {
+                dst.position(dst.position() + result);
+            }
+            return result;
         }
     }
 
     @Override
     public int write(ByteBuffer src) throws IOException {
+            if (!src.hasRemaining()) {
+                //nothing to write
+                return 0;
+            }
         synchronized (writeLock) {
-        //make this blocking IO interruptable
-        boolean completed = false;
-        int result = 0;
-        try {
-            begin();
-            result = write(src, src.position(), src.remaining());
-            completed = true;
-        } catch (IOException e) {
-            completed = true;
-            throw e;
-        } finally {
-            end(completed);
-        }
-        // now update src
-        src.position(src.position() + result);
-        return result;
+            //make this blocking IO interruptable
+            boolean completed = false;
+            int result = 0;
+            try {
+                begin();
+                result = write_ArgsOK(src, src.position(), src.remaining());
+                completed = true;
+            } catch (IOException e) {
+                completed = true;
+                throw e;
+            } finally {
+                end(completed);
+            }
+            // now update src
+            src.position(src.position() + result);
+            return result;
         }
     }
 
@@ -203,22 +209,22 @@ public abstract class AbstractSerialPortSocket<T extends AbstractSerialPortSocke
         @Override
         public int read() throws IOException {
             synchronized (readLock) {
-            //make this blocking IO interruptable
-            boolean completed = false;
-            try {
-                begin();
-                final int result = AbstractSerialPortSocket.this.readSingle();
-                completed = true;
-                return result;
-            } catch (AsynchronousCloseException ace) {
-                completed = true;
-                return -1;
-            } catch (IOException e) {
-                completed = true;
-                throw e;
-            } finally {
-                end(completed);
-            }
+                //make this blocking IO interruptable
+                boolean completed = false;
+                try {
+                    begin();
+                    final int result = AbstractSerialPortSocket.this.readSingle();
+                    completed = true;
+                    return result;
+                } catch (AsynchronousCloseException ace) {
+                    completed = true;
+                    return -1;
+                } catch (IOException e) {
+                    completed = true;
+                    throw e;
+                } finally {
+                    end(completed);
+                }
             }
         }
 
@@ -231,23 +237,23 @@ public abstract class AbstractSerialPortSocket<T extends AbstractSerialPortSocke
             }
 
             synchronized (readLock) {
-            //make this blocking IO interruptable
-            boolean completed = false;
-            try {
-                begin();
-                final int result = AbstractSerialPortSocket.this.readBytes(b);
-                completed = true;
-                return result;
-            } catch (AsynchronousCloseException ace) {
-                completed = true;
-                return -1;
-            } catch (IOException e) {
-                completed = true;
-                throw e;
-            } finally {
-                end(completed);
+                //make this blocking IO interruptable
+                boolean completed = false;
+                try {
+                    begin();
+                    final int result = AbstractSerialPortSocket.this.readBytes(b);
+                    completed = true;
+                    return result;
+                } catch (AsynchronousCloseException ace) {
+                    completed = true;
+                    return -1;
+                } catch (IOException e) {
+                    completed = true;
+                    throw e;
+                } finally {
+                    end(completed);
+                }
             }
-        }
         }
 
         @Override
@@ -259,24 +265,24 @@ public abstract class AbstractSerialPortSocket<T extends AbstractSerialPortSocke
             } else if (len == 0) {
                 return 0;
             }
-synchronized (readLock) {
-            //make this blocking IO interruptable
-            boolean completed = false;
-            try {
-                begin();
-                final int result = AbstractSerialPortSocket.this.readBytes(b, off, len);
-                completed = true;
-                return result;
-            } catch (AsynchronousCloseException ace) {
-                completed = true;
-                return -1;
-            } catch (IOException e) {
-                completed = true;
-                throw e;
-            } finally {
-                end(completed);
+            synchronized (readLock) {
+                //make this blocking IO interruptable
+                boolean completed = false;
+                try {
+                    begin();
+                    final int result = AbstractSerialPortSocket.this.readBytes_ArgsOK(b, off, len);
+                    completed = true;
+                    return result;
+                } catch (AsynchronousCloseException ace) {
+                    completed = true;
+                    return -1;
+                } catch (IOException e) {
+                    completed = true;
+                    throw e;
+                } finally {
+                    end(completed);
+                }
             }
-        }
         }
     }
 
@@ -290,18 +296,18 @@ synchronized (readLock) {
         @Override
         public void flush() throws IOException {
             synchronized (writeLock) {
-            //make this blocking IO interruptable
-            boolean completed = false;
-            try {
-                begin();
-                AbstractSerialPortSocket.this.drainOutputBuffer();
-                completed = true;
-            } catch (IOException e) {
-                completed = true;
-                throw e;
-            } finally {
-                end(completed);
-            }
+                //make this blocking IO interruptable
+                boolean completed = false;
+                try {
+                    begin();
+                    AbstractSerialPortSocket.this.drainOutputBuffer();
+                    completed = true;
+                } catch (IOException e) {
+                    completed = true;
+                    throw e;
+                } finally {
+                    end(completed);
+                }
             }
         }
 
@@ -314,18 +320,18 @@ synchronized (readLock) {
             }
 
             synchronized (writeLock) {
-            //make this blocking IO interruptable
-            boolean completed = false;
-            try {
-                begin();
-                AbstractSerialPortSocket.this.writeBytes(b);
-                completed = true;
-            } catch (IOException e) {
-                completed = true;
-                throw e;
-            } finally {
-                end(completed);
-            }
+                //make this blocking IO interruptable
+                boolean completed = false;
+                try {
+                    begin();
+                    AbstractSerialPortSocket.this.writeBytes(b);
+                    completed = true;
+                } catch (IOException e) {
+                    completed = true;
+                    throw e;
+                } finally {
+                    end(completed);
+                }
             }
         }
 
@@ -340,37 +346,37 @@ synchronized (readLock) {
             }
 
             synchronized (writeLock) {
-            //make this blocking IO interruptable
-            boolean completed = false;
-            try {
-                begin();
-                AbstractSerialPortSocket.this.writeBytes(b, off, len);
-                completed = true;
-            } catch (IOException e) {
-                completed = true;
-                throw e;
-            } finally {
-                end(completed);
-            }
+                //make this blocking IO interruptable
+                boolean completed = false;
+                try {
+                    begin();
+                    AbstractSerialPortSocket.this.writeBytes_ParamsOK(b, off, len);
+                    completed = true;
+                } catch (IOException e) {
+                    completed = true;
+                    throw e;
+                } finally {
+                    end(completed);
+                }
             }
         }
 
         @Override
         public void write(int b) throws IOException {
-             synchronized (writeLock) {
-           //make this blocking IO interruptable
-            boolean completed = false;
-            try {
-                begin();
-                AbstractSerialPortSocket.this.writeSingle(b);
-                completed = true;
-            } catch (IOException e) {
-                completed = true;
-                throw e;
-            } finally {
-                end(completed);
+            synchronized (writeLock) {
+                //make this blocking IO interruptable
+                boolean completed = false;
+                try {
+                    begin();
+                    AbstractSerialPortSocket.this.writeSingle(b);
+                    completed = true;
+                } catch (IOException e) {
+                    completed = true;
+                    throw e;
+                } finally {
+                    end(completed);
+                }
             }
-             }
         }
 
     }
@@ -841,6 +847,7 @@ synchronized (readLock) {
         }
         return os;
     }
+
     @Override
     public Parity getParity() throws IOException {
         return parityFromBitSet(getParameters(PARITY_MASK));
@@ -884,20 +891,20 @@ synchronized (readLock) {
 
     @Override
     public void sendBreak(int duration) throws IOException {
-            synchronized (writeLock) {
-        //make this blocking IO interruptable
-        boolean completed = false;
-        try {
-            begin();
-            sendBreak0(duration);
-            completed = true;
-        } catch (IOException e) {
-            completed = true;
-            throw e;
-        } finally {
-            end(completed);
-        }
+        synchronized (writeLock) {
+            //make this blocking IO interruptable
+            boolean completed = false;
+            try {
+                begin();
+                sendBreak0(duration);
+                completed = true;
+            } catch (IOException e) {
+                completed = true;
+                throw e;
+            } finally {
+                end(completed);
             }
+        }
     }
 
     @Override
@@ -911,9 +918,9 @@ synchronized (readLock) {
 
     @Override
     public void setBreak(boolean value) throws IOException {
-                    synchronized (writeLock) {
-                    setBreak0(value);
-                    }
+        synchronized (writeLock) {
+            setBreak0(value);
+        }
     }
 
     @Override

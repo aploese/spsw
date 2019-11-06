@@ -21,6 +21,8 @@
  */
 #include "spsw-jni.h"
 
+#include <stdint.h>
+
 #ifdef HAVE_WINDOWS_H
 #else 
 #include <stdio.h>
@@ -64,11 +66,11 @@ extern "C" {
             if (InterruptedIOExceptionClass == NULL) {
                 return JNI_FALSE;
             }
-            InterruptedIOExceptionInit = getMethodIdOfClassRef(env, InterruptedIOExceptionClass, INTERRUPTED_IO_EXCEPTION, "<init>", "(Ljava/lang/String;)V");
+            InterruptedIOExceptionInit = getMethodIdOfClassRef(env, InterruptedIOExceptionClass, "<init>", "(Ljava/lang/String;)V");
             if (InterruptedIOExceptionInit == NULL) {
                 return JNI_FALSE;
             }
-            InterruptedIOException_bytesTransferred = getFieldIdOfClassRef(env, InterruptedIOExceptionClass, INTERRUPTED_IO_EXCEPTION, "bytesTransferred", "I");
+            InterruptedIOException_bytesTransferred = getFieldIdOfClassRef(env, InterruptedIOExceptionClass, "bytesTransferred", "I");
             if (InterruptedIOException_bytesTransferred == NULL) {
                 return JNI_FALSE;
             }
@@ -78,14 +80,14 @@ extern "C" {
             if (AsynchronousCloseExceptionClass == NULL) {
                 return JNI_FALSE;
             }
-            AsynchronousCloseExceptionInit = getMethodIdOfClassRef(env, AsynchronousCloseExceptionClass, ASYNCHRONOUS_CLOSE_EXCEPTION, "<init>", "()V");
+            AsynchronousCloseExceptionInit = getMethodIdOfClassRef(env, AsynchronousCloseExceptionClass, "<init>", "()V");
             if (AsynchronousCloseExceptionInit == NULL) {
                 return JNI_FALSE;
             }
         }
         if (TimeoutIOExceptionClass == NULL) {
             TimeoutIOExceptionClass = getGlobalClassRef(env, TIMEOUT_IO_EXCEPTION);
-            TimeoutIOExceptionInit = getMethodIdOfClassRef(env, TimeoutIOExceptionClass, TIMEOUT_IO_EXCEPTION, "<init>", "(Ljava/lang/String;I)V");
+            TimeoutIOExceptionInit = getMethodIdOfClassRef(env, TimeoutIOExceptionClass, "<init>", "(Ljava/lang/String;I)V");
             if (TimeoutIOExceptionInit == NULL) {
                 return JNI_FALSE;
             }
@@ -175,18 +177,18 @@ extern "C" {
     }
 
     void throw_InterruptedIOExceptionWithError(JNIEnv *env,
-            int bytesTransferred, const char *msg) {
+            size_t bytesTransferred, const char *msg) {
         char buf[2048];
         snprintf(buf, 2048, "%s: Unknown port error %d: (%s)", msg, errno,
                 strerror(errno));
         const jobject iioeEx = (*env)->NewObject(env, InterruptedIOExceptionClass,
                 InterruptedIOExceptionInit, (*env)->NewStringUTF(env, buf));
-        (*env)->SetIntField(env, iioeEx, InterruptedIOException_bytesTransferred, bytesTransferred);
+        (*env)->SetIntField(env, iioeEx, InterruptedIOException_bytesTransferred, (int32_t)bytesTransferred);
         (*env)->Throw(env, iioeEx);
     }
 
-    void throw_TimeoutIOException(JNIEnv *env, int bytesTransferred) {
-        const jobject tioeEx = (*env)->NewObject(env, TimeoutIOExceptionClass, TimeoutIOExceptionInit, (*env)->NewStringUTF(env, "Timeout"), bytesTransferred);
+    void throw_TimeoutIOException(JNIEnv *env, size_t bytesTransferred) {
+        const jobject tioeEx = (*env)->NewObject(env, TimeoutIOExceptionClass, TimeoutIOExceptionInit, (*env)->NewStringUTF(env, "Timeout"), (int32_t)bytesTransferred);
         (*env)->Throw(env, tioeEx);
     }
 

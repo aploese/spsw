@@ -20,6 +20,8 @@
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
 #include "spsw-jni.h"
+#include <stdint.h>
+#include <unistd.h>
 
 #include "de_ibapl_spsw_jniprovider_GenericWinSerialPortSocket.h"
 
@@ -27,22 +29,17 @@
 extern "C" {
 #endif
 
-    int readBuffer(JNIEnv *env, jobject sps, void *buff, int len) {
-
-        //special case: we should read nothing... so stop here before getting a timeout because poll is waiting for bytes which do not arrive.
-        if (len == 0) {
-            return 0;
-        }
+    int32_t readBuffer(JNIEnv *env, jobject sps, void *buff, int32_t len) {
 
         HANDLE hFile = (HANDLE) (uintptr_t) (*env)->GetLongField(env, sps, spsw_fd);
 
-        DWORD dwBytesRead = -1;
+        DWORD dwBytesRead = 0;
         OVERLAPPED overlapped;
         overlapped.Offset = 0;
         overlapped.OffsetHigh = 0;
         overlapped.hEvent = CreateEventA(NULL, TRUE, FALSE, NULL);
 
-        if (!ReadFile(hFile, buff, len, NULL, &overlapped)) {
+        if (!ReadFile(hFile, buff, (uint32_t)len, NULL, &overlapped)) {
 
             if (GetLastError() != ERROR_IO_PENDING) {
                 if ((HANDLE) (uintptr_t) (*env)->GetLongField(env, sps, spsw_fd) == INVALID_HANDLE_VALUE) {
@@ -52,7 +49,7 @@ extern "C" {
                             "Error readBytes(GetLastError)");
                 }
                 CloseHandle(overlapped.hEvent);
-                return dwBytesRead;
+                return (int32_t)dwBytesRead;
             }
 
             //overlapped path
@@ -64,7 +61,7 @@ extern "C" {
                             "Error readBytes (WaitForSingleObject)");
                 }
                 CloseHandle(overlapped.hEvent);
-                return dwBytesRead;
+                return(int32_t)dwBytesRead;
             }
 
         }
@@ -77,14 +74,14 @@ extern "C" {
                 throw_InterruptedIOExceptionWithError(env, dwBytesRead,
                         "Error readBytes (GetOverlappedResult)");
             }
-            return dwBytesRead;
+            return (int32_t)dwBytesRead;
         }
 
         CloseHandle(overlapped.hEvent);
 
         if (dwBytesRead > 0) {
             //Success
-            return dwBytesRead;
+            return (int32_t)dwBytesRead;
         } else if (dwBytesRead == 0) {
             if ((HANDLE) (uintptr_t) (*env)->GetLongField(env, sps, spsw_fd) == INVALID_HANDLE_VALUE) {
                 throw_AsynchronousCloseException(env);
@@ -95,12 +92,12 @@ extern "C" {
         } else {
             throw_IOException_NativeError(env,
                     "Should never happen! readBytes dwBytes < 0");
-            return dwBytesRead;
+            return (int32_t)dwBytesRead;
         }
 
         throw_IOException_NativeError(env,
                 "Should never happen! readBytes fall trough");
-        return dwBytesRead;
+        return (int32_t)dwBytesRead;
     }
 
     /*
@@ -123,7 +120,7 @@ extern "C" {
             return;
         }
 
-        Sleep(duration);
+        Sleep((uint32_t)duration);
 
         if (!ClearCommBreak(hFile)) {
             throw_ClosedOrNativeException(env, sps, "sendBreak ClearCommBreak");
@@ -131,19 +128,15 @@ extern "C" {
         }
     }
 
-    int writeBuffer(JNIEnv *env, jobject sps, void *buff, int len) {
-        if (len == 0) {
-            return 0;
-        }
-        
+    int32_t writeBuffer(JNIEnv *env, jobject sps, void *buff, int32_t len) {
         HANDLE hFile = (HANDLE) (uintptr_t) (*env)->GetLongField(env, sps, spsw_fd);
 
-        DWORD dwBytesWritten = -1;
+        DWORD dwBytesWritten = 0;
         OVERLAPPED overlapped;
         overlapped.Offset = 0;
         overlapped.OffsetHigh = 0;
         overlapped.hEvent = CreateEventA(NULL, TRUE, FALSE, NULL);
-        if (!WriteFile(hFile, buff, len, NULL, &overlapped)) {
+        if (!WriteFile(hFile, buff, (uint32_t)len, NULL, &overlapped)) {
 
             if (GetLastError() != ERROR_IO_PENDING) {
                 CloseHandle(overlapped.hEvent);
@@ -152,7 +145,7 @@ extern "C" {
                 } else {
                     throw_InterruptedIOExceptionWithError(env, 0, "unknown port error 1 writeBytes");
                 }
-                return dwBytesWritten;
+                return (int32_t)dwBytesWritten;
             }
 
             if (WaitForSingleObject(overlapped.hEvent, INFINITE) != WAIT_OBJECT_0) {
@@ -162,7 +155,7 @@ extern "C" {
                 } else {
                     throw_InterruptedIOExceptionWithError(env, 0, "Error writeBytes (WaitForSingleObject)");
                 }
-                return dwBytesWritten;
+                return (int32_t)dwBytesWritten;
             }
 
         }
@@ -174,25 +167,25 @@ extern "C" {
             } else {
                 throw_InterruptedIOExceptionWithError(env, 0, "Error writeBytes (GetOverlappedResult)");
             }
-            return dwBytesWritten;
+            return (int32_t)dwBytesWritten;
         }
 
         CloseHandle(overlapped.hEvent);
-        if (dwBytesWritten != len) {
+        if (dwBytesWritten != (uint32_t)len) {
             if ((HANDLE) (uintptr_t) (*env)->GetLongField(env, sps, spsw_fd) == INVALID_HANDLE_VALUE) {
                 throw_AsynchronousCloseException(env);
-                return dwBytesWritten;
+                return (int32_t)dwBytesWritten;
             } else {
                 if (GetLastError() == ERROR_IO_PENDING) {
                     throw_TimeoutIOException(env, dwBytesWritten);
                 } else {
                     throw_InterruptedIOExceptionWithError(env, dwBytesWritten, "Error writeBytes too view written");
                 }
-                return dwBytesWritten;
+                return (int32_t)dwBytesWritten;
             }
         }
         //Success
-        return dwBytesWritten;
+        return (int32_t)dwBytesWritten;
     }
 
     /*
@@ -201,7 +194,7 @@ extern "C" {
      * Signature: ()V
      */
     JNIEXPORT void JNICALL Java_de_ibapl_spsw_jniprovider_GenericWinSerialPortSocket_sendXOFF
-    (JNIEnv *env, jobject sps) {
+    (JNIEnv *env, __attribute__ ((unused)) jobject sps) {
         throw_IOException_NativeError(env, "sendXOFF not implemented yet");
     }
 
@@ -211,7 +204,7 @@ extern "C" {
      * Signature: ()V
      */
     JNIEXPORT void JNICALL Java_de_ibapl_spsw_jniprovider_GenericWinSerialPortSocket_sendXON
-    (JNIEnv *env, jobject sps) {
+    (JNIEnv *env, __attribute__ ((unused)) jobject sps) {
         throw_IOException_NativeError(env, "sendXON not implemented yet");
     }
 

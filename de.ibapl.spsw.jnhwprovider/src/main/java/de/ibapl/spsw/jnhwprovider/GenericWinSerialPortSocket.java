@@ -338,11 +338,15 @@ public class GenericWinSerialPortSocket extends AbstractSerialPortSocket<Generic
 
     @Override
     public int getInterByteReadTimeout() throws IOException {
-        COMMTIMEOUTS lpCommTimeouts = getCOMMTIMEOUTS();
+        final COMMTIMEOUTS lpCommTimeouts = getCOMMTIMEOUTS();
         if ((lpCommTimeouts.ReadIntervalTimeout() & lpCommTimeouts.ReadTotalTimeoutMultiplier() & MAXDWORD()) == MAXDWORD()) {
             return 0;
         } else {
-            return lpCommTimeouts.ReadIntervalTimeout();
+            final int result = (int)lpCommTimeouts.ReadIntervalTimeout();
+            if (result < 0) {
+                throw new RuntimeException("COMMTIMEOUTS.ReadIntervalTimeout overflow from long to int occured");
+            }
+            return result;
         }
     }
 
@@ -353,12 +357,20 @@ public class GenericWinSerialPortSocket extends AbstractSerialPortSocket<Generic
 
     @Override
     public int getOverallReadTimeout() throws IOException {
-        return getCOMMTIMEOUTS().ReadTotalTimeoutConstant();
+            final int result = (int)getCOMMTIMEOUTS().ReadTotalTimeoutConstant();
+            if (result < 0) {
+                throw new RuntimeException("COMMTIMEOUTS.ReadTotalTimeoutConstant overflow from long to int occured");
+            }
+            return result;
     }
 
     @Override
     public int getOverallWriteTimeout() throws IOException {
-        return getCOMMTIMEOUTS().WriteTotalTimeoutConstant();
+            final int result = (int)getCOMMTIMEOUTS().WriteTotalTimeoutConstant();
+            if (result < 0) {
+                throw new RuntimeException("COMMTIMEOUTS.WriteTotalTimeoutConstant overflow from long to int occured");
+            }
+            return result;
     }
 
     @Override
@@ -918,23 +930,14 @@ public class GenericWinSerialPortSocket extends AbstractSerialPortSocket<Generic
 
         if (overallWriteTimeout < 0) {
             throw new IllegalArgumentException("setTimeouts: overallWriteTimeout must >= 0");
-        } else if (overallWriteTimeout == MAXDWORD()) {
-            //MAXDWORD has a special meaning...
-            overallWriteTimeout = MAXDWORD() - 1;
         }
 
         if (overallReadTimeout < 0) {
             throw new IllegalArgumentException("setTimeouts: overallReadTimeout must >= 0");
-        } else if (overallReadTimeout == MAXDWORD()) {
-            //MAXDWORD has a special meaning...
-            overallReadTimeout = MAXDWORD() - 1;
         }
 
         if (interByteReadTimeout < 0) {
             throw new IllegalArgumentException("setReadTimeouts: interByteReadTimeout must >= 0");
-        } else if (interByteReadTimeout == MAXDWORD()) {
-            //MAXDWORD has a special meaning...
-            interByteReadTimeout = MAXDWORD() - 1;
         }
 
         if ((interByteReadTimeout == 0) && (overallReadTimeout > 0)) {

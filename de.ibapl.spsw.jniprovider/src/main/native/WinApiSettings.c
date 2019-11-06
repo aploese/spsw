@@ -21,6 +21,8 @@
  */
 #include "spsw-jni.h"
 
+#include <stdint.h>
+
 #include "de_ibapl_spsw_jniprovider_GenericWinSerialPortSocket.h"
 
 #ifdef __cplusplus
@@ -546,7 +548,7 @@ extern "C" {
             throw_ClosedOrNativeException(env, sps, "getXOFFChar GetCommState");
             return 0;
         }
-        return dcb.XoffChar;
+        return (uint8_t) dcb.XoffChar;
     }
 
     /*
@@ -565,7 +567,7 @@ extern "C" {
             throw_ClosedOrNativeException(env, sps, "getXONChar GetCommState");
             return 0;
         }
-        return dcb.XonChar;
+        return (uint8_t) dcb.XonChar;
     }
 
     /*
@@ -666,7 +668,7 @@ extern "C" {
             return;
         }
 
-        dcb.XoffChar = c;
+        dcb.XoffChar = (int8_t) c;
 
         if (!SetCommState(hFile, &dcb)) {
             switch (GetLastError()) {
@@ -699,7 +701,7 @@ extern "C" {
             return;
         }
 
-        dcb.XonChar = c;
+        dcb.XonChar = (int8_t) c;
 
         if (!SetCommState(hFile, &dcb)) {
             switch (GetLastError()) {
@@ -734,7 +736,10 @@ extern "C" {
                 && (lpCommTimeouts.ReadTotalTimeoutMultiplier == MAXDWORD)) {
             return 0;
         } else {
-            return lpCommTimeouts.ReadIntervalTimeout;
+            if ((int32_t) lpCommTimeouts.ReadIntervalTimeout < 0) {
+                throw_RuntimeException(env, "COMMTIMEOUTS.ReadIntervalTimeout overflow from long to int occured");
+            }
+            return (int32_t) lpCommTimeouts.ReadIntervalTimeout;
         }
     }
 
@@ -753,7 +758,10 @@ extern "C" {
             throw_ClosedOrNativeException(env, sps, "getOverallReadTimeout");
             return -1;
         }
-        return lpCommTimeouts.ReadTotalTimeoutConstant;
+        if ((int32_t) lpCommTimeouts.ReadTotalTimeoutConstant < 0) {
+            throw_RuntimeException(env, "COMMTIMEOUTS.ReadTotalTimeoutConstant overflow from long to int occured");
+        }
+        return (int32_t) lpCommTimeouts.ReadTotalTimeoutConstant;
     }
 
     /*
@@ -771,7 +779,10 @@ extern "C" {
             throw_ClosedOrNativeException(env, sps, "getOverallWriteTimeout");
             return -1;
         }
-        return lpCommTimeouts.WriteTotalTimeoutConstant;
+        if ((int32_t) lpCommTimeouts.WriteTotalTimeoutConstant < 0) {
+            throw_RuntimeException(env, "COMMTIMEOUTS.WriteTotalTimeoutConstant overflow from long to int occured");
+        }
+        return (int32_t) lpCommTimeouts.WriteTotalTimeoutConstant;
     }
 
     /*
@@ -793,40 +804,31 @@ extern "C" {
         if (overallWriteTimeout < 0) {
             throw_IllegalArgumentException(env, "setTimeouts: overallWriteTimeout must >= 0");
             return;
-        } else if (overallWriteTimeout == MAXDWORD) {
-            //MAXDWORD has a special meaning...
-            overallWriteTimeout = MAXDWORD - 1;
         }
 
         if (overallReadTimeout < 0) {
             throw_IllegalArgumentException(env, "setTimeouts: overallReadTimeout must >= 0");
             return;
-        } else if (overallReadTimeout == MAXDWORD) {
-            //MAXDWORD has a special meaning...
-            overallReadTimeout = MAXDWORD - 1;
         }
 
         if (interByteReadTimeout < 0) {
             throw_IllegalArgumentException(env, "setReadTimeouts: interByteReadTimeout must >= 0");
             return;
-        } else if (interByteReadTimeout == MAXDWORD) {
-            //MAXDWORD has a special meaning...
-            interByteReadTimeout = MAXDWORD - 1;
         }
 
         if ((interByteReadTimeout == 0) && (overallReadTimeout > 0)) {
             //This fits best for wait a timeout and have no interByteReadTimeout see also getInterbyteReadTimeout for reading back
             lpCommTimeouts.ReadIntervalTimeout = MAXDWORD;
             lpCommTimeouts.ReadTotalTimeoutMultiplier = MAXDWORD;
-            lpCommTimeouts.ReadTotalTimeoutConstant = overallReadTimeout;
+            lpCommTimeouts.ReadTotalTimeoutConstant = (uint32_t)overallReadTimeout;
         } else {
-            lpCommTimeouts.ReadIntervalTimeout = interByteReadTimeout;
+            lpCommTimeouts.ReadIntervalTimeout = (uint32_t)interByteReadTimeout;
             lpCommTimeouts.ReadTotalTimeoutMultiplier = 0;
-            lpCommTimeouts.ReadTotalTimeoutConstant = overallReadTimeout;
+            lpCommTimeouts.ReadTotalTimeoutConstant = (uint32_t)overallReadTimeout;
         }
 
         lpCommTimeouts.WriteTotalTimeoutMultiplier = 0;
-        lpCommTimeouts.WriteTotalTimeoutConstant = overallWriteTimeout;
+        lpCommTimeouts.WriteTotalTimeoutConstant = (uint32_t)overallWriteTimeout;
 
         if (!SetCommTimeouts(hFile, &lpCommTimeouts)) {
             if (GetLastError() == ERROR_INVALID_PARAMETER) {

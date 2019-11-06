@@ -1076,7 +1076,30 @@ public abstract class AbstractOnePortTest extends AbstractPortTest {
         buff.position(0);
         buff.limit(0);
         readSpc.read(buff);
+        readSpc.getInputStream().read(new byte[0]);
+    }
 
+    /**
+     * We are want write nothing so we should return imedialely.
+     *
+     * @throws Exception
+     */
+    @BaselineTest
+    @Test
+    public void testWrite0Length() throws Exception {
+        assumeRTest();
+        LOG.log(Level.INFO, "run testRead0Length");
+        openDefault();
+        readSpc.setTimeouts(100, 1000, 1000);
+
+        byte[] b = new byte[0];
+        readSpc.getInputStream().read(b);
+
+        ByteBuffer buff = ByteBuffer.allocateDirect(16);
+        buff.position(0);
+        buff.limit(0);
+        readSpc.write(buff);
+        readSpc.getOutputStream().write(new byte[0]);
     }
 
     private ClosedByInterruptException testReadInetrrupted_ClosedByInterruptException;

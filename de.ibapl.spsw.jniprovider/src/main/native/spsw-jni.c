@@ -65,7 +65,7 @@ extern "C" {
         return result;
     }
 
-    jfieldID getFieldIdOfClassRef(JNIEnv *env, jclass clazz, const char* className, const char* fieldName, const char* fieldType) {
+    jfieldID getFieldIdOfClassRef(JNIEnv *env, jclass clazz, const char* fieldName, const char* fieldType) {
 
         jfieldID result = (*env)->GetFieldID(env, clazz, fieldName, fieldType);
         if (result == NULL) {
@@ -74,7 +74,7 @@ extern "C" {
         return result;
     }
 
-    jmethodID getMethodIdOfClassRef(JNIEnv *env, jclass clazz, const char* className, const char* methodName, const char* methodSignature) {
+    jmethodID getMethodIdOfClassRef(JNIEnv *env, jclass clazz, const char* methodName, const char* methodSignature) {
 
         jmethodID result = (*env)->GetMethodID(env, clazz, methodName, methodSignature);
         if (result == NULL) {
@@ -83,7 +83,7 @@ extern "C" {
         return result;
     }
 
-    JNIEXPORT jint JNICALL JNI_OnLoad(JavaVM *jvm, void *reserved) {
+    JNIEXPORT jint JNICALL JNI_OnLoad(JavaVM *jvm, __attribute__ ((unused)) void *reserved) {
         JNIEnv *env;
         if ((*jvm)->GetEnv(jvm, (void **) &env, JNI_VERSION_10)) {
             return JNI_ERR;
@@ -146,7 +146,7 @@ extern "C" {
         return JNI_VERSION_10;
     }
 
-    JNIEXPORT void JNICALL JNI_OnUnLoad(JavaVM *jvm, void *reserved) {
+    JNIEXPORT void JNICALL JNI_OnUnLoad(JavaVM *jvm, __attribute__ ((unused)) void *reserved) {
         JNIEnv *env;
         //TODO delete GlobalRefs
         if ((*jvm)->GetEnv(jvm, (void **) &env, JNI_VERSION_10)) {

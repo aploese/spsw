@@ -23,6 +23,8 @@
 
 #include "de_ibapl_spsw_jniprovider_GenericWinSerialPortSocket.h"
 
+#include <stdint.h>
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -49,7 +51,7 @@ extern "C" {
      * Signature: (J)V
      */
     JNIEXPORT void JNICALL Java_de_ibapl_spsw_jniprovider_GenericWinSerialPortSocket_00024FdCleaner_closeFd
-    (JNIEnv *env, jobject fdCleaner, jlong hFile) {
+    (__attribute__ ((unused)) JNIEnv *env, __attribute__ ((unused)) jclass clazz, jlong hFile) {
         HANDLE nativeHFile = (HANDLE) (uintptr_t) hFile;
         CancelIo(nativeHFile);
         CloseHandle(nativeHFile);
@@ -104,12 +106,12 @@ extern "C" {
     (JNIEnv *env, jobject sps) {
 
         HANDLE hFile = (HANDLE) (uintptr_t) (*env)->GetLongField(env, sps, spsw_fd);
-        (*env)->SetLongField(env, sps, spsw_fd, (uintptr_t) INVALID_HANDLE_VALUE);
+        (*env)->SetLongField(env, sps, spsw_fd, (intptr_t) INVALID_HANDLE_VALUE);
         // if only ReadIntervalTimeout is set and port is closed during pending read the read operation will hang forever...
         if (!CancelIo(hFile)) {
             if (GetLastError() != ERROR_NOT_FOUND) {
                 throw_IOException_NativeError(env, "Can't cancel io for closing");
-                (*env)->SetLongField(env, sps, spsw_fd, (uintptr_t) hFile);
+                (*env)->SetLongField(env, sps, spsw_fd, (intptr_t) hFile);
                 return;
             }
         }
@@ -193,7 +195,7 @@ extern "C" {
 
         if (hFile == INVALID_HANDLE_VALUE) {
 
-            (*env)->SetLongField(env, sps, spsw_fd, (uintptr_t) INVALID_HANDLE_VALUE);
+            (*env)->SetLongField(env, sps, spsw_fd, (intptr_t) INVALID_HANDLE_VALUE);
 
             switch (GetLastError()) {
                 case ERROR_ACCESS_DENIED:
@@ -208,14 +210,14 @@ extern "C" {
             return;
         }
         // The port is open, but maybe not configured ... setParam and getParam needs this to be set for their field access
-        (*env)->SetLongField(env, sps, spsw_fd, (uintptr_t) hFile);
+        (*env)->SetLongField(env, sps, spsw_fd, (intptr_t) hFile);
 
         DCB dcb;
         dcb.DCBlength = sizeof (DCB);
         if (!GetCommState(hFile, &dcb)) {
             CloseHandle(hFile);
 
-            (*env)->SetLongField(env, sps, spsw_fd, (uintptr_t) INVALID_HANDLE_VALUE);
+            (*env)->SetLongField(env, sps, spsw_fd, (intptr_t) INVALID_HANDLE_VALUE);
 
             throw_IOException_withPortName(env, "Not a serial port: \"%s\"", portName);
             return;
@@ -225,7 +227,7 @@ extern "C" {
             //set speed etc.
             if (setParams(env, sps, &dcb, paramBitSet)) {
                 CloseHandle(hFile);
-                (*env)->SetLongField(env, sps, spsw_fd, (uintptr_t) INVALID_HANDLE_VALUE);
+                (*env)->SetLongField(env, sps, spsw_fd, (intptr_t) INVALID_HANDLE_VALUE);
                 return;
             }
         }
@@ -234,7 +236,7 @@ extern "C" {
         if (!GetCommTimeouts(hFile, &lpCommTimeouts)) {
             CloseHandle(hFile);
 
-            (*env)->SetLongField(env, sps, spsw_fd, (uintptr_t) INVALID_HANDLE_VALUE);
+            (*env)->SetLongField(env, sps, spsw_fd, (intptr_t) INVALID_HANDLE_VALUE);
 
             throw_IOException_NativeError(env, "Open GetCommTimeouts");
             return;
@@ -249,7 +251,7 @@ extern "C" {
         if (!SetCommTimeouts(hFile, &lpCommTimeouts)) {
             CloseHandle(hFile);
 
-            (*env)->SetLongField(env, sps, spsw_fd, (uintptr_t) INVALID_HANDLE_VALUE);
+            (*env)->SetLongField(env, sps, spsw_fd, (intptr_t) INVALID_HANDLE_VALUE);
 
             throw_IOException_NativeError(env, "Open SetCommTimeouts");
             return;
@@ -263,7 +265,7 @@ extern "C" {
      * Signature: (Ljava/util/List;)V
      */
     JNIEXPORT void JNICALL Java_de_ibapl_spsw_jniprovider_GenericWinSerialPortSocket_getWindowsBasedPortNames(
-            JNIEnv *env, jclass clazz, jobject list) {
+            JNIEnv *env, __attribute__ ((unused)) jclass clazz, jobject list) {
 
         static jmethodID list_addID;
         if (list_addID == NULL) {
@@ -284,18 +286,18 @@ extern "C" {
             DWORD lpcchValueName;
             BYTE lpData[256];
             DWORD lpcbData;
-            DWORD result;
+            LSTATUS result;
             DWORD dwIndex = 0;
             DWORD lpType;
             do {
                 lpcchValueName = 256;
                 lpcbData = 256;
-                result = RegEnumValueW(phkResult, dwIndex, (LPWSTR) & lpValueName,
+                result = RegEnumValueW(phkResult, dwIndex, (LPWSTR) &lpValueName,
                         &lpcchValueName, NULL, &lpType, (LPBYTE) & lpData, &lpcbData);
                 if (result == ERROR_SUCCESS) {
                     if (lpType == REG_SZ) {
                         jvalue pName;
-                        pName.l = (*env)->NewString(env, (jchar*) lpData, lpcbData / sizeof (WCHAR) - 1);
+                        pName.l = (*env)->NewString(env, (uint16_t*) lpData, (int32_t)(lpcbData / sizeof (WCHAR) - 1));
                         if (pName.l == NULL) {
                             return;
                         }

@@ -47,7 +47,7 @@ public class GenericWinSerialPortSocket extends AbstractSerialPortSocket<Generic
 
     static class FdCleaner implements Runnable {
 
-        private native void closeFd(long fd);
+        private static native void closeFd(long fd);
 
         long fd = INVALID_FD;
 

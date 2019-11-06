@@ -1,5 +1,5 @@
 AM_CPPFLAGS = @JNI_INCLUDE_FLAGS@ -I @JNI_HEADER_DIR@
-AM_CFLAGS = -Wall -Werror
+AM_CFLAGS = -Wall -Wextra -Wconversion -Werror
 AM_LDFLAGS = -no-undefined -version-info @JNHW_VERSION_INFO@
 
 LIB_SPSW_NAME=@JNHW_LIB_PREFIX@spsw@JNHW_LIB_SUFFIX@

@@ -45,7 +45,7 @@ public class GenericTermiosSerialPortSocket extends AbstractSerialPortSocket<Gen
 
     static class FdCleaner implements Runnable {
 
-        private native void closeFds(int fd, int close_event_write_fd, int close_event_read_fd);
+        private static native void closeFds(int fd, int close_event_write_fd, int close_event_read_fd);
 
         int fd = INVALID_FD;
         int close_event_write_fd = INVALID_FD;

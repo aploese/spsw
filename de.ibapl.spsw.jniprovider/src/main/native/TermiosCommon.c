@@ -42,7 +42,7 @@ extern "C" {
      * Signature: (III)V
      */
     JNIEXPORT void JNICALL Java_de_ibapl_spsw_jniprovider_GenericTermiosSerialPortSocket_00024FdCleaner_closeFds
-    (JNIEnv *env, jobject jobject, jint fd, jint close_event_read_fd, jint close_event_write_fd) {
+    (__attribute__ ((unused)) JNIEnv *env, __attribute__ ((unused)) jclass clazz, jint fd, jint close_event_read_fd, jint close_event_write_fd) {
         if (fd != -1) {
             jbyte evt_buff[8];
             evt_buff[5] = 1;
