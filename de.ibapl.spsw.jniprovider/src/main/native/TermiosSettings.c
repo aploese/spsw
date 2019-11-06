@@ -547,7 +547,7 @@ extern "C" {
         //FlowControl
         if (paramBitSet & SPSW_FLOW_CONTROL_MASK) {
             jint mask = paramBitSet & SPSW_FLOW_CONTROL_MASK;
-            settings->c_cflag &= ~CRTSCTS;
+            settings->c_cflag &= (tcflag_t)~CRTSCTS;
             settings->c_iflag &= (tcflag_t)~(IXON | IXOFF);
             if (mask != SPSW_FLOW_CONTROL_NONE) {
                 if (((mask & SPSW_FLOW_CONTROL_RTS_CTS_IN)
