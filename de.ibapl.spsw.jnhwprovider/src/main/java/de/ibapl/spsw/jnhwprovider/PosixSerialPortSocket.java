@@ -130,7 +130,6 @@ import static de.ibapl.jnhw.posix.Termios.StructTermios;
 import static de.ibapl.jnhw.posix.Termios.INPCK;
 
 import static de.ibapl.jnhw.posix.Termios.tcsetattr;
-import static de.ibapl.jnhw.posix.Termios.tcsendbreak;
 import static de.ibapl.jnhw.posix.Termios.tcdrain;
 
 import de.ibapl.jnhw.IntRef;
@@ -205,6 +204,7 @@ public class PosixSerialPortSocket extends AbstractSerialPortSocket<PosixSerialP
 
     private final static Logger LOG = Logger.getLogger(PosixSerialPortSocket.class.getCanonicalName());
 
+    private static final int POLL_TIMEOUT_INFINITE = -1;
     private static final int INVALID_FD = -1;
     private static final int PORT_FD_IDX = 0;
     private static final int CLOSE_FD_IDX = 1;
@@ -605,94 +605,94 @@ public class PosixSerialPortSocket extends AbstractSerialPortSocket<PosixSerialP
                 return B38400();
             case _57600_BPS:
                 try {
-                    return B57600();
-                } catch (NotDefinedException nde) {
-                    throw new IllegalArgumentException("No defined! posix.B57600");
-                }
+                return B57600();
+            } catch (NotDefinedException nde) {
+                throw new IllegalArgumentException("No defined! posix.B57600");
+            }
             case _115200_BPS:
                 try {
-                    return B115200();
-                } catch (NotDefinedException nde) {
-                    throw new IllegalArgumentException("No defined! posix.B115200");
-                }
+                return B115200();
+            } catch (NotDefinedException nde) {
+                throw new IllegalArgumentException("No defined! posix.B115200");
+            }
             case _230400_BPS:
                 try {
-                    return B230400();
-                } catch (NotDefinedException nde) {
-                    throw new IllegalArgumentException("No defined! posix.B230400");
-                }
+                return B230400();
+            } catch (NotDefinedException nde) {
+                throw new IllegalArgumentException("No defined! posix.B230400");
+            }
             case _460800_BPS:
                 try {
-                    return B460800();
-                } catch (NotDefinedException nde) {
-                    throw new IllegalArgumentException("No defined! posix.B460800");
-                }
+                return B460800();
+            } catch (NotDefinedException nde) {
+                throw new IllegalArgumentException("No defined! posix.B460800");
+            }
             case _500000_BPS:
                 try {
-                    return B500000();
-                } catch (NotDefinedException nde) {
-                    throw new IllegalArgumentException("No defined! posix.B500000");
-                }
+                return B500000();
+            } catch (NotDefinedException nde) {
+                throw new IllegalArgumentException("No defined! posix.B500000");
+            }
             case _576000_BPS:
                 try {
-                    return B576000();
-                } catch (NotDefinedException nde) {
-                    throw new IllegalArgumentException("No defined! posix.B576000");
-                }
+                return B576000();
+            } catch (NotDefinedException nde) {
+                throw new IllegalArgumentException("No defined! posix.B576000");
+            }
             case _921600_BPS:
                 try {
-                    return B921600();
-                } catch (NotDefinedException nde) {
-                    throw new IllegalArgumentException("No defined! posix.B921600");
-                }
+                return B921600();
+            } catch (NotDefinedException nde) {
+                throw new IllegalArgumentException("No defined! posix.B921600");
+            }
             case _1000000_BPS:
                 try {
-                    return B1000000();
-                } catch (NotDefinedException nde) {
-                    throw new IllegalArgumentException("No defined! posix.B1000000");
-                }
+                return B1000000();
+            } catch (NotDefinedException nde) {
+                throw new IllegalArgumentException("No defined! posix.B1000000");
+            }
             case _1152000_BPS:
                 try {
-                    return B1152000();
-                } catch (NotDefinedException nde) {
-                    throw new IllegalArgumentException("No defined! posix.B1152000");
-                }
+                return B1152000();
+            } catch (NotDefinedException nde) {
+                throw new IllegalArgumentException("No defined! posix.B1152000");
+            }
             case _1500000_BPS:
                 try {
-                    return B1500000();
-                } catch (NotDefinedException nde) {
-                    throw new IllegalArgumentException("No defined! posix.B1500000");
-                }
+                return B1500000();
+            } catch (NotDefinedException nde) {
+                throw new IllegalArgumentException("No defined! posix.B1500000");
+            }
             case _2000000_BPS:
                 try {
-                    return B2000000();
-                } catch (NotDefinedException nde) {
-                    throw new IllegalArgumentException("No defined! posix.B2000000");
-                }
+                return B2000000();
+            } catch (NotDefinedException nde) {
+                throw new IllegalArgumentException("No defined! posix.B2000000");
+            }
             case _2500000_BPS:
                 try {
-                    return B2500000();
-                } catch (NotDefinedException nde) {
-                    throw new IllegalArgumentException("No defined! posix.B2500000");
-                }
+                return B2500000();
+            } catch (NotDefinedException nde) {
+                throw new IllegalArgumentException("No defined! posix.B2500000");
+            }
             case _3000000_BPS:
                 try {
-                    return B3000000();
-                } catch (NotDefinedException nde) {
-                    throw new IllegalArgumentException("No defined! posix.B3000000");
-                }
+                return B3000000();
+            } catch (NotDefinedException nde) {
+                throw new IllegalArgumentException("No defined! posix.B3000000");
+            }
             case _3500000_BPS:
                 try {
-                    return B3500000();
-                } catch (NotDefinedException nde) {
-                    throw new IllegalArgumentException("No defined! posix.B3500000");
-                }
+                return B3500000();
+            } catch (NotDefinedException nde) {
+                throw new IllegalArgumentException("No defined! posix.B3500000");
+            }
             case _4000000_BPS:
                 try {
-                    return B4000000();
-                } catch (NotDefinedException nde) {
-                    throw new IllegalArgumentException("No defined! posix.B4000000");
-                }
+                return B4000000();
+            } catch (NotDefinedException nde) {
+                throw new IllegalArgumentException("No defined! posix.B4000000");
+            }
             default:
                 throw new IllegalArgumentException("Speed not supported: " + speed);
         }
@@ -1194,6 +1194,18 @@ public class PosixSerialPortSocket extends AbstractSerialPortSocket<PosixSerialP
     @Override
     public void setTimeouts(int interByteReadTimeout, int overallReadTimeout, int overallWriteTimeout)
             throws IOException {
+        if (overallWriteTimeout < 0) {
+            throw new IllegalArgumentException("setTimeouts: overallWriteTimeout must >= 0");
+        }
+
+        if (overallReadTimeout < 0) {
+            throw new IllegalArgumentException("setTimeouts: overallReadTimeout must >= 0");
+        }
+
+        if (interByteReadTimeout < 0) {
+            throw new IllegalArgumentException("setReadTimeouts: interByteReadTimeout must >= 0");
+        }
+
         this.interByteReadTimeout = interByteReadTimeout;
         this.pollReadTimeout = overallReadTimeout == 0 ? -1 : overallReadTimeout;
         this.pollWriteTimeout = overallWriteTimeout == 0 ? -1 : overallWriteTimeout;
@@ -1252,10 +1264,6 @@ public class PosixSerialPortSocket extends AbstractSerialPortSocket<PosixSerialP
                 return 0;
             }
 
-            // TODO wait infinite...
-            // See javaTimeNanos() in file src/os/linux/vm/os_linux.cpp of hotspot sources
-            final long endTime = System.nanoTime() + pollWriteTimeout == -1 ? 0 : pollWriteTimeout * 1000000L;
-
             int written;
 
             try {
@@ -1276,6 +1284,9 @@ public class PosixSerialPortSocket extends AbstractSerialPortSocket<PosixSerialP
                 }
             }
 
+            // See javaTimeNanos() in file src/os/linux/vm/os_linux.cpp of hotspot sources
+            final long endTime = System.nanoTime() + ((pollWriteTimeout == POLL_TIMEOUT_INFINITE) ? 0 : pollWriteTimeout * 1000000L);
+
             //make this blocking IO interruptable
             boolean completed = false;
             try {
@@ -1284,12 +1295,17 @@ public class PosixSerialPortSocket extends AbstractSerialPortSocket<PosixSerialP
                 int offset = written;
                 // calculate the endtime...
                 do {
-                    long currentTime = System.nanoTime();
-                    final int currentPollTimeout = pollWriteTimeout == -1 ? pollWriteTimeout
-                            : (int) ((endTime - currentTime) / 1000000L);
-
                     try {
-                        final int poll_result = poll(writePollFds, currentPollTimeout);
+                        int poll_result;
+                        if (pollWriteTimeout == POLL_TIMEOUT_INFINITE) {
+                            poll_result = poll(writePollFds, POLL_TIMEOUT_INFINITE);
+                        } else {
+                            final long timeLeft = endTime - System.nanoTime();
+                            if (timeLeft < 0) {
+                                throw new TimeoutIOException();
+                            }
+                            poll_result = poll(writePollFds, (int) (timeLeft / 1000000L));
+                        }
 
                         if (poll_result == 0) {
                             // Timeout occured
@@ -1379,6 +1395,8 @@ public class PosixSerialPortSocket extends AbstractSerialPortSocket<PosixSerialP
                 return nread;
             }
 
+            // See javaTimeNanos() in file src/os/linux/vm/os_linux.cpp of hotspot sources
+            final long endTime = System.nanoTime() + ((pollReadTimeout == POLL_TIMEOUT_INFINITE) ? 0 : pollReadTimeout * 1000000L);
             //make this blocking IO interruptable
             boolean completed = false;
             try {
@@ -1443,7 +1461,17 @@ public class PosixSerialPortSocket extends AbstractSerialPortSocket<PosixSerialP
                 while (b.hasRemaining()) {
 
                     try {
-                        final int poll_result = poll(readPollFds, interByteReadTimeout);
+                        int poll_result;
+                        if (pollReadTimeout == POLL_TIMEOUT_INFINITE) {
+                            poll_result = poll(readPollFds, interByteReadTimeout);
+                        } else {
+                            final long timeLeft = endTime - System.nanoTime();
+                            if (timeLeft < 0) {
+                                throw new TimeoutIOException();
+                            }
+                            poll_result = poll(readPollFds, (timeLeft > interByteReadTimeout) ? interByteReadTimeout
+                                    : (int) (timeLeft / 1000000L));
+                        }
 
                         if (poll_result == 0) {
                             // This is the interbyte timeout - We are done

@@ -187,8 +187,8 @@ extern "C" {
         (*env)->Throw(env, iioeEx);
     }
 
-    void throw_TimeoutIOException(JNIEnv *env, size_t bytesTransferred) {
-        const jobject tioeEx = (*env)->NewObject(env, TimeoutIOExceptionClass, TimeoutIOExceptionInit, (*env)->NewStringUTF(env, "Timeout"), (int32_t)bytesTransferred);
+    void throw_TimeoutIOException(JNIEnv *env, size_t bytesTransferred, const char* msg) {
+        const jobject tioeEx = (*env)->NewObject(env, TimeoutIOExceptionClass, TimeoutIOExceptionInit, (*env)->NewStringUTF(env, msg), (int32_t)bytesTransferred);
         (*env)->Throw(env, tioeEx);
     }
 

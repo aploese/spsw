@@ -926,8 +926,6 @@ public class GenericWinSerialPortSocket extends AbstractSerialPortSocket<Generic
     @Override
     public void setTimeouts(int interByteReadTimeout, int overallReadTimeout, int overallWriteTimeout)
             throws IOException {
-        COMMTIMEOUTS commTimeouts = new COMMTIMEOUTS(true);
-
         if (overallWriteTimeout < 0) {
             throw new IllegalArgumentException("setTimeouts: overallWriteTimeout must >= 0");
         }
@@ -939,6 +937,8 @@ public class GenericWinSerialPortSocket extends AbstractSerialPortSocket<Generic
         if (interByteReadTimeout < 0) {
             throw new IllegalArgumentException("setReadTimeouts: interByteReadTimeout must >= 0");
         }
+
+        COMMTIMEOUTS commTimeouts = new COMMTIMEOUTS(true);
 
         if ((interByteReadTimeout == 0) && (overallReadTimeout > 0)) {
             //This fits best for wait a timeout and have no interByteReadTimeout see also getInterbyteReadTimeout for reading back

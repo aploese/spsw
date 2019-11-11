@@ -278,7 +278,7 @@ extern "C" {
 
         if (poll_result == 0) {
             //Timeout
-            throw_TimeoutIOException(env, 0);
+            throw_TimeoutIOException(env, 0, "Timeout drainOutputBuffer");
             return;
         } else if ((poll_result < 0)) {
             throw_IOException_NativeError(env, "drainOutputBuffer poll: Error during poll");

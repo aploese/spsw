@@ -147,6 +147,18 @@ public class GenericTermiosSerialPortSocket extends AbstractSerialPortSocket<Gen
     @Override
     public void setTimeouts(int interByteReadTimeout, int overallReadTimeout, int overallWriteTimeout)
             throws IOException {
+        if (overallWriteTimeout < 0) {
+            throw new IllegalArgumentException("setTimeouts: overallWriteTimeout must >= 0");
+        }
+
+        if (overallReadTimeout < 0) {
+            throw new IllegalArgumentException("setTimeouts: overallReadTimeout must >= 0");
+        }
+
+        if (interByteReadTimeout < 0) {
+            throw new IllegalArgumentException("setReadTimeouts: interByteReadTimeout must >= 0");
+        }
+
         this.interByteReadTimeout = interByteReadTimeout;
         this.pollReadTimeout = overallReadTimeout == 0 ? -1 : overallReadTimeout;
         this.pollWriteTimeout = overallWriteTimeout == 0 ? -1 : overallWriteTimeout;

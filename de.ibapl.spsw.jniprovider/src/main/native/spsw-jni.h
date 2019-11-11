@@ -87,7 +87,7 @@ extern "C" {
 
     void throw_IOException_withPortName(JNIEnv *env, const char* msg, jstring portName);
 
-    void throw_TimeoutIOException(JNIEnv *env, size_t bytesTransferred);
+    void throw_TimeoutIOException(JNIEnv *env, size_t bytesTransferred, const char* msg);
 
     void throw_AsynchronousCloseException(JNIEnv *env);
 
