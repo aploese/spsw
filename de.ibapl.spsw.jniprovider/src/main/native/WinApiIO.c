@@ -86,7 +86,7 @@ extern "C" {
             if ((HANDLE) (uintptr_t) (*env)->GetLongField(env, sps, spsw_fd) == INVALID_HANDLE_VALUE) {
                 throw_AsynchronousCloseException(env);
             } else {
-                throw_TimeoutIOException(env, dwBytesRead);
+                throw_TimeoutIOException(env, dwBytesRead, "Timeout readBuffer overlapped");
             }
             return -1;
         } else {
@@ -177,7 +177,7 @@ extern "C" {
                 return (int32_t)dwBytesWritten;
             } else {
                 if (GetLastError() == ERROR_IO_PENDING) {
-                    throw_TimeoutIOException(env, dwBytesWritten);
+                    throw_TimeoutIOException(env, dwBytesWritten, "Timeout writeBuffer overlapped");
                 } else {
                     throw_InterruptedIOExceptionWithError(env, dwBytesWritten, "Error writeBytes too view written");
                 }

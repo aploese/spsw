@@ -56,23 +56,19 @@ extern "C" {
                         "readBytes: read error during first invocation of read()");
                 return -1;
             }
+        } else if (nread == len) {
+            return (int32_t)nread;
         }
 
+        //read from buffer did not read all, so pollTimeout is needed
         const int pollTimeout = (*env)->GetIntField(env, sps,
                 spsw_pollReadTimeout);
+        
+        //read from buffer did not read all, so the overall time out may be needed
         //See javaTimeNanos() in file src/os/linux/vm/os_linux.cpp of hotspot sources
         struct timespec endTime;
+        //endtime currently holds the start time, the endtime will be calculatet only if needed
         clock_gettime(CLOCK_MONOTONIC, &endTime);
-        //calculate the endtime...
-        if (pollTimeout > 0) {
-            endTime.tv_sec += pollTimeout / 1000; //full seconds
-            endTime.tv_nsec += (pollTimeout % 1000) * 1000000; // reminder goes to nanos
-            if (endTime.tv_nsec > 1000000000) {
-                //Overflow occured
-                endTime.tv_sec += 1;
-                endTime.tv_nsec -= 1000000000;
-            }
-        }
 
         if (nread == 0) {
             //Nothing read yet so use the pollReadTimeout to wait for any data 
@@ -100,13 +96,15 @@ extern "C" {
                             throw_AsynchronousCloseException(env);
                             return -1;
                         } else if (nread == 0) {
-                            throw_IOException(env, "Should never happen: Nothing read after poll"); 
+                            throw_IOException(env, "Should never happen: Nothing read after poll");
                             return -1;
                         } else {
                             throw_InterruptedIOExceptionWithError(env, 0,
                                     "readBytes read error: Should never happen");
                             return -1;
                         }
+                    } else if (nread == len) {
+                        return (int32_t)nread;
                     }
                 } else if ((fds[0].revents & POLLHUP) == POLLHUP) {
                     //i.e. happens when the USB to serial adapter is removed
@@ -117,6 +115,17 @@ extern "C" {
                             "readBytes poll: received poll event");
                     return -1;
                 }
+            }
+        }
+        
+        //calculate the real endtime, now we need it...
+        if (pollTimeout > 0) {
+            endTime.tv_sec += pollTimeout / 1000; //full seconds
+            endTime.tv_nsec += (pollTimeout % 1000) * 1000000; // reminder goes to nanos
+            if (endTime.tv_nsec > 1000000000) {
+                //Overflow occured
+                endTime.tv_sec += 1;
+                endTime.tv_nsec -= 1000000000;
             }
         }
 
@@ -137,8 +146,8 @@ extern "C" {
             if (pollTimeout >= 0) {
                 remainingTimeOut = (int32_t) (endTime.tv_sec - currentTime.tv_sec) * 1000 + (int32_t) ((endTime.tv_nsec - currentTime.tv_nsec) / 1000000L);
                 if (remainingTimeOut < 0) {
-                        throw_TimeoutIOException(env, (size_t)overallRead, "readBuffer overallReadTimeout");
-                        return (int32_t)overallRead;
+                    throw_TimeoutIOException(env, (size_t) overallRead, "readBuffer overallReadTimeout");
+                    return (int32_t) overallRead;
                 }
             } else {
                 remainingTimeOut = -1;
@@ -224,10 +233,6 @@ extern "C" {
         const int fd = (*env)->GetIntField(env, sps, spsw_fd);
         const int pollTimeout = (*env)->GetIntField(env, sps, spsw_pollWriteTimeout);
 
-        //See javaTimeNanos() in file src/os/linux/vm/os_linux.cpp of hotspot sources
-        struct timespec endTime;
-        clock_gettime(CLOCK_MONOTONIC, &endTime);
-
         ssize_t written = write(fd, buff, (uint32_t) len);
 
         if (written == len) {
@@ -248,6 +253,12 @@ extern "C" {
             }
         }
 
+        //calc endTime only if write all to buff failed.
+        //See javaTimeNanos() in file src/os/linux/vm/os_linux.cpp of hotspot sources
+        struct timespec endTime;
+        //endTime holds the now the start time, the real end time will be calculated if needed
+        clock_gettime(CLOCK_MONOTONIC, &endTime);
+
         struct pollfd fds[2];
         fds[0].fd = fd;
         fds[0].events = POLLOUT;
@@ -256,7 +267,7 @@ extern "C" {
 
         //written cant be < 0 so this is save
         size_t offset = (size_t) written;
-        //calculate the endtime...
+        //calculate the real endtime, now we need it...
         if (pollTimeout > 0) {
             endTime.tv_sec += pollTimeout / 1000; //full seconds
             endTime.tv_nsec += (pollTimeout % 1000) * 1000000; // reminder goes to nanos
@@ -276,8 +287,8 @@ extern "C" {
             if (pollTimeout >= 0) {
                 remainingTimeOut = (int32_t) (endTime.tv_sec - currentTime.tv_sec) * 1000 + (int32_t) ((endTime.tv_nsec - currentTime.tv_nsec) / 1000000L);
                 if (remainingTimeOut < 0) {
-                        throw_TimeoutIOException(env, (size_t) written, "writeBuffer overallWriteTimeout");
-                        return (int32_t) written;
+                    throw_TimeoutIOException(env, (size_t) written, "writeBuffer overallWriteTimeout");
+                    return (int32_t) written;
                 }
             } else {
                 remainingTimeOut = -1;
