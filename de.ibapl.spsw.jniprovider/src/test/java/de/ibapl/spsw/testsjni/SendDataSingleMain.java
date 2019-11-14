@@ -21,9 +21,6 @@
  */
 package de.ibapl.spsw.testsjni;
 
-import java.time.Instant;
-import java.time.format.DateTimeFormatter;
-
 import de.ibapl.spsw.api.DataBits;
 import de.ibapl.spsw.api.FlowControl;
 import de.ibapl.spsw.api.Parity;
@@ -31,43 +28,68 @@ import de.ibapl.spsw.api.SerialPortSocket;
 import de.ibapl.spsw.api.Speed;
 import de.ibapl.spsw.api.StopBits;
 import de.ibapl.spsw.jniprovider.SerialPortSocketFactoryImpl;
+import java.nio.ByteBuffer;
 
 /**
- * 
+ *
  * @author Arne Plöse
  *
  */
 public class SendDataSingleMain {
 
-	public static void main(String[] args) throws Exception {
-		try (SerialPortSocket serialPortSocket = new SerialPortSocketFactoryImpl().open("/dev/ttyUSB0", Speed._300_BPS, DataBits.DB_8, StopBits.SB_1, Parity.NONE, FlowControl.getFC_NONE())) {
-		serialPortSocket.setTimeouts(1000, 0, 0);
-		Thread t = new Thread(() -> {
-			final DateTimeFormatter dtf = DateTimeFormatter.ISO_INSTANT;
-			try {
-				while (true) {
-					int received = serialPortSocket.getInputStream().read();
-					char data = (char) received;
-					if (received > 0) {
-						System.out.println(dtf.format(Instant.now()) + " DataReceived: \""
-								+ (data == '\\' ? "\\\\" : data) + "\"");
-					}
-				}
-			} catch (Exception e) {
-				System.err.println(e.getMessage());
-			}
-		});
-		t.start();
-		long i = 0;
-		while (true) {
-			String s = String.format("%10d The quick brown fox jumps over the lazy dog\n", i++);
-			byte[] data = s.getBytes();
-			Thread.sleep(1000);
-			for (int j = 0; j < data.length; j++)
-				serialPortSocket.getOutputStream().write(data[j]);
-			System.out.println("DataSend: " + s);
-		}
+    final static int BUFFER_SIZE = 512;
+
+    public static void main(String[] args) throws Exception {
+        final ByteBuffer sendBuffer = ByteBuffer.allocateDirect(BUFFER_SIZE);
+        while (sendBuffer.hasRemaining()) {
+            sendBuffer.put((byte) sendBuffer.position());
+        }
+        sendBuffer.flip();
+
+        try (SerialPortSocket serialPortSocket = new SerialPortSocketFactoryImpl().open("/dev/ttyUSB0", Speed._9600_BPS, DataBits.DB_8, StopBits.SB_1, Parity.NONE, FlowControl.getFC_NONE())) {
+            serialPortSocket.setTimeouts(100, 0, 0);
+            Thread thread = new Thread(() -> {
+                final ByteBuffer recBuffer = ByteBuffer.allocateDirect(BUFFER_SIZE);
+                byte currentData = 0;
+                try {
+                    while (true) {
+                        serialPortSocket.read(recBuffer);
+                        while (recBuffer.hasRemaining()) {
+                            if (currentData != recBuffer.get()) {
+                                throw new RuntimeException("REC wrong");
+                            }
+                            currentData++;
+                        }
+                        recBuffer.flip();
+                    }
+                } catch (Throwable throwable) {
+                    throwable.printStackTrace();
+                    System.err.println(throwable);
+                    System.err.flush();
+                    System.exit(-1);
                 }
-	}
+            });
+            thread.start();
+            long i = 0;
+            final long start = System.currentTimeMillis() - 1;
+            while (true) {
+                try {
+                    serialPortSocket.write(sendBuffer);
+                    sendBuffer.flip();
+                    i++;
+                    System.out.println("bit per s: " + ((i * BUFFER_SIZE * 1000L * 8) / (System.currentTimeMillis() - start)));
+                    System.out.flush();
+                } catch (Throwable throwable) {
+                    throwable.printStackTrace();
+                    System.err.println(throwable);
+                    System.err.flush();
+                    System.exit(-1);
+                }
+            }
+        } finally {
+            System.err.println("ERROR");
+            System.err.flush();
+        }
+    }
 
 }

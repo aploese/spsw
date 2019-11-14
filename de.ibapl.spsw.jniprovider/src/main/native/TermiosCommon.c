@@ -201,7 +201,7 @@ extern "C" {
         }
 
         //set basic settings
-        settings.c_cflag |= (CREAD | CLOCAL);
+        settings.c_cflag = 0;
         settings.c_lflag = 0;
         /* Raw input*/
         settings.c_iflag = 0;
@@ -209,6 +209,14 @@ extern "C" {
         settings.c_oflag = 0;
         settings.c_cc[VMIN] = 0; // If there is not anything just pass
         settings.c_cc[VTIME] = 0; // No timeout
+        /* set RAW mode like this and thus preserve the other flags????
+termios_p->c_iflag &= ~(IGNBRK | BRKINT | PARMRK | ISTRIP
+                | INLCR | IGNCR | ICRNL | IXON);
+termios_p->c_oflag &= ~OPOST;
+termios_p->c_lflag &= ~(ECHO | ECHONL | ICANON | ISIG | IEXTEN);
+termios_p->c_cflag &= ~(CSIZE | PARENB);
+termios_p->c_cflag |= CS8;
+         */
 
         if (paramBitSet != SPSW_NO_PARAMS_TO_SET) {
             //set Speed etc.

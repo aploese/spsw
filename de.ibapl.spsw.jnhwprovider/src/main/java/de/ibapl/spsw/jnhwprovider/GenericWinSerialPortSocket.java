@@ -497,6 +497,7 @@ public class GenericWinSerialPortSocket extends AbstractSerialPortSocket<Generic
 
     @Override
     protected void implCloseChannel() throws IOException {
+        super.implCloseChannel();
         final HANDLE _hFile = hFile;
         hFile = HANDLE.INVALID_HANDLE_VALUE;
 // if only ReadIntervalTimeout is set and port is closed during pending read the read operation will hang forever...

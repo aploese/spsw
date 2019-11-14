@@ -57,13 +57,13 @@ extern "C" {
                 return -1;
             }
         } else if (nread == len) {
-            return (int32_t)nread;
+            return (int32_t) nread;
         }
 
         //read from buffer did not read all, so pollTimeout is needed
         const int pollTimeout = (*env)->GetIntField(env, sps,
                 spsw_pollReadTimeout);
-        
+
         //read from buffer did not read all, so the overall time out may be needed
         //See javaTimeNanos() in file src/os/linux/vm/os_linux.cpp of hotspot sources
         struct timespec endTime;
@@ -104,7 +104,7 @@ extern "C" {
                             return -1;
                         }
                     } else if (nread == len) {
-                        return (int32_t)nread;
+                        return (int32_t) nread;
                     }
                 } else if ((fds[0].revents & POLLHUP) == POLLHUP) {
                     //i.e. happens when the USB to serial adapter is removed
@@ -117,7 +117,7 @@ extern "C" {
                 }
             }
         }
-        
+
         //calculate the real endtime, now we need it...
         if (pollTimeout > 0) {
             endTime.tv_sec += pollTimeout / 1000; //full seconds
@@ -146,7 +146,7 @@ extern "C" {
             if (pollTimeout >= 0) {
                 remainingTimeOut = (int32_t) (endTime.tv_sec - currentTime.tv_sec) * 1000 + (int32_t) ((endTime.tv_nsec - currentTime.tv_nsec) / 1000000L);
                 if (remainingTimeOut < 0) {
-                    throw_TimeoutIOException(env, (size_t) overallRead, "readBuffer overallReadTimeout");
+                    //interbyte timeout or overalll timeout, something was read - do return whats read
                     return (int32_t) overallRead;
                 }
             } else {

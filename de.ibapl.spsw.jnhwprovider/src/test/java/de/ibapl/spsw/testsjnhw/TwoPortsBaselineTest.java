@@ -30,4 +30,9 @@ import de.ibapl.spsw.tests.AbstractReadWriteBaselineTest;
  */
 public class TwoPortsBaselineTest extends AbstractReadWriteBaselineTest {
 
+    public static void main(String[] args) {
+
+    }
+
+
 }
