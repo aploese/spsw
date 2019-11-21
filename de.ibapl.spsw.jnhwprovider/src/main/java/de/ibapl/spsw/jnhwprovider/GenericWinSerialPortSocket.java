@@ -638,7 +638,7 @@ public class GenericWinSerialPortSocket extends AbstractSerialPortSocket<Generic
                     dcb.Parity(SPACEPARITY());
                     break;
                 default:
-                    throw new IOException("setParams Wrong Parity");
+                    throw new IllegalArgumentException("setParams Wrong Parity");
             }
 
         }

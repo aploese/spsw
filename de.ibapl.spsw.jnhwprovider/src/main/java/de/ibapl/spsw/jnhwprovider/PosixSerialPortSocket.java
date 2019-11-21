@@ -958,7 +958,7 @@ public class PosixSerialPortSocket extends AbstractSerialPortSocket<PosixSerialP
             try {
                 cfsetspeed(termios, speedValue);
             } catch (NativeErrorException nee) {
-                throw new IOException(formatMsg(nee, "Can't set Speed cfsetspeed(settings, speedValue)"));
+                throw new IllegalArgumentException(formatMsg(nee, "Can't set Speed cfsetspeed(settings, speedValue)"));
             }
         }
 
@@ -1004,7 +1004,7 @@ public class PosixSerialPortSocket extends AbstractSerialPortSocket<PosixSerialP
                     }
                     break;
                 default:
-                    throw new IOException("Unknown stopbits " + stopBits);
+                    throw new IllegalArgumentException("Unknown stopbits " + stopBits);
             }
 
         }
@@ -1061,8 +1061,15 @@ public class PosixSerialPortSocket extends AbstractSerialPortSocket<PosixSerialP
         try {
             tcsetattr(fd, TCSANOW(), termios);
         } catch (NativeErrorException nee) {
-            throw new IOException(
-                    String.format("Native port error \"%s\" => setParams tcsetattr portname=%s, speed=%s, dataBits=%s, stopBits=%s, parity=%s, flowControls=%s", Errno.getErrnoSymbol(nee.errno), portName, speed, dataBits, stopBits, parity, flowControls));
+            if (nee.errno == de.ibapl.jnhw.isoc.Errno.ERANGE()) {
+                throw new IllegalArgumentException(
+                        String.format("Native port error \"%s\" => setParams tcsetattr portname=%s, speed=%s, dataBits=%s, stopBits=%s, parity=%s, flowControls=%s",
+                                Errno.getErrnoSymbol(nee.errno), portName, speed, dataBits, stopBits, parity, flowControls));
+            } else {
+                throw new IOException(
+                        String.format("Native port error \"%s\" => setParams tcsetattr portname=%s, speed=%s, dataBits=%s, stopBits=%s, parity=%s, flowControls=%s",
+                                Errno.getErrnoSymbol(nee.errno), portName, speed, dataBits, stopBits, parity, flowControls));
+            }
         }
 
         StringBuilder sb = null;
