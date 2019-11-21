@@ -22,34 +22,6 @@
 package de.ibapl.spsw.tests;
 
 import de.ibapl.jnhw.libloader.MultiarchTupelBuilder;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertNull;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTimeoutPreemptively;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.junit.jupiter.api.Assertions.fail;
-import static org.junit.jupiter.api.Assumptions.assumeTrue;
-
-import java.io.File;
-import java.io.IOException;
-import java.io.InterruptedIOException;
-import java.lang.ref.WeakReference;
-import java.nio.channels.AsynchronousCloseException;
-import java.time.Duration;
-import java.util.EnumSet;
-import java.util.Iterator;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Set;
-import java.util.logging.Level;
-
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.condition.EnabledOnOs;
-import org.junit.jupiter.api.condition.OS;
-import org.junit.jupiter.params.ParameterizedTest;
-import org.junit.jupiter.params.provider.MethodSource;
-
 import de.ibapl.spsw.api.DataBits;
 import de.ibapl.spsw.api.FlowControl;
 import de.ibapl.spsw.api.Parity;
@@ -61,10 +33,35 @@ import de.ibapl.spsw.tests.tags.BaselineTest;
 import de.ibapl.spsw.tests.tags.NotSupportedByAllDevices;
 import de.ibapl.spsw.tests.tags.RtsCtsTest;
 import de.ibapl.spsw.tests.tags.SlowTest;
+import java.io.File;
+import java.io.IOException;
+import java.io.InterruptedIOException;
+import java.lang.ref.WeakReference;
 import java.nio.ByteBuffer;
+import java.nio.channels.AsynchronousCloseException;
 import java.nio.channels.ClosedByInterruptException;
+import java.time.Duration;
+import java.util.EnumSet;
+import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Set;
+import java.util.logging.Level;
 import org.junit.jupiter.api.Assertions;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTimeoutPreemptively;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
+import static org.junit.jupiter.api.Assumptions.assumeTrue;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.condition.EnabledOnOs;
+import org.junit.jupiter.api.condition.OS;
+import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.EnumSource;
+import org.junit.jupiter.params.provider.MethodSource;
 
 /**
  * @author Arne Plöse
@@ -845,12 +842,14 @@ public abstract class AbstractOnePortTest extends AbstractPortTest {
                     case _150_BPS:
                     case _200_BPS:
 
-//                    case _115200_BPS:
-//                    case _230400_BPS:
-//                    case _460800_BPS:
-//                    case _576000_BPS:
-//                    case _921600_BPS:
-//                    case _1000000_BPS:
+                    case _57600_BPS:
+                    case _115200_BPS:
+                    case _230400_BPS:
+                    case _460800_BPS:
+                    case _500000_BPS:
+                    case _576000_BPS:
+                    case _921600_BPS:
+                    case _1000000_BPS:
                     case _1152000_BPS:
                     case _1500000_BPS:
                     case _2000000_BPS:
@@ -863,6 +862,7 @@ public abstract class AbstractOnePortTest extends AbstractPortTest {
                         }
                         break;
                     default:
+                        iae.printStackTrace();
                         fail("Ex @" + b + "Msg: " + iae);
                 }
             }
