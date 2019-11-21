@@ -1312,25 +1312,27 @@ public abstract class AbstractOnePortTest extends AbstractPortTest {
         new Thread(() -> {
             try {
                 Thread.sleep(100);
-                LOG.log(Level.INFO, "Will now close the port");
+                LOG.log(Level.INFO, "Will now close the port: {0}", writeSpc);
                 writeSpc.close();
                 assertFalse(writeSpc.isOpen(), "Port was not closed!");
                 LOG.log(Level.INFO, "Port is closed");
             } catch (Exception e) {
+                e.printStackTrace();
                 fail("Exception occured: " + e);
             }
         }).start();
 
         AsynchronousCloseException ace = assertThrows(AsynchronousCloseException.class, () -> {
             assertTimeoutPreemptively(Duration.ofMillis(1000), () -> {
-                LOG.log(Level.INFO, "Will write " + len + " bytes in one second to fill the output buffer");
+                LOG.log(Level.INFO, "Will write {0} bytes in one second to fill the output buffer", len);
                 writeSpc.getOutputStream().write(b);
+                LOG.log(Level.SEVERE, "Unexpected Written: {0} bytes", len);
             });
         });
-        LOG.log(Level.INFO, "Poert closed msg:" + ace.getMessage());
+        LOG.log(Level.INFO, "Port closed msg: {0}", ace.getMessage());
 
         assertFalse(writeSpc.isOpen(), "Port was not closed!");
-        // Allow 200ms to recover -on win the next executed test may fail with port busy
+        // Allow 200ms to recover on win the next executed test may fail with port busy
         // otherwise (FTDI on win)
         Thread.sleep(200);
     }
