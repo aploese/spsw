@@ -1272,7 +1272,9 @@ public abstract class AbstractOnePortTest extends AbstractPortTest {
             try {
                 Thread.sleep(100);
                 readSpc.close();
+                LOG.log(Level.INFO, "Closed readSpc");
             } catch (InterruptedException | IOException e) {
+                e.printStackTrace();
                 fail("Exception occured");
             }
         }).start();
@@ -1283,6 +1285,7 @@ public abstract class AbstractOnePortTest extends AbstractPortTest {
         int result = assertTimeoutPreemptively(Duration.ofMillis(5000), () -> {
             return readSpc.getInputStream().read(b);
         });
+        LOG.log(Level.INFO, "Bytes read: " + result);
         assertEquals(-1, result);
 
         assertFalse(readSpc.isOpen());
