@@ -1328,8 +1328,11 @@ public abstract class AbstractOnePortTest extends AbstractPortTest {
         AsynchronousCloseException ace = assertThrows(AsynchronousCloseException.class, () -> {
             assertTimeoutPreemptively(Duration.ofMillis(1000), () -> {
                 LOG.log(Level.INFO, "Will write {0} bytes in one second to fill the output buffer", len);
-                writeSpc.getOutputStream().write(b);
-                LOG.log(Level.SEVERE, "Unexpected Written: {0} bytes", len);
+                //Loop to fill the outputbuffer until it blocks...
+                while (true) {
+                    writeSpc.getOutputStream().write(b);
+                    LOG.log(Level.SEVERE, "Unexpected Written: {0} bytes", len);
+                }
             });
         });
         LOG.log(Level.INFO, "Port closed msg: {0}", ace.getMessage());
