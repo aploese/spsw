@@ -48,6 +48,7 @@
 #include <termios.h>
 #include <stdint.h>
 #include <sys/ioctl.h>
+#include <errno.h>
 #include "de_ibapl_spsw_jniprovider_GenericTermiosSerialPortSocket.h"
 
 #ifdef __cplusplus
@@ -485,7 +486,7 @@ extern "C" {
                     }
                     break;
                 default:
-                    throw_IOException_NativeError(env, "Unknown stopbits");
+                    throw_IllegalArgumentException(env, "Unknown stopbits");
                     return -1;
             }
         }
@@ -578,7 +579,11 @@ extern "C" {
         int fd = (*env)->GetIntField(env, sps, spsw_fd);
         //Write the changes...
         if (tcsetattr(fd, TCSANOW, settings)) {
-            throw_ClosedOrNativeException(env, sps, "setParams tcsetattr");
+            if (errno == ERANGE) {
+                throw_IllegalArgumentException(env, "setParams tcsetattr Native Error \"ERANGE\"");
+            } else {
+                throw_ClosedOrNativeException(env, sps, "setParams tcsetattr");
+            }
             return -1;
         }
 

@@ -416,7 +416,7 @@ extern "C" {
                     dcb->Parity = SPACEPARITY;
                     break;
                 default:
-                    throw_IOException_NativeError(env,
+                    throw_IllegalArgumentException(env,
                             "setParams Wrong Parity");
                     return -1;
             }
