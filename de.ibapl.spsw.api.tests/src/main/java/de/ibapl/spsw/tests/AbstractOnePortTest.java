@@ -1406,15 +1406,13 @@ public abstract class AbstractOnePortTest extends AbstractPortTest {
 
         assertNull(refSpc.get());
 
-        // termios has a 10ms waittime during close
-        if (System.getProperty("os.name").startsWith("Linux")) {
-            Thread.sleep(10);
-        }
-
         // On Windows the GC needs some time - I don't know why... (FTDI on win64 needs
         // the most...)
         if (System.getProperty("os.name").startsWith("Windows")) {
             Thread.sleep(200);
+        } else {
+            // termios has a 10ms wait time during close
+            Thread.sleep(10);
         }
 
         readSpc = getSerialPortSocketFactory().open(serialPortName);
