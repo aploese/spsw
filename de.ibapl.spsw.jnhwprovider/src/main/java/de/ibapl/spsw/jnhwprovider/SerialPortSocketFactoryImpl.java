@@ -23,6 +23,14 @@ package de.ibapl.spsw.jnhwprovider;
 
 import de.ibapl.jnhw.libloader.MultiarchTupelBuilder;
 import de.ibapl.jnhw.libloader.OS;
+import de.ibapl.spsw.api.DataBits;
+import de.ibapl.spsw.api.FlowControl;
+import de.ibapl.spsw.api.Parity;
+import de.ibapl.spsw.api.PortnamesComparator;
+import de.ibapl.spsw.api.SerialPortSocket;
+import de.ibapl.spsw.api.SerialPortSocketFactory;
+import de.ibapl.spsw.api.Speed;
+import de.ibapl.spsw.api.StopBits;
 import java.io.File;
 import java.io.IOException;
 import java.util.Collections;
@@ -33,18 +41,8 @@ import java.util.function.BiConsumer;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.regex.Pattern;
-
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.ServiceScope;
-
-import de.ibapl.spsw.api.DataBits;
-import de.ibapl.spsw.api.FlowControl;
-import de.ibapl.spsw.api.Parity;
-import de.ibapl.spsw.api.PortnamesComparator;
-import de.ibapl.spsw.api.SerialPortSocket;
-import de.ibapl.spsw.api.SerialPortSocketFactory;
-import de.ibapl.spsw.api.Speed;
-import de.ibapl.spsw.api.StopBits;
 
 /**
  * Impements the {@linkplain SerialPortSocketFactory}.
@@ -59,7 +57,7 @@ public class SerialPortSocketFactoryImpl implements SerialPortSocketFactory {
 
     @Override
     public SerialPortSocket open(String portName) throws IOException {
-        switch (MULTIARCH_TUPEL_BUILDER.getOs()) {
+        switch (MULTIARCH_TUPEL_BUILDER.getOS()) {
             case LINUX:
                 return new PosixSerialPortSocket(portName);
             case FREE_BSD:
@@ -67,14 +65,14 @@ public class SerialPortSocketFactoryImpl implements SerialPortSocketFactory {
             case WINDOWS:
                 return new GenericWinSerialPortSocket(portName);
             default:
-                throw new RuntimeException("Cant handle OS: " + MULTIARCH_TUPEL_BUILDER.getOs());
+                throw new RuntimeException("Cant handle OS: " + MULTIARCH_TUPEL_BUILDER.getOS());
         }
     }
 
     @Override
     public SerialPortSocket open(String portName, Speed speed, DataBits dataBits, StopBits stopBits, Parity parity,
             Set<FlowControl> flowControls) throws IOException {
-        switch (MULTIARCH_TUPEL_BUILDER.getOs()) {
+        switch (MULTIARCH_TUPEL_BUILDER.getOS()) {
             case LINUX:
                 return new PosixSerialPortSocket(portName, speed, dataBits, stopBits, parity, flowControls);
             case FREE_BSD:
@@ -82,14 +80,14 @@ public class SerialPortSocketFactoryImpl implements SerialPortSocketFactory {
             case WINDOWS:
                 return new GenericWinSerialPortSocket(portName, speed, dataBits, stopBits, parity, flowControls);
             default:
-                throw new RuntimeException("Cant handle OS: " + MULTIARCH_TUPEL_BUILDER.getOs());
+                throw new RuntimeException("Cant handle OS: " + MULTIARCH_TUPEL_BUILDER.getOS());
         }
     }
 
     @Override
     public void getPortNames(BiConsumer<String, Boolean> portNameConsumer) {
         final Pattern pattern = getPortnamesRegExp();
-        switch (MULTIARCH_TUPEL_BUILDER.getOs()) {
+        switch (MULTIARCH_TUPEL_BUILDER.getOS()) {
             case WINDOWS:
                 List<String> portNames = getWindowsBasedPortNames();
                 if (portNames == null) {
@@ -130,7 +128,7 @@ public class SerialPortSocketFactoryImpl implements SerialPortSocketFactory {
 
     @Override
     public List<String> getPortNames(boolean hideBusyPorts) {
-        if (MULTIARCH_TUPEL_BUILDER.getOs() == OS.WINDOWS) {
+        if (MULTIARCH_TUPEL_BUILDER.getOS() == OS.WINDOWS) {
             return getWindowsPortNames("", hideBusyPorts);
         } else {
             return getUnixBasedPortNames("", hideBusyPorts);
@@ -142,7 +140,7 @@ public class SerialPortSocketFactoryImpl implements SerialPortSocketFactory {
         if (portToInclude == null || portToInclude.isEmpty()) {
             throw new IllegalArgumentException("portToInclude is null or empty");
         }
-        if (MULTIARCH_TUPEL_BUILDER.getOs() == OS.WINDOWS) {
+        if (MULTIARCH_TUPEL_BUILDER.getOS() == OS.WINDOWS) {
             return getWindowsPortNames(portToInclude, hideBusyPorts);
         } else {
             return getUnixBasedPortNames(portToInclude, hideBusyPorts);
@@ -150,7 +148,7 @@ public class SerialPortSocketFactoryImpl implements SerialPortSocketFactory {
     }
 
     protected String getPortnamesPath() {
-        switch (MULTIARCH_TUPEL_BUILDER.getOs()) {
+        switch (MULTIARCH_TUPEL_BUILDER.getOS()) {
             case LINUX:
                 return DEFAULT_LINUX_DEVICE_PATH;
             case FREE_BSD:
@@ -163,13 +161,13 @@ public class SerialPortSocketFactoryImpl implements SerialPortSocketFactory {
                 return DEFAULT_WINDOWS_DEVICE_PATH;
             default:
                 LOG.log(Level.SEVERE, "Unknown OS, os.name: {0} mapped to: {1}",
-                        new Object[]{System.getProperty("os.name"), MULTIARCH_TUPEL_BUILDER.getOs()});
+                        new Object[]{System.getProperty("os.name"), MULTIARCH_TUPEL_BUILDER.getOS()});
                 return null;
         }
     }
 
     protected Pattern getPortnamesRegExp() {
-        switch (MULTIARCH_TUPEL_BUILDER.getOs()) {
+        switch (MULTIARCH_TUPEL_BUILDER.getOS()) {
             case LINUX:
                 return Pattern.compile(DEFAULT_LINUX_PORTNAME_PATTERN);
             case FREE_BSD:
@@ -182,7 +180,7 @@ public class SerialPortSocketFactoryImpl implements SerialPortSocketFactory {
                 return Pattern.compile(DEFAULT_WINDOWS_PORTNAME_PATTERN);
             default:
                 LOG.log(Level.SEVERE, "Unknown OS, os.name: {0} mapped to: {1}",
-                        new Object[]{System.getProperty("os.name"), MULTIARCH_TUPEL_BUILDER.getOs()});
+                        new Object[]{System.getProperty("os.name"), MULTIARCH_TUPEL_BUILDER.getOS()});
                 return null;
         }
     }

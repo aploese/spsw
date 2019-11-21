@@ -43,20 +43,18 @@ extern "C" {
      */
     JNIEXPORT void JNICALL Java_de_ibapl_spsw_jniprovider_GenericTermiosSerialPortSocket_00024FdCleaner_closeFds
     (__attribute__ ((unused)) JNIEnv *env, __attribute__ ((unused)) jclass clazz, jint fd, jint close_event_read_fd, jint close_event_write_fd) {
-        if (fd != -1) {
-            jbyte evt_buff[8];
-            evt_buff[5] = 1;
-            evt_buff[6] = 1;
-            evt_buff[7] = 1;
+        if (close_event_write_fd != INVALID_FD) {
+            uint64_t evt_buff = 1L;
             write(close_event_write_fd, &evt_buff, 8);
-
             usleep(1000); //1ms
-            close(close_event_write_fd);
         }
-        if (fd != -1) {
+        if (fd != INVALID_FD) {
             close(fd);
         }
-        if (fd != -1) {
+        if (close_event_write_fd != INVALID_FD) {
+            close(close_event_write_fd);
+        }
+        if ((close_event_read_fd != INVALID_FD) & (close_event_read_fd != close_event_write_fd)) {
             close(close_event_read_fd);
         }
     }
@@ -74,30 +72,19 @@ extern "C" {
 
         //unlock read/write polls that wait
         const int close_event_write_fd = (*env)->GetIntField(env, sps, spsw_closeEventWriteFd);
-        const int close_event_read_fd = (*env)->GetIntField(env, sps, spsw_closeEventReadFd);
-        jbyte evt_buff[8];
-        evt_buff[5] = 1;
-        evt_buff[6] = 1;
-        evt_buff[7] = 1;
+        uint64_t evt_buff = 1L;
         write(close_event_write_fd, &evt_buff, 8);
 
-        usleep(1000); //1ms
-        //cleanup
-        (*env)->SetIntField(env, sps, spsw_closeEventWriteFd, INVALID_FD);
-        (*env)->SetIntField(env, sps, spsw_closeEventReadFd, INVALID_FD);
-
-        if (tcflush(fd, TCIOFLUSH) != 0) {
+        if (tcflush(fd, TCIOFLUSH)) {
             //        perror("NATIVE Error Close - tcflush");
         }
 
-        if (close_event_write_fd == close_event_read_fd) {
-            close(close_event_read_fd);
-        }
-        {
-            close(close_event_write_fd);
-            close(close_event_read_fd);
-        }
-        if (close(fd) != 0) {
+        //leave the close_event_write_fd and close_event_read_fd open for now. So poll can digest the events... 
+        //closing close_event_write_fd and close_event_read_fd will be don by fdCleaner
+        (*env)->SetIntField(env, sps, spsw_closeEventWriteFd, INVALID_FD);
+        (*env)->SetIntField(env, sps, spsw_closeEventReadFd, INVALID_FD);
+
+        if (close(fd)) {
             throw_IOException_NativeError(env, "close0 closing port");
         }
     }
@@ -112,7 +99,7 @@ extern "C" {
         int fd = (*env)->GetIntField(env, sps, spsw_fd);
         jint returnValue = -1;
         int result = ioctl(fd, FIONREAD, &returnValue);
-        if (result != 0) {
+        if (result) {
             throw_ClosedOrNativeException(env, sps, "Can't read in buffer size");
         }
         return returnValue;
@@ -128,7 +115,7 @@ extern "C" {
         int fd = (*env)->GetIntField(env, sps, spsw_fd);
         jint returnValue = -1;
         int result = ioctl(fd, TIOCOUTQ, &returnValue);
-        if (result != 0) {
+        if (result) {
             throw_ClosedOrNativeException(env, sps, "Can't read out buffer size");
         }
         return returnValue;
@@ -193,30 +180,21 @@ extern "C" {
         }
 
         // Yes we use this port exclusively
-        if (ioctl(fd, TIOCEXCL) != 0) {
+        if (ioctl(fd, TIOCEXCL)) {
             close(fd);
             (*env)->SetIntField(env, sps, spsw_fd, INVALID_FD);
             throw_IOException_NativeError(env, "Can't set exclusive access");
             return;
         }
-
-        //set basic settings
-        settings.c_cflag = 0;
-        settings.c_lflag = 0;
-        /* Raw input*/
-        settings.c_iflag = 0;
-        /* Raw output */
-        settings.c_oflag = 0;
+        // set RAW mode like this and thus preserve the other flags
+        settings.c_iflag &= ~(tcflag_t) (IGNBRK | BRKINT | PARMRK | ISTRIP | INLCR | IGNCR | ICRNL | IXON);
+        settings.c_oflag &= ~(tcflag_t) OPOST;
+        settings.c_lflag &= ~(tcflag_t) (ECHO | ECHONL | ICANON | ISIG | IEXTEN);
+        settings.c_cflag &= ~(tcflag_t) (CSIZE | PARENB);
+        //Make sure CLOCAL is set otherwise opening the port later won't work without O_NONBLOCK
+        settings.c_cflag |= CS8 | CREAD | CLOCAL | HUPCL;
         settings.c_cc[VMIN] = 0; // If there is not anything just pass
         settings.c_cc[VTIME] = 0; // No timeout
-        /* set RAW mode like this and thus preserve the other flags????
-termios_p->c_iflag &= ~(IGNBRK | BRKINT | PARMRK | ISTRIP
-                | INLCR | IGNCR | ICRNL | IXON);
-termios_p->c_oflag &= ~OPOST;
-termios_p->c_lflag &= ~(ECHO | ECHONL | ICANON | ISIG | IEXTEN);
-termios_p->c_cflag &= ~(CSIZE | PARENB);
-termios_p->c_cflag |= CS8;
-         */
 
         if (paramBitSet != SPSW_NO_PARAMS_TO_SET) {
             //set Speed etc.
@@ -227,7 +205,7 @@ termios_p->c_cflag |= CS8;
             }
         } else {
 
-            if (tcsetattr(fd, TCSANOW, &settings) != 0) {
+            if (tcsetattr(fd, TCSANOW, &settings)) {
                 close(fd);
                 (*env)->SetIntField(env, sps, spsw_fd, INVALID_FD);
                 throw_IOException_NativeError(env, "Can't call tcsetattr TCSANOW");
@@ -236,7 +214,7 @@ termios_p->c_cflag |= CS8;
         }
 
         // flush the device
-        if (tcflush(fd, TCIOFLUSH) != 0) {
+        if (tcflush(fd, TCIOFLUSH)) {
             close(fd);
             (*env)->SetIntField(env, sps, spsw_fd, INVALID_FD);
             throw_IOException_NativeError(env, "Can't flush device");
@@ -298,6 +276,13 @@ termios_p->c_cflag |= CS8;
                 return;
             } else if (fds[0].revents == POLLOUT) {
                 //Happy path all is right... no-op
+            } else if ((fds[0].revents & POLLHUP) == POLLHUP) {
+                //i.e. happens when the USB to serial adapter is removed
+                throw_IOException(env, PORT_FD_INVALID);
+                return;
+            } else if ((fds[0].revents & POLLNVAL) == POLLNVAL) {
+                throw_AsynchronousCloseException(env);
+                return;
             } else {
                 // closed?
                 throw_ClosedOrNativeException(env, sps, "drainOutputBuffer poll => : received unexpected event and port not closed");
@@ -306,7 +291,7 @@ termios_p->c_cflag |= CS8;
         }
 
         int result = tcdrain(fds[0].fd);
-        if (result != 0) {
+        if (result) {
             throw_ClosedOrNativeException(env, sps, "Can't drain the output buffer");
         }
     }

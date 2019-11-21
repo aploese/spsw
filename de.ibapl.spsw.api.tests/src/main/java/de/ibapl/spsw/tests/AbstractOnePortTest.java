@@ -22,7 +22,6 @@
 package de.ibapl.spsw.tests;
 
 import de.ibapl.jnhw.libloader.MultiarchTupelBuilder;
-import de.ibapl.jnhw.libloader.NativeLibResolver;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNull;
@@ -65,8 +64,6 @@ import de.ibapl.spsw.tests.tags.SlowTest;
 import java.nio.ByteBuffer;
 import java.nio.channels.ClosedByInterruptException;
 import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.Disabled;
-import org.junit.jupiter.api.condition.DisabledOnOs;
 import org.junit.jupiter.params.provider.EnumSource;
 
 /**
@@ -597,7 +594,7 @@ public abstract class AbstractOnePortTest extends AbstractPortTest {
 
     public void writeChunk(int chunksize, Speed speed, int writeTimeout) throws Exception {
         assumeWTest();
-        LOG.log(Level.INFO, "run testWriteBytesTimeout writeTO:" + writeTimeout);
+        LOG.log(Level.INFO, "run testWriteBytesTimeout writeTO: {0} speed: {1} chunksize: {2}", new Object[] {writeTimeout, speed, chunksize});
         if (writeTimeout == -1) {
             LOG.log(Level.INFO, "infinite timeout");
         } else {
@@ -819,7 +816,7 @@ public abstract class AbstractOnePortTest extends AbstractPortTest {
     public void testParity(Parity p) throws Exception {
         LOG.log(Level.INFO, "run testParity({0}) - BaselineTest", p);
         openDefault();
-        if ((p == Parity.SPACE || p == Parity.MARK) && (de.ibapl.jnhw.libloader.OS.FREE_BSD == new MultiarchTupelBuilder().getOs())) {
+        if ((p == Parity.SPACE || p == Parity.MARK) && (de.ibapl.jnhw.libloader.OS.FREE_BSD == new MultiarchTupelBuilder().getOS())) {
             Assertions.assertThrows(IllegalArgumentException.class, () -> readSpc.setParity(p));
         } else {
             readSpc.setParity(p);
@@ -1102,7 +1099,7 @@ public abstract class AbstractOnePortTest extends AbstractPortTest {
         readSpc.getOutputStream().write(new byte[0]);
     }
 
-    private ClosedByInterruptException testReadInetrrupted_ClosedByInterruptException;
+    private ClosedByInterruptException testReadInterrupted_ClosedByInterruptException;
 
     /**
      * We are want to wait read and interrupt the thread.
@@ -1111,21 +1108,18 @@ public abstract class AbstractOnePortTest extends AbstractPortTest {
      */
     @BaselineTest
     @Test
-    public void testReadInetrrupted() throws Exception {
+    public void testReadInterrupted() throws Exception {
         assumeRTest();
-        LOG.log(Level.INFO, "run testReadInetrrupted");
+        LOG.log(Level.INFO, "run testReadInterrupted");
         openDefault();
         readSpc.setTimeouts(100, 1000, 1000);
         ByteBuffer b = ByteBuffer.allocateDirect(_1MB);
-        testReadInetrrupted_ClosedByInterruptException = null;
+        testReadInterrupted_ClosedByInterruptException = null;
 
-        Thread t = new Thread(new Runnable() {
-            @Override
-            public void run() {
-                testReadInetrrupted_ClosedByInterruptException = assertThrows(ClosedByInterruptException.class, () -> {
-                    readSpc.read(b);
-                });
-            }
+        Thread t = new Thread(() -> {
+            testReadInterrupted_ClosedByInterruptException = assertThrows(ClosedByInterruptException.class, () -> {
+                readSpc.read(b);
+            });
         });
         t.start();
         //Wait for the thread to run
@@ -1133,7 +1127,7 @@ public abstract class AbstractOnePortTest extends AbstractPortTest {
         t.interrupt();
         //Wait for the thread to finish...
         Thread.sleep(100);
-        Assertions.assertNotNull(testReadInetrrupted_ClosedByInterruptException);
+        Assertions.assertNotNull(testReadInterrupted_ClosedByInterruptException);
 //TODO Write sendBreak drainBuffer too
     }
 

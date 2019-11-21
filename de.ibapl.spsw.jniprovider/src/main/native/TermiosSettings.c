@@ -577,7 +577,7 @@ extern "C" {
 
         int fd = (*env)->GetIntField(env, sps, spsw_fd);
         //Write the changes...
-        if (tcsetattr(fd, TCSANOW, settings) != 0) {
+        if (tcsetattr(fd, TCSANOW, settings)) {
             throw_ClosedOrNativeException(env, sps, "setParams tcsetattr");
             return -1;
         }
@@ -636,7 +636,7 @@ extern "C" {
     static jboolean getLineStatus(JNIEnv *env, jobject sps, int bitMask) {
         int fd = (*env)->GetIntField(env, sps, spsw_fd);
         int lineStatus;
-        if (ioctl(fd, TIOCMGET, &lineStatus) != 0) {
+        if (ioctl(fd, TIOCMGET, &lineStatus)) {
             throw_ClosedOrNativeException(env, sps, "Can't get line status");
             return JNI_FALSE;
         }
@@ -651,7 +651,7 @@ extern "C" {
             int bitMask) {
         int fd = (*env)->GetIntField(env, sps, spsw_fd);
         int lineStatus;
-        if (ioctl(fd, TIOCMGET, &lineStatus) != 0) {
+        if (ioctl(fd, TIOCMGET, &lineStatus)) {
             throw_ClosedOrNativeException(env, sps, "Can't get line status");
             return;
         }
@@ -660,7 +660,7 @@ extern "C" {
         } else {
             lineStatus &= ~bitMask;
         }
-        if (ioctl(fd, TIOCMSET, &lineStatus) != 0) {
+        if (ioctl(fd, TIOCMSET, &lineStatus)) {
             throw_ClosedOrNativeException(env, sps, "Can't set line status");
         }
     }
@@ -688,7 +688,7 @@ extern "C" {
         const int fd = (*env)->GetIntField(env, sps, spsw_fd);
 
         struct termios settings;
-        if (tcgetattr(fd, &settings) != 0) {
+        if (tcgetattr(fd, &settings)) {
             throw_ClosedOrNativeException(env, sps, "getXOFFChar tcgetattr");
             return 0;
         }
@@ -706,7 +706,7 @@ extern "C" {
         const int fd = (*env)->GetIntField(env, sps, spsw_fd);
 
         struct termios settings;
-        if (tcgetattr(fd, &settings) != 0) {
+        if (tcgetattr(fd, &settings)) {
             throw_ClosedOrNativeException(env, sps, "getXONChar tcgetattr");
             return 0;
         }
@@ -768,7 +768,7 @@ extern "C" {
         } else {
             arg = TIOCCBRK;
         }
-        if (ioctl(fd, arg) != 0) {
+        if (ioctl(fd, arg)) {
             throw_ClosedOrNativeException(env, sps, "Can't set Break");
         }
     }
@@ -793,7 +793,7 @@ extern "C" {
         const int fd = (*env)->GetIntField(env, sps, spsw_fd);
 
         struct termios settings;
-        if (tcgetattr(fd, &settings) != 0) {
+        if (tcgetattr(fd, &settings)) {
             throw_ClosedOrNativeException(env, sps, "setParameters tcgetattr");
             return;
         }
@@ -821,13 +821,13 @@ extern "C" {
         const int fd = (*env)->GetIntField(env, sps, spsw_fd);
 
         struct termios settings;
-        if (tcgetattr(fd, &settings) != 0) {
+        if (tcgetattr(fd, &settings)) {
             throw_ClosedOrNativeException(env, sps, "setXOFFChar tcgetattr");
             return;
         }
         settings.c_cc[VSTOP] = (uint8_t)c;
 
-        if (tcsetattr(fd, TCSANOW, &settings) != 0) {
+        if (tcsetattr(fd, TCSANOW, &settings)) {
             throw_ClosedOrNativeException(env, sps, "setXOFFChar tcsetattr");
         }
 
@@ -843,13 +843,13 @@ extern "C" {
         const int fd = (*env)->GetIntField(env, sps, spsw_fd);
 
         struct termios settings;
-        if (tcgetattr(fd, &settings) != 0) {
+        if (tcgetattr(fd, &settings)) {
             throw_ClosedOrNativeException(env, sps, "setXONChar tcgetattr");
             return;
         }
         settings.c_cc[VSTART] = (uint8_t)c;
 
-        if (tcsetattr(fd, TCSANOW, &settings) != 0) {
+        if (tcsetattr(fd, TCSANOW, &settings)) {
             //TODO EBADF == errno
             throw_ClosedOrNativeException(env, sps, "setXONChar tcsetattr");
         }

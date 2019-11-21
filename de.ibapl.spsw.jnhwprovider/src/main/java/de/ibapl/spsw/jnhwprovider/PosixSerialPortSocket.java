@@ -21,63 +21,33 @@
  */
 package de.ibapl.spsw.jnhwprovider;
 
-import java.io.IOException;
-import java.io.InterruptedIOException;
-import java.nio.ByteBuffer;
-import java.nio.channels.AsynchronousCloseException;
-import java.util.EnumSet;
-import java.util.Set;
-
-import static de.ibapl.jnhw.linux.sys.Eventfd.EFD_NONBLOCK;
-import static de.ibapl.jnhw.linux.sys.Eventfd.eventfd;
-
-import static de.ibapl.jnhw.posix.Errno.EACCES;
-import static de.ibapl.jnhw.posix.Errno.EBADF;
-import static de.ibapl.jnhw.posix.Errno.EAGAIN;
-import static de.ibapl.jnhw.posix.Errno.ENOTTY;
-import static de.ibapl.jnhw.posix.Errno.EIO;
-import static de.ibapl.jnhw.posix.Errno.EBUSY;
-import static de.ibapl.jnhw.posix.Errno.ENOENT;
-
-import static de.ibapl.jnhw.posix.Fcntl.O_RDWR;
-import static de.ibapl.jnhw.posix.Fcntl.O_NOCTTY;
-import static de.ibapl.jnhw.posix.Fcntl.O_NONBLOCK;
-import static de.ibapl.jnhw.posix.Fcntl.F_SETFL;
-
-import static de.ibapl.jnhw.posix.Poll.POLLIN;
-import static de.ibapl.jnhw.posix.Poll.POLLHUP;
-import static de.ibapl.jnhw.posix.Poll.POLLOUT;
-import static de.ibapl.jnhw.posix.Poll.PollFds;
-import static de.ibapl.jnhw.posix.Poll.poll;
-
-import static de.ibapl.jnhw.unix.sys.Ioctl.FIONREAD;
-import static de.ibapl.jnhw.unix.sys.Ioctl.TIOCM_CTS;
-import static de.ibapl.jnhw.unix.sys.Ioctl.TIOCM_DTR;
-import static de.ibapl.jnhw.unix.sys.Ioctl.TIOCM_CAR;
-import static de.ibapl.jnhw.unix.sys.Ioctl.TIOCM_RTS;
-import static de.ibapl.jnhw.unix.sys.Ioctl.TIOCM_RNG;
-import static de.ibapl.jnhw.unix.sys.Ioctl.TIOCM_DSR;
-import static de.ibapl.jnhw.unix.sys.Ioctl.TIOCEXCL;
-import static de.ibapl.jnhw.unix.sys.Ioctl.TIOCSBRK;
-import static de.ibapl.jnhw.unix.sys.Ioctl.TIOCCBRK;
-import static de.ibapl.jnhw.unix.sys.Ioctl.TIOCMGET;
-import static de.ibapl.jnhw.unix.sys.Ioctl.TIOCMSET;
-import static de.ibapl.jnhw.unix.sys.Ioctl.TIOCOUTQ;
-import static de.ibapl.jnhw.unix.sys.Ioctl.ioctl;
-
-import de.ibapl.jnhw.posix.Errno;
-import de.ibapl.jnhw.posix.Fcntl;
+import de.ibapl.jnhw.IntRef;
 import de.ibapl.jnhw.NativeErrorException;
 import de.ibapl.jnhw.NotDefinedException;
-import de.ibapl.jnhw.posix.Unistd;
-
-import static de.ibapl.jnhw.posix.Termios.tcflush;
-import static de.ibapl.jnhw.posix.Termios.CSIZE;
-import static de.ibapl.jnhw.posix.Termios.CS5;
-import static de.ibapl.jnhw.posix.Termios.CS6;
-import static de.ibapl.jnhw.posix.Termios.CS7;
-import static de.ibapl.jnhw.posix.Termios.CS8;
-import static de.ibapl.jnhw.posix.Termios.CRTSCTS;
+import de.ibapl.jnhw.libloader.LoadState;
+import de.ibapl.jnhw.linux.sys.Eventfd;
+import static de.ibapl.jnhw.linux.sys.Eventfd.EFD_NONBLOCK;
+import static de.ibapl.jnhw.linux.sys.Eventfd.eventfd;
+import de.ibapl.jnhw.posix.Errno;
+import static de.ibapl.jnhw.posix.Errno.EACCES;
+import static de.ibapl.jnhw.posix.Errno.EAGAIN;
+import static de.ibapl.jnhw.posix.Errno.EBADF;
+import static de.ibapl.jnhw.posix.Errno.EBUSY;
+import static de.ibapl.jnhw.posix.Errno.EIO;
+import static de.ibapl.jnhw.posix.Errno.ENOENT;
+import static de.ibapl.jnhw.posix.Errno.ENOTTY;
+import de.ibapl.jnhw.posix.Fcntl;
+import static de.ibapl.jnhw.posix.Fcntl.F_SETFL;
+import static de.ibapl.jnhw.posix.Fcntl.O_NOCTTY;
+import static de.ibapl.jnhw.posix.Fcntl.O_NONBLOCK;
+import static de.ibapl.jnhw.posix.Fcntl.O_RDWR;
+import static de.ibapl.jnhw.posix.Poll.POLLHUP;
+import static de.ibapl.jnhw.posix.Poll.POLLIN;
+import static de.ibapl.jnhw.posix.Poll.POLLNVAL;
+import static de.ibapl.jnhw.posix.Poll.POLLOUT;
+import de.ibapl.jnhw.posix.Poll.PollFds;
+import static de.ibapl.jnhw.posix.Poll.poll;
+import de.ibapl.jnhw.posix.Termios;
 import static de.ibapl.jnhw.posix.Termios.B0;
 import static de.ibapl.jnhw.posix.Termios.B1000000;
 import static de.ibapl.jnhw.posix.Termios.B110;
@@ -109,33 +79,49 @@ import static de.ibapl.jnhw.posix.Termios.B600;
 import static de.ibapl.jnhw.posix.Termios.B75;
 import static de.ibapl.jnhw.posix.Termios.B921600;
 import static de.ibapl.jnhw.posix.Termios.B9600;
-import static de.ibapl.jnhw.posix.Termios.CSTOPB;
-import static de.ibapl.jnhw.posix.Termios.PARENB;
-import static de.ibapl.jnhw.posix.Termios.VMIN;
-import static de.ibapl.jnhw.posix.Termios.PARODD;
-import static de.ibapl.jnhw.posix.Termios.TCIOFLUSH;
-import static de.ibapl.jnhw.posix.Termios.VTIME;
-import static de.ibapl.jnhw.posix.Termios.IXOFF;
-import static de.ibapl.jnhw.posix.Termios.IXON;
-import static de.ibapl.jnhw.posix.Termios.cfgetispeed;
-import static de.ibapl.jnhw.posix.Termios.VSTOP;
-import static de.ibapl.jnhw.posix.Termios.VSTART;
 import static de.ibapl.jnhw.posix.Termios.CLOCAL;
 import static de.ibapl.jnhw.posix.Termios.CREAD;
-import static de.ibapl.jnhw.posix.Termios.cfsetspeed;
-import static de.ibapl.jnhw.posix.Termios.cfgetospeed;
-import static de.ibapl.jnhw.posix.Termios.tcgetattr;
-import static de.ibapl.jnhw.posix.Termios.TCSANOW;
-import static de.ibapl.jnhw.posix.Termios.StructTermios;
+import static de.ibapl.jnhw.posix.Termios.CRTSCTS;
+import static de.ibapl.jnhw.posix.Termios.CS5;
+import static de.ibapl.jnhw.posix.Termios.CS6;
+import static de.ibapl.jnhw.posix.Termios.CS7;
+import static de.ibapl.jnhw.posix.Termios.CS8;
+import static de.ibapl.jnhw.posix.Termios.CSIZE;
+import static de.ibapl.jnhw.posix.Termios.CSTOPB;
 import static de.ibapl.jnhw.posix.Termios.INPCK;
-
-import static de.ibapl.jnhw.posix.Termios.tcsetattr;
+import static de.ibapl.jnhw.posix.Termios.IXOFF;
+import static de.ibapl.jnhw.posix.Termios.IXON;
+import static de.ibapl.jnhw.posix.Termios.PARENB;
+import static de.ibapl.jnhw.posix.Termios.PARODD;
+import de.ibapl.jnhw.posix.Termios.StructTermios;
+import static de.ibapl.jnhw.posix.Termios.TCIOFLUSH;
+import static de.ibapl.jnhw.posix.Termios.TCSANOW;
+import static de.ibapl.jnhw.posix.Termios.VMIN;
+import static de.ibapl.jnhw.posix.Termios.VSTART;
+import static de.ibapl.jnhw.posix.Termios.VSTOP;
+import static de.ibapl.jnhw.posix.Termios.VTIME;
+import static de.ibapl.jnhw.posix.Termios.cfgetispeed;
+import static de.ibapl.jnhw.posix.Termios.cfgetospeed;
+import static de.ibapl.jnhw.posix.Termios.cfsetspeed;
 import static de.ibapl.jnhw.posix.Termios.tcdrain;
-
-import de.ibapl.jnhw.IntRef;
-import de.ibapl.jnhw.libloader.LoadState;
-import de.ibapl.jnhw.linux.sys.Eventfd;
-import de.ibapl.jnhw.posix.Termios;
+import static de.ibapl.jnhw.posix.Termios.tcflush;
+import static de.ibapl.jnhw.posix.Termios.tcgetattr;
+import static de.ibapl.jnhw.posix.Termios.tcsetattr;
+import de.ibapl.jnhw.posix.Unistd;
+import static de.ibapl.jnhw.unix.sys.Ioctl.FIONREAD;
+import static de.ibapl.jnhw.unix.sys.Ioctl.TIOCCBRK;
+import static de.ibapl.jnhw.unix.sys.Ioctl.TIOCEXCL;
+import static de.ibapl.jnhw.unix.sys.Ioctl.TIOCMGET;
+import static de.ibapl.jnhw.unix.sys.Ioctl.TIOCMSET;
+import static de.ibapl.jnhw.unix.sys.Ioctl.TIOCM_CAR;
+import static de.ibapl.jnhw.unix.sys.Ioctl.TIOCM_CTS;
+import static de.ibapl.jnhw.unix.sys.Ioctl.TIOCM_DSR;
+import static de.ibapl.jnhw.unix.sys.Ioctl.TIOCM_DTR;
+import static de.ibapl.jnhw.unix.sys.Ioctl.TIOCM_RNG;
+import static de.ibapl.jnhw.unix.sys.Ioctl.TIOCM_RTS;
+import static de.ibapl.jnhw.unix.sys.Ioctl.TIOCOUTQ;
+import static de.ibapl.jnhw.unix.sys.Ioctl.TIOCSBRK;
+import static de.ibapl.jnhw.unix.sys.Ioctl.ioctl;
 import de.ibapl.jnhw.util.posix.LibJnhwPosixLoader;
 import de.ibapl.spsw.api.DataBits;
 import de.ibapl.spsw.api.FlowControl;
@@ -143,7 +129,13 @@ import de.ibapl.spsw.api.Parity;
 import de.ibapl.spsw.api.Speed;
 import de.ibapl.spsw.api.StopBits;
 import de.ibapl.spsw.api.TimeoutIOException;
+import java.io.IOException;
+import java.io.InterruptedIOException;
 import java.lang.ref.Cleaner;
+import java.nio.ByteBuffer;
+import java.nio.channels.AsynchronousCloseException;
+import java.util.EnumSet;
+import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -151,6 +143,9 @@ public class PosixSerialPortSocket extends AbstractSerialPortSocket<PosixSerialP
 
     public final static Cleaner CLEANER = Cleaner.create();
 
+    /**
+     * Cleanup whats left over if the port was not closed properly
+     */
     static class FdCleaner implements Runnable {
 
         int fd = INVALID_FD;
@@ -160,38 +155,41 @@ public class PosixSerialPortSocket extends AbstractSerialPortSocket<PosixSerialP
         @Override
         public void run() {
             if (close_event_write_fd != PosixSerialPortSocket.INVALID_FD) {
-                byte[] evt_buff = new byte[8];
-                evt_buff[5] = 1;
-                evt_buff[6] = 1;
-                evt_buff[7] = 1;
-
+                ByteBuffer evt_buff = ByteBuffer.allocateDirect(8);
+                evt_buff.putLong(1);
+                evt_buff.flip();
                 try {
-                    //Eventfd.eventfd_write(close_event_fd, 0x0101010000000000L);
+                    //Eventfd.eventfd_write(close_event_fd, 0x0000000000000001L);
                     Unistd.write(close_event_write_fd, evt_buff);
                     Unistd.usleep(1000); // 1ms
                 } catch (NativeErrorException nee) {
                     LOG.log(Level.SEVERE, "Error writing to close_event_fd error: " + Errno.getErrnoSymbol(nee.errno), nee);
                 }
+            }
+            if (fd != PosixSerialPortSocket.INVALID_FD) {
+                try {
+                    Unistd.close(fd);
+                    fd = PosixSerialPortSocket.INVALID_FD;
+                } catch (NativeErrorException ex) {
+                    LOG.severe("can't clean fd");
+                }
+            }
+            if (close_event_write_fd != PosixSerialPortSocket.INVALID_FD) {
                 try {
                     Unistd.close(close_event_write_fd);
                 } catch (NativeErrorException ex) {
                     LOG.severe("can't clean close_event_write_fd");
                 }
             }
-            if (fd != PosixSerialPortSocket.INVALID_FD) {
-                try {
-                    Unistd.close(fd);
-                } catch (NativeErrorException ex) {
-                    LOG.severe("can't clean fd");
-                }
-            }
-            if (close_event_read_fd != PosixSerialPortSocket.INVALID_FD) {
+            if ((close_event_read_fd != PosixSerialPortSocket.INVALID_FD) && (close_event_read_fd != close_event_write_fd)) {
                 try {
                     Unistd.close(close_event_read_fd);
                 } catch (NativeErrorException ex) {
                     LOG.severe("can't clean close_event_read_fd");
                 }
             }
+            close_event_read_fd = PosixSerialPortSocket.INVALID_FD;
+            close_event_write_fd = PosixSerialPortSocket.INVALID_FD;
         }
 
     }
@@ -255,15 +253,11 @@ public class PosixSerialPortSocket extends AbstractSerialPortSocket<PosixSerialP
             // Mark port as closed...
             int tempFd = fd;
             fd = INVALID_FD;
-            byte[] evt_buff = new byte[8];
-            evt_buff[5] = 1;
-            evt_buff[6] = 1;
-            evt_buff[7] = 1;
-
+            ByteBuffer evt_buff = ByteBuffer.allocateDirect(8);
+            evt_buff.putLong(1);
+            evt_buff.flip();
             try {
-                //Eventfd.eventfd_write(close_event_fd, 0x0101010000000000L);
                 Unistd.write(close_event_write_fd, evt_buff);
-                Unistd.usleep(1000); // 1ms
             } catch (NativeErrorException nee) {
                 LOG.log(Level.SEVERE, "Error writing to close_event_fd error: " + Errno.getErrnoSymbol(nee.errno), nee);
             }
@@ -271,7 +265,6 @@ public class PosixSerialPortSocket extends AbstractSerialPortSocket<PosixSerialP
             try {
                 tcflush(tempFd, TCIOFLUSH());
             } catch (NativeErrorException nee) {
-                //no-op
                 LOG.log(Level.SEVERE, "Native Error flushing " + Errno.getErrnoSymbol(nee.errno), nee);
             } catch (Throwable t) {
                 LOG.log(Level.SEVERE, "unknown Error flushing ", t);
@@ -280,22 +273,10 @@ public class PosixSerialPortSocket extends AbstractSerialPortSocket<PosixSerialP
             try {
                 Unistd.close(tempFd);
                 fdCleaner.fd = INVALID_FD;
-                try {
-                    //eventfd
-                    if (close_event_read_fd == close_event_write_fd) {
-                        Unistd.close(close_event_read_fd);
-                    } else {
-                        //pipe
-                        Unistd.close(close_event_read_fd);
-                        Unistd.close(close_event_write_fd);
-                    }
-                    close_event_read_fd = INVALID_FD;
-                    close_event_write_fd = INVALID_FD;
-                    fdCleaner.close_event_read_fd = INVALID_FD;
-                    fdCleaner.close_event_write_fd = INVALID_FD;
-                } catch (NativeErrorException ex) {
-                    System.err.println(ex.toString());
-                }
+                //leave the close_event_write_fd and close_event_read_fd open for now. So poll can digest the events... 
+                //closing close_event_write_fd and close_event_read_fd will be don by fdCleaner
+                close_event_read_fd = INVALID_FD;
+                close_event_write_fd = INVALID_FD;
             } catch (NativeErrorException nee) {
                 //TODO after poll POLLHUP ???
                 // fd = tempFd;
@@ -801,24 +782,18 @@ public class PosixSerialPortSocket extends AbstractSerialPortSocket<PosixSerialP
             throw new IOException("Can't set exclusive access errno: " + Errno.getErrnoSymbol(nee.errno));
         }
 
-        // TODO Linux?? posix.cfmakeraw(termios);
-        // set basic settings
-        termios.c_cflag(0);
-        termios.c_lflag(0);
-        /* Raw input */
-        termios.c_iflag(0);
-        /* Raw output */
-        termios.c_oflag(0);
+        try {
+            termios.c_iflag(termios.c_iflag() & ~(Termios.IGNBRK() | Termios.BRKINT() | Termios.PARMRK() | Termios.ISTRIP() | Termios.INLCR() | Termios.IGNCR() | Termios.ICRNL() | IXON()));
+        } catch (NotDefinedException nde) {
+            //PARMRK not defined
+            termios.c_iflag(termios.c_iflag() & ~(Termios.IGNBRK() | Termios.BRKINT() | Termios.ISTRIP() | Termios.INLCR() | Termios.IGNCR() | Termios.ICRNL() | IXON()));
+        }
+        termios.c_oflag(termios.c_oflag() & ~Termios.OPOST());
+        termios.c_lflag(termios.c_lflag() & ~(Termios.ECHO() | Termios.ECHONL() | Termios.ICANON() | Termios.ISIG() | Termios.IEXTEN()));
+        //Make sure CLOCAL is set otherwise opening the port later won't work without Fcntl.O_NONBLOCK()
+        termios.c_cflag(termios.c_cflag() & ~(CSIZE() | PARENB()) | CS8() | CREAD() | CLOCAL() | Termios.HUPCL());
         termios.c_cc(VMIN(), (byte) 0); // If there is not anything just pass
         termios.c_cc(VTIME(), (byte) 0);// No timeout
-        /* set RAW mode like this and thus preserve the other flags????
-termios_p->c_iflag &= ~(IGNBRK | BRKINT | PARMRK | ISTRIP
-                | INLCR | IGNCR | ICRNL | IXON);
-termios_p->c_oflag &= ~OPOST;
-termios_p->c_lflag &= ~(ECHO | ECHONL | ICANON | ISIG | IEXTEN);
-termios_p->c_cflag &= ~(CSIZE | PARENB);
-termios_p->c_cflag |= CS8;
-         */
 
         try {
             setParams(termios, speed, dataBits, stopBits, parity, flowControls);
@@ -1261,17 +1236,17 @@ termios_p->c_cflag |= CS8;
     }
 
     @Override
-    public int write(ByteBuffer b) throws IOException {
+    public int write(ByteBuffer src) throws IOException {
         synchronized (writeLock) {
-            if (!b.hasRemaining()) {
+            if (!src.hasRemaining()) {
                 return 0;
             }
 
             int written;
 
             try {
-                written = Unistd.write(fd, b);
-                if (!b.hasRemaining()) {
+                written = Unistd.write(fd, src);
+                if (!src.hasRemaining()) {
                     // all was written
                     return written;
                 }
@@ -1327,6 +1302,9 @@ termios_p->c_cflag |= CS8;
                                 //i.e. happens when the USB to serial adapter is removed
                                 completed = true;
                                 throw new InterruptedIOException(PORT_FD_INVALID);
+                            } else if ((writePollFds.get(PORT_FD_IDX).revents() & POLLNVAL()) == POLLNVAL()) {
+                                completed = true;
+                                throw new AsynchronousCloseException();
                             } else {
                                 InterruptedIOException iioe = new InterruptedIOException(
                                         "poll returned with poll event write ");
@@ -1344,7 +1322,7 @@ termios_p->c_cflag |= CS8;
                     }
 
                     try {
-                        offset += Unistd.write(fd, b);
+                        offset += Unistd.write(fd, src);
                     } catch (NativeErrorException nee) {
                         if (fd == INVALID_FD) {
                             completed = true;
@@ -1360,7 +1338,7 @@ termios_p->c_cflag |= CS8;
                         }
                     }
 
-                } while (b.hasRemaining());
+                } while (src.hasRemaining());
                 completed = true;
                 return (int) offset;
             } finally {
@@ -1370,9 +1348,9 @@ termios_p->c_cflag |= CS8;
     }
 
     @Override
-    public int read(ByteBuffer b) throws IOException {
+    public int read(ByteBuffer dst) throws IOException {
         synchronized (readLock) {
-            if (!b.hasRemaining()) {
+            if (!dst.hasRemaining()) {
                 //nothing to read
                 return 0;
             }
@@ -1380,8 +1358,8 @@ termios_p->c_cflag |= CS8;
             int nread;
             try {
                 //non blocking read
-                nread = Unistd.read(fd, b);
-                if (!b.hasRemaining()) {
+                nread = Unistd.read(fd, dst);
+                if (!dst.hasRemaining()) {
                     return nread;
                 }
             } catch (NativeErrorException nee) {
@@ -1423,8 +1401,8 @@ termios_p->c_cflag |= CS8;
                             } else if (readPollFds.get(PORT_FD_IDX).revents() == POLLIN()) {
                                 // Happy path just check if its the right event...
                                 try {
-                                    nread = Unistd.read(fd, b);
-                                    if (!b.hasRemaining()) {
+                                    nread = Unistd.read(fd, dst);
+                                    if (!dst.hasRemaining()) {
                                         return nread;
                                     }
                                 } catch (NativeErrorException nee) {
@@ -1447,6 +1425,9 @@ termios_p->c_cflag |= CS8;
                                 //i.e. happens when the USB to serial adapter is removed
                                 completed = true;
                                 throw new InterruptedIOException(PORT_FD_INVALID);
+                            } else if ((readPollFds.get(PORT_FD_IDX).revents() & POLLNVAL()) == POLLNVAL()) {
+                                completed = true;
+                                throw new AsynchronousCloseException();
                             } else {
                                 completed = true;
                                 throw new InterruptedIOException("read poll: received poll event fds:\n" + readPollFds.toString());
@@ -1494,6 +1475,9 @@ termios_p->c_cflag |= CS8;
                                 //i.e. happens when the USB to serial adapter is removed
                                 completed = true;
                                 throw new InterruptedIOException(PORT_FD_INVALID);
+                            } else if ((readPollFds.get(PORT_FD_IDX).revents() & POLLNVAL()) == POLLNVAL()) {
+                                completed = true;
+                                throw new AsynchronousCloseException();
                             } else {
                                 completed = true;
                                 throw new InterruptedIOException("read poll: received poll event fds:\n" + readPollFds.toString());
@@ -1506,7 +1490,7 @@ termios_p->c_cflag |= CS8;
                     // OK No timeout and no error, we should read at least one byte without
                     // blocking.
                     try {
-                        overallRead += Unistd.read(fd, b);
+                        overallRead += Unistd.read(fd, dst);
                     } catch (NativeErrorException nee) {
                         if (fd == INVALID_FD) {
                             completed = true;
@@ -1523,7 +1507,7 @@ termios_p->c_cflag |= CS8;
                             throw new IOException("read read error: Should never happen " + Errno.getErrnoSymbol(nee.errno));
                         }
                     }
-                } while (b.hasRemaining());
+                } while (dst.hasRemaining());
                 // We reached this, because the read buffer is full.
                 completed = true;
                 return overallRead;
@@ -1561,6 +1545,9 @@ termios_p->c_cflag |= CS8;
                         } else if ((fds.get(0).revents() & POLLHUP()) == POLLHUP()) {
                             //i.e. happens when the USB to serial adapter is removed
                             throw new IOException(PORT_FD_INVALID);
+                        } else if ((fds.get(0).revents() & POLLNVAL()) == POLLNVAL()) {
+                            completed = true;
+                            throw new AsynchronousCloseException();
                         } else {
                             if (fd == INVALID_FD) {
                                 throw new IOException(PORT_IS_CLOSED);

@@ -69,14 +69,13 @@ public class GenericTermiosSerialPortSocket extends AbstractSerialPortSocket<Gen
     private volatile int closeEventReadFd = -1;
     private volatile int closeEventWriteFd = -1;
 
-    private int outByteTime = -1;
     /**
      * used in native code
      */
     private int interByteReadTimeout = 100;
     private int pollReadTimeout = -1;
     private int pollWriteTimeout = -1;
-    private FdCleaner fdCleaner = new FdCleaner();
+    private final FdCleaner fdCleaner = new FdCleaner();
 
     public GenericTermiosSerialPortSocket(String portName) throws IOException {
         super(portName);
@@ -90,7 +89,7 @@ public class GenericTermiosSerialPortSocket extends AbstractSerialPortSocket<Gen
     }
 
     @Override
-    protected void open(String portName, int paramBitSet) throws IOException {
+    protected final void open(String portName, int paramBitSet) throws IOException {
         open0(portName, paramBitSet);
         CLEANER.register(this, fdCleaner);
         fdCleaner.fd = this.fd;
@@ -105,8 +104,8 @@ public class GenericTermiosSerialPortSocket extends AbstractSerialPortSocket<Gen
         super.implCloseChannel();
         close0();
         fdCleaner.fd = INVALID_FD;
-        fdCleaner.close_event_read_fd = INVALID_FD;
-        fdCleaner.close_event_write_fd = INVALID_FD;
+        //leave the close_event_write_fd and close_event_read_fd open for now. So poll can digest the events... 
+        //closing close_event_write_fd and close_event_read_fd will be don by fdCleaner
     }
 
     /**

@@ -47,17 +47,19 @@ public class SendDataSingleMain {
         }
         sendBuffer.flip();
 
-        try (SerialPortSocket serialPortSocket = new SerialPortSocketFactoryImpl().open("/dev/ttyUSB0", Speed._4000000_BPS, DataBits.DB_8, StopBits.SB_1, Parity.NONE, FlowControl.getFC_NONE())) {
+        try (SerialPortSocket serialPortSocket = new SerialPortSocketFactoryImpl().open("/dev/ttyUSB0", Speed._1500000_BPS, DataBits.DB_8, StopBits.SB_1, Parity.NONE, FlowControl.getFC_NONE())) {
             System.err.println(((PosixSerialPortSocket)serialPortSocket).termiosToString());
             serialPortSocket.setTimeouts(100, 0, 0);
             Thread thread = new Thread(() -> {
                 final ByteBuffer recBuffer = ByteBuffer.allocateDirect(BUFFER_SIZE);
                 byte currentData = 0;
                 try {
-                    int overallRec = 0;
+                    int overallRead = 0;
                     final long start = System.currentTimeMillis() - 1;
                     while (true) {
-                        overallRec += serialPortSocket.read(recBuffer);
+                        final int currentRead = serialPortSocket.read(recBuffer);
+                        overallRead += currentRead;
+                        recBuffer.flip();
                         while (recBuffer.hasRemaining()) {
                             if (currentData != recBuffer.get()) {
                                 throw new RuntimeException("REC wrong");
@@ -65,7 +67,7 @@ public class SendDataSingleMain {
                             currentData++;
                         }
                         recBuffer.clear();
-                        System.out.format("rec: %d bps\n", ((overallRec * 1000L * 8) / (System.currentTimeMillis() - start)));
+                        System.out.format("rec: %d bps @%d\n", ((overallRead * 1000L * 8) / (System.currentTimeMillis() - start)), currentRead);
                         System.out.flush();
                     }
                 } catch (Throwable throwable) {

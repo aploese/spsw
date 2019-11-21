@@ -110,6 +110,9 @@ extern "C" {
                     //i.e. happens when the USB to serial adapter is removed
                     throw_IOException(env, PORT_FD_INVALID);
                     return -1;
+                } else if ((fds[0].revents & POLLNVAL) == POLLNVAL) {
+                    throw_AsynchronousCloseException(env);
+                    return -1;
                 } else {
                     throw_InterruptedIOExceptionWithError(env, 0,
                             "readBytes poll: received poll event");
@@ -173,6 +176,9 @@ extern "C" {
                     //i.e. happens when the USB to serial adapter is removed
                     throw_IOException(env, PORT_FD_INVALID);
                     return -1;
+                } else if ((fds[0].revents & POLLNVAL) == POLLNVAL) {
+                    throw_AsynchronousCloseException(env);
+                    return -1;
                 } else {
                     throw_InterruptedIOExceptionWithError(env, 0,
                             "readBytes poll: received poll event");
@@ -215,15 +221,15 @@ extern "C" {
         }
 
         const int fd = (*env)->GetIntField(env, sps, spsw_fd);
-        if (ioctl(fd, TIOCSBRK) != 0) {
+        if (ioctl(fd, TIOCSBRK)) {
             throw_ClosedOrNativeException(env, sps, "Can't sendBreak");
             return;
         }
-        if (usleep((uint32_t) duration * 1000) != 0) {
+        if (usleep((uint32_t) duration * 1000)) {
             throw_RuntimeException(env, "Error sendBreak usleep failed");
             return;
         }
-        if (ioctl(fd, TIOCCBRK) != 0) {
+        if (ioctl(fd, TIOCCBRK)) {
             throw_ClosedOrNativeException(env, sps, "Can't sendBreak");
             return;
         }
@@ -313,6 +319,9 @@ extern "C" {
                 } else if ((fds[0].revents & POLLHUP) == POLLHUP) {
                     //i.e. happens when the USB to serial adapter is removed
                     throw_IOException(env, PORT_FD_INVALID);
+                    return -1;
+                } else if ((fds[0].revents & POLLNVAL) == POLLNVAL) {
+                    throw_AsynchronousCloseException(env);
                     return -1;
                 } else {
                     throw_InterruptedIOExceptionWithError(env, offset, "poll returned with poll event writeBytes");

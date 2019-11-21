@@ -25,12 +25,72 @@ import de.ibapl.jnhw.IntRef;
 import de.ibapl.jnhw.NativeErrorException;
 import de.ibapl.jnhw.libloader.LoadState;
 import de.ibapl.jnhw.util.winapi.LibJnhwWinApiLoader;
-import java.io.IOException;
-import java.nio.ByteBuffer;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Set;
-
+import static de.ibapl.jnhw.winapi.Fileapi.CreateFileW;
+import static de.ibapl.jnhw.winapi.Fileapi.FlushFileBuffers;
+import static de.ibapl.jnhw.winapi.Fileapi.OPEN_EXISTING;
+import static de.ibapl.jnhw.winapi.Fileapi.ReadFile;
+import static de.ibapl.jnhw.winapi.Fileapi.WriteFile;
+import de.ibapl.jnhw.winapi.Handleapi;
+import static de.ibapl.jnhw.winapi.Handleapi.CloseHandle;
+import de.ibapl.jnhw.winapi.Ioapiset;
+import static de.ibapl.jnhw.winapi.Ioapiset.GetOverlappedResult;
+import de.ibapl.jnhw.winapi.Minwinbase.OVERLAPPED;
+import de.ibapl.jnhw.winapi.Minwindef.LPBYTE;
+import de.ibapl.jnhw.winapi.Minwindef.PHKEY;
+import de.ibapl.jnhw.winapi.Synchapi;
+import static de.ibapl.jnhw.winapi.Synchapi.CreateEventW;
+import static de.ibapl.jnhw.winapi.Synchapi.WaitForSingleObject;
+import static de.ibapl.jnhw.winapi.Winbase.CLRBREAK;
+import static de.ibapl.jnhw.winapi.Winbase.CLRDTR;
+import static de.ibapl.jnhw.winapi.Winbase.CLRRTS;
+import de.ibapl.jnhw.winapi.Winbase.COMMTIMEOUTS;
+import de.ibapl.jnhw.winapi.Winbase.COMSTAT;
+import static de.ibapl.jnhw.winapi.Winbase.ClearCommBreak;
+import static de.ibapl.jnhw.winapi.Winbase.ClearCommError;
+import de.ibapl.jnhw.winapi.Winbase.DCB;
+import static de.ibapl.jnhw.winapi.Winbase.EVENPARITY;
+import static de.ibapl.jnhw.winapi.Winbase.EscapeCommFunction;
+import static de.ibapl.jnhw.winapi.Winbase.FILE_FLAG_OVERLAPPED;
+import static de.ibapl.jnhw.winapi.Winbase.GetCommModemStatus;
+import static de.ibapl.jnhw.winapi.Winbase.GetCommState;
+import static de.ibapl.jnhw.winapi.Winbase.GetCommTimeouts;
+import static de.ibapl.jnhw.winapi.Winbase.INFINITE;
+import static de.ibapl.jnhw.winapi.Winbase.MARKPARITY;
+import static de.ibapl.jnhw.winapi.Winbase.MS_CTS_ON;
+import static de.ibapl.jnhw.winapi.Winbase.MS_DSR_ON;
+import static de.ibapl.jnhw.winapi.Winbase.MS_RING_ON;
+import static de.ibapl.jnhw.winapi.Winbase.MS_RLSD_ON;
+import static de.ibapl.jnhw.winapi.Winbase.NOPARITY;
+import static de.ibapl.jnhw.winapi.Winbase.ODDPARITY;
+import static de.ibapl.jnhw.winapi.Winbase.ONE5STOPBITS;
+import static de.ibapl.jnhw.winapi.Winbase.ONESTOPBIT;
+import static de.ibapl.jnhw.winapi.Winbase.RTS_CONTROL_DISABLE;
+import static de.ibapl.jnhw.winapi.Winbase.RTS_CONTROL_HANDSHAKE;
+import static de.ibapl.jnhw.winapi.Winbase.SETBREAK;
+import static de.ibapl.jnhw.winapi.Winbase.SETDTR;
+import static de.ibapl.jnhw.winapi.Winbase.SETRTS;
+import static de.ibapl.jnhw.winapi.Winbase.SPACEPARITY;
+import static de.ibapl.jnhw.winapi.Winbase.SetCommBreak;
+import static de.ibapl.jnhw.winapi.Winbase.SetCommState;
+import static de.ibapl.jnhw.winapi.Winbase.SetCommTimeouts;
+import static de.ibapl.jnhw.winapi.Winbase.TWOSTOPBITS;
+import static de.ibapl.jnhw.winapi.Winbase.WAIT_OBJECT_0;
+import de.ibapl.jnhw.winapi.Winerror;
+import static de.ibapl.jnhw.winapi.Winerror.ERROR_ACCESS_DENIED;
+import static de.ibapl.jnhw.winapi.Winerror.ERROR_FILE_NOT_FOUND;
+import static de.ibapl.jnhw.winapi.Winerror.ERROR_GEN_FAILURE;
+import static de.ibapl.jnhw.winapi.Winerror.ERROR_INVALID_PARAMETER;
+import static de.ibapl.jnhw.winapi.Winerror.ERROR_IO_PENDING;
+import static de.ibapl.jnhw.winapi.Winnt.GENERIC_READ;
+import static de.ibapl.jnhw.winapi.Winnt.GENERIC_WRITE;
+import de.ibapl.jnhw.winapi.Winnt.HANDLE;
+import static de.ibapl.jnhw.winapi.Winnt.KEY_READ;
+import de.ibapl.jnhw.winapi.Winnt.LPWSTR;
+import static de.ibapl.jnhw.winapi.Winnt.MAXDWORD;
+import de.ibapl.jnhw.winapi.Winreg;
+import static de.ibapl.jnhw.winapi.Winreg.HKEY_LOCAL_MACHINE;
+import static de.ibapl.jnhw.winapi.Winreg.RegEnumValueW;
+import static de.ibapl.jnhw.winapi.Winreg.RegOpenKeyExW;
 import de.ibapl.spsw.api.DataBits;
 import de.ibapl.spsw.api.FlowControl;
 import de.ibapl.spsw.api.Parity;
@@ -38,94 +98,30 @@ import static de.ibapl.spsw.api.SerialPortSocket.PORT_IS_OPEN;
 import de.ibapl.spsw.api.Speed;
 import de.ibapl.spsw.api.StopBits;
 import de.ibapl.spsw.api.TimeoutIOException;
+import java.io.IOException;
 import java.io.InterruptedIOException;
+import java.lang.ref.Cleaner;
+import java.nio.ByteBuffer;
+import java.nio.channels.AsynchronousCloseException;
 import java.util.EnumSet;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-
-import static de.ibapl.jnhw.winapi.Winnt.KEY_READ;
-import static de.ibapl.jnhw.winapi.Winnt.MAXDWORD;
-import static de.ibapl.jnhw.winapi.Winnt.GENERIC_READ;
-import static de.ibapl.jnhw.winapi.Winnt.GENERIC_WRITE;
-import static de.ibapl.jnhw.winapi.Winnt.HANDLE;
-
-import static de.ibapl.jnhw.winapi.Winreg.HKEY_LOCAL_MACHINE;
-import static de.ibapl.jnhw.winapi.Winreg.RegEnumValueW;
-import static de.ibapl.jnhw.winapi.Winreg.RegOpenKeyExW;
-
-import static de.ibapl.jnhw.winapi.Winerror.ERROR_GEN_FAILURE;
-import static de.ibapl.jnhw.winapi.Winerror.ERROR_INVALID_PARAMETER;
-import static de.ibapl.jnhw.winapi.Winerror.ERROR_ACCESS_DENIED;
-import static de.ibapl.jnhw.winapi.Winerror.ERROR_FILE_NOT_FOUND;
-import static de.ibapl.jnhw.winapi.Winerror.ERROR_IO_PENDING;
-
-import static de.ibapl.jnhw.winapi.Winbase.NOPARITY;
-import static de.ibapl.jnhw.winapi.Winbase.EVENPARITY;
-import static de.ibapl.jnhw.winapi.Winbase.MARKPARITY;
-import static de.ibapl.jnhw.winapi.Winbase.ODDPARITY;
-import static de.ibapl.jnhw.winapi.Winbase.SPACEPARITY;
-import static de.ibapl.jnhw.winapi.Winbase.ONESTOPBIT;
-import static de.ibapl.jnhw.winapi.Winbase.ONE5STOPBITS;
-import static de.ibapl.jnhw.winapi.Winbase.TWOSTOPBITS;
-import static de.ibapl.jnhw.winapi.Winbase.DCB;
-import static de.ibapl.jnhw.winapi.Winbase.COMSTAT;
-import static de.ibapl.jnhw.winapi.Winbase.COMMTIMEOUTS;
-import static de.ibapl.jnhw.winapi.Winbase.CloseHandle;
-import static de.ibapl.jnhw.winapi.Winbase.GetCommState;
-import static de.ibapl.jnhw.winapi.Winbase.SetCommState;
-import static de.ibapl.jnhw.winapi.Winbase.RTS_CONTROL_HANDSHAKE;
-import static de.ibapl.jnhw.winapi.Winbase.ClearCommError;
-import static de.ibapl.jnhw.winapi.Winbase.GetCommTimeouts;
-import static de.ibapl.jnhw.winapi.Winbase.SetCommTimeouts;
-import static de.ibapl.jnhw.winapi.Winbase.GetCommModemStatus;
-import static de.ibapl.jnhw.winapi.Winbase.MS_CTS_ON;
-import static de.ibapl.jnhw.winapi.Winbase.MS_DSR_ON;
-import static de.ibapl.jnhw.winapi.Winbase.MS_RING_ON;
-import static de.ibapl.jnhw.winapi.Winbase.MS_RLSD_ON;
-import static de.ibapl.jnhw.winapi.Winbase.FILE_FLAG_OVERLAPPED;
-import static de.ibapl.jnhw.winapi.Winbase.ClearCommBreak;
-import static de.ibapl.jnhw.winapi.Winbase.SetCommBreak;
-import static de.ibapl.jnhw.winapi.Winbase.EscapeCommFunction;
-import static de.ibapl.jnhw.winapi.Winbase.SETBREAK;
-import static de.ibapl.jnhw.winapi.Winbase.CLRBREAK;
-import static de.ibapl.jnhw.winapi.Winbase.SETDTR;
-import static de.ibapl.jnhw.winapi.Winbase.CLRDTR;
-import static de.ibapl.jnhw.winapi.Winbase.SETRTS;
-import static de.ibapl.jnhw.winapi.Winbase.CLRRTS;
-import static de.ibapl.jnhw.winapi.Winbase.RTS_CONTROL_DISABLE;
-import static de.ibapl.jnhw.winapi.Winbase.INFINITE;
-import static de.ibapl.jnhw.winapi.Winbase.WAIT_OBJECT_0;
-
-import static de.ibapl.jnhw.winapi.Fileapi.CreateFileW;
-import static de.ibapl.jnhw.winapi.Fileapi.OPEN_EXISTING;
-import static de.ibapl.jnhw.winapi.Fileapi.FlushFileBuffers;
-import static de.ibapl.jnhw.winapi.Fileapi.ReadFile;
-import static de.ibapl.jnhw.winapi.Fileapi.WriteFile;
-import de.ibapl.jnhw.winapi.Ioapiset;
-
-import static de.ibapl.jnhw.winapi.Synchapi.CreateEventW;
-import static de.ibapl.jnhw.winapi.Synchapi.WaitForSingleObject;
-import static de.ibapl.jnhw.winapi.Ioapiset.GetOverlappedResult;
-import static de.ibapl.jnhw.winapi.Minwinbase.OVERLAPPED;
-import static de.ibapl.jnhw.winapi.Minwindef.PHKEY;
-import static de.ibapl.jnhw.winapi.Minwindef.LPBYTE;
-import de.ibapl.jnhw.winapi.Synchapi;
-import de.ibapl.jnhw.winapi.Winbase;
-import de.ibapl.jnhw.winapi.Winerror;
-import static de.ibapl.jnhw.winapi.Winnt.LPWSTR;
-import de.ibapl.jnhw.winapi.Winreg;
-import java.lang.ref.Cleaner;
-import java.nio.channels.AsynchronousCloseException;
 
 public class GenericWinSerialPortSocket extends AbstractSerialPortSocket<GenericWinSerialPortSocket> {
 
     public final static Cleaner CLEANER = Cleaner.create();
 
+    /**
+     * Cleanup whats left over if the port was not closed properly
+     */
     static class HFileCleaner implements Runnable {
 
-        HANDLE hFile = Winbase.INVALID_HANDLE_VALUE();
-        HANDLE readEvent = Winbase.INVALID_HANDLE_VALUE();
-        HANDLE writeEvent = Winbase.INVALID_HANDLE_VALUE();
+        HANDLE hFile = Handleapi.INVALID_HANDLE_VALUE();
+        HANDLE readEvent = Handleapi.INVALID_HANDLE_VALUE();
+        HANDLE writeEvent = Handleapi.INVALID_HANDLE_VALUE();
 
         @Override
         public void run() {
@@ -164,8 +160,8 @@ public class GenericWinSerialPortSocket extends AbstractSerialPortSocket<Generic
     private final HFileCleaner cleaner = new HFileCleaner();
     private final Object readLock = new Object();
     private final Object writeLock = new Object();
-    private final OVERLAPPED readOverlapped = new OVERLAPPED(true);
-    private final OVERLAPPED writeOverlapped = new OVERLAPPED(true);
+    private final OVERLAPPED readOverlapped = new OVERLAPPED();
+    private final OVERLAPPED writeOverlapped = new OVERLAPPED();
     private HANDLE readEvent = HANDLE.INVALID_HANDLE_VALUE;
     private HANDLE writeEvent = HANDLE.INVALID_HANDLE_VALUE;
     
@@ -236,11 +232,6 @@ public class GenericWinSerialPortSocket extends AbstractSerialPortSocket<Generic
             throw new RuntimeException("Could not load native lib", LibJnhwWinApiLoader.getLoadResult().loadError);
         }
         open(speed, dataBits, stopBits, parity, flowControls);
-    }
-
-    private IOException createNativeException(int errno, String formatString, Object... args) {
-        return new IOException(String.format("Native port error on %s, \"%d\" %s", portName, errno,
-                String.format(formatString, args)));
     }
 
     private IOException createClosedOrNativeException(int errno, String formatString, Object... args) {
@@ -1035,9 +1026,9 @@ public class GenericWinSerialPortSocket extends AbstractSerialPortSocket<Generic
     }
 
     @Override
-    public int read(ByteBuffer b) throws IOException {
+    public int read(ByteBuffer dst) throws IOException {
         synchronized (readLock) {
-            if (!b.hasRemaining()) {
+            if (!dst.hasRemaining()) {
                 return 0;
             }
 
@@ -1048,7 +1039,7 @@ public class GenericWinSerialPortSocket extends AbstractSerialPortSocket<Generic
             }
 
             try {
-                ReadFile(hFile, b, readOverlapped);
+                ReadFile(hFile, dst, readOverlapped);
             } catch (NativeErrorException nee) {
                 if (nee.errno != ERROR_IO_PENDING()) {
                     if (hFile.isNot_INVALID_HANDLE_VALUE()) {
@@ -1083,7 +1074,7 @@ public class GenericWinSerialPortSocket extends AbstractSerialPortSocket<Generic
                 int dwBytesRead = 0;
 
                 try {
-                    dwBytesRead = GetOverlappedResult(hFile, readOverlapped, b, false);
+                    dwBytesRead = GetOverlappedResult(hFile, readOverlapped, dst, false);
                 } catch (NativeErrorException nee) {
                     if (hFile.isNot_INVALID_HANDLE_VALUE()) {
                         InterruptedIOException iioe = new InterruptedIOException("Error readBytes (GetOverlappedResult)");
@@ -1121,10 +1112,10 @@ public class GenericWinSerialPortSocket extends AbstractSerialPortSocket<Generic
     }
 
     @Override
-    public int write(ByteBuffer b) throws IOException {
+    public int write(ByteBuffer src) throws IOException {
         synchronized (writeLock) {
 
-            if (!b.hasRemaining()) {
+            if (!src.hasRemaining()) {
                 return 0;
             }
 
@@ -1135,7 +1126,7 @@ public class GenericWinSerialPortSocket extends AbstractSerialPortSocket<Generic
             }
 
             try {
-                WriteFile(hFile, b, writeOverlapped);
+                WriteFile(hFile, src, writeOverlapped);
             } catch (NativeErrorException nee) {
 
                 if (nee.errno != ERROR_IO_PENDING()) {
@@ -1172,7 +1163,7 @@ public class GenericWinSerialPortSocket extends AbstractSerialPortSocket<Generic
 
                 int dwBytesWritten = 0;
                 try {
-                    dwBytesWritten = GetOverlappedResult(hFile, writeOverlapped, b, false);
+                    dwBytesWritten = GetOverlappedResult(hFile, writeOverlapped, src, false);
                 } catch (NativeErrorException nee) {
                     if (hFile.isNot_INVALID_HANDLE_VALUE()) {
                         InterruptedIOException iioe = new InterruptedIOException("Error writeBytes (GetOverlappedResult) errno: " + nee.errno);
@@ -1184,7 +1175,7 @@ public class GenericWinSerialPortSocket extends AbstractSerialPortSocket<Generic
                     }
                 }
 
-                if (b.hasRemaining()) {
+                if (src.hasRemaining()) {
                     if (hFile.isNot_INVALID_HANDLE_VALUE()) {
 //                if (winbase_H.GetLastError() == Winerr_H.ERROR_IO_PENDING) {
 //                    TimeoutIOException tioe = new TimeoutIOException();
