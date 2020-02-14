@@ -21,6 +21,11 @@
  */
 package de.ibapl.spsw.logging;
 
+import de.ibapl.spsw.api.DataBits;
+import de.ibapl.spsw.api.FlowControl;
+import de.ibapl.spsw.api.Parity;
+import de.ibapl.spsw.api.Speed;
+import de.ibapl.spsw.api.StopBits;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.PrintStream;
@@ -29,14 +34,7 @@ import java.time.Duration;
 import java.time.Instant;
 import java.time.format.DateTimeFormatter;
 import java.util.Set;
-
 import org.osgi.annotation.versioning.ProviderType;
-
-import de.ibapl.spsw.api.DataBits;
-import de.ibapl.spsw.api.FlowControl;
-import de.ibapl.spsw.api.Parity;
-import de.ibapl.spsw.api.Speed;
-import de.ibapl.spsw.api.StopBits;
 
 /**
  * Utility class to write to a OutputStream. This class handles the actual
@@ -683,7 +681,7 @@ public class LogWriter {
         if (!verbose) {
             return;
         }
-        log.append(formatTs(ts)).append("OS").append(ACION_RETURN).println(" write");
+        log.append(formatTs(ts)).append("OS").append(ACION_RETURN).print(" write");
         if (timeStampLogging != TimeStampLogging.NONE) {
             final Duration d = Duration.between(osWriteStartTS, ts);
             if (d.isZero()) {
@@ -718,7 +716,7 @@ public class LogWriter {
         if (!verbose) {
             return;
         }
-        log.append(formatTs(ts)).append("CH").append(ACION_RETURN).println(" write");
+        log.append(formatTs(ts)).append("CH").append(ACION_RETURN).print(" write");
         if (timeStampLogging != TimeStampLogging.NONE) {
             final Duration d = Duration.between(channelWriteStartTS, ts);
             if (d.isZero()) {
@@ -785,12 +783,10 @@ public class LogWriter {
     }
 
     private void appendOsWritePrefix(Instant ts, String action) {
-        osWriteStartTS = ts;
         log.append(formatTs(ts)).append("OS").append(action).append(" write:\t\"");
     }
 
     private void appendChannelWritePrefix(Instant ts, String action) {
-        osWriteStartTS = ts;
         log.append(formatTs(ts)).append("CH").append(action).append(" write:\t\"");
     }
 
@@ -967,7 +963,7 @@ public class LogWriter {
         if (!verbose) {
             return;
         }
-        log.append(formatTs(ts)).append("IS").append(ACION_CALL).println(" read");
+        log.append(formatTs(ts)).append("CH").append(ACION_CALL).println(" read");
         log.flush();
     }
 
@@ -1063,6 +1059,7 @@ public class LogWriter {
 
     public void beforeOsWrite(Instant ts, byte b) {
         appendOsWritePrefix(ts, ACION_CALL);
+        osWriteStartTS = ts;
         appendByte(b);
         log.println("\"");
         log.flush();
@@ -1070,6 +1067,7 @@ public class LogWriter {
 
     public void beforeOsWrite(Instant ts, byte[] b) {
         appendOsWritePrefix(ts, ACION_CALL);
+        osWriteStartTS = ts;
         for (byte b0 : b) {
             appendByte(b0);
         }
@@ -1079,6 +1077,7 @@ public class LogWriter {
 
     public void beforeOsWrite(Instant ts, byte[] b, int offset, int len) {
         appendOsWritePrefix(ts, ACION_CALL);
+        osWriteStartTS = ts;
         for (int i = 0; i < len; i++) {
             appendByte(b[offset + i]);
         }
@@ -1088,6 +1087,7 @@ public class LogWriter {
 
     public void beforeChannelWrite(Instant ts, ByteBuffer buffer) {
         appendChannelWritePrefix(ts, ACION_CALL);
+        channelWriteStartTS = ts;
         for (int i = buffer.position(); i < buffer.limit(); i++) {
             appendByte(buffer.get(i));
         }
@@ -1129,7 +1129,7 @@ public class LogWriter {
     }
 
     public void afterChannelIsOpen(Instant ts, Throwable t) {
-        log.append(formatTs(ts)).append("Ch").append(ACION_RETURN).append(" isOpen:\t").println(t.toString());
+        log.append(formatTs(ts)).append("CH").append(ACION_RETURN).append(" isOpen:\t").println(t.toString());
         t.printStackTrace(log);
         log.flush();
     }

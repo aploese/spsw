@@ -1383,7 +1383,7 @@ public class PosixSerialPortSocket extends AbstractSerialPortSocket<PosixSerialP
             }
 
             // See javaTimeNanos() in file src/os/linux/vm/os_linux.cpp of hotspot sources
-            final long endTime = System.nanoTime() + ((pollReadTimeout == POLL_TIMEOUT_INFINITE) ? 0 : pollReadTimeout * 1_000_000L);
+            final long startTime = System.nanoTime();
             //make this blocking IO interruptable
             boolean completed = false;
             try {
@@ -1394,6 +1394,7 @@ public class PosixSerialPortSocket extends AbstractSerialPortSocket<PosixSerialP
                     // Nothing read yet
 
                     try {
+
                         final int poll_result = poll(readPollFds, pollReadTimeout);
 
                         if (poll_result == 0) {
@@ -1410,6 +1411,7 @@ public class PosixSerialPortSocket extends AbstractSerialPortSocket<PosixSerialP
                                 try {
                                     nread = Unistd.read(fd, dst);
                                     if (!dst.hasRemaining()) {
+                                        completed = true;
                                         return nread;
                                     }
                                 } catch (NativeErrorException nee) {
@@ -1419,13 +1421,9 @@ public class PosixSerialPortSocket extends AbstractSerialPortSocket<PosixSerialP
                                     } else if (nee.errno == EBADF()) {
                                         completed = true;
                                         throw new InterruptedIOException(PORT_FD_INVALID);
-                                    } else if (nread == 0) {
-                                        completed = true;
-                                        throw new IOException("read: nothing to read after successful polling: Should never happen "
-                                                + Errno.getErrnoSymbol(nee.errno));
                                     } else {
                                         completed = true;
-                                        throw new IOException("read read error: Should never happen " + Errno.getErrnoSymbol(nee.errno));
+                                        throw new IOException("Readed " + nread + " bytes.  Unknown Error: " + Errno.getErrnoSymbol(nee.errno));
                                     }
                                 }
                             } else if ((readPollFds.get(PORT_FD_IDX).revents() & POLLHUP()) == POLLHUP()) {
@@ -1453,22 +1451,26 @@ public class PosixSerialPortSocket extends AbstractSerialPortSocket<PosixSerialP
                 // breaks the loop
                 do {
                     try {
-                        int poll_result;
+                        final int poll_result;
                         if (pollReadTimeout == POLL_TIMEOUT_INFINITE) {
                             poll_result = poll(readPollFds, interByteReadTimeout);
                         } else {
-                            final long timeLeft = endTime - System.nanoTime();
-                            if (timeLeft < 0) {
+                            int timeLeftInMillis = (int) ((System.nanoTime() - startTime) / 1_000_000L);
+                            if (timeLeftInMillis < 0) {
+                                completed = true;
+                                throw new IOException("Overflow in read timeLeft");
+                            }
+                            timeLeftInMillis -= pollReadTimeout;
+                            if (timeLeftInMillis < 0) {
                                 //interbyte timeout or overalll timeout, something was read - do return whats read
                                 completed = true;
                                 return overallRead; // TODO overflow???
                             }
-                            poll_result = poll(readPollFds, (timeLeft > interByteReadTimeout) ? interByteReadTimeout
-                                    : (int) (timeLeft / 1000000L));
+                            poll_result = poll(readPollFds, (timeLeftInMillis > interByteReadTimeout) ? interByteReadTimeout : timeLeftInMillis);
                         }
 
                         if (poll_result == 0) {
-                            // This is the interbyte timeout - We are done
+                            // This is the interbyte timeout or the overall timeout with read bytes - We are done
                             completed = true;
                             return overallRead; // TODO overflow???
                         } else {
@@ -1505,19 +1507,19 @@ public class PosixSerialPortSocket extends AbstractSerialPortSocket<PosixSerialP
                         } else if (nee.errno == EBADF()) {
                             completed = true;
                             throw new InterruptedIOException(PORT_FD_INVALID);
-                        } else if (nread == 0) {
-                            completed = true;
-                            throw new IOException("read: nothing to read after successful polling: Should never happen "
-                                    + Errno.getErrnoSymbol(nee.errno));
                         } else {
                             completed = true;
-                            throw new IOException("read read error: Should never happen " + Errno.getErrnoSymbol(nee.errno));
+                            throw new IOException("Readed " + overallRead + " bytes.  Unknown Error: " + Errno.getErrnoSymbol(nee.errno));
                         }
                     }
                 } while (dst.hasRemaining());
                 // We reached this, because the read buffer is full.
                 completed = true;
                 return overallRead;
+            } catch (IOException ioe) {
+                //In the case of an interruption we won't see this exception so log it here.
+                LOG.log(Level.SEVERE, "IO ex for: " + portName, ioe);
+                throw ioe;
             } finally {
                 end(completed);
             }
