@@ -26,4 +26,5 @@ module de.ibapl.spsw.api {
 	exports de.ibapl.spsw.logging;
 	exports de.ibapl.spsw.mock;
 	exports de.ibapl.spsw.ser2net;
+	exports de.ibapl.spsw.wrapper;
 }

@@ -21,18 +21,6 @@
  */
 package de.ibapl.spsw.ser2net;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.net.Socket;
-import java.net.SocketTimeoutException;
-import java.nio.channels.ByteChannel;
-import java.util.Set;
-
-import javax.net.SocketFactory;
-
-import org.osgi.annotation.versioning.ProviderType;
-
 import de.ibapl.spsw.api.DataBits;
 import de.ibapl.spsw.api.FlowControl;
 import de.ibapl.spsw.api.Parity;
@@ -40,8 +28,17 @@ import de.ibapl.spsw.api.SerialPortSocket;
 import de.ibapl.spsw.api.Speed;
 import de.ibapl.spsw.api.StopBits;
 import de.ibapl.spsw.api.TimeoutIOException;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.net.Socket;
+import java.net.SocketTimeoutException;
 import java.nio.ByteBuffer;
+import java.nio.channels.ByteChannel;
 import java.nio.channels.spi.AbstractInterruptibleChannel;
+import java.util.Set;
+import javax.net.SocketFactory;
+import org.osgi.annotation.versioning.ProviderType;
 
 /**
  * Accesses a remote serial device on a differrent machine over

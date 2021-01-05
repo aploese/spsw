@@ -213,7 +213,7 @@ public abstract class AbstractReadWriteRtsCtsTests extends AbstractReadWriteTest
 		LOG.log(Level.INFO, "disable flow control to sped up closing");
 		byte[] read = new byte[256];
 		assertEquals(256, readSpc.getInputStream().read(read));
-		new Thread(() -> {
+		EXECUTOR_SERVICE.submit(() -> {
 			try {
 				TimeoutIOException tIoException = assertThrows(TimeoutIOException.class, () -> {
 					writeSpc.getOutputStream().write(b, 0, 1024);
@@ -222,7 +222,7 @@ public abstract class AbstractReadWriteRtsCtsTests extends AbstractReadWriteTest
 			} catch (Throwable t) {
 				fail(t.getMessage());
 			}
-		}).start();
+		});
 
 		Thread.sleep(2000);
 
@@ -324,7 +324,7 @@ public abstract class AbstractReadWriteRtsCtsTests extends AbstractReadWriteTest
 		Arrays.fill(sendBuff, (byte) 0x7F);
 
 		final Object lock = new Object();
-		final Thread t = new Thread(() -> {
+		EXECUTOR_SERVICE.submit(() -> {
 			try {
 				final long start = System.currentTimeMillis();
 				final int i = is.read(recBuff);
@@ -340,7 +340,6 @@ public abstract class AbstractReadWriteRtsCtsTests extends AbstractReadWriteTest
 			}
 
 		});
-		t.start();
 
 		// Quick and dirty time lock to start receiver thread
 		Thread.sleep(100);

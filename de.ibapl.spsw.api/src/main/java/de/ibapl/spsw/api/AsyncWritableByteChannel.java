@@ -19,53 +19,23 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-package de.ibapl.spsw.tests;
+package de.ibapl.spsw.api;
 
-import java.util.Set;
-
-import de.ibapl.spsw.api.DataBits;
-import de.ibapl.spsw.api.FlowControl;
-import de.ibapl.spsw.api.Parity;
-import de.ibapl.spsw.api.SerialPortConfiguration;
-import de.ibapl.spsw.api.SerialPortSocket;
-import de.ibapl.spsw.api.Speed;
-import de.ibapl.spsw.api.StopBits;
+import java.io.IOException;
+import java.nio.ByteBuffer;
+import java.util.concurrent.Future;
+import java.util.function.BiConsumer;
+import java.util.function.Consumer;
 
 /**
- * Helper class for iterative tests.
- * 
- * @author Arne Plöse
  *
+ * @author aploese
  */
-public interface PortConfiguration {
-	final static int TEST_TIMEOUT_OFFSET = 1000;
-	final static int TEST_TIMEOUT_MULTIPLYER = 20;
+public interface AsyncWritableByteChannel {
 
-	Speed getSpeed();
+    void writeAsync(ByteBuffer src, Consumer<ByteBuffer> callbackOnSuccess, Consumer<IOException> callbackOnFailure) throws IOException;
 
-	DataBits getDataBits();
+    void writeAsync(ByteBuffer src, BiConsumer<ByteBuffer, IOException> callback) throws IOException;
 
-	Parity getParity();
-
-	StopBits getStopBits();
-
-	Set<FlowControl> getFlowControl();
-
-	int getInterByteReadTimeout();
-
-	int getOverallWriteTimeout();
-
-	int getOverallReadTimeout();
-
-	int getBufferSize();
-
-	default int calcMaxTransferTime() {
-		return TEST_TIMEOUT_OFFSET + SerialPortConfiguration.calculateMillisForCharacters(getBufferSize(), getSpeed(),
-				getDataBits(), getStopBits(), getParity());
-	}
-
-	default long getTestTimeout() {
-		return calcMaxTransferTime() * TEST_TIMEOUT_MULTIPLYER;
-	}
-
+    Future<ByteBuffer> writeAsync(ByteBuffer src) throws IOException;
 }

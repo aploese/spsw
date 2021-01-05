@@ -21,57 +21,160 @@
  */
 package de.ibapl.spsw.tests;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-
-import java.nio.ByteBuffer;
-
-import org.junit.jupiter.api.Test;
-
+import static de.ibapl.spsw.tests.SetupAndTeardownTests.LOG;
 import de.ibapl.spsw.tests.tags.BaselineTest;
 import de.ibapl.spsw.tests.tags.ByteChannelTest;
+import java.nio.ByteBuffer;
+import java.util.LinkedList;
+import java.util.logging.Level;
+import org.junit.jupiter.api.Assertions;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import org.junit.jupiter.api.Test;
 
-public abstract class AbstractChannelTests extends AbstractReadWriteTest {
+public abstract class AbstractChannelTests extends SetupAndTeardownTests {
 
-	@BaselineTest
-	@ByteChannelTest
-	@Test
-	public void test_Channel_Write_Read_Position() throws Exception {
-		PortConfiguration pc = new PortConfigurationFactory().ofCurrent();
-		open(pc);
-		ByteBuffer sendBuffer = ByteBuffer.allocateDirect(64);
-		sendBuffer.put("abcdefghijklmnopqrstuvwxyz".getBytes());
-		sendBuffer.flip();
-		final int writeStart = 2;
-		sendBuffer.position(writeStart);
+    @BaselineTest
+    @ByteChannelTest
+    @Test
+    public void test_Channel_Write_Read_Position() throws Exception {
+        assumeRWTest();
+        PortConfiguration pc = new PortConfigurationFactory().ofCurrent();
+        open(pc);
+        ByteBuffer sendBuffer = ByteBuffer.allocateDirect(64);
+        sendBuffer.put("abcdefghijklmnopqrstuvwxyz".getBytes());
+        sendBuffer.flip();
+        final int writeStart = 2;
+        sendBuffer.position(writeStart);
 
-		long written = writeSpc.write(sendBuffer);
-		assertEquals(24, written);
-		assertEquals(sendBuffer.position(), sendBuffer.limit());
+        long written = writeSpc.write(sendBuffer);
+        assertEquals(24, written);
+        assertEquals(sendBuffer.position(), sendBuffer.limit());
 
-		
-		ByteBuffer recBuffer = ByteBuffer.allocateDirect(64);
-		recBuffer.position(0);
-		recBuffer.limit(2);
+        ByteBuffer recBuffer = ByteBuffer.allocateDirect(64);
+        recBuffer.position(0);
+        recBuffer.limit(2);
 
-		long read = readSpc.read(recBuffer);
-		assertEquals(2, read);
-		assertEquals(recBuffer.position(), recBuffer.limit());
-		recBuffer.flip();
-		assertEquals('c', (char)recBuffer.get());
-		assertEquals('d', (char)recBuffer.get());
-		recBuffer.limit(recBuffer.limit() + 5);
-		read = readSpc.read(recBuffer);
-		assertEquals(5, read);
-		assertEquals(recBuffer.position(), recBuffer.limit());
-		recBuffer.flip();
-		assertEquals('c', (char)recBuffer.get());
-		assertEquals('d', (char)recBuffer.get());
-		assertEquals('e', (char)recBuffer.get());
-		assertEquals('f', (char)recBuffer.get());
-		assertEquals('g', (char)recBuffer.get());
-		assertEquals('h', (char)recBuffer.get());
-		assertEquals('i', (char)recBuffer.get());
-		
-	}
+        long read = readSpc.read(recBuffer);
+        assertEquals(2, read);
+        assertEquals(recBuffer.position(), recBuffer.limit());
+        recBuffer.flip();
+        assertEquals('c', (char) recBuffer.get());
+        assertEquals('d', (char) recBuffer.get());
+        recBuffer.limit(recBuffer.limit() + 5);
+        read = readSpc.read(recBuffer);
+        assertEquals(5, read);
+        assertEquals(recBuffer.position(), recBuffer.limit());
+        recBuffer.flip();
+        assertEquals('c', (char) recBuffer.get());
+        assertEquals('d', (char) recBuffer.get());
+        assertEquals('e', (char) recBuffer.get());
+        assertEquals('f', (char) recBuffer.get());
+        assertEquals('g', (char) recBuffer.get());
+        assertEquals('h', (char) recBuffer.get());
+        assertEquals('i', (char) recBuffer.get());
 
+    }
+
+    @BaselineTest
+    @Test
+    public void testRead_InfiniteReadTimeout() throws Exception {
+        final int BYTES_TO_TRANSFER = 512;
+        assumeRWTest();
+        LOG.log(Level.INFO, "run testRead");
+        openDefault();
+        //Some devices have an buffer of 32 so interByteTimeout must be greater...
+        readSpc.setTimeouts(readSpc.calculateMillisForCharacters(40), 0, readSpc.calculateMillisForCharacters(BYTES_TO_TRANSFER));
+        assertTrue(writeSpc.isOpen());
+
+        final ByteBuffer dst = ByteBuffer.allocateDirect(BYTES_TO_TRANSFER * 3);
+
+        final LinkedList readResult = new LinkedList();
+
+        EXECUTOR_SERVICE.submit(() -> {
+            try {
+                final Integer result = readSpc.read(dst);
+                readResult.add(result);
+            } catch (Throwable t) {
+                readResult.add(t);
+            } finally {
+                synchronized (readResult) {
+                    readResult.notifyAll();
+                }
+            }
+        });
+
+        final ByteBuffer src = ByteBuffer.allocateDirect(BYTES_TO_TRANSFER * 2);
+        for (int i = 0; i < BYTES_TO_TRANSFER; i++) {
+            src.put((byte) i);
+        }
+        src.flip();
+
+        writeSpc.write(src);
+
+        Assertions.assertEquals(BYTES_TO_TRANSFER, src.position(), "BYTES_TO_TRANSFER != src.position()");
+
+        synchronized (readResult) {
+            if (readResult.isEmpty()) {
+                readResult.wait(2000);
+            }
+        }
+
+        Assertions.assertEquals(1, readResult.size());
+        Assertions.assertEquals(Integer.class, readResult.getFirst().getClass());
+        Assertions.assertEquals(BYTES_TO_TRANSFER, readResult.getFirst(), "BYTES_TO_TRANSFER != readResult.getFirst()");
+        Assertions.assertEquals(BYTES_TO_TRANSFER, dst.position(), "BYTES_TO_TRANSFER != dst.position()");
+
+    }
+
+    @BaselineTest
+    @Test
+    public void testRead_FiniteReadTimeout() throws Exception {
+        final int BYTES_TO_TRANSFER = 512;
+        assumeRWTest();
+        LOG.log(Level.INFO, "run testRead");
+        openDefault();
+        //Some devices have an buffer of 32 so interByteTimeout must be greater...
+        readSpc.setTimeouts(readSpc.calculateMillisForCharacters(40), readSpc.calculateMillisForCharacters(BYTES_TO_TRANSFER * 2), readSpc.calculateMillisForCharacters(BYTES_TO_TRANSFER));
+        assertTrue(writeSpc.isOpen());
+
+        final ByteBuffer dst = ByteBuffer.allocateDirect(BYTES_TO_TRANSFER * 3);
+
+        final LinkedList readResult = new LinkedList();
+
+        EXECUTOR_SERVICE.submit(() -> {
+            try {
+                final Integer result = readSpc.read(dst);
+                readResult.add(result);
+            } catch (Throwable t) {
+                readResult.add(t);
+            } finally {
+                synchronized (readResult) {
+                    readResult.notifyAll();
+                }
+            }
+        });
+
+        final ByteBuffer src = ByteBuffer.allocateDirect(BYTES_TO_TRANSFER * 2);
+        for (int i = 0; i < BYTES_TO_TRANSFER; i++) {
+            src.put((byte) i);
+        }
+        src.flip();
+
+        writeSpc.write(src);
+
+        Assertions.assertEquals(BYTES_TO_TRANSFER, src.position(), "BYTES_TO_TRANSFER != src.position()");
+
+        synchronized (readResult) {
+            if (readResult.isEmpty()) {
+                readResult.wait(2000);
+            }
+        }
+
+        Assertions.assertEquals(1, readResult.size());
+        Assertions.assertEquals(Integer.class, readResult.getFirst().getClass());
+        Assertions.assertEquals(BYTES_TO_TRANSFER, readResult.getFirst(), "BYTES_TO_TRANSFER != readResult.getFirst()");
+        Assertions.assertEquals(BYTES_TO_TRANSFER, dst.position(), "BYTES_TO_TRANSFER != dst.position()");
+
+    }
 }

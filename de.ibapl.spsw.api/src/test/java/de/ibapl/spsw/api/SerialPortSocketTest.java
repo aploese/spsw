@@ -34,34 +34,34 @@ public class SerialPortSocketTest {
 
 	@Test
 	public void testCalculateMillisForCharacters() {
-		int result = SerialPortSocket.calculateMillisForCharacters(1024, Speed._50_BPS, DataBits.DB_8, StopBits.SB_2,
+		int result = SerialPortConfiguration.calculateMillisForCharacters(1024, Speed._50_BPS, DataBits.DB_8, StopBits.SB_2,
 				Parity.EVEN);
 		assertEquals(245760, result);
-		result = SerialPortSocket.calculateMillisForCharacters(1024, Speed._50_BPS, DataBits.DB_8, StopBits.SB_1,
+		result = SerialPortConfiguration.calculateMillisForCharacters(1024, Speed._50_BPS, DataBits.DB_8, StopBits.SB_1,
 				Parity.EVEN);
 		assertEquals(225280, result);
-		result = SerialPortSocket.calculateMillisForCharacters(1024, Speed._50_BPS, DataBits.DB_8, StopBits.SB_2,
+		result = SerialPortConfiguration.calculateMillisForCharacters(1024, Speed._50_BPS, DataBits.DB_8, StopBits.SB_2,
 				Parity.EVEN);
 		assertEquals(245760, result);
-		result = SerialPortSocket.calculateMillisForCharacters(1024, Speed._9600_BPS, DataBits.DB_8, StopBits.SB_1,
+		result = SerialPortConfiguration.calculateMillisForCharacters(1024, Speed._9600_BPS, DataBits.DB_8, StopBits.SB_1,
 				Parity.EVEN);
 		assertEquals(1174, result);
-		result = SerialPortSocket.calculateMillisForCharacters(1024, Speed._4000000_BPS, DataBits.DB_8, StopBits.SB_1,
+		result = SerialPortConfiguration.calculateMillisForCharacters(1024, Speed._4000000_BPS, DataBits.DB_8, StopBits.SB_1,
 				Parity.EVEN);
 		assertEquals(3, result);
-		result = SerialPortSocket.calculateMillisForCharacters(1024, Speed._4000000_BPS, DataBits.DB_8, StopBits.SB_2,
+		result = SerialPortConfiguration.calculateMillisForCharacters(1024, Speed._4000000_BPS, DataBits.DB_8, StopBits.SB_2,
 				Parity.EVEN);
 		assertEquals(4, result);
-		result = SerialPortSocket.calculateMillisForCharacters(1024, Speed._4000000_BPS, DataBits.DB_8, StopBits.SB_1,
+		result = SerialPortConfiguration.calculateMillisForCharacters(1024, Speed._4000000_BPS, DataBits.DB_8, StopBits.SB_1,
 				Parity.NONE);
 		assertEquals(3, result);
-		result = SerialPortSocket.calculateMillisForCharacters(1024, Speed._4000000_BPS, DataBits.DB_5, StopBits.SB_1,
+		result = SerialPortConfiguration.calculateMillisForCharacters(1024, Speed._4000000_BPS, DataBits.DB_5, StopBits.SB_1,
 				Parity.NONE);
 		assertEquals(2, result);
 
 		// This should sum up to a second. 10 Bit per character to transfer and 5
 		// characters to transfer.
-		result = SerialPortSocket.calculateMillisForCharacters(5, Speed._50_BPS, DataBits.DB_8, StopBits.SB_1,
+		result = SerialPortConfiguration.calculateMillisForCharacters(5, Speed._50_BPS, DataBits.DB_8, StopBits.SB_1,
 				Parity.NONE);
 		assertEquals(1000, result);
 
@@ -70,27 +70,27 @@ public class SerialPortSocketTest {
 	@Test
 	public void testCalculateMillisPerCharacter() {
 		// Longest Time
-		double result = SerialPortSocket.calculateMillisPerCharacter(Speed._50_BPS, DataBits.DB_8, StopBits.SB_2,
+		double result = SerialPortConfiguration.calculateMillisPerCharacter(Speed._50_BPS, DataBits.DB_8, StopBits.SB_2,
 				Parity.EVEN);
 		assertEquals(240.0, result);
-		result = SerialPortSocket.calculateMillisPerCharacter(Speed._50_BPS, DataBits.DB_8, StopBits.SB_1, Parity.EVEN);
+		result = SerialPortConfiguration.calculateMillisPerCharacter(Speed._50_BPS, DataBits.DB_8, StopBits.SB_1, Parity.EVEN);
 		assertEquals(220.0, result);
-		result = SerialPortSocket.calculateMillisPerCharacter(Speed._50_BPS, DataBits.DB_8, StopBits.SB_2, Parity.EVEN);
+		result = SerialPortConfiguration.calculateMillisPerCharacter(Speed._50_BPS, DataBits.DB_8, StopBits.SB_2, Parity.EVEN);
 		assertEquals(240.0, result);
-		result = SerialPortSocket.calculateMillisPerCharacter(Speed._9600_BPS, DataBits.DB_8, StopBits.SB_1,
+		result = SerialPortConfiguration.calculateMillisPerCharacter(Speed._9600_BPS, DataBits.DB_8, StopBits.SB_1,
 				Parity.EVEN);
 		assertEquals(1.1458333333333333, result);
-		result = SerialPortSocket.calculateMillisPerCharacter(Speed._4000000_BPS, DataBits.DB_8, StopBits.SB_1,
+		result = SerialPortConfiguration.calculateMillisPerCharacter(Speed._4000000_BPS, DataBits.DB_8, StopBits.SB_1,
 				Parity.EVEN);
 		assertEquals(0.00275, result);
-		result = SerialPortSocket.calculateMillisPerCharacter(Speed._4000000_BPS, DataBits.DB_8, StopBits.SB_2,
+		result = SerialPortConfiguration.calculateMillisPerCharacter(Speed._4000000_BPS, DataBits.DB_8, StopBits.SB_2,
 				Parity.EVEN);
 		assertEquals(0.003, result);
-		result = SerialPortSocket.calculateMillisPerCharacter(Speed._4000000_BPS, DataBits.DB_8, StopBits.SB_1,
+		result = SerialPortConfiguration.calculateMillisPerCharacter(Speed._4000000_BPS, DataBits.DB_8, StopBits.SB_1,
 				Parity.NONE);
 		assertEquals(0.0025, result);
 		// Shortest Time
-		result = SerialPortSocket.calculateMillisPerCharacter(Speed._4000000_BPS, DataBits.DB_5, StopBits.SB_1,
+		result = SerialPortConfiguration.calculateMillisPerCharacter(Speed._4000000_BPS, DataBits.DB_5, StopBits.SB_1,
 				Parity.NONE);
 		assertEquals(0.00175, result);
 	}
@@ -98,36 +98,36 @@ public class SerialPortSocketTest {
 	@Test
 	public void calculateSpeedInCharactersPerSecond() {
 		// Lowest speed
-		double result = SerialPortSocket.calculateSpeedInCharactersPerSecond(Speed._50_BPS, DataBits.DB_8,
+		double result = SerialPortConfiguration.calculateSpeedInCharactersPerSecond(Speed._50_BPS, DataBits.DB_8,
 				StopBits.SB_2, Parity.EVEN);
 		assertEquals(50.0 / 12.0, result);
 		assertEquals(4.166666666666667, result);
-		result = SerialPortSocket.calculateSpeedInCharactersPerSecond(Speed._50_BPS, DataBits.DB_8, StopBits.SB_1,
+		result = SerialPortConfiguration.calculateSpeedInCharactersPerSecond(Speed._50_BPS, DataBits.DB_8, StopBits.SB_1,
 				Parity.EVEN);
 		assertEquals(50.0 / 11.0, result);
 		assertEquals(4.545454545454546, result);
-		result = SerialPortSocket.calculateSpeedInCharactersPerSecond(Speed._50_BPS, DataBits.DB_8, StopBits.SB_2,
+		result = SerialPortConfiguration.calculateSpeedInCharactersPerSecond(Speed._50_BPS, DataBits.DB_8, StopBits.SB_2,
 				Parity.EVEN);
 		assertEquals(50.0 / 12.0, result);
 		assertEquals(4.166666666666667, result);
-		result = SerialPortSocket.calculateSpeedInCharactersPerSecond(Speed._9600_BPS, DataBits.DB_8, StopBits.SB_1,
+		result = SerialPortConfiguration.calculateSpeedInCharactersPerSecond(Speed._9600_BPS, DataBits.DB_8, StopBits.SB_1,
 				Parity.EVEN);
 		assertEquals(9600.0 / 11.0, result);
 		assertEquals(872.7272727272727, result);
-		result = SerialPortSocket.calculateSpeedInCharactersPerSecond(Speed._4000000_BPS, DataBits.DB_8, StopBits.SB_1,
+		result = SerialPortConfiguration.calculateSpeedInCharactersPerSecond(Speed._4000000_BPS, DataBits.DB_8, StopBits.SB_1,
 				Parity.EVEN);
 		assertEquals(4000000.0 / 11.0, result);
 		assertEquals(363636.36363636365, result);
-		result = SerialPortSocket.calculateSpeedInCharactersPerSecond(Speed._4000000_BPS, DataBits.DB_8, StopBits.SB_2,
+		result = SerialPortConfiguration.calculateSpeedInCharactersPerSecond(Speed._4000000_BPS, DataBits.DB_8, StopBits.SB_2,
 				Parity.EVEN);
 		assertEquals(4000000.0 / 12.0, result);
 		assertEquals(333333.3333333333, result);
-		result = SerialPortSocket.calculateSpeedInCharactersPerSecond(Speed._4000000_BPS, DataBits.DB_8, StopBits.SB_1,
+		result = SerialPortConfiguration.calculateSpeedInCharactersPerSecond(Speed._4000000_BPS, DataBits.DB_8, StopBits.SB_1,
 				Parity.NONE);
 		assertEquals(4000000.0 / 10.0, result);
 		assertEquals(400000, result);
 		// Highest speed
-		result = SerialPortSocket.calculateSpeedInCharactersPerSecond(Speed._4000000_BPS, DataBits.DB_5, StopBits.SB_1,
+		result = SerialPortConfiguration.calculateSpeedInCharactersPerSecond(Speed._4000000_BPS, DataBits.DB_5, StopBits.SB_1,
 				Parity.NONE);
 		assertEquals(4000000.0 / 7.0, result);
 		assertEquals(571428.5714285715, result);

@@ -21,15 +21,23 @@
  */
 package de.ibapl.spsw.jnhwprovider;
 
+import de.ibapl.spsw.api.SerialPortSocket;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.ByteBuffer;
 import java.nio.channels.AsynchronousCloseException;
-
-import de.ibapl.spsw.api.SerialPortSocket;
 import java.nio.channels.spi.AbstractInterruptibleChannel;
 
+/**
+ * Currently its more effective to buffer arrays in a ByteBuffer instead
+ * of unwrap each array in the native part - we do not know how much we can
+ * write or read so the whole array is copied for each call for instahnce
+ * (POSIX) Unistd.write.
+ *
+ * @author aploese
+ * @param <T>
+ */
 public abstract class AbstractSerialPortSocket<T extends AbstractSerialPortSocket<T>> extends AbstractInterruptibleChannel implements SerialPortSocket {
 
     public final static int BUFFER_SIZE = 1024;
@@ -87,7 +95,7 @@ public abstract class AbstractSerialPortSocket<T extends AbstractSerialPortSocke
                 synchronized (readBuffer) {
                     readBuffer.clear().limit(len);
                     try {
-                        int result = AbstractSerialPortSocket.this.read(readBuffer);
+                        final int result = AbstractSerialPortSocket.this.read(readBuffer);
                         readBuffer.flip();
                         readBuffer.get(b, off, result);
                         return result;
@@ -98,7 +106,7 @@ public abstract class AbstractSerialPortSocket<T extends AbstractSerialPortSocke
             } else {
                 final ByteBuffer buf = ByteBuffer.allocateDirect(len);
                 try {
-                    int result = AbstractSerialPortSocket.this.read(buf);
+                    final int result = AbstractSerialPortSocket.this.read(buf);
                     buf.flip();
                     buf.get(b, off, result);
                     return result;

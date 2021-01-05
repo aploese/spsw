@@ -19,53 +19,26 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-package de.ibapl.spsw.tests;
+package de.ibapl.spsw.api;
 
-import java.util.Set;
-
-import de.ibapl.spsw.api.DataBits;
-import de.ibapl.spsw.api.FlowControl;
-import de.ibapl.spsw.api.Parity;
-import de.ibapl.spsw.api.SerialPortConfiguration;
-import de.ibapl.spsw.api.SerialPortSocket;
-import de.ibapl.spsw.api.Speed;
-import de.ibapl.spsw.api.StopBits;
+import java.nio.channels.InterruptibleChannel;
 
 /**
- * Helper class for iterative tests.
+ * An asynchronous IO socket.
+ * This should be an for async IO optimized socket.
+ * If the data can be read/written without waiting they should read/write with the calling thread. If not, an internal thread reads/writes the data.
+ * All callbacks should be done with the currently used thread.
  * 
- * @author Arne Plöse
- *
+ * If a read/write finishes wihtout waiting, the calling thread of the callback is the thread that called read/write.
+ * If an internal thread was used that thread calls the callbacks.
+ * 
+ * So if you just need to "fast" process the read/written data, use the thread that calls the callback. If you need "more time" - use some different thread to do so.
+ * 
+ * This interface is experimental.
+ * 
+ * @author aploese
+ * 
  */
-public interface PortConfiguration {
-	final static int TEST_TIMEOUT_OFFSET = 1000;
-	final static int TEST_TIMEOUT_MULTIPLYER = 20;
-
-	Speed getSpeed();
-
-	DataBits getDataBits();
-
-	Parity getParity();
-
-	StopBits getStopBits();
-
-	Set<FlowControl> getFlowControl();
-
-	int getInterByteReadTimeout();
-
-	int getOverallWriteTimeout();
-
-	int getOverallReadTimeout();
-
-	int getBufferSize();
-
-	default int calcMaxTransferTime() {
-		return TEST_TIMEOUT_OFFSET + SerialPortConfiguration.calculateMillisForCharacters(getBufferSize(), getSpeed(),
-				getDataBits(), getStopBits(), getParity());
-	}
-
-	default long getTestTimeout() {
-		return calcMaxTransferTime() * TEST_TIMEOUT_MULTIPLYER;
-	}
-
+public interface AsyncSerialPortSocket extends SerialPortConfiguration, AsyncByteChannel, InterruptibleChannel {
+    
 }

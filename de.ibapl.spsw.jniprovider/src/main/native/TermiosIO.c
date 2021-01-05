@@ -35,15 +35,18 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-
+    
+#define PORT_FD_IDX 0
+#define CLOSE_FD_IDX 1
+    
     int32_t readBuffer(JNIEnv *env, jobject sps, void *buff, int32_t len) {
         struct pollfd fds[2];
-        fds[0].fd = (*env)->GetIntField(env, sps, spsw_fd);
-        fds[0].events = POLLIN;
-        fds[1].fd = (*env)->GetIntField(env, sps, spsw_closeEventReadFd);
-        fds[1].events = POLLIN;
+        fds[PORT_FD_IDX].fd = (*env)->GetIntField(env, sps, spsw_fd);
+        fds[PORT_FD_IDX].events = POLLIN;
+        fds[CLOSE_FD_IDX].fd = (*env)->GetIntField(env, sps, spsw_closeEventReadFd);
+        fds[CLOSE_FD_IDX].events = POLLIN;
 
-        ssize_t nread = read(fds[0].fd, buff, (uint32_t) len);
+        ssize_t nread = read(fds[PORT_FD_IDX].fd, buff, (uint32_t) len);
         if (nread < 0) {
             //Get the updatet from the class - someone could have closed it during wait...
             if ((*env)->GetIntField(env, sps, spsw_fd) == INVALID_FD) {
@@ -67,13 +70,23 @@ extern "C" {
         //read from buffer did not read all, so the overall time out may be needed
         //See javaTimeNanos() in file src/os/linux/vm/os_linux.cpp of hotspot sources
         struct timespec endTime;
-        //endtime currently holds the start time, the endtime will be calculatet only if needed
-        clock_gettime(CLOCK_MONOTONIC, &endTime);
+        //calculate endTime
+        if (pollTimeout > 0) {
+            clock_gettime(CLOCK_MONOTONIC, &endTime);
+            endTime.tv_sec += pollTimeout / 1000; //full seconds
+            endTime.tv_nsec += (pollTimeout % 1000) * 1000000; // reminder goes to nanos
+            if (endTime.tv_nsec > 1000000000) {
+                //Overflow occured
+                endTime.tv_sec += 1;
+                endTime.tv_nsec -= 1000000000;
+            }
+        }
+
 
         if (nread == 0) {
             //Nothing read yet so use the pollReadTimeout to wait for any data 
             // a guard is needed for len == 0 so we do not wait here...
-            int poll_result = poll(&fds[0], 2, pollTimeout);
+            int poll_result = poll(fds, 2, pollTimeout);
 
             if (poll_result == 0) {
                 //Timeout
@@ -84,13 +97,13 @@ extern "C" {
                         "readBytes poll: Error during poll");
                 return -1;
             } else {
-                if (fds[1].revents == POLLIN) {
+                if (fds[CLOSE_FD_IDX].revents == POLLIN) {
                     //we can read from close_event_fd => port is closing
                     throw_AsynchronousCloseException(env);
                     return -1;
-                } else if (fds[0].revents == POLLIN) {
+                } else if (fds[PORT_FD_IDX].revents == POLLIN) {
                     //Happy path just check if its the right event...
-                    nread = read(fds[0].fd, buff, (uint32_t) len);
+                    nread = read(fds[PORT_FD_IDX].fd, buff, (uint32_t) len);
                     if (nread < 0) {
                         if ((*env)->GetIntField(env, sps, spsw_fd) == INVALID_FD) {
                             throw_AsynchronousCloseException(env);
@@ -106,11 +119,11 @@ extern "C" {
                     } else if (nread == len) {
                         return (int32_t) nread;
                     }
-                } else if ((fds[0].revents & POLLHUP) == POLLHUP) {
+                } else if ((fds[PORT_FD_IDX].revents & POLLHUP) == POLLHUP) {
                     //i.e. happens when the USB to serial adapter is removed
                     throw_IOException(env, PORT_FD_INVALID);
                     return -1;
-                } else if ((fds[0].revents & POLLNVAL) == POLLNVAL) {
+                } else if ((fds[PORT_FD_IDX].revents & POLLNVAL) == POLLNVAL) {
                     throw_AsynchronousCloseException(env);
                     return -1;
                 } else {
@@ -118,17 +131,6 @@ extern "C" {
                             "readBytes poll: received poll event");
                     return -1;
                 }
-            }
-        }
-
-        //calculate the real endtime, now we need it...
-        if (pollTimeout > 0) {
-            endTime.tv_sec += pollTimeout / 1000; //full seconds
-            endTime.tv_nsec += (pollTimeout % 1000) * 1000000; // reminder goes to nanos
-            if (endTime.tv_nsec > 1000000000) {
-                //Overflow occured
-                endTime.tv_sec += 1;
-                endTime.tv_nsec -= 1000000000;
             }
         }
 
@@ -142,21 +144,21 @@ extern "C" {
         // breaks the loop
         while (overallRead < len) {
 
-            struct timespec currentTime;
-            clock_gettime(CLOCK_MONOTONIC, &currentTime);
-
-            int32_t remainingTimeOut;
-            if (pollTimeout >= 0) {
-                remainingTimeOut = (int32_t) (endTime.tv_sec - currentTime.tv_sec) * 1000 + (int32_t) ((endTime.tv_nsec - currentTime.tv_nsec) / 1000000L);
+            int poll_result;
+            if (pollTimeout == -1) {
+                //wait infinite, so just interbyte timeout counts
+                poll_result = poll(fds, 2, interByteTimeout);
+            } else {
+                struct timespec currentTime;
+                clock_gettime(CLOCK_MONOTONIC, &currentTime);
+                const int32_t remainingTimeOut = (int32_t) (endTime.tv_sec - currentTime.tv_sec) * 1000 + (int32_t) ((endTime.tv_nsec - currentTime.tv_nsec) / 1000000L);
                 if (remainingTimeOut < 0) {
                     //interbyte timeout or overalll timeout, something was read - do return whats read
                     return (int32_t) overallRead;
                 }
-            } else {
-                remainingTimeOut = -1;
+                poll_result = poll(fds, 2, interByteTimeout < remainingTimeOut ? interByteTimeout : remainingTimeOut);
             }
 
-            int poll_result = poll(&fds[0], 2, interByteTimeout < remainingTimeOut ? interByteTimeout : remainingTimeOut);
 
             if (poll_result == 0) {
                 //This is the interbyte timeout - We are done
@@ -166,17 +168,17 @@ extern "C" {
                         "readBytes poll: Error during poll");
                 return -1;
             } else {
-                if (fds[1].revents == POLLIN) {
+                if (fds[CLOSE_FD_IDX].revents == POLLIN) {
                     //we can read from close_event_fd => port is closing
                     throw_AsynchronousCloseException(env);
                     return -1;
-                } else if (fds[0].revents == POLLIN) {
+                } else if (fds[PORT_FD_IDX].revents == POLLIN) {
                     //Happy path
-                } else if ((fds[0].revents & POLLHUP) == POLLHUP) {
+                } else if ((fds[PORT_FD_IDX].revents & POLLHUP) == POLLHUP) {
                     //i.e. happens when the USB to serial adapter is removed
                     throw_IOException(env, PORT_FD_INVALID);
                     return -1;
-                } else if ((fds[0].revents & POLLNVAL) == POLLNVAL) {
+                } else if ((fds[PORT_FD_IDX].revents & POLLNVAL) == POLLNVAL) {
                     throw_AsynchronousCloseException(env);
                     return -1;
                 } else {
@@ -187,7 +189,7 @@ extern "C" {
             }
 
             //OK No timeout and no error, we should read at least one byte without blocking.
-            nread = read(fds[0].fd, buff + overallRead, (uint32_t) len - (size_t) overallRead);
+            nread = read(fds[PORT_FD_IDX].fd, buff + overallRead, (uint32_t) len - (size_t) overallRead);
             if (nread > 0) {
                 overallRead += nread;
             } else {
@@ -263,18 +265,8 @@ extern "C" {
         //See javaTimeNanos() in file src/os/linux/vm/os_linux.cpp of hotspot sources
         struct timespec endTime;
         //endTime holds the now the start time, the real end time will be calculated if needed
-        clock_gettime(CLOCK_MONOTONIC, &endTime);
-
-        struct pollfd fds[2];
-        fds[0].fd = fd;
-        fds[0].events = POLLOUT;
-        fds[1].fd = (*env)->GetIntField(env, sps, spsw_closeEventReadFd);
-        fds[1].events = POLLIN;
-
-        //written cant be < 0 so this is save
-        size_t offset = (size_t) written;
-        //calculate the real endtime, now we need it...
         if (pollTimeout > 0) {
+            clock_gettime(CLOCK_MONOTONIC, &endTime);
             endTime.tv_sec += pollTimeout / 1000; //full seconds
             endTime.tv_nsec += (pollTimeout % 1000) * 1000000; // reminder goes to nanos
             if (endTime.tv_nsec > 1000000000) {
@@ -284,13 +276,21 @@ extern "C" {
             }
         }
 
-        do {
-            struct timespec currentTime;
-            clock_gettime(CLOCK_MONOTONIC, &currentTime);
+        struct pollfd fds[2];
+        fds[PORT_FD_IDX].fd = fd;
+        fds[PORT_FD_IDX].events = POLLOUT;
+        fds[CLOSE_FD_IDX].fd = (*env)->GetIntField(env, sps, spsw_closeEventReadFd);
+        fds[CLOSE_FD_IDX].events = POLLIN;
 
+        //written cant be < 0 so this is save
+        size_t offset = (size_t) written;
+
+        do {
 
             int32_t remainingTimeOut;
             if (pollTimeout >= 0) {
+                struct timespec currentTime;
+                clock_gettime(CLOCK_MONOTONIC, &currentTime);
                 remainingTimeOut = (int32_t) (endTime.tv_sec - currentTime.tv_sec) * 1000 + (int32_t) ((endTime.tv_nsec - currentTime.tv_nsec) / 1000000L);
                 if (remainingTimeOut < 0) {
                     throw_TimeoutIOException(env, (size_t) written, "writeBuffer overallWriteTimeout");
@@ -300,7 +300,7 @@ extern "C" {
                 remainingTimeOut = -1;
             }
 
-            int poll_result = poll(&fds[0], 2, remainingTimeOut);
+            int poll_result = poll(fds, 2, remainingTimeOut);
 
             if (poll_result == 0) {
                 //Timeout occured
@@ -310,17 +310,17 @@ extern "C" {
                 throw_InterruptedIOExceptionWithError(env, offset, "poll timeout with error writeBytes");
                 return (int32_t) written;
             } else {
-                if (fds[1].revents == POLLIN) {
+                if (fds[CLOSE_FD_IDX].revents == POLLIN) {
                     //we can read from close_event_fd => port is closing
                     throw_AsynchronousCloseException(env);
                     return (int32_t) written;
-                } else if (fds[0].revents == POLLOUT) {
+                } else if (fds[PORT_FD_IDX].revents == POLLOUT) {
                     //Happy path all is right...
-                } else if ((fds[0].revents & POLLHUP) == POLLHUP) {
+                } else if ((fds[PORT_FD_IDX].revents & POLLHUP) == POLLHUP) {
                     //i.e. happens when the USB to serial adapter is removed
                     throw_IOException(env, PORT_FD_INVALID);
                     return -1;
-                } else if ((fds[0].revents & POLLNVAL) == POLLNVAL) {
+                } else if ((fds[PORT_FD_IDX].revents & POLLNVAL) == POLLNVAL) {
                     throw_AsynchronousCloseException(env);
                     return -1;
                 } else {

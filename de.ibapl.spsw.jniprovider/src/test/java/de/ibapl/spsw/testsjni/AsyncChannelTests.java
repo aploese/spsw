@@ -19,53 +19,14 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-package de.ibapl.spsw.tests;
+package de.ibapl.spsw.testsjni;
 
-import java.util.Set;
-
-import de.ibapl.spsw.api.DataBits;
-import de.ibapl.spsw.api.FlowControl;
-import de.ibapl.spsw.api.Parity;
-import de.ibapl.spsw.api.SerialPortConfiguration;
-import de.ibapl.spsw.api.SerialPortSocket;
-import de.ibapl.spsw.api.Speed;
-import de.ibapl.spsw.api.StopBits;
+import de.ibapl.spsw.tests.AbstractAsyncChannelTests;
 
 /**
- * Helper class for iterative tests.
- * 
- * @author Arne Plöse
  *
+ * @author Arne Plöse
  */
-public interface PortConfiguration {
-	final static int TEST_TIMEOUT_OFFSET = 1000;
-	final static int TEST_TIMEOUT_MULTIPLYER = 20;
-
-	Speed getSpeed();
-
-	DataBits getDataBits();
-
-	Parity getParity();
-
-	StopBits getStopBits();
-
-	Set<FlowControl> getFlowControl();
-
-	int getInterByteReadTimeout();
-
-	int getOverallWriteTimeout();
-
-	int getOverallReadTimeout();
-
-	int getBufferSize();
-
-	default int calcMaxTransferTime() {
-		return TEST_TIMEOUT_OFFSET + SerialPortConfiguration.calculateMillisForCharacters(getBufferSize(), getSpeed(),
-				getDataBits(), getStopBits(), getParity());
-	}
-
-	default long getTestTimeout() {
-		return calcMaxTransferTime() * TEST_TIMEOUT_MULTIPLYER;
-	}
+public class AsyncChannelTests extends AbstractAsyncChannelTests {
 
 }

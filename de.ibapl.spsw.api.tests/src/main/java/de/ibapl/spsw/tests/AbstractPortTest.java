@@ -21,54 +21,25 @@
  */
 package de.ibapl.spsw.tests;
 
-import static org.junit.jupiter.api.Assertions.assertAll;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertNull;
-import static org.junit.jupiter.api.Assertions.assertTimeoutPreemptively;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.junit.jupiter.api.Assertions.fail;
-import static org.junit.jupiter.api.Assumptions.assumeTrue;
-
-import java.io.IOException;
+import de.ibapl.spsw.api.SerialPortSocket;
+import de.ibapl.spsw.api.TimeoutIOException;
 import java.io.InputStream;
 import java.io.InterruptedIOException;
 import java.io.OutputStream;
 import java.nio.ByteBuffer;
-import java.text.MessageFormat;
 import java.time.Duration;
-import java.util.Iterator;
-import java.util.Properties;
-import java.util.ServiceLoader;
-import java.util.Set;
 import java.util.logging.Level;
-import java.util.logging.Logger;
-
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.TestInfo;
-import org.junit.jupiter.api.TestInstance;
-import org.junit.jupiter.api.TestInstance.Lifecycle;
-import org.junit.jupiter.api.extension.AfterTestExecutionCallback;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.junit.jupiter.api.extension.ExtensionContext;
-
-import de.ibapl.spsw.api.DataBits;
-import de.ibapl.spsw.api.FlowControl;
-import de.ibapl.spsw.api.Parity;
-import de.ibapl.spsw.api.SerialPortSocket;
-import de.ibapl.spsw.api.SerialPortSocketFactory;
-import de.ibapl.spsw.api.Speed;
-import de.ibapl.spsw.api.StopBits;
-import de.ibapl.spsw.api.TimeoutIOException;
+import static org.junit.jupiter.api.Assertions.assertAll;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTimeoutPreemptively;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 
 /**
  * @author Arne Plöse
  */
-@ExtendWith(AbstractPortTest.AfterTestExecution.class)
-@TestInstance(Lifecycle.PER_CLASS)
-public abstract class AbstractPortTest {
+public abstract class AbstractPortTest extends SetupAndTeardownTests {
 
     public class Receiver implements Runnable {
 
@@ -338,226 +309,6 @@ public abstract class AbstractPortTest {
         }
     }
 
-    protected static final int PORT_RECOVERY_TIME_MS = 200;
-
-    protected static final Logger LOG = Logger.getLogger("SpswTests");
-    private static String readSerialPortName;
-    private static String writeSerialPortName;
-
-    protected SerialPortSocket readSpc;
-    protected SerialPortSocket writeSpc;
-
-    protected boolean currentTestFailed;
-
-    protected SerialPortSocketFactory getSerialPortSocketFactory() {
-        ServiceLoader<SerialPortSocketFactory> serviceLoader = ServiceLoader.load(SerialPortSocketFactory.class);
-        Iterator<SerialPortSocketFactory> iterator = serviceLoader.iterator();
-        assertTrue(iterator.hasNext(), "No implementation of SerialPortSocket found - Please fix test setup");
-        final SerialPortSocketFactory result = iterator.next();
-        assertFalse(iterator.hasNext(),
-                "More than one implementation of SerialPortSocket found - Please fix test setup");
-        return result;
-    }
-
-    public static class AfterTestExecution implements AfterTestExecutionCallback {
-
-        @Override
-        public void afterTestExecution(ExtensionContext context) throws Exception {
-            ((AbstractPortTest) context.getRequiredTestInstance()).currentTestFailed = context.getExecutionException()
-                    .isPresent();
-        }
-    }
-
-    protected void setSpeed(Speed speed) throws IOException {
-        if (readSpc != null) {
-            readSpc.setSpeed(speed);
-        }
-        if (writeSpc != null && writeSpc != readSpc) {
-            writeSpc.setSpeed(speed);
-        }
-    }
-
-    protected void assumeRTest() {
-        assumeTrue(readSerialPortName != null);
-    }
-
-    protected void assumeWTest() {
-        assumeTrue(writeSerialPortName != null);
-    }
-
-    protected void assumeRWTest() {
-        assumeRTest();
-        assumeWTest();
-    }
-
-    protected void openDefault() throws IOException {
-        open(Speed._9600_BPS, DataBits.DB_8, StopBits.SB_1, Parity.NONE, FlowControl.getFC_NONE());
-    }
-
-    /**
-     * Opens the port and make sure that In and out buffer are empty
-     *
-     * @param speed
-     * @param dataBits
-     * @param stopBits
-     * @param parity
-     * @param flowControl
-     * @throws Exception
-     */
-    protected void open(Speed speed, DataBits dataBits, StopBits stopBits, Parity parity, Set<FlowControl> flowControl)
-            throws IOException {
-        final SerialPortSocketFactory factory = getSerialPortSocketFactory();
-        if (readSerialPortName != null) {
-            try {
-                readSpc = factory.open(readSerialPortName, speed, dataBits, stopBits, parity, flowControl);
-            } catch (Exception e) {
-                LOG.log(Level.SEVERE, "Error during readSpc.open(" + speed + ", " + dataBits + ", " + stopBits + ", " + parity + ", " + flowControl + ");", e);
-                throw e;
-            }
-            assertEquals(0, readSpc.getOutBufferBytesCount(), "Can't start test: OutBuffer is not empty");
-            while (readSpc.getInBufferBytesCount() > 0) {
-                readSpc.getInputStream().read(new byte[readSpc.getInBufferBytesCount()]);
-                try {
-                    Thread.sleep(100);
-                } catch (InterruptedException ie) {
-                    throw  new RuntimeException(ie);
-                }
-            }
-            assertEquals(0, readSpc.getInBufferBytesCount(), "Can't start test: InBuffer is not empty");
-//No wrapper			readSpc = LoggingSerialPortSocket.wrapWithHexOutputStream(readSpc, new FileOutputStream("/tmp/test_serial.txt"), true, TimeStampLogging.FROM_OPEN);
-        }
-        if (writeSerialPortName != null) {
-            if (writeSerialPortName.equals(readSerialPortName)) {
-                writeSpc = readSpc;
-            } else {
-                try {
-                    writeSpc = factory.open(writeSerialPortName, speed, dataBits, stopBits, parity, flowControl);
-                } catch (Exception e) {
-                    LOG.log(Level.SEVERE, "Error during writeSpc.open(" + speed + ", " + dataBits + ", " + stopBits + ", " + parity + ", " + flowControl + ");", e);
-                    throw e;
-                }
-                assertEquals(0, writeSpc.getOutBufferBytesCount(), "Can't start test: OutBuffer is not empty");
-                while (writeSpc.getInBufferBytesCount() > 0) {
-                    writeSpc.getInputStream().read(new byte[writeSpc.getInBufferBytesCount()]);
-                try {
-                    Thread.sleep(100);
-                } catch (InterruptedException ie) {
-                    throw  new RuntimeException(ie);
-                }
-                }
-                assertEquals(0, writeSpc.getInBufferBytesCount(), "Can't start test: InBuffer is not empty");
-            }
-        }
-
-    }
-
-    protected void setTimeouts(int interByteReadTimeout, int overallReadTimeout, int overallWriteTimeout)
-            throws Exception {
-        if (readSpc != null) {
-            readSpc.setTimeouts(interByteReadTimeout, overallReadTimeout, overallWriteTimeout);
-        }
-        if (writeSpc != null && writeSpc != readSpc) {
-            writeSpc.setTimeouts(interByteReadTimeout, overallReadTimeout, overallWriteTimeout);
-        }
-    }
-
-    protected void printPorts() throws IOException {
-        if (readSpc != null && writeSpc != null && readSpc != writeSpc) {
-            StringBuilder sb = new StringBuilder();
-            sb.append(String.format("\n\tName:        %-20s %-20s\n", readSpc.getPortName(), writeSpc.getPortName()));
-            sb.append(String.format("\tSpeed:    %-20d %-20d\n", readSpc.getSpeed().value, writeSpc.getSpeed().value));
-            sb.append(String.format("\tDataBits:    %-20d %-20d\n", readSpc.getDatatBits().value,
-                    writeSpc.getDatatBits().value));
-            sb.append(String.format("\tStopBits:    %-20f %-20f\n", readSpc.getStopBits().value,
-                    writeSpc.getStopBits().value));
-            sb.append(String.format("\tParity:      %-20s %-20s\n", readSpc.getParity().name(),
-                    writeSpc.getParity().name()));
-            sb.append(String.format("\tFlowControl: %-20s %-20s\n", readSpc.getFlowControl().toString(),
-                    writeSpc.getFlowControl().toString()));
-            sb.append(String.format("\tIntebyteReadTimeout:    %-20d %-20d\n", readSpc.getInterByteReadTimeout(),
-                    writeSpc.getInterByteReadTimeout()));
-            sb.append(String.format("\tOverallReadTimeout:    %-20d %-20d\n", readSpc.getOverallReadTimeout(),
-                    writeSpc.getOverallReadTimeout()));
-            sb.append(String.format("\tOverallWriteTimeout:    %-20d %-20d\n", readSpc.getOverallWriteTimeout(),
-                    writeSpc.getOverallWriteTimeout()));
-
-            LOG.log(Level.INFO, sb.toString());
-        } else {
-            @SuppressWarnings("resource")
-            SerialPortSocket spc = readSpc != null ? readSpc : writeSpc;
-            if (spc != null) {
-                StringBuilder sb = new StringBuilder();
-                sb.append(String.format("\n\tName:        %-20s\n", spc.getPortName()));
-                sb.append(String.format("\tSpeed:    %-20d\n", spc.getSpeed().value));
-                sb.append(String.format("\tDataBits:    %-20d\n", spc.getDatatBits().value));
-                sb.append(String.format("\tStopBits:    %-20f\n", spc.getStopBits().value));
-                sb.append(String.format("\tParity:      %-20s\n", spc.getParity().name()));
-                sb.append(String.format("\tFlowControl: %-20s\n", spc.getFlowControl().toString()));
-                sb.append(String.format("\tIntebyteReadTimeout:    %-20d\n", spc.getInterByteReadTimeout()));
-                sb.append(String.format("\tOverallReadTimeout:    %-20d\n", spc.getOverallReadTimeout()));
-                sb.append(String.format("\tOverallWriteTimeout:    %-20d\n", spc.getOverallWriteTimeout()));
-
-                LOG.log(Level.INFO, sb.toString());
-            }
-        }
-    }
-
-    @BeforeAll
-    public static void setUpClass() throws Exception {
-        try (InputStream is = AbstractPortTest.class.getClassLoader()
-                .getResourceAsStream("junit-spsw-config.properties")) {
-            if (is == null) {
-                readSerialPortName = null;
-                writeSerialPortName = null;
-            } else {
-                Properties p = new Properties();
-                p.load(is);
-                readSerialPortName = p.getProperty("readPort", null);
-                writeSerialPortName = p.getProperty("writePort", null);
-            }
-        }
-    }
-
-    @BeforeEach
-    public void setUp(TestInfo testInfo) throws Exception {
-        LOG.info(MessageFormat.format("do run test : {0}", testInfo.getDisplayName()));
-        readSpc = null;
-        writeSpc = null;
-    }
-
-    @AfterEach
-    public void tearDown() throws Exception {
-        if (writeSpc != null) {
-            if (writeSpc != readSpc) {
-                if (writeSpc.isOpen()) {
-                    writeSpc.close();
-                    assert !writeSpc.isOpen();
-                }
-            }
-            writeSpc = null;
-        }
-        if (readSpc != null) {
-            if (readSpc.isOpen()) {
-                readSpc.close();
-                assert !readSpc.isOpen();
-            }
-            readSpc = null;
-        }
-
-        Runtime.getRuntime().gc();
-        Runtime.getRuntime().runFinalization();
-        if (currentTestFailed) {
-            Thread.sleep(PORT_RECOVERY_TIME_MS);
-            Runtime.getRuntime().gc();
-            Runtime.getRuntime().runFinalization();
-        }
-    }
-
-    protected void open(PortConfiguration pc) throws Exception {
-        open(pc.getSpeed(), pc.getDataBits(), pc.getStopBits(), pc.getParity(), pc.getFlowControl());
-        setTimeouts(pc.getInterByteReadTimeout(), pc.getOverallReadTimeout(), pc.getOverallWriteTimeout());
-    }
-
     public void runNonThreaded(Sender sender, Receiver receiver, long timeout) throws Exception {
         assertAll("After ", () -> {
             assertTimeoutPreemptively(Duration.ofMillis(timeout), () -> {
@@ -580,8 +331,8 @@ public abstract class AbstractPortTest {
     }
 
     private void runThreaded(Sender sender, Receiver receiver, long timeout) throws Exception {
-        new Thread(receiver).start();
-        new Thread(sender).start();
+        EXECUTOR_SERVICE.submit(receiver);
+        EXECUTOR_SERVICE.submit(sender);
         assertAll("Treaded Test Run ", () -> {
             assertTimeoutPreemptively(Duration.ofMillis(timeout), () -> {
                 // Make sure all was sent

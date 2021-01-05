@@ -25,6 +25,7 @@ import de.ibapl.jnhw.libloader.MultiarchTupelBuilder;
 import de.ibapl.spsw.api.DataBits;
 import de.ibapl.spsw.api.FlowControl;
 import de.ibapl.spsw.api.Parity;
+import de.ibapl.spsw.api.SerialPortConfiguration;
 import de.ibapl.spsw.api.SerialPortSocket;
 import de.ibapl.spsw.api.Speed;
 import de.ibapl.spsw.api.StopBits;
@@ -546,8 +547,8 @@ public abstract class AbstractOnePortTest extends AbstractPortTest {
 
     @BaselineTest
     @Test
-    public void Write256kBChunk() throws Exception {
-        writeChunk(_256kB, Speed._230400_BPS, 1000 + 2 * SerialPortSocket.calculateMillisForCharacters(_256kB,
+    public void write256kBChunk() throws Exception {
+        writeChunk(_256kB, Speed._230400_BPS, 1000 + 2 * SerialPortConfiguration.calculateMillisForCharacters(_256kB,
                 Speed._230400_BPS, DataBits.DB_8, StopBits.SB_1, Parity.NONE));
     }
 
@@ -559,8 +560,8 @@ public abstract class AbstractOnePortTest extends AbstractPortTest {
 
     @NotSupportedByAllDevices
     @Test
-    public void Write1MBChunk() throws Exception {
-        writeChunk(_1MB, Speed._1000000_BPS, 1000 + 2 * SerialPortSocket.calculateMillisForCharacters(_1MB,
+    public void write1MBChunk() throws Exception {
+        writeChunk(_1MB, Speed._1000000_BPS, 1000 + 2 * SerialPortConfiguration.calculateMillisForCharacters(_1MB,
                 Speed._1000000_BPS, DataBits.DB_8, StopBits.SB_1, Parity.NONE));
     }
 
@@ -584,8 +585,8 @@ public abstract class AbstractOnePortTest extends AbstractPortTest {
      */
     @NotSupportedByAllDevices
     @Test
-    public void Write16MBChunk() throws Exception {
-        writeChunk(_16MB, Speed._1000000_BPS, 1000 + 2 * SerialPortSocket.calculateMillisForCharacters(_16MB,
+    public void write16MBChunk() throws Exception {
+        writeChunk(_16MB, Speed._1000000_BPS, 1000 + 2 * SerialPortConfiguration.calculateMillisForCharacters(_16MB,
                 Speed._1000000_BPS, DataBits.DB_8, StopBits.SB_1, Parity.NONE));
     }
 
@@ -960,10 +961,7 @@ public abstract class AbstractOnePortTest extends AbstractPortTest {
             // spc.setTimeouts(100, 1000, 1000);
             printPorts();
             final TestRead tr = new TestRead();
-            Thread t = new Thread(tr);
-            t.setDaemon(false);
-            LOG.info("Start Thread");
-            t.start();
+            EXECUTOR_SERVICE.submit(tr);
             Thread.sleep(100);
             LOG.info("Thread started");
 
@@ -1099,8 +1097,6 @@ public abstract class AbstractOnePortTest extends AbstractPortTest {
         readSpc.getOutputStream().write(new byte[0]);
     }
 
-    private ClosedByInterruptException testReadInterrupted_ClosedByInterruptException;
-
     /**
      * We are want to wait read and interrupt the thread.
      *
@@ -1114,12 +1110,12 @@ public abstract class AbstractOnePortTest extends AbstractPortTest {
         openDefault();
         readSpc.setTimeouts(100, 1000, 1000);
         ByteBuffer b = ByteBuffer.allocateDirect(_1MB);
-        testReadInterrupted_ClosedByInterruptException = null;
+        final List<ClosedByInterruptException> exL = new LinkedList();
 
         Thread t = new Thread(() -> {
-            testReadInterrupted_ClosedByInterruptException = assertThrows(ClosedByInterruptException.class, () -> {
+            exL.add(assertThrows(ClosedByInterruptException.class, () -> {
                 readSpc.read(b);
-            });
+            }));
         });
         t.start();
         //Wait for the thread to run
@@ -1127,7 +1123,7 @@ public abstract class AbstractOnePortTest extends AbstractPortTest {
         t.interrupt();
         //Wait for the thread to finish...
         Thread.sleep(100);
-        Assertions.assertNotNull(testReadInterrupted_ClosedByInterruptException);
+        Assertions.assertFalse(exL.isEmpty(), "Expected to get an ClosedByInterruptException!");
 //TODO Write sendBreak drainBuffer too
     }
 
@@ -1241,24 +1237,24 @@ public abstract class AbstractOnePortTest extends AbstractPortTest {
         LOG.log(Level.INFO, "run testCloseDuringSingleRead");
         open(Speed._2400_BPS, DataBits.DB_8, StopBits.SB_1, Parity.EVEN, FlowControl.getFC_NONE());
 
-        new Thread(() -> {
+        EXECUTOR_SERVICE.submit(() -> {
             try {
                 Thread.sleep(100);
                 readSpc.close();
             } catch (InterruptedException | IOException e) {
                 fail("Exception occured");
             }
-        }).start();
+        });
 
         assertTrue(readSpc.isOpen());
-        int result = assertTimeoutPreemptively(Duration.ofMillis(5000), () -> {
+        int result = assertTimeoutPreemptively(Duration.ofMillis(500000), () -> {
             return readSpc.getInputStream().read();
         });
         assertEquals(-1, result);
         assertFalse(readSpc.isOpen());
-        // Allow 50ms to recover -on win the next executed test may fail wit port buy
+        // Allow PORT_RECOVERY_TIME_MS to recover -on win the next executed test may fail wit port buy
         // otherwise
-        Thread.sleep(100);
+        Thread.sleep(PORT_RECOVERY_TIME_MS);
     }
 
     @BaselineTest
@@ -1268,7 +1264,7 @@ public abstract class AbstractOnePortTest extends AbstractPortTest {
         LOG.log(Level.INFO, "run testCloseDuringBytesRead");
         open(Speed._2400_BPS, DataBits.DB_8, StopBits.SB_1, Parity.EVEN, FlowControl.getFC_NONE());
 
-        new Thread(() -> {
+        EXECUTOR_SERVICE.submit(() -> {
             try {
                 Thread.sleep(100);
                 readSpc.close();
@@ -1277,7 +1273,7 @@ public abstract class AbstractOnePortTest extends AbstractPortTest {
                 e.printStackTrace();
                 fail("Exception occured");
             }
-        }).start();
+        });
 
         byte b[] = new byte[255];
         assertTrue(readSpc.isOpen());
@@ -1289,9 +1285,9 @@ public abstract class AbstractOnePortTest extends AbstractPortTest {
         assertEquals(-1, result);
 
         assertFalse(readSpc.isOpen());
-        // Allow 200ms to recover -on win the next executed test may fail with port busy
+        // Allow PORT_RECOVERY_TIME_MS to recover -on win the next executed test may fail with port busy
         // otherwise (FTDI on win)
-        Thread.sleep(200);
+        Thread.sleep(PORT_RECOVERY_TIME_MS);
     }
 
     /**
@@ -1312,7 +1308,7 @@ public abstract class AbstractOnePortTest extends AbstractPortTest {
         byte b[] = new byte[len];
         assertTrue(writeSpc.isOpen());
 
-        new Thread(() -> {
+        EXECUTOR_SERVICE.submit(() -> {
             try {
                 Thread.sleep(100);
                 LOG.log(Level.INFO, "Will now close the port: {0}", writeSpc);
@@ -1323,7 +1319,7 @@ public abstract class AbstractOnePortTest extends AbstractPortTest {
                 e.printStackTrace();
                 fail("Exception occured: " + e);
             }
-        }).start();
+        });
 
         AsynchronousCloseException ace = assertThrows(AsynchronousCloseException.class, () -> {
             assertTimeoutPreemptively(Duration.ofMillis(1000), () -> {
@@ -1338,9 +1334,9 @@ public abstract class AbstractOnePortTest extends AbstractPortTest {
         LOG.log(Level.INFO, "Port closed msg: {0}", ace.getMessage());
 
         assertFalse(writeSpc.isOpen(), "Port was not closed!");
-        // Allow 200ms to recover on win the next executed test may fail with port busy
+        // Allow PORT_RECOVERY_TIME_MS to recover on win the next executed test may fail with port busy
         // otherwise (FTDI on win)
-        Thread.sleep(200);
+        Thread.sleep(PORT_RECOVERY_TIME_MS);
     }
 
     @BaselineTest

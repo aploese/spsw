@@ -49,7 +49,7 @@ public abstract class AbstractReadWriteBaselineTest extends AbstractReadWriteTes
 		final byte[] sendData = new byte[] { 12, 15 };
 		final Object LOCK = new Object();
 		readSpc.setTimeouts(200, 1000, 2000);
-		new Thread(() -> {
+		EXECUTOR_SERVICE.submit(() -> {
 			final byte[] data = new byte[3];
 			try {
 				assertTimeoutPreemptively(
@@ -65,7 +65,7 @@ public abstract class AbstractReadWriteBaselineTest extends AbstractReadWriteTes
 			} catch (Exception e) {
 				fail(e.getMessage());
 			}
-		}).start();
+		});
 		Thread.sleep(100);
 		writeSpc.getOutputStream().write(sendData[0]);
 		Thread.sleep(readSpc.getInterByteReadTimeout() / 2);

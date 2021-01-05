@@ -25,7 +25,7 @@ import de.ibapl.jnhw.Define;
 import de.ibapl.jnhw.Defined;
 import de.ibapl.jnhw.NativeErrorException;
 import de.ibapl.jnhw.NotDefinedException;
-import de.ibapl.jnhw.OpaqueMemory;
+import de.ibapl.jnhw.OpaqueMemory32;
 import de.ibapl.jnhw.posix.Errno;
 import static de.ibapl.jnhw.posix.Fcntl.O_NOCTTY;
 import static de.ibapl.jnhw.posix.Fcntl.O_RDWR;
@@ -298,24 +298,24 @@ public class PlainPosixSendDataMain {
     }
 
     public static void sendOpaqueMemory(int fd) throws Exception {
-        final OpaqueMemory sendBuffer = new OpaqueMemory(BUFFER_SIZE, false);
+        final OpaqueMemory32 sendBuffer = new OpaqueMemory32(BUFFER_SIZE, false);
         for (int i = 0; i < BUFFER_SIZE; i++) {
-            OpaqueMemory.setByte(sendBuffer, i, (byte) i);
+            OpaqueMemory32.setByte(sendBuffer, i, (byte) i);
         }
         try {
 
             Thread thread = new Thread(() -> {
-                final OpaqueMemory recBuffer = new OpaqueMemory(BUFFER_SIZE, true);
+                final OpaqueMemory32 recBuffer = new OpaqueMemory32(BUFFER_SIZE, true);
                 byte currentData = 0;
                 try {
                     int overallRead = 0;
                     int currBytePos = 0;
                     final long start = System.currentTimeMillis() - 1;
                     while (!doExit) {
-                        final int currentRead = read(fd, recBuffer);
+                        final long currentRead = read(fd, recBuffer);
                         overallRead += currentRead;
                         for (int i = 0; i < currentRead; i++) {
-                            final byte data = OpaqueMemory.getByte(recBuffer, i);
+                            final byte data = OpaqueMemory32.getByte(recBuffer, i);
 //                            System.err.format("%d: 0x%02x 0x%02x\n", currBytePos++, currentData, data);
                             if (currentData != data) {
                                 throw new RuntimeException("REC wrong");
@@ -324,7 +324,7 @@ public class PlainPosixSendDataMain {
                         }
 //                        System.err.println("XXXXXXXXXXXXXXXXXXX");
 
-                        OpaqueMemory.clear(recBuffer);
+                        OpaqueMemory32.clear(recBuffer);
                         System.out.format("rec: %d bps @%d\n", ((overallRead * 1000L * BITS_PER_TRANSFERRED_BYTE) / (System.currentTimeMillis() - start)), currentRead);
                         System.out.flush();
                     }
