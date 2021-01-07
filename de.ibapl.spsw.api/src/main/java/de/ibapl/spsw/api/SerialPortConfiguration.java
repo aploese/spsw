@@ -1,6 +1,6 @@
 /*
  * SPSW - Drivers for the serial port, https://github.com/aploese/spsw/
- * Copyright (C) 2009-2019, Arne Plöse and individual contributors as indicated
+ * Copyright (C) 2009-2021, Arne Plöse and individual contributors as indicated
  * by the @authors tag. See the copyright.txt in the distribution for a
  * full listing of individual contributors.
  *
@@ -21,10 +21,12 @@
  */
 package de.ibapl.spsw.api;
 
+import java.io.Closeable;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.lang.annotation.Native;
+import java.nio.channels.Channel;
 import java.util.Set;
 import org.osgi.annotation.versioning.ProviderType;
 
@@ -63,7 +65,7 @@ import org.osgi.annotation.versioning.ProviderType;
  * @author Arne Plöse
  */
 @ProviderType
-public interface SerialPortConfiguration {
+public interface SerialPortConfiguration extends Channel {
 
     /**
      * {@value #PORT_IS_CLOSED}. This should be the message of the IOException,
@@ -162,6 +164,13 @@ public interface SerialPortConfiguration {
     default double calculateSpeedInCharactersPerSecond() throws IOException {
         return calculateSpeedInCharactersPerSecond(getSpeed(), getDatatBits(), getStopBits(), getParity());
     }
+
+    /**
+     * Try to write all data in the output buffer.
+     *
+     * @throws IOException
+     */
+    void drainOutputBuffer() throws IOException;
 
     /**
      * Read the number of data bits from the port.
@@ -325,15 +334,6 @@ public interface SerialPortConfiguration {
      * @throws IOException if port is closed or an error at OS level occurs.
      */
     boolean isDSR() throws IOException;
-
-    /**
-     * Returns the open state of the port.
-     *
-     * @return true if port is open, otherwise false.
-     * @see #open()
-     * @see #close()
-     */
-    boolean isOpen();
 
     /**
      * Read the state of the RI line from the port. Ring Indicator (RI) DTE

@@ -1,6 +1,6 @@
 /*
  * SPSW - Drivers for the serial port, https://github.com/aploese/spsw/
- * Copyright (C) 2009-2019, Arne Plöse and individual contributors as indicated
+ * Copyright (C) 2009-2021, Arne Plöse and individual contributors as indicated
  * by the @authors tag. See the copyright.txt in the distribution for a
  * full listing of individual contributors.
  *
@@ -100,6 +100,20 @@ public class LogWriter {
 
     public void afterFlush(final Instant ts, IOException e) {
         log.append(formatTs(ts)).append("OS").append(ACION_RETURN).append(" flush:\t").println(e.toString());
+        e.printStackTrace(log);
+        log.flush();
+    }
+
+    void afterDrainOutputBuffer(Instant ts) {
+        if (!verbose) {
+            return;
+        }
+        log.append(formatTs(ts)).append("SP").append(ACION_RETURN).println(" drainOutputBuffer");
+        log.flush();
+    }
+
+    void afterDrainOutputBuffer(Instant ts, IOException e) {
+        log.append(formatTs(ts)).append("SP").append(ACION_RETURN).append(" drainOutputBuffer:\t").println(e.toString());
         e.printStackTrace(log);
         log.flush();
     }
@@ -803,6 +817,14 @@ public class LogWriter {
             return;
         }
         log.append(formatTs(ts)).append("OS").append(ACION_CALL).println(" flush");
+        log.flush();
+    }
+
+    void beforeDrainOutputBuffer(Instant ts) {
+        if (!verbose) {
+            return;
+        }
+        log.append(formatTs(ts)).append("SP").append(ACION_CALL).println(" drainOutputBuffer");
         log.flush();
     }
 

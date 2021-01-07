@@ -1,6 +1,6 @@
 /*
  * SPSW - Drivers for the serial port, https://github.com/aploese/spsw/
- * Copyright (C) 2009-2019, Arne Plöse and individual contributors as indicated
+ * Copyright (C) 2009-2021, Arne Plöse and individual contributors as indicated
  * by the @authors tag. See the copyright.txt in the distribution for a
  * full listing of individual contributors.
  *
@@ -21,12 +21,8 @@
  */
 package de.ibapl.spsw.jnhwprovider;
 
-import de.ibapl.spsw.api.SerialPortSocket;
+import de.ibapl.spsw.api.SerialPortConfiguration;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.nio.ByteBuffer;
-import java.nio.channels.AsynchronousCloseException;
 import java.nio.channels.spi.AbstractInterruptibleChannel;
 
 /**
@@ -38,137 +34,7 @@ import java.nio.channels.spi.AbstractInterruptibleChannel;
  * @author aploese
  * @param <T>
  */
-public abstract class AbstractSerialPortSocket<T extends AbstractSerialPortSocket<T>> extends AbstractInterruptibleChannel implements SerialPortSocket {
-
-    public final static int BUFFER_SIZE = 1024;
-
-    protected class SerialInputStream extends InputStream {
-
-        private final ByteBuffer readBuffer = ByteBuffer.allocateDirect(BUFFER_SIZE);
-
-        @Override
-        public int available() throws IOException {
-            return AbstractSerialPortSocket.this.getInBufferBytesCount();
-        }
-
-        @Override
-        public void close() throws IOException {
-            AbstractSerialPortSocket.this.close();
-        }
-
-        @Override
-        public int read() throws IOException {
-            synchronized (readBuffer) {
-                readBuffer.clear().limit(1);
-                try {
-                    int result = AbstractSerialPortSocket.this.read(readBuffer);
-                    switch (result) {
-                        case 1:
-                            readBuffer.flip();
-                            return readBuffer.get() & 0xff;
-                        case 0:
-                            return -1;
-                        default:
-                            throw new RuntimeException("Should never happen single read returns " + result);
-                    }
-                } catch (AsynchronousCloseException ace) {
-                    return -1;
-                }
-            }
-        }
-
-        @Override
-        public int read(final byte b[]) throws IOException {
-            return read(b, 0, b.length);
-        }
-
-        @Override
-        public int read(final byte b[], final int off, final int len) throws IOException {
-            if (b == null) {
-                throw new NullPointerException();
-            } else if (off < 0 || len < 0 || len > b.length - off) {
-                throw new IndexOutOfBoundsException();
-            } else if (len == 0) {
-                return 0;
-            }
-            if (len <= BUFFER_SIZE) {
-                synchronized (readBuffer) {
-                    readBuffer.clear().limit(len);
-                    try {
-                        final int result = AbstractSerialPortSocket.this.read(readBuffer);
-                        readBuffer.flip();
-                        readBuffer.get(b, off, result);
-                        return result;
-                    } catch (AsynchronousCloseException ace) {
-                        return -1;
-                    }
-                }
-            } else {
-                final ByteBuffer buf = ByteBuffer.allocateDirect(len);
-                try {
-                    final int result = AbstractSerialPortSocket.this.read(buf);
-                    buf.flip();
-                    buf.get(b, off, result);
-                    return result;
-                } catch (AsynchronousCloseException ace) {
-                    return -1;
-                }
-            }
-        }
-    }
-
-    protected class SerialOutputStream extends OutputStream {
-
-        private final ByteBuffer writeBuffer = ByteBuffer.allocateDirect(BUFFER_SIZE);
-
-        @Override
-        public void close() throws IOException {
-            AbstractSerialPortSocket.this.close();
-        }
-
-        @Override
-        public void flush() throws IOException {
-            AbstractSerialPortSocket.this.drainOutputBuffer();
-        }
-
-        @Override
-        public void write(final byte b[]) throws IOException {
-            write(b, 0, b.length);
-        }
-
-        @Override
-        public void write(final byte b[], final int off, final int len) throws IOException {
-            if (b == null) {
-                throw new NullPointerException();
-            } else if ((off < 0) || (off > b.length) || (len < 0) || ((off + len) > b.length) || ((off + len) < 0)) {
-                throw new IndexOutOfBoundsException();
-            } else if (len == 0) {
-                return;
-            }
-            if (len <= BUFFER_SIZE) {
-                synchronized (writeBuffer) {
-                    writeBuffer.clear().put(b, off, len).flip();
-                    AbstractSerialPortSocket.this.write(writeBuffer);
-                }
-            } else {
-                final ByteBuffer buf = ByteBuffer.allocateDirect(len);
-                buf.put(b, off, len).flip();
-                AbstractSerialPortSocket.this.write(buf);
-            }
-        }
-
-        @Override
-        public void write(final int b) throws IOException {
-            synchronized (writeBuffer) {
-                writeBuffer.clear().put((byte) b).flip();
-                AbstractSerialPortSocket.this.write(writeBuffer);
-            }
-        }
-
-    }
-
-    protected SerialInputStream is;
-    protected SerialOutputStream os;
+public abstract class AbstractSerialPortSocket<T extends AbstractSerialPortSocket<T>> extends AbstractInterruptibleChannel implements SerialPortConfiguration {
 
     protected final String portName;
 
@@ -196,41 +62,10 @@ public abstract class AbstractSerialPortSocket<T extends AbstractSerialPortSocke
         this.portName = portName;
     }
 
-    @Override
-    protected void implCloseChannel() throws IOException {
-        is = null;
-        os = null;
-    }
-
     protected void ensureOpen() throws IOException {
         if (!isOpen()) {
             throw new IOException(PORT_IS_CLOSED);
         }
-    }
-
-    /**
-     * writes all data in the output buffer
-     *
-     * @throws IOException
-     */
-    protected abstract void drainOutputBuffer() throws IOException;
-
-    @Override
-    public synchronized InputStream getInputStream() throws IOException {
-        ensureOpen();
-        if (is == null) {
-            is = new SerialInputStream();
-        }
-        return is;
-    }
-
-    @Override
-    public synchronized OutputStream getOutputStream() throws IOException {
-        ensureOpen();
-        if (os == null) {
-            os = new SerialOutputStream();
-        }
-        return os;
     }
 
     @Override

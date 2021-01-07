@@ -1,6 +1,6 @@
 /*
  * SPSW - Drivers for the serial port, https://github.com/aploese/spsw/
- * Copyright (C) 2009-2019, Arne Plöse and individual contributors as indicated
+ * Copyright (C) 2009-2021, Arne Plöse and individual contributors as indicated
  * by the @authors tag. See the copyright.txt in the distribution for a
  * full listing of individual contributors.
  *
@@ -107,10 +107,11 @@ import java.util.EnumSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
+import java.util.concurrent.ExecutorService;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-public class GenericWinSerialPortSocket extends AbstractSerialPortSocket<GenericWinSerialPortSocket> {
+public class GenericWinSerialPortSocket extends StreamSerialPortSocket<GenericWinSerialPortSocket> {
 
     public final static Cleaner CLEANER = Cleaner.create();
 
@@ -164,7 +165,7 @@ public class GenericWinSerialPortSocket extends AbstractSerialPortSocket<Generic
     private final OVERLAPPED writeOverlapped = new OVERLAPPED();
     private HANDLE readEvent = HANDLE.INVALID_HANDLE_VALUE;
     private HANDLE writeEvent = HANDLE.INVALID_HANDLE_VALUE;
-    
+    private ExecutorService executor;
     
     private void setReadEvent(HANDLE readEvent) {
         this.readEvent = readEvent;
@@ -219,11 +220,7 @@ public class GenericWinSerialPortSocket extends AbstractSerialPortSocket<Generic
     }
 
     GenericWinSerialPortSocket(String portName) throws IOException {
-        super(portName);
-        if (LoadState.SUCCESS != LibJnhwWinApiLoader.touch()) {
-            throw new RuntimeException("Could not load native lib", LibJnhwWinApiLoader.getLoadResult().loadError);
-        }
-        open(null, null, null, null, null);
+        this(portName, null, null, null, null, null);
     }
 
     GenericWinSerialPortSocket(String portName, Speed speed, DataBits dataBits, StopBits stopBits, Parity parity, Set<FlowControl> flowControls) throws IOException {
@@ -232,6 +229,16 @@ public class GenericWinSerialPortSocket extends AbstractSerialPortSocket<Generic
             throw new RuntimeException("Could not load native lib", LibJnhwWinApiLoader.getLoadResult().loadError);
         }
         open(speed, dataBits, stopBits, parity, flowControls);
+    }
+
+    public GenericWinSerialPortSocket(String portName, ExecutorService executor) throws IOException {
+        this(portName);
+        this.executor = executor;
+    }
+
+    public GenericWinSerialPortSocket(String portName, Speed speed, DataBits dataBits, StopBits stopBits, Parity parity, Set<FlowControl> flowControls, ExecutorService executor) throws IOException {
+        this(portName, speed, dataBits, stopBits, parity, flowControls);
+        this.executor = executor;
     }
 
     private IOException createClosedOrNativeException(int errno, String formatString, Object... args) {
@@ -1008,7 +1015,7 @@ public class GenericWinSerialPortSocket extends AbstractSerialPortSocket<Generic
     }
 
     @Override
-    protected void drainOutputBuffer() throws IOException {
+    public void drainOutputBuffer() throws IOException {
         //make this blocking IO interruptable
         boolean completed = false;
         try {

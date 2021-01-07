@@ -1,6 +1,6 @@
 /*
  * SPSW - Drivers for the serial port, https://github.com/aploese/spsw/
- * Copyright (C) 2009-2019, Arne Plöse and individual contributors as indicated
+ * Copyright (C) 2009-2021, Arne Plöse and individual contributors as indicated
  * by the @authors tag. See the copyright.txt in the distribution for a
  * full listing of individual contributors.
  *
@@ -23,6 +23,7 @@ package de.ibapl.spsw.jnhwprovider;
 
 import de.ibapl.jnhw.libloader.MultiarchTupelBuilder;
 import de.ibapl.jnhw.libloader.OS;
+import de.ibapl.spsw.api.AsyncSerialPortSocket;
 import de.ibapl.spsw.api.DataBits;
 import de.ibapl.spsw.api.FlowControl;
 import de.ibapl.spsw.api.Parity;
@@ -37,6 +38,7 @@ import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
+import java.util.concurrent.ExecutorService;
 import java.util.function.BiConsumer;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -49,10 +51,10 @@ import org.osgi.service.component.annotations.ServiceScope;
  *
  * @author Arne Plöse
  */
-@Component(name = "de.ibapl.spsw.jnrprovider", scope = ServiceScope.SINGLETON, immediate = true)
+@Component(name = "de.ibapl.spsw.jnhwprovider", scope = ServiceScope.SINGLETON, immediate = true)
 public class SerialPortSocketFactoryImpl implements SerialPortSocketFactory {
 
-    protected final static Logger LOG = Logger.getLogger("de.ibapl.spsw.jnrprovider");
+    protected final static Logger LOG = Logger.getLogger("de.ibapl.spsw.jnhwprovider");
     private final static MultiarchTupelBuilder MULTIARCH_TUPEL_BUILDER = new MultiarchTupelBuilder();
 
     @Override
@@ -65,7 +67,7 @@ public class SerialPortSocketFactoryImpl implements SerialPortSocketFactory {
             case WINDOWS:
                 return new GenericWinSerialPortSocket(portName);
             default:
-                throw new RuntimeException("Cant handle OS: " + MULTIARCH_TUPEL_BUILDER.getOS());
+                throw new RuntimeException("Can't handle OS: " + MULTIARCH_TUPEL_BUILDER.getOS());
         }
     }
 
@@ -75,10 +77,28 @@ public class SerialPortSocketFactoryImpl implements SerialPortSocketFactory {
         switch (MULTIARCH_TUPEL_BUILDER.getOS()) {
             case LINUX:
                 return new PosixSerialPortSocket(portName, speed, dataBits, stopBits, parity, flowControls);
-            case FREE_BSD:
-                return new PosixSerialPortSocket(portName, speed, dataBits, stopBits, parity, flowControls);
             case WINDOWS:
                 return new GenericWinSerialPortSocket(portName, speed, dataBits, stopBits, parity, flowControls);
+            default:
+                throw new RuntimeException("Cant handle OS: " + MULTIARCH_TUPEL_BUILDER.getOS());
+        }
+    }
+
+    @Override
+    public AsyncSerialPortSocket openAsync(String portName, ExecutorService executor) throws IOException, IllegalStateException {
+        switch (MULTIARCH_TUPEL_BUILDER.getOS()) {
+            case LINUX:
+                return new PosixAsyncSerialPortSocket(portName, executor);
+            default:
+                throw new RuntimeException("Can't handle OS: " + MULTIARCH_TUPEL_BUILDER.getOS());
+        }
+    }
+
+    @Override
+    public AsyncSerialPortSocket openAsync(String portName, Speed speed, DataBits dataBits, StopBits stopBits, Parity parity, Set<FlowControl> flowControls, ExecutorService executor) throws IOException {
+        switch (MULTIARCH_TUPEL_BUILDER.getOS()) {
+            case LINUX:
+                return new PosixAsyncSerialPortSocket(portName, speed, dataBits, stopBits, parity, flowControls, executor);
             default:
                 throw new RuntimeException("Cant handle OS: " + MULTIARCH_TUPEL_BUILDER.getOS());
         }

@@ -1,6 +1,6 @@
 /*
  * SPSW - Drivers for the serial port, https://github.com/aploese/spsw/
- * Copyright (C) 2009-2019, Arne Plöse and individual contributors as indicated
+ * Copyright (C) 2009-2021, Arne Plöse and individual contributors as indicated
  * by the @authors tag. See the copyright.txt in the distribution for a
  * full listing of individual contributors.
  *
@@ -188,6 +188,10 @@ public class Ser2NetProvider extends AbstractInterruptibleChannel implements Ser
         }
     }
     
+    @Override
+    public void drainOutputBuffer() throws IOException {
+    }
+
     @Override
     public boolean isCTS() throws IOException {
         // TODO Auto-generated method stub

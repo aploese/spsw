@@ -1,6 +1,6 @@
 /*
  * SPSW - Drivers for the serial port, https://github.com/aploese/spsw/
- * Copyright (C) 2009-2019, Arne Plöse and individual contributors as indicated
+ * Copyright (C) 2009-2021, Arne Plöse and individual contributors as indicated
  * by the @authors tag. See the copyright.txt in the distribution for a
  * full listing of individual contributors.
  *
@@ -21,6 +21,7 @@
  */
 package de.ibapl.spsw.mock;
 
+import de.ibapl.spsw.api.AsyncSerialPortSocket;
 import de.ibapl.spsw.api.DataBits;
 import de.ibapl.spsw.api.FlowControl;
 import de.ibapl.spsw.api.Parity;
@@ -33,6 +34,7 @@ import java.io.IOException;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
+import java.util.concurrent.ExecutorService;
 import java.util.function.BiConsumer;
 
 /**
@@ -123,6 +125,16 @@ public class MockSerialPortFactory implements SerialPortSocketFactory {
 
     MockRequest<?>  removeDataFirst() {
         return data.removeFirst();
+    }
+
+    @Override
+    public AsyncSerialPortSocket openAsync(String portName, ExecutorService executor) throws IOException, IllegalStateException {
+        return new MockSerialPortSocket(this, portName, executor);
+    }
+
+    @Override
+    public AsyncSerialPortSocket openAsync(String portName, Speed speed, DataBits dataBits, StopBits stopBits, Parity parity, Set<FlowControl> flowControls, ExecutorService executor) throws IOException {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
 

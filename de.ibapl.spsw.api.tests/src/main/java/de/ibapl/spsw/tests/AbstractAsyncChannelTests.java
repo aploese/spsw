@@ -1,6 +1,6 @@
 /*
  * SPSW - Drivers for the serial port, https://github.com/aploese/spsw/
- * Copyright (C) 2009-2019, Arne Plöse and individual contributors as indicated
+ * Copyright (C) 2009-2021, Arne Plöse and individual contributors as indicated
  * by the @authors tag. See the copyright.txt in the distribution for a
  * full listing of individual contributors.
  *
@@ -21,20 +21,16 @@
  */
 package de.ibapl.spsw.tests;
 
-import de.ibapl.spsw.api.AsyncSerialPortSocket;
 import de.ibapl.spsw.api.DataBits;
 import de.ibapl.spsw.api.FlowControl;
 import de.ibapl.spsw.api.Parity;
 import de.ibapl.spsw.api.Speed;
 import de.ibapl.spsw.api.StopBits;
 import de.ibapl.spsw.tests.tags.BaselineTest;
-import de.ibapl.spsw.wrapper.AsyncSerialPortSocketThreadPoolWrapper;
-import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.channels.AsynchronousCloseException;
 import java.time.Duration;
 import java.util.LinkedList;
-import java.util.Set;
 import java.util.concurrent.CancellationException;
 import java.util.concurrent.Future;
 import java.util.logging.Level;
@@ -50,36 +46,13 @@ import org.junit.jupiter.api.Test;
  *
  * @author aploese
  */
-public abstract class AbstractAsyncChannelTests extends SetupAndTeardownTests {
+public abstract class AbstractAsyncChannelTests extends AbstractAsyncSerialPortSocketTest {
 
     public static void main(String[] args) {
 
     }
 
     public AbstractAsyncChannelTests() {
-    }
-
-    private AsyncSerialPortSocket asyncWriteSpc;
-
-    private AsyncSerialPortSocket asyncReadSpc;
-
-    private void cachAsyncSpc() throws IOException {
-        if (readSpc != null) {
-            if (readSpc instanceof AsyncSerialPortSocket) {
-                asyncReadSpc = (AsyncSerialPortSocket) readSpc;
-            } else {
-                asyncReadSpc = new AsyncSerialPortSocketThreadPoolWrapper(readSpc);
-            }
-            if (writeSpc == readSpc) {
-                asyncWriteSpc = asyncReadSpc;
-            } else {
-                if (writeSpc instanceof AsyncSerialPortSocket) {
-                    asyncWriteSpc = (AsyncSerialPortSocket) writeSpc;
-                } else {
-                    asyncWriteSpc = new AsyncSerialPortSocketThreadPoolWrapper(writeSpc);
-                }
-            }
-        };
     }
 
     @BaselineTest
@@ -89,16 +62,15 @@ public abstract class AbstractAsyncChannelTests extends SetupAndTeardownTests {
         assumeRWTest();
         LOG.log(Level.INFO, "run testRead");
         openDefault();
-        cachAsyncSpc();
         //TODO wait only for specific jni provider does not work with wait forever??? bug?
         //readSpc.setTimeouts(50, 0, readSpc.calculateMillisForCharacters(BYTES_TO_TRANSFER));
-        assertTrue(asyncWriteSpc.isOpen());
+        assertTrue(writeSpc.isOpen());
 
         final ByteBuffer dst = ByteBuffer.allocateDirect(BYTES_TO_TRANSFER * 3);
 
         final LinkedList readResult = new LinkedList();
 
-        asyncReadSpc.readAsync(dst, (buff) -> {
+        readSpc.readAsync(dst, (buff) -> {
             synchronized (readResult) {
                 readResult.add(buff.position());
                 readResult.notifyAll();
@@ -118,7 +90,7 @@ public abstract class AbstractAsyncChannelTests extends SetupAndTeardownTests {
 
         final LinkedList writeResult = new LinkedList();
 
-        asyncWriteSpc.writeAsync(src, (buff) -> {
+        writeSpc.writeAsync(src, (buff) -> {
             synchronized (writeResult) {
                 writeResult.add(buff.position());
                 writeResult.notifyAll();
@@ -163,14 +135,13 @@ public abstract class AbstractAsyncChannelTests extends SetupAndTeardownTests {
         assumeRWTest();
         LOG.log(Level.INFO, "run testWriteCancel");
         openDefault();
-        cachAsyncSpc();
-        assertTrue(asyncWriteSpc.isOpen());
+        assertTrue(writeSpc.isOpen());
 
         final ByteBuffer dst = ByteBuffer.allocateDirect(BYTES_TO_TRANSFER * 3);
 
         final LinkedList readResult = new LinkedList();
 
-        asyncReadSpc.readAsync(dst, (buff) -> {
+        readSpc.readAsync(dst, (buff) -> {
             synchronized (readResult) {
                 readResult.add(buff.position());
                 readResult.notifyAll();
@@ -188,7 +159,7 @@ public abstract class AbstractAsyncChannelTests extends SetupAndTeardownTests {
         }
         src.flip();
 
-        Future<ByteBuffer> result = asyncWriteSpc.writeAsync(src);
+        Future<ByteBuffer> result = writeSpc.writeAsync(src);
         result.cancel(true);
 
         CancellationException ce = assertThrows(CancellationException.class, () -> {
@@ -218,8 +189,7 @@ public abstract class AbstractAsyncChannelTests extends SetupAndTeardownTests {
         assumeWTest();
         LOG.log(Level.INFO, "run testWriteAsync");
         openDefault();
-        cachAsyncSpc();
-        assertTrue(asyncWriteSpc.isOpen());
+        assertTrue(writeSpc.isOpen());
         final ByteBuffer buf = ByteBuffer.allocateDirect(BYTES_TO_TRANSFER);
         while (buf.hasRemaining()) {
             buf.put((byte) buf.position());
@@ -228,7 +198,7 @@ public abstract class AbstractAsyncChannelTests extends SetupAndTeardownTests {
 
         final LinkedList result = new LinkedList();
 
-        asyncWriteSpc.writeAsync(buf, (buff) -> {
+        writeSpc.writeAsync(buf, (buff) -> {
             synchronized (result) {
                 result.add(buff.position());
                 result.notifyAll();
@@ -256,18 +226,17 @@ public abstract class AbstractAsyncChannelTests extends SetupAndTeardownTests {
     public void testCloseDuringBytesWrite() throws Exception {
         assumeWTest();
         LOG.log(Level.INFO, "run testCloseDuringBytesRead");
-        open(Speed._230400_BPS, DataBits.DB_8, StopBits.SB_1, Parity.EVEN, FlowControl.getFC_NONE());
-        cachAsyncSpc();
+        openAsync(Speed._230400_BPS, DataBits.DB_8, StopBits.SB_1, Parity.EVEN, FlowControl.getFC_NONE());
         int len = (int) Math.ceil(2000.0 / writeSpc.calculateMillisPerCharacter());
 
         byte b[] = new byte[len];
-        assertTrue(asyncWriteSpc.isOpen());
+        assertTrue(writeSpc.isOpen());
 
         EXECUTOR_SERVICE.submit(() -> {
             try {
                 Thread.sleep(100);
                 LOG.log(Level.INFO, "Will now close the port: {0}", writeSpc);
-                asyncWriteSpc.close();
+                writeSpc.close();
                 assertFalse(writeSpc.isOpen(), "Port was not closed!");
                 LOG.log(Level.INFO, "Port is closed");
             } catch (Exception e) {
@@ -284,7 +253,7 @@ public abstract class AbstractAsyncChannelTests extends SetupAndTeardownTests {
                 while (true) {
                     out.position(0);
                     out.limit(out.capacity());
-                    asyncWriteSpc.writeAsync(out, (buf, ioEx)->{
+                    writeSpc.writeAsync(out, (buf, ioEx)->{
                     if (ioEx == null) {
                         LOG.log(Level.SEVERE, "Unexpected Written: {0} bytes", buf.position());
                     }
@@ -294,7 +263,7 @@ public abstract class AbstractAsyncChannelTests extends SetupAndTeardownTests {
         });
         LOG.log(Level.INFO, "Port closed msg: {0}", ace.getMessage());
 
-        assertFalse(asyncWriteSpc.isOpen(), "Port was not closed!");
+        assertFalse(writeSpc.isOpen(), "Port was not closed!");
         // Allow 200ms to recover on win the next executed test may fail with port busy
         // otherwise (FTDI on win)
         Thread.sleep(PORT_RECOVERY_TIME_MS);

@@ -1,5 +1,6 @@
 Export-Package: \
  de.ibapl.spsw.api,\
+ de.ibapl.spsw.spi,\
  de.ibapl.spsw.ser2net,\
  de.ibapl.spsw.mock,\
  de.ibapl.spsw.logging,\

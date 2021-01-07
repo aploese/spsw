@@ -1,6 +1,6 @@
 /*
  * SPSW - Drivers for the serial port, https://github.com/aploese/spsw/
- * Copyright (C) 2009-2019, Arne Plöse and individual contributors as indicated
+ * Copyright (C) 2009-2021, Arne Plöse and individual contributors as indicated
  * by the @authors tag. See the copyright.txt in the distribution for a
  * full listing of individual contributors.
  *
@@ -33,9 +33,9 @@ import java.util.function.Consumer;
  */
 public interface AsyncWritableByteChannel {
 
-    void writeAsync(ByteBuffer src, Consumer<ByteBuffer> callbackOnSuccess, Consumer<IOException> callbackOnFailure) throws IOException;
+    void writeAsync(ByteBuffer src, Consumer<ByteBuffer> callbackOnSuccess, Consumer<IOException> callbackOnFailure);
 
-    void writeAsync(ByteBuffer src, BiConsumer<ByteBuffer, IOException> callback) throws IOException;
+    void writeAsync(ByteBuffer src, BiConsumer<ByteBuffer, IOException> callback);
 
-    Future<ByteBuffer> writeAsync(ByteBuffer src) throws IOException;
+    Future<ByteBuffer> writeAsync(ByteBuffer src);
 }

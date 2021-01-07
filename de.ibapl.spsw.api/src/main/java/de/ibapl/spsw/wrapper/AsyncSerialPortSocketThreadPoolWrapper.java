@@ -1,6 +1,6 @@
 /*
  * SPSW - Drivers for the serial port, https://github.com/aploese/spsw/
- * Copyright (C) 2009-2019, Arne Plöse and individual contributors as indicated
+ * Copyright (C) 2009-2021, Arne Plöse and individual contributors as indicated
  * by the @authors tag. See the copyright.txt in the distribution for a
  * full listing of individual contributors.
  *
@@ -29,8 +29,6 @@ import de.ibapl.spsw.api.SerialPortSocket;
 import de.ibapl.spsw.api.Speed;
 import de.ibapl.spsw.api.StopBits;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
 import java.nio.ByteBuffer;
 import java.util.Set;
 import java.util.concurrent.ExecutorService;
@@ -72,7 +70,7 @@ public class AsyncSerialPortSocketThreadPoolWrapper implements AsyncSerialPortSo
      * default before final must be cancelable
      */
     @Override
-    public void readAsync(ByteBuffer dst, Consumer<ByteBuffer> callbackOnSuccess, Consumer<IOException> callbackOnFailure) throws IOException {
+    public void readAsync(ByteBuffer dst, Consumer<ByteBuffer> callbackOnSuccess, Consumer<IOException> callbackOnFailure) {
         if (dst == null) {
             throw new NullPointerException("dst is null");
         }
@@ -95,7 +93,7 @@ public class AsyncSerialPortSocketThreadPoolWrapper implements AsyncSerialPortSo
     }
     
     @Override
-    public void readAsync(ByteBuffer dst, BiConsumer<ByteBuffer, IOException> callback) throws IOException {
+    public void readAsync(ByteBuffer dst, BiConsumer<ByteBuffer, IOException> callback) {
         if (dst == null) {
             throw new NullPointerException("dst is null");
         }
@@ -118,7 +116,7 @@ public class AsyncSerialPortSocketThreadPoolWrapper implements AsyncSerialPortSo
     }
     
     @Override
-    public Future<ByteBuffer> readAsync(ByteBuffer dst) throws IOException {
+    public Future<ByteBuffer> readAsync(ByteBuffer dst) {
         if (dst == null) {
             throw new NullPointerException("dst is null");
         }
@@ -153,7 +151,7 @@ public class AsyncSerialPortSocketThreadPoolWrapper implements AsyncSerialPortSo
      * mayInterruptIfRunning of Future.cancel is ignored
      */
     @Override
-    public Future<ByteBuffer> writeAsync(ByteBuffer src) throws IOException {
+    public Future<ByteBuffer> writeAsync(ByteBuffer src) {
         if (src == null) {
             throw new NullPointerException("src is null");
         }
@@ -177,7 +175,7 @@ public class AsyncSerialPortSocketThreadPoolWrapper implements AsyncSerialPortSo
     }
     
     @Override
-    public void writeAsync(ByteBuffer src, Consumer<ByteBuffer> callbackOnSuccess, Consumer<IOException> callbackOnFailure) throws IOException {
+    public void writeAsync(ByteBuffer src, Consumer<ByteBuffer> callbackOnSuccess, Consumer<IOException> callbackOnFailure) {
         if (src == null) {
             throw new NullPointerException("src is null");
         }
@@ -200,7 +198,7 @@ public class AsyncSerialPortSocketThreadPoolWrapper implements AsyncSerialPortSo
     }
     
     @Override
-    public void writeAsync(ByteBuffer src, BiConsumer<ByteBuffer, IOException> callback) throws IOException {
+    public void writeAsync(ByteBuffer src, BiConsumer<ByteBuffer, IOException> callback) {
         if (src == null) {
             throw new NullPointerException("src is null");
         }
@@ -385,6 +383,11 @@ public class AsyncSerialPortSocketThreadPoolWrapper implements AsyncSerialPortSo
     @Override
     public void close() throws IOException {
         serialPortSocket.close();
+    }
+
+    @Override
+    public void drainOutputBuffer() throws IOException {
+        serialPortSocket.drainOutputBuffer();
     }
     
 }

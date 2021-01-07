@@ -1,6 +1,6 @@
 /*
  * SPSW - Drivers for the serial port, https://github.com/aploese/spsw/
- * Copyright (C) 2009-2019, Arne Plöse and individual contributors as indicated
+ * Copyright (C) 2009-2021, Arne Plöse and individual contributors as indicated
  * by the @authors tag. See the copyright.txt in the distribution for a
  * full listing of individual contributors.
  *
@@ -21,6 +21,7 @@
  */
 package de.ibapl.spsw.mock;
 
+import de.ibapl.spsw.api.AsyncSerialPortSocket;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -34,6 +35,10 @@ import de.ibapl.spsw.api.Speed;
 import de.ibapl.spsw.api.StopBits;
 import java.nio.ByteBuffer;
 import java.nio.channels.spi.AbstractInterruptibleChannel;
+import java.util.concurrent.Future;
+import java.util.concurrent.ExecutorService;
+import java.util.function.BiConsumer;
+import java.util.function.Consumer;
 
 /**
  * Helper class for test that interact with a SerialPortSocket. The behavior of
@@ -63,8 +68,8 @@ import java.nio.channels.spi.AbstractInterruptibleChannel;
  *
  * @author Arne Plöse
  */
-public class MockSerialPortSocket extends AbstractInterruptibleChannel implements SerialPortSocket {
-    
+public class MockSerialPortSocket extends AbstractInterruptibleChannel implements SerialPortSocket, AsyncSerialPortSocket {
+
     @Override
     public int read(ByteBuffer dst) throws IOException {
         //TODO
@@ -82,7 +87,40 @@ public class MockSerialPortSocket extends AbstractInterruptibleChannel implement
         //no-op
     }
 
+    @Override
+    public void readAsync(ByteBuffer dst, Consumer<ByteBuffer> callbackOnSuccess, Consumer<IOException> callbackOnFailure) {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
 
+    @Override
+    public void readAsync(ByteBuffer dst, BiConsumer<ByteBuffer, IOException> callback) {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    @Override
+    public Future<ByteBuffer> readAsync(ByteBuffer dst) {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    @Override
+    public void writeAsync(ByteBuffer src, Consumer<ByteBuffer> callbackOnSuccess, Consumer<IOException> callbackOnFailure) {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    @Override
+    public void writeAsync(ByteBuffer src, BiConsumer<ByteBuffer, IOException> callback) {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    @Override
+    public Future<ByteBuffer> writeAsync(ByteBuffer src) {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    @Override
+    public void drainOutputBuffer() throws IOException {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
 
     public class MockInputStream extends InputStream {
 
@@ -252,6 +290,7 @@ public class MockSerialPortSocket extends AbstractInterruptibleChannel implement
         return sb.toString();
     }
 
+    private ExecutorService executor;
     private Speed speed;
     private DataBits dataBits;
     private Set<FlowControl> flowControl;
@@ -405,6 +444,11 @@ public class MockSerialPortSocket extends AbstractInterruptibleChannel implement
         this.flowControl = flowControls;
     }
 
+    public MockSerialPortSocket(MockSerialPortFactory factory, String portName, ExecutorService executor) throws IOException {
+        this(factory, portName);
+        this.executor = executor;
+    }
+    
     @Override
     public void sendBreak(int duration) throws IOException {
         ensureOpen();

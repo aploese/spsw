@@ -1,6 +1,6 @@
 /*
  * SPSW - Drivers for the serial port, https://github.com/aploese/spsw/
- * Copyright (C) 2009-2019, Arne Plöse and individual contributors as indicated
+ * Copyright (C) 2009-2021, Arne Plöse and individual contributors as indicated
  * by the @authors tag. See the copyright.txt in the distribution for a
  * full listing of individual contributors.
  *
@@ -141,11 +141,11 @@ public abstract class AbstractSerialPortSocket<T extends AbstractSerialPortSocke
         if (dst.isReadOnly()) {
             throw new IllegalArgumentException("Read-only buffer");
         }
+        synchronized (readLock) {
             if (!dst.hasRemaining()) {
                 //nothing to read
                 return 0;
             }
-        synchronized (readLock) {
             // Substitute a native buffer
             //make this blocking IO interruptable
             boolean completed = false;
@@ -170,11 +170,11 @@ public abstract class AbstractSerialPortSocket<T extends AbstractSerialPortSocke
 
     @Override
     public int write(ByteBuffer src) throws IOException {
+        synchronized (writeLock) {
             if (!src.hasRemaining()) {
                 //nothing to write
                 return 0;
             }
-        synchronized (writeLock) {
             //make this blocking IO interruptable
             boolean completed = false;
             int result = 0;
@@ -232,11 +232,11 @@ public abstract class AbstractSerialPortSocket<T extends AbstractSerialPortSocke
         public int read(byte b[]) throws IOException {
             if (b == null) {
                 throw new NullPointerException();
-            } else if (b.length == 0) {
-                return 0;
             }
-
             synchronized (readLock) {
+                if (b.length == 0) {
+                    return 0;
+                }
                 //make this blocking IO interruptable
                 boolean completed = false;
                 try {
@@ -262,10 +262,11 @@ public abstract class AbstractSerialPortSocket<T extends AbstractSerialPortSocke
                 throw new NullPointerException();
             } else if (off < 0 || len < 0 || len > b.length - off) {
                 throw new IndexOutOfBoundsException();
-            } else if (len == 0) {
-                return 0;
             }
             synchronized (readLock) {
+                if (len == 0) {
+                    return 0;
+                }
                 //make this blocking IO interruptable
                 boolean completed = false;
                 try {
@@ -315,11 +316,12 @@ public abstract class AbstractSerialPortSocket<T extends AbstractSerialPortSocke
         public void write(byte b[]) throws IOException {
             if (b == null) {
                 throw new NullPointerException();
-            } else if (b.length == 0) {
-                return;
             }
 
             synchronized (writeLock) {
+                if (b.length == 0) {
+                    return;
+                }
                 //make this blocking IO interruptable
                 boolean completed = false;
                 try {
@@ -341,11 +343,11 @@ public abstract class AbstractSerialPortSocket<T extends AbstractSerialPortSocke
                 throw new NullPointerException();
             } else if ((off < 0) || (off > b.length) || (len < 0) || ((off + len) > b.length) || ((off + len) < 0)) {
                 throw new IndexOutOfBoundsException();
-            } else if (len == 0) {
-                return;
             }
-
             synchronized (writeLock) {
+                if (len == 0) {
+                    return;
+                }
                 //make this blocking IO interruptable
                 boolean completed = false;
                 try {
@@ -807,13 +809,6 @@ public abstract class AbstractSerialPortSocket<T extends AbstractSerialPortSocke
         is = null;
         os = null;
     }
-
-    /**
-     * writes all data in the output buffer
-     *
-     * @throws IOException
-     */
-    protected abstract void drainOutputBuffer() throws IOException;
 
     @Override
     public Speed getSpeed() throws IOException {

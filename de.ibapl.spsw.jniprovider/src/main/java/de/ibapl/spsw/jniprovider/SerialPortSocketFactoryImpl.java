@@ -1,6 +1,6 @@
 /*
  * SPSW - Drivers for the serial port, https://github.com/aploese/spsw/
- * Copyright (C) 2009-2019, Arne Plöse and individual contributors as indicated
+ * Copyright (C) 2009-2021, Arne Plöse and individual contributors as indicated
  * by the @authors tag. See the copyright.txt in the distribution for a
  * full listing of individual contributors.
  *
@@ -24,6 +24,7 @@ package de.ibapl.spsw.jniprovider;
 import de.ibapl.jnhw.libloader.LoadResult;
 import de.ibapl.jnhw.libloader.NativeLibResolver;
 import de.ibapl.jnhw.libloader.OS;
+import de.ibapl.spsw.api.AsyncSerialPortSocket;
 import java.io.File;
 import java.io.IOException;
 import java.util.LinkedList;
@@ -49,6 +50,7 @@ import de.ibapl.spsw.api.Speed;
 import de.ibapl.spsw.api.StopBits;
 import de.ibapl.spsw.api.TimeoutIOException;
 import java.util.Iterator;
+import java.util.concurrent.ExecutorService;
 
 /**
  * Impements the {@linkplain SerialPortSocketFactory}.
@@ -328,6 +330,16 @@ public class SerialPortSocketFactoryImpl implements SerialPortSocketFactory {
                     return false;
                 });
         }
+    }
+
+    @Override
+    public AsyncSerialPortSocket openAsync(String portName, ExecutorService executor) throws IOException, IllegalStateException {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    @Override
+    public AsyncSerialPortSocket openAsync(String portName, Speed speed, DataBits dataBits, StopBits stopBits, Parity parity, Set<FlowControl> flowControls, ExecutorService executor) throws IOException {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
 }

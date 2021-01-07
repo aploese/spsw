@@ -1,6 +1,6 @@
 /*
  * SPSW - Drivers for the serial port, https://github.com/aploese/spsw/
- * Copyright (C) 2009-2019, Arne Plöse and individual contributors as indicated
+ * Copyright (C) 2009-2021, Arne Plöse and individual contributors as indicated
  * by the @authors tag. See the copyright.txt in the distribution for a
  * full listing of individual contributors.
  *
@@ -39,7 +39,7 @@ import static org.junit.jupiter.api.Assertions.fail;
 /**
  * @author Arne Plöse
  */
-public abstract class AbstractPortTest extends SetupAndTeardownTests {
+public abstract class AbstractPortTest extends AbstractSerialPortSocketTest {
 
     public class Receiver implements Runnable {
 

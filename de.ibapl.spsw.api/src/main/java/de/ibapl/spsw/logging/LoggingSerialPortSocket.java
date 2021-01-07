@@ -1,6 +1,6 @@
 /*
  * SPSW - Drivers for the serial port, https://github.com/aploese/spsw/
- * Copyright (C) 2009-2019, Arne Plöse and individual contributors as indicated
+ * Copyright (C) 2009-2021, Arne Plöse and individual contributors as indicated
  * by the @authors tag. See the copyright.txt in the distribution for a
  * full listing of individual contributors.
  *
@@ -317,6 +317,18 @@ public class LoggingSerialPortSocket implements SerialPortSocket, LogExplainRead
             logWriter.afterSpClose(Instant.now());
         } catch (IOException e) {
             logWriter.afterSpClose(Instant.now(), e);
+            throw e;
+        }
+    }
+
+    @Override
+    public void drainOutputBuffer() throws IOException {
+        logWriter.beforeDrainOutputBuffer(Instant.now());
+        try {
+            serialPortSocket.drainOutputBuffer();
+            logWriter.afterDrainOutputBuffer(Instant.now());
+        } catch (IOException e) {
+            logWriter.afterDrainOutputBuffer(Instant.now(), e);
             throw e;
         }
     }

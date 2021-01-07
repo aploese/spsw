@@ -1,6 +1,6 @@
 /*
  * SPSW - Drivers for the serial port, https://github.com/aploese/spsw/
- * Copyright (C) 2009-2019, Arne Plöse and individual contributors as indicated
+ * Copyright (C) 2009-2021, Arne Plöse and individual contributors as indicated
  * by the @authors tag. See the copyright.txt in the distribution for a
  * full listing of individual contributors.
  *
@@ -24,6 +24,7 @@ package de.ibapl.spsw.tests;
 import de.ibapl.spsw.api.DataBits;
 import de.ibapl.spsw.api.FlowControl;
 import de.ibapl.spsw.api.Parity;
+import de.ibapl.spsw.api.SerialPortConfiguration;
 import de.ibapl.spsw.api.SerialPortSocket;
 import de.ibapl.spsw.api.SerialPortSocketFactory;
 import de.ibapl.spsw.api.Speed;
@@ -58,18 +59,35 @@ import org.junit.jupiter.api.extension.ExtensionContext;
  */
 @ExtendWith(SetupAndTeardownTests.AfterTestExecution.class)
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
-public abstract class SetupAndTeardownTests {
+public abstract class SetupAndTeardownTests<T extends SerialPortConfiguration> {
 
-    
     protected final ExecutorService EXECUTOR_SERVICE = Executors.newCachedThreadPool();
     protected static final int PORT_RECOVERY_TIME_MS = 200;
 
     protected static final Logger LOG = Logger.getLogger("SpswTests");
-    private static String readSerialPortName;
-    private static String writeSerialPortName;
+    protected final static String readSerialPortName;
+    protected final static String writeSerialPortName;
 
-    protected SerialPortSocket readSpc;
-    protected SerialPortSocket writeSpc;
+    static {
+        String readName = null;
+        String writeName = null;
+        try (InputStream is = SetupAndTeardownTests.class.getClassLoader()
+                .getResourceAsStream("junit-spsw-config.properties")) {
+            if (is != null) {
+                Properties p = new Properties();
+                p.load(is);
+                readName = p.getProperty("readPort", null);
+                writeName = p.getProperty("writePort", null);
+            }
+        } catch (IOException ex) {
+            Logger.getLogger(SetupAndTeardownTests.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        readSerialPortName = readName;
+        writeSerialPortName = writeName;
+    }
+    
+    protected T readSpc;
+    protected T writeSpc;
 
     protected boolean currentTestFailed;
 
@@ -83,11 +101,11 @@ public abstract class SetupAndTeardownTests {
         return result;
     }
 
-    protected SerialPortSocket wrapReadSpc(SerialPortSocket opend) {
+    protected T wrapReadSpc(T opend) {
         return opend;
     }
 
-    protected SerialPortSocket wrapWriteSpc(SerialPortSocket opend) {
+    protected T wrapWriteSpc(T opend) {
         return opend;
     }
 
@@ -120,66 +138,6 @@ public abstract class SetupAndTeardownTests {
     protected void assumeRWTest() {
         assumeRTest();
         assumeWTest();
-    }
-
-    protected void openDefault() throws IOException {
-        open(Speed._9600_BPS, DataBits.DB_8, StopBits.SB_1, Parity.NONE, FlowControl.getFC_NONE());
-    }
-
-    /**
-     * Opens the port and make sure that In and out buffer are empty
-     *
-     * @param speed
-     * @param dataBits
-     * @param stopBits
-     * @param parity
-     * @param flowControl
-     */
-    protected void open(Speed speed, DataBits dataBits, StopBits stopBits, Parity parity, Set<FlowControl> flowControl)
-            throws IOException {
-        final SerialPortSocketFactory factory = getSerialPortSocketFactory();
-        if (readSerialPortName != null) {
-            try {
-                readSpc = wrapReadSpc(factory.open(readSerialPortName, speed, dataBits, stopBits, parity, flowControl));
-            } catch (Exception e) {
-                LOG.log(Level.SEVERE, "Error during readSpc.open(" + speed + ", " + dataBits + ", " + stopBits + ", " + parity + ", " + flowControl + ");", e);
-                throw e;
-            }
-            assertEquals(0, readSpc.getOutBufferBytesCount(), "Can't start test: OutBuffer is not empty");
-            while (readSpc.getInBufferBytesCount() > 0) {
-                readSpc.getInputStream().read(new byte[readSpc.getInBufferBytesCount()]);
-                try {
-                    Thread.sleep(100);
-                } catch (InterruptedException ie) {
-                    throw new RuntimeException(ie);
-                }
-            }
-            assertEquals(0, readSpc.getInBufferBytesCount(), "Can't start test: InBuffer is not empty");
-//No wrapper			readSpc = LoggingSerialPortSocket.wrapWithHexOutputStream(readSpc, new FileOutputStream("/tmp/test_serial.txt"), true, TimeStampLogging.FROM_OPEN);
-        }
-        if (writeSerialPortName != null) {
-            if (writeSerialPortName.equals(readSerialPortName)) {
-                writeSpc = readSpc;
-            } else {
-                try {
-                    writeSpc = wrapWriteSpc(factory.open(writeSerialPortName, speed, dataBits, stopBits, parity, flowControl));
-                } catch (Exception e) {
-                    LOG.log(Level.SEVERE, "Error during writeSpc.open(" + speed + ", " + dataBits + ", " + stopBits + ", " + parity + ", " + flowControl + ");", e);
-                    throw e;
-                }
-                assertEquals(0, writeSpc.getOutBufferBytesCount(), "Can't start test: OutBuffer is not empty");
-                while (writeSpc.getInBufferBytesCount() > 0) {
-                    writeSpc.getInputStream().read(new byte[writeSpc.getInBufferBytesCount()]);
-                    try {
-                        Thread.sleep(100);
-                    } catch (InterruptedException ie) {
-                        throw new RuntimeException(ie);
-                    }
-                }
-                assertEquals(0, writeSpc.getInBufferBytesCount(), "Can't start test: InBuffer is not empty");
-            }
-        }
-
     }
 
     protected void setTimeouts(int interByteReadTimeout, int overallReadTimeout, int overallWriteTimeout)
@@ -215,7 +173,7 @@ public abstract class SetupAndTeardownTests {
             LOG.log(Level.INFO, sb.toString());
         } else {
             @SuppressWarnings("resource")
-            SerialPortSocket spc = readSpc != null ? readSpc : writeSpc;
+            SerialPortConfiguration spc = readSpc != null ? readSpc : writeSpc;
             if (spc != null) {
                 StringBuilder sb = new StringBuilder();
                 sb.append(String.format("\n\tName:        %-20s\n", spc.getPortName()));
@@ -229,22 +187,6 @@ public abstract class SetupAndTeardownTests {
                 sb.append(String.format("\tOverallWriteTimeout:    %-20d\n", spc.getOverallWriteTimeout()));
 
                 LOG.log(Level.INFO, sb.toString());
-            }
-        }
-    }
-
-    @BeforeAll
-    public static void setUpClass() throws Exception {
-        try (InputStream is = SetupAndTeardownTests.class.getClassLoader()
-                .getResourceAsStream("junit-spsw-config.properties")) {
-            if (is == null) {
-                readSerialPortName = null;
-                writeSerialPortName = null;
-            } else {
-                Properties p = new Properties();
-                p.load(is);
-                readSerialPortName = p.getProperty("readPort", null);
-                writeSerialPortName = p.getProperty("writePort", null);
             }
         }
     }
@@ -282,11 +224,6 @@ public abstract class SetupAndTeardownTests {
             Runtime.getRuntime().gc();
             Runtime.getRuntime().runFinalization();
         }
-    }
-
-    protected void open(PortConfiguration pc) throws Exception {
-        open(pc.getSpeed(), pc.getDataBits(), pc.getStopBits(), pc.getParity(), pc.getFlowControl());
-        setTimeouts(pc.getInterByteReadTimeout(), pc.getOverallReadTimeout(), pc.getOverallWriteTimeout());
     }
 
 }

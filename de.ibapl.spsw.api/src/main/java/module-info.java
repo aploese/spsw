@@ -1,6 +1,6 @@
 /*
  * SPSW - Drivers for the serial port, https://github.com/aploese/spsw/
- * Copyright (C) 2009-2019, Arne Plöse and individual contributors as indicated
+ * Copyright (C) 2009-2021, Arne Plöse and individual contributors as indicated
  * by the @authors tag. See the copyright.txt in the distribution for a
  * full listing of individual contributors.
  *
@@ -23,6 +23,7 @@ module de.ibapl.spsw.api {
 	requires osgi.annotation;
 	
 	exports de.ibapl.spsw.api;
+	exports de.ibapl.spsw.spi;
 	exports de.ibapl.spsw.logging;
 	exports de.ibapl.spsw.mock;
 	exports de.ibapl.spsw.ser2net;
