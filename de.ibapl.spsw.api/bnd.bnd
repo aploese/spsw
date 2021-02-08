@@ -1,3 +1,4 @@
+-noimportjava: true
 Export-Package: \
  de.ibapl.spsw.api,\
  de.ibapl.spsw.spi,\

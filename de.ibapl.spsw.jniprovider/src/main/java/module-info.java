@@ -21,7 +21,7 @@
  */
 module de.ibapl.spsw.jniprovider {
     requires java.logging;
-    requires osgi.annotation;
+    requires org.osgi.annotation;
     requires org.osgi.service.component.annotations;
     requires de.ibapl.spsw.api;
     requires de.ibapl.jnhw.libloader;
