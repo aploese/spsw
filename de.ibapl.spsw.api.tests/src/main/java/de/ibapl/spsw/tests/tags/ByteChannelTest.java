@@ -32,7 +32,7 @@ import org.junit.jupiter.api.Tag;
 
 /**
  * Tags all test that use #{@link java.nio.channels.ByteChannel}.
- * 
+ *
  * @author Arne Plöse
  *
  */

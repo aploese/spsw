@@ -59,11 +59,16 @@ public class ChannelReadDemoMain {
      * @param args the only arg acceptes is the portname
      */
     public static void main(String[] args) {
+        if (args.length != 1) {
+            System.err.println("only one ars is allowed - the portname.");
+            System.exit(1);
+        }
+
         final SerialPortSocketFactory spsf = getSerialPortSocketFactory();
 
         try (SerialPortSocket sps = spsf.open(args[0], Speed._9600_BPS, DataBits.DB_8, StopBits.SB_1, Parity.NONE, FlowControl.getFC_NONE())) {
             sps.setTimeouts(100, 0, 0);
-            
+
             final ReadableByteChannel channel = sps;
             final ByteBuffer buffer = ByteBuffer.allocateDirect(2048);
             while (channel.isOpen()) {

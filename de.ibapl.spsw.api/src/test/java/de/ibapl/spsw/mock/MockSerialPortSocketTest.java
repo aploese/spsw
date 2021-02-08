@@ -44,140 +44,140 @@ import org.junit.jupiter.api.Assertions;
 public class MockSerialPortSocketTest {
 
     private final static String PORT_NAME = "MOCK_PORT";
-    
-	private MockSerialPortFactory factory;
-	private SerialPortSocket socket;
 
-	@BeforeEach
-	public void setUp() throws Exception {
-            socket = null;
-		factory = new MockSerialPortFactory();
-	}
+    private MockSerialPortFactory factory;
+    private SerialPortSocket socket;
 
-	@AfterEach
-	public void tearDown() throws Exception {
-	           Assertions.assertNotNull(socket);	
-                socket.close();
-		socket = null;
-	}
+    @BeforeEach
+    public void setUp() throws Exception {
+        socket = null;
+        factory = new MockSerialPortFactory();
+    }
 
-	public MockSerialPortSocketTest() {
-	}
+    @AfterEach
+    public void tearDown() throws Exception {
+        Assertions.assertNotNull(socket);
+        socket.close();
+        socket = null;
+    }
 
-	@Test()
-	public void respondToRequest_1() throws IOException {
-            socket = factory.open(PORT_NAME);
-		assertThrows(UnexpectedRequestError.class, () -> {
-			socket.getOutputStream().write(0x01);
-		});
-	}
+    public MockSerialPortSocketTest() {
+    }
 
-	@Test()
-	public void respondToRequest_2() throws IOException {
-            socket = factory.open(PORT_NAME);
-		assertThrows(UnexpectedRequestError.class, () -> {
-			socket.getInputStream().read();
-		});
-	}
+    @Test()
+    public void respondToRequest_1() throws IOException {
+        socket = factory.open(PORT_NAME);
+        assertThrows(UnexpectedRequestError.class, () -> {
+            socket.getOutputStream().write(0x01);
+        });
+    }
 
-	@Test
-	public void respondToRequest_Timeout() throws IOException {
-		factory.expectedRead("01");
-		factory.expectedRead(new TimeoutIOException("Test"));
-                socket = factory.open(PORT_NAME);
-                
-		socket.getInputStream().read();
-		assertThrows(TimeoutIOException.class, () -> {
-			socket.getInputStream().read();
-		});
-	}
+    @Test()
+    public void respondToRequest_2() throws IOException {
+        socket = factory.open(PORT_NAME);
+        assertThrows(UnexpectedRequestError.class, () -> {
+            socket.getInputStream().read();
+        });
+    }
 
-	@Test
-	public void respondToReques_3() throws Exception {
-		factory.expectedWrite("0102");
-		factory.expectedRead("0201");
-		factory.expectedWrite("0304");
-		factory.expectedRead("0403");
-socket = factory.open(PORT_NAME);
+    @Test
+    public void respondToRequest_Timeout() throws IOException {
+        factory.expectedRead("01");
+        factory.expectedRead(new TimeoutIOException("Test"));
+        socket = factory.open(PORT_NAME);
 
-		socket.getOutputStream().write(0x01);
-		socket.getOutputStream().write(0x02);
-		assertEquals(0x02, socket.getInputStream().read());
-		assertEquals(0x01, socket.getInputStream().read());
-		assertThrows(UnexpectedRequestError.class, () -> {
-			socket.getInputStream().read();
-		});
-	}
+        socket.getInputStream().read();
+        assertThrows(TimeoutIOException.class, () -> {
+            socket.getInputStream().read();
+        });
+    }
 
-	@Test
-	public void test_read_array() throws Exception {
-		factory.expectedRead("0102");
-socket = factory.open(PORT_NAME);
+    @Test
+    public void respondToReques_3() throws Exception {
+        factory.expectedWrite("0102");
+        factory.expectedRead("0201");
+        factory.expectedWrite("0304");
+        factory.expectedRead("0403");
+        socket = factory.open(PORT_NAME);
 
-		byte[] b = new byte[16];
-		int count = socket.getInputStream().read(b);
-		assertEquals(2, count);
-		assertEquals(0x01, b[0]);
-		assertEquals(0x02, b[1]);
-	}
+        socket.getOutputStream().write(0x01);
+        socket.getOutputStream().write(0x02);
+        assertEquals(0x02, socket.getInputStream().read());
+        assertEquals(0x01, socket.getInputStream().read());
+        assertThrows(UnexpectedRequestError.class, () -> {
+            socket.getInputStream().read();
+        });
+    }
 
-	@Test
-	public void respondToReques_4() throws Exception {
-		factory.expectedWrite("01");
-socket = factory.open(PORT_NAME);
+    @Test
+    public void test_read_array() throws Exception {
+        factory.expectedRead("0102");
+        socket = factory.open(PORT_NAME);
 
-		assertFalse(factory.allRequestsHandled());
-	}
+        byte[] b = new byte[16];
+        int count = socket.getInputStream().read(b);
+        assertEquals(2, count);
+        assertEquals(0x01, b[0]);
+        assertEquals(0x02, b[1]);
+    }
 
-	@Test
-	public void respondToReques_5() throws Exception {
-		factory.addRequest("0102", "0201");
+    @Test
+    public void respondToReques_4() throws Exception {
+        factory.expectedWrite("01");
+        socket = factory.open(PORT_NAME);
 
-		socket = factory.open(PORT_NAME);
+        assertFalse(factory.allRequestsHandled());
+    }
 
-		assertEquals(0, socket.getInputStream().available());
+    @Test
+    public void respondToReques_5() throws Exception {
+        factory.addRequest("0102", "0201");
 
-		socket.getOutputStream().write(0x01);
-		assertEquals(0, socket.getInputStream().available());
-		socket.getOutputStream().write(0x02);
-		assertEquals(2, socket.getInputStream().available());
-		assertEquals(0x02, socket.getInputStream().read());
-		assertEquals(1, socket.getInputStream().available());
-		assertEquals(0x01, socket.getInputStream().read());
-		assertEquals(0, socket.getInputStream().available());
-	}
+        socket = factory.open(PORT_NAME);
 
-	@Test
-	public void respondToRequest() throws Exception {
-		factory.expectedWrite("0102");
-		factory.expectedRead("0201");
-		factory.expectedWrite("0304");
-		factory.expectedRead("0403");
-		factory.expectedWrite("0506");
-		factory.expectedWrite("0708");
-		factory.expectedRead("0807");
+        assertEquals(0, socket.getInputStream().available());
 
-		socket = factory.open(PORT_NAME);
+        socket.getOutputStream().write(0x01);
+        assertEquals(0, socket.getInputStream().available());
+        socket.getOutputStream().write(0x02);
+        assertEquals(2, socket.getInputStream().available());
+        assertEquals(0x02, socket.getInputStream().read());
+        assertEquals(1, socket.getInputStream().available());
+        assertEquals(0x01, socket.getInputStream().read());
+        assertEquals(0, socket.getInputStream().available());
+    }
 
-		socket.getOutputStream().write(0x01);
-		socket.getOutputStream().write(0x02);
-		assertEquals(0x02, socket.getInputStream().read());
-		assertEquals(0x01, socket.getInputStream().read());
+    @Test
+    public void respondToRequest() throws Exception {
+        factory.expectedWrite("0102");
+        factory.expectedRead("0201");
+        factory.expectedWrite("0304");
+        factory.expectedRead("0403");
+        factory.expectedWrite("0506");
+        factory.expectedWrite("0708");
+        factory.expectedRead("0807");
 
-		socket.getOutputStream().write(0x03);
-		socket.getOutputStream().write(0x04);
-		assertEquals(0x04, socket.getInputStream().read());
-		assertEquals(0x03, socket.getInputStream().read());
+        socket = factory.open(PORT_NAME);
 
-		socket.getOutputStream().write(0x05);
-		socket.getOutputStream().write(0x06);
+        socket.getOutputStream().write(0x01);
+        socket.getOutputStream().write(0x02);
+        assertEquals(0x02, socket.getInputStream().read());
+        assertEquals(0x01, socket.getInputStream().read());
 
-		socket.getOutputStream().write(0x07);
-		socket.getOutputStream().write(0x08);
-		assertEquals(0x08, socket.getInputStream().read());
-		assertEquals(0x07, socket.getInputStream().read());
+        socket.getOutputStream().write(0x03);
+        socket.getOutputStream().write(0x04);
+        assertEquals(0x04, socket.getInputStream().read());
+        assertEquals(0x03, socket.getInputStream().read());
 
-		assertTrue(factory.allRequestsHandled());
-	}
+        socket.getOutputStream().write(0x05);
+        socket.getOutputStream().write(0x06);
+
+        socket.getOutputStream().write(0x07);
+        socket.getOutputStream().write(0x08);
+        assertEquals(0x08, socket.getInputStream().read());
+        assertEquals(0x07, socket.getInputStream().read());
+
+        assertTrue(factory.allRequestsHandled());
+    }
 
 }

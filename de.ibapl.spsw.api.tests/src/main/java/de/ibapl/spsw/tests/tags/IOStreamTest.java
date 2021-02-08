@@ -31,8 +31,9 @@ import java.lang.annotation.Target;
 import org.junit.jupiter.api.Tag;
 
 /**
- * Tags all test that use #{@link java.io.InputStream} or #{@link java.io.OutputStream}.
- * 
+ * Tags all test that use #{@link java.io.InputStream} or
+ * #{@link java.io.OutputStream}.
+ *
  * @author Arne Plöse
  *
  */

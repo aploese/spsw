@@ -28,8 +28,8 @@
 extern "C" {
 #endif
 
-//jni.h and stdint.h must be declared for each arch, because we need to define _WIN32_WINNT before including anyting else.
-    
+    //jni.h and stdint.h must be declared for each arch, because we need to define _WIN32_WINNT before including anyting else.
+
 #if defined HAVE_TERMIOS_H
 #include <jni.h>
 #include <stdint.h>
@@ -72,8 +72,8 @@ extern "C" {
             //Defined here de.ibapl.api.SerialPortSocket.PORT_FD_INVALID
 #define PORT_FD_INVALID "File descriptor of serial port is invalid"
 
-    //Cached
-    extern jfieldID spsw_portName; /* id for field 'portName'  */
+            //Cached
+            extern jfieldID spsw_portName; /* id for field 'portName'  */
 
     extern jfieldID spsw_fd; /* id for field 'fd'  */
 
@@ -114,8 +114,8 @@ extern "C" {
     int32_t writeBuffer(JNIEnv *env, jobject sps, void *buff, int32_t len);
 
 #include "de_ibapl_spsw_jniprovider_AbstractSerialPortSocket.h"
-    
-//These are 32 bit long flags so "convert" to jint
+
+    //These are 32 bit long flags so "convert" to jint
 #define CAST_2_JINT(define) (jint)define
 #undef SPSW_SPEED_0_BPS
 #define SPSW_SPEED_0_BPS CAST_2_JINT(de_ibapl_spsw_jniprovider_AbstractSerialPortSocket_SPEED_0_BPS)

@@ -32,13 +32,13 @@ import org.junit.jupiter.api.Tag;
 
 /**
  * Tags all test that must successful if testing for RTS/CTS line status.
- * 
+ *
  * @author Arne Plöse
  *
  */
 @Inherited
 @Documented
-@Target({ ElementType.METHOD, ElementType.TYPE })
+@Target({ElementType.METHOD, ElementType.TYPE})
 @Retention(RetentionPolicy.RUNTIME)
 @Tag("RtsCts")
 public @interface RtsCtsTest {

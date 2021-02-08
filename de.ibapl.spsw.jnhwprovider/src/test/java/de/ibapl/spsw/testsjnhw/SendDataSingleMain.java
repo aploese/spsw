@@ -48,7 +48,7 @@ public class SendDataSingleMain {
         sendBuffer.flip();
 
         try (SerialPortSocket serialPortSocket = new SerialPortSocketFactoryImpl().open("/dev/ttyUSB0", Speed._1500000_BPS, DataBits.DB_8, StopBits.SB_1, Parity.NONE, FlowControl.getFC_NONE())) {
-            System.err.println(((PosixSerialPortSocket)serialPortSocket).termiosToString());
+            System.err.println(((PosixSerialPortSocket) serialPortSocket).termiosToString());
             serialPortSocket.setTimeouts(100, 0, 0);
             Thread thread = new Thread(() -> {
                 final ByteBuffer recBuffer = ByteBuffer.allocateDirect(BUFFER_SIZE);
@@ -67,7 +67,7 @@ public class SendDataSingleMain {
                             currentData++;
                         }
                         recBuffer.clear();
-                        System.out.format("rec: %d bps @%d\n", ((overallRead * 1000L * 8) / (System.currentTimeMillis() - start)), currentRead);
+                        System.out.format("rec: %d bps @%d%n", ((overallRead * 1000L * 8) / (System.currentTimeMillis() - start)), currentRead);
                         System.out.flush();
                     }
                 } catch (Throwable throwable) {
@@ -85,7 +85,7 @@ public class SendDataSingleMain {
                     serialPortSocket.write(sendBuffer);
                     sendBuffer.flip();
                     i++;
-                    System.out.format("send: %d bps\n", ((i * BUFFER_SIZE * 1000L * 8) / (System.currentTimeMillis() - start)));
+                    System.out.format("send: %d bps%n", ((i * BUFFER_SIZE * 1000L * 8) / (System.currentTimeMillis() - start)));
                     System.out.flush();
                 } catch (Throwable throwable) {
                     throwable.printStackTrace();

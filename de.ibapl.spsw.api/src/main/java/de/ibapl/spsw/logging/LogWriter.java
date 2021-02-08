@@ -768,7 +768,7 @@ public class LogWriter {
                     log.append("\\f");
                     break;
                 case '\b':
-                    log.append("\\n");
+                    log.append("\\b");
                     break;
                 case '\n':
                     log.append("\\n");

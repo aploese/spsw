@@ -52,21 +52,20 @@ public class PrintPortsDemoMain {
     public static void main(String[] args) {
         SerialPortSocketFactory spsf = getSerialPortSocketFactory();
         spsf.getPortNames((name, busy) -> {
-            System.out.printf("Port found: %s\n", name);
-            System.out.printf("\t busy: %s\n", busy);
+            System.out.printf("Port found: %s%n", name);
+            System.out.printf("\t busy: %s%n", busy);
             if (!busy) {
                 try (SerialPortSocket sps = spsf.open(name)) {
-                    System.out.printf("\t speed: %s\n", sps.getSpeed());
-                    System.out.printf("\t spopbits: %s\n", sps.getStopBits());
-                    System.out.printf("\t databits: %s\n", sps.getDatatBits());
-                    System.out.printf("\t parity: %s\n", sps.getParity());
-                    System.out.printf("\t low control: %s\n", sps.getFlowControl());
+                    System.out.printf("\t speed: %s%n", sps.getSpeed());
+                    System.out.printf("\t spopbits: %s%n", sps.getStopBits());
+                    System.out.printf("\t databits: %s%n", sps.getDatatBits());
+                    System.out.printf("\t parity: %s%n", sps.getParity());
+                    System.out.printf("\t low control: %s%n", sps.getFlowControl());
                 } catch (IOException ioe) {
-                    System.out.println("de.ibapl.spsw.demo.ascii.AsciiDemoMain.main(): Ex: "  + ioe);
+                    System.out.println("de.ibapl.spsw.demo.ascii.AsciiDemoMain.main(): Ex: " + ioe);
                 }
             }
         });
     }
-
 
 }

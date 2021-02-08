@@ -36,140 +36,143 @@ import de.ibapl.spsw.tests.tags.IOStreamTest;
  */
 public abstract class AbstractReadWriteBufferSizeTest extends AbstractReadWriteTest {
 
-	public Iterator<PortConfiguration> getBaselinePortConfigurations() {
-		return new Iterator<PortConfiguration>() {
-			final PortConfigurationFactory pcf = new PortConfigurationFactory().setSpeed(Speed._230400_BPS);
+    private static class BaselinePortConfigurations implements Iterator<PortConfiguration> {
 
-			int currentSize = 1;
-			final int maxSize = 1024 * 4; // 4kB seems the size of the inputbuffer for some devices FTDI 232 on
-											// Windows(8k FTDI 232 on linux) whereas others can handle 16k...
+        final PortConfigurationFactory pcf = new PortConfigurationFactory().setSpeed(Speed._230400_BPS);
 
-			@Override
-			public boolean hasNext() {
-				return currentSize <= maxSize;
-			}
+        int currentSize = 1;
+        final static int MAX_SIZE = 1024 * 4; // 4kB seems the size of the inputbuffer for some devices FTDI 232 on
+        // Windows(8k FTDI 232 on linux) whereas others can handle 16k...
 
-			@Override
-			public PortConfiguration next() {
-				int result = currentSize;
-				if (currentSize == 0) {
-					currentSize = 1;
-				} else {
-					currentSize *= 2;
-				}
-				return pcf.ofBuffersize(result);
-			}
-		};
-	}
+        @Override
+        public boolean hasNext() {
+            return currentSize <= MAX_SIZE;
+        }
 
-	@IOStreamTest
-	@BaselineTest
-	@ParameterizedTest
-	@MethodSource({ "getBaselinePortConfigurations" })
-	public void test_WriteBytes_ReadBytes(PortConfiguration pc) throws Exception {
-		write_Read_nonThreaded(SocketIoType.STREAM, SocketIoType.STREAM, pc);
-	}
+        @Override
+        public PortConfiguration next() {
+            int result = currentSize;
+            if (currentSize == 0) {
+                currentSize = 1;
+            } else {
+                currentSize *= 2;
+            }
+            return pcf.ofBuffersize(result);
+        }
+    }
 
-	@IOStreamTest
-	@BaselineTest
-	@ParameterizedTest
-	@MethodSource({ "getBaselinePortConfigurations" })
-	public void test_WriteBytes_ReadSingle(PortConfiguration pc) throws Exception {
-		write_Read_nonThreaded(SocketIoType.STREAM, SocketIoType.SINGLE_BYTE, pc);
-	}
+    public Iterator<PortConfiguration> getBaselinePortConfigurations() {
+        return new BaselinePortConfigurations();
+    }
 
-	@IOStreamTest
-	@BaselineTest
-	@ParameterizedTest
-	@MethodSource({ "getBaselinePortConfigurations" })
-	public void test_WriteSingle_ReadBytes(PortConfiguration pc) throws Exception {
-		write_Read_nonThreaded(SocketIoType.SINGLE_BYTE, SocketIoType.STREAM, pc);
-	}
+    @IOStreamTest
+    @BaselineTest
+    @ParameterizedTest
+    @MethodSource({"getBaselinePortConfigurations"})
+    public void test_WriteBytes_ReadBytes(PortConfiguration pc) throws Exception {
+        write_Read_nonThreaded(SocketIoType.STREAM, SocketIoType.STREAM, pc);
+    }
 
-	@BaselineTest
-	@ParameterizedTest
-	@MethodSource({ "getBaselinePortConfigurations" })
-	public void test_WriteSingle_ReadSingle(PortConfiguration pc) throws Exception {
-		write_Read_nonThreaded(SocketIoType.SINGLE_BYTE, SocketIoType.SINGLE_BYTE, pc);
-	}
+    @IOStreamTest
+    @BaselineTest
+    @ParameterizedTest
+    @MethodSource({"getBaselinePortConfigurations"})
+    public void test_WriteBytes_ReadSingle(PortConfiguration pc) throws Exception {
+        write_Read_nonThreaded(SocketIoType.STREAM, SocketIoType.SINGLE_BYTE, pc);
+    }
 
-	@IOStreamTest
-	@BaselineTest
-	@ParameterizedTest
-	@MethodSource({ "getBaselinePortConfigurations" })
-	public void test_WriteBytes_ReadBytes_Threaded(PortConfiguration pc) throws Exception {
-		write_Read_Threaded(SocketIoType.STREAM, SocketIoType.STREAM, pc);
-	}
+    @IOStreamTest
+    @BaselineTest
+    @ParameterizedTest
+    @MethodSource({"getBaselinePortConfigurations"})
+    public void test_WriteSingle_ReadBytes(PortConfiguration pc) throws Exception {
+        write_Read_nonThreaded(SocketIoType.SINGLE_BYTE, SocketIoType.STREAM, pc);
+    }
 
-	@IOStreamTest
-	@BaselineTest
-	@ParameterizedTest
-	@MethodSource({ "getBaselinePortConfigurations" })
-	public void test_WriteBytes_ReadSingle_Threaded(PortConfiguration pc) throws Exception {
-		write_Read_Threaded(SocketIoType.STREAM, SocketIoType.SINGLE_BYTE, pc);
-	}
+    @BaselineTest
+    @ParameterizedTest
+    @MethodSource({"getBaselinePortConfigurations"})
+    public void test_WriteSingle_ReadSingle(PortConfiguration pc) throws Exception {
+        write_Read_nonThreaded(SocketIoType.SINGLE_BYTE, SocketIoType.SINGLE_BYTE, pc);
+    }
 
-	@IOStreamTest
-	@BaselineTest
-	@ParameterizedTest
-	@MethodSource({ "getBaselinePortConfigurations" })
-	public void test_WriteSingle_ReadBytes_Threaded(PortConfiguration pc) throws Exception {
-		write_Read_Threaded(SocketIoType.SINGLE_BYTE, SocketIoType.STREAM, pc);
-	}
+    @IOStreamTest
+    @BaselineTest
+    @ParameterizedTest
+    @MethodSource({"getBaselinePortConfigurations"})
+    public void test_WriteBytes_ReadBytes_Threaded(PortConfiguration pc) throws Exception {
+        write_Read_Threaded(SocketIoType.STREAM, SocketIoType.STREAM, pc);
+    }
 
-	@BaselineTest
-	@ParameterizedTest
-	@MethodSource({ "getBaselinePortConfigurations" })
-	public void test_WriteSingle_ReadSingle_Threaded(PortConfiguration pc) throws Exception {
-		write_Read_Threaded(SocketIoType.SINGLE_BYTE, SocketIoType.SINGLE_BYTE, pc);
-	}
+    @IOStreamTest
+    @BaselineTest
+    @ParameterizedTest
+    @MethodSource({"getBaselinePortConfigurations"})
+    public void test_WriteBytes_ReadSingle_Threaded(PortConfiguration pc) throws Exception {
+        write_Read_Threaded(SocketIoType.STREAM, SocketIoType.SINGLE_BYTE, pc);
+    }
 
-	@ByteChannelTest
-	@BaselineTest
-	@ParameterizedTest
-	@MethodSource({ "getBaselinePortConfigurations" })
-	public void test_Channel_WriteBytes_ReadBytes(PortConfiguration pc) throws Exception {
-		write_Read_nonThreaded(SocketIoType.CHANNEL, SocketIoType.CHANNEL, pc);
-	}
+    @IOStreamTest
+    @BaselineTest
+    @ParameterizedTest
+    @MethodSource({"getBaselinePortConfigurations"})
+    public void test_WriteSingle_ReadBytes_Threaded(PortConfiguration pc) throws Exception {
+        write_Read_Threaded(SocketIoType.SINGLE_BYTE, SocketIoType.STREAM, pc);
+    }
 
-	@ByteChannelTest
-	@BaselineTest
-	@ParameterizedTest
-	@MethodSource({ "getBaselinePortConfigurations" })
-	public void test_Channel_WriteBytes_ReadSingle(PortConfiguration pc) throws Exception {
-		write_Read_nonThreaded(SocketIoType.CHANNEL, SocketIoType.SINGLE_BYTE, pc);
-	}
+    @BaselineTest
+    @ParameterizedTest
+    @MethodSource({"getBaselinePortConfigurations"})
+    public void test_WriteSingle_ReadSingle_Threaded(PortConfiguration pc) throws Exception {
+        write_Read_Threaded(SocketIoType.SINGLE_BYTE, SocketIoType.SINGLE_BYTE, pc);
+    }
 
-	@ByteChannelTest
-	@BaselineTest
-	@ParameterizedTest
-	@MethodSource({ "getBaselinePortConfigurations" })
-	public void test_Channel_WriteSingle_ReadBytes(PortConfiguration pc) throws Exception {
-		write_Read_nonThreaded(SocketIoType.SINGLE_BYTE, SocketIoType.CHANNEL, pc);
-	}
+    @ByteChannelTest
+    @BaselineTest
+    @ParameterizedTest
+    @MethodSource({"getBaselinePortConfigurations"})
+    public void test_Channel_WriteBytes_ReadBytes(PortConfiguration pc) throws Exception {
+        write_Read_nonThreaded(SocketIoType.CHANNEL, SocketIoType.CHANNEL, pc);
+    }
 
-	@ByteChannelTest
-	@BaselineTest
-	@ParameterizedTest
-	@MethodSource({ "getBaselinePortConfigurations" })
-	public void test_Channel_WriteBytes_ReadBytes_Threaded(PortConfiguration pc) throws Exception {
-		write_Read_Threaded(SocketIoType.CHANNEL, SocketIoType.CHANNEL, pc);
-	}
+    @ByteChannelTest
+    @BaselineTest
+    @ParameterizedTest
+    @MethodSource({"getBaselinePortConfigurations"})
+    public void test_Channel_WriteBytes_ReadSingle(PortConfiguration pc) throws Exception {
+        write_Read_nonThreaded(SocketIoType.CHANNEL, SocketIoType.SINGLE_BYTE, pc);
+    }
 
-	@ByteChannelTest
-	@BaselineTest
-	@ParameterizedTest
-	@MethodSource({ "getBaselinePortConfigurations" })
-	public void test_Channel_WriteBytes_ReadSingle_Threaded(PortConfiguration pc) throws Exception {
-		write_Read_Threaded(SocketIoType.CHANNEL, SocketIoType.SINGLE_BYTE, pc);
-	}
+    @ByteChannelTest
+    @BaselineTest
+    @ParameterizedTest
+    @MethodSource({"getBaselinePortConfigurations"})
+    public void test_Channel_WriteSingle_ReadBytes(PortConfiguration pc) throws Exception {
+        write_Read_nonThreaded(SocketIoType.SINGLE_BYTE, SocketIoType.CHANNEL, pc);
+    }
 
-	@ByteChannelTest
-	@BaselineTest
-	@ParameterizedTest
-	@MethodSource({ "getBaselinePortConfigurations" })
-	public void test_Channel_WriteSingle_ReadBytes_Threaded(PortConfiguration pc) throws Exception {
-		write_Read_Threaded(SocketIoType.SINGLE_BYTE, SocketIoType.CHANNEL, pc);
-	}
+    @ByteChannelTest
+    @BaselineTest
+    @ParameterizedTest
+    @MethodSource({"getBaselinePortConfigurations"})
+    public void test_Channel_WriteBytes_ReadBytes_Threaded(PortConfiguration pc) throws Exception {
+        write_Read_Threaded(SocketIoType.CHANNEL, SocketIoType.CHANNEL, pc);
+    }
+
+    @ByteChannelTest
+    @BaselineTest
+    @ParameterizedTest
+    @MethodSource({"getBaselinePortConfigurations"})
+    public void test_Channel_WriteBytes_ReadSingle_Threaded(PortConfiguration pc) throws Exception {
+        write_Read_Threaded(SocketIoType.CHANNEL, SocketIoType.SINGLE_BYTE, pc);
+    }
+
+    @ByteChannelTest
+    @BaselineTest
+    @ParameterizedTest
+    @MethodSource({"getBaselinePortConfigurations"})
+    public void test_Channel_WriteSingle_ReadBytes_Threaded(PortConfiguration pc) throws Exception {
+        write_Read_Threaded(SocketIoType.SINGLE_BYTE, SocketIoType.CHANNEL, pc);
+    }
 
 }

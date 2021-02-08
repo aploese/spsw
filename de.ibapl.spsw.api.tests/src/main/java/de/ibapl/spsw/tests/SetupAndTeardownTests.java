@@ -21,6 +21,7 @@
  */
 package de.ibapl.spsw.tests;
 
+import de.ibapl.jnhw.libloader.MultiarchTupelBuilder;
 import de.ibapl.spsw.api.DataBits;
 import de.ibapl.spsw.api.FlowControl;
 import de.ibapl.spsw.api.Parity;
@@ -61,6 +62,7 @@ import org.junit.jupiter.api.extension.ExtensionContext;
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 public abstract class SetupAndTeardownTests<T extends SerialPortConfiguration> {
 
+    protected final static MultiarchTupelBuilder MULTIARCHTUPEL_BUILDER = new MultiarchTupelBuilder();
     protected final ExecutorService EXECUTOR_SERVICE = Executors.newCachedThreadPool();
     protected static final int PORT_RECOVERY_TIME_MS = 200;
 
@@ -85,7 +87,7 @@ public abstract class SetupAndTeardownTests<T extends SerialPortConfiguration> {
         readSerialPortName = readName;
         writeSerialPortName = writeName;
     }
-    
+
     protected T readSpc;
     protected T writeSpc;
 
@@ -153,21 +155,21 @@ public abstract class SetupAndTeardownTests<T extends SerialPortConfiguration> {
     protected void printPorts() throws IOException {
         if (readSpc != null && writeSpc != null && readSpc != writeSpc) {
             StringBuilder sb = new StringBuilder();
-            sb.append(String.format("\n\tName:        %-20s %-20s\n", readSpc.getPortName(), writeSpc.getPortName()));
-            sb.append(String.format("\tSpeed:    %-20d %-20d\n", readSpc.getSpeed().value, writeSpc.getSpeed().value));
-            sb.append(String.format("\tDataBits:    %-20d %-20d\n", readSpc.getDatatBits().value,
+            sb.append(String.format("\n\tName:        %-20s %-20s%n", readSpc.getPortName(), writeSpc.getPortName()));
+            sb.append(String.format("\tSpeed:    %-20d %-20d%n", readSpc.getSpeed().value, writeSpc.getSpeed().value));
+            sb.append(String.format("\tDataBits:    %-20d %-20d%n", readSpc.getDatatBits().value,
                     writeSpc.getDatatBits().value));
-            sb.append(String.format("\tStopBits:    %-20f %-20f\n", readSpc.getStopBits().value,
+            sb.append(String.format("\tStopBits:    %-20f %-20f%n", readSpc.getStopBits().value,
                     writeSpc.getStopBits().value));
-            sb.append(String.format("\tParity:      %-20s %-20s\n", readSpc.getParity().name(),
+            sb.append(String.format("\tParity:      %-20s %-20s%n", readSpc.getParity().name(),
                     writeSpc.getParity().name()));
-            sb.append(String.format("\tFlowControl: %-20s %-20s\n", readSpc.getFlowControl().toString(),
+            sb.append(String.format("\tFlowControl: %-20s %-20s%n", readSpc.getFlowControl().toString(),
                     writeSpc.getFlowControl().toString()));
-            sb.append(String.format("\tIntebyteReadTimeout:    %-20d %-20d\n", readSpc.getInterByteReadTimeout(),
+            sb.append(String.format("\tIntebyteReadTimeout:    %-20d %-20d%n", readSpc.getInterByteReadTimeout(),
                     writeSpc.getInterByteReadTimeout()));
-            sb.append(String.format("\tOverallReadTimeout:    %-20d %-20d\n", readSpc.getOverallReadTimeout(),
+            sb.append(String.format("\tOverallReadTimeout:    %-20d %-20d%n", readSpc.getOverallReadTimeout(),
                     writeSpc.getOverallReadTimeout()));
-            sb.append(String.format("\tOverallWriteTimeout:    %-20d %-20d\n", readSpc.getOverallWriteTimeout(),
+            sb.append(String.format("\tOverallWriteTimeout:    %-20d %-20d%n", readSpc.getOverallWriteTimeout(),
                     writeSpc.getOverallWriteTimeout()));
 
             LOG.log(Level.INFO, sb.toString());
@@ -176,15 +178,15 @@ public abstract class SetupAndTeardownTests<T extends SerialPortConfiguration> {
             SerialPortConfiguration spc = readSpc != null ? readSpc : writeSpc;
             if (spc != null) {
                 StringBuilder sb = new StringBuilder();
-                sb.append(String.format("\n\tName:        %-20s\n", spc.getPortName()));
-                sb.append(String.format("\tSpeed:    %-20d\n", spc.getSpeed().value));
-                sb.append(String.format("\tDataBits:    %-20d\n", spc.getDatatBits().value));
-                sb.append(String.format("\tStopBits:    %-20f\n", spc.getStopBits().value));
-                sb.append(String.format("\tParity:      %-20s\n", spc.getParity().name()));
-                sb.append(String.format("\tFlowControl: %-20s\n", spc.getFlowControl().toString()));
-                sb.append(String.format("\tIntebyteReadTimeout:    %-20d\n", spc.getInterByteReadTimeout()));
-                sb.append(String.format("\tOverallReadTimeout:    %-20d\n", spc.getOverallReadTimeout()));
-                sb.append(String.format("\tOverallWriteTimeout:    %-20d\n", spc.getOverallWriteTimeout()));
+                sb.append(String.format("\n\tName:        %-20s%n", spc.getPortName()));
+                sb.append(String.format("\tSpeed:    %-20d%n", spc.getSpeed().value));
+                sb.append(String.format("\tDataBits:    %-20d%n", spc.getDatatBits().value));
+                sb.append(String.format("\tStopBits:    %-20f%n", spc.getStopBits().value));
+                sb.append(String.format("\tParity:      %-20s%n", spc.getParity().name()));
+                sb.append(String.format("\tFlowControl: %-20s%n", spc.getFlowControl().toString()));
+                sb.append(String.format("\tIntebyteReadTimeout:    %-20d%n", spc.getInterByteReadTimeout()));
+                sb.append(String.format("\tOverallReadTimeout:    %-20d%n", spc.getOverallReadTimeout()));
+                sb.append(String.format("\tOverallWriteTimeout:    %-20d%n", spc.getOverallWriteTimeout()));
 
                 LOG.log(Level.INFO, sb.toString());
             }

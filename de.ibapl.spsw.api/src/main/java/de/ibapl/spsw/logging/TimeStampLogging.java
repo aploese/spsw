@@ -23,22 +23,22 @@ package de.ibapl.spsw.logging;
 
 /**
  * Specifies the way time stamps should be written to the log.
- * 
+ *
  * @author Arne Plöse
  *
  */
 public enum TimeStampLogging {
-	/**
-	 * No time stamps are written. If time stamps are not important, this will give
-	 * the most compact log.
-	 */
-	NONE,
-	/**
-	 * All time stamps are the time elapsed since the opening of the port.
-	 */
-	FROM_OPEN,
-	/**
-	 * All time stamps are absolute times in UTC.
-	 */
-	UTC,
+    /**
+     * No time stamps are written. If time stamps are not important, this will
+     * give the most compact log.
+     */
+    NONE,
+    /**
+     * All time stamps are the time elapsed since the opening of the port.
+     */
+    FROM_OPEN,
+    /**
+     * All time stamps are absolute times in UTC.
+     */
+    UTC,
 }

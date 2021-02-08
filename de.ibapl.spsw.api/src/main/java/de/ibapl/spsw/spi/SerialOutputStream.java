@@ -102,8 +102,8 @@ public class SerialOutputStream<T extends SerialPortSocket> extends OutputStream
         final boolean useWriteBuffer = writeBufferLock.tryLock();
         try {
             final ByteBuffer buf = useWriteBuffer ? writeBuffer : ByteBuffer.allocateDirect(1);
-            writeBuffer.clear().put((byte) b).flip();
-            serialPortSocket.write(writeBuffer);
+            buf.clear().put((byte) b).flip();
+            serialPortSocket.write(buf);
         } finally {
             if (useWriteBuffer) {
                 writeBufferLock.unlock();

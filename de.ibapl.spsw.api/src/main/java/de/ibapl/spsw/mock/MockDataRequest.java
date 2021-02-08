@@ -26,9 +26,9 @@ package de.ibapl.spsw.mock;
  * @author aploese
  */
 public class MockDataRequest extends MockRequest<byte[]> {
-    
+
     MockDataRequest(byte[] payload, MockRequestType requestType) {
         super(payload, requestType);
     }
-    
+
 }

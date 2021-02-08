@@ -33,7 +33,7 @@ import org.junit.jupiter.api.Tag;
 /**
  * Tags all test that must successful if testing for low speeds - this may not
  * supported by all devices and/or drivers.
- * 
+ *
  * @author Arne Plöse
  *
  */

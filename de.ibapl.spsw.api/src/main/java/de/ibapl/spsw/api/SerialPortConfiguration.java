@@ -487,10 +487,11 @@ public interface SerialPortConfiguration extends Channel {
      * {@link TimeoutIOException} is raised, though the SerialPortSocket is
      * still valid. The overallReadTimeout or overallWriteTimeout must be
      * {@code > 0}. A overallReadTimeout or overallWriteTimeout of zero
-     * ({@code INFINITE_TIMEOUT}) is     * interpreted as an infinite timeout. <br>
+     * ({@code INFINITE_TIMEOUT}) is * interpreted as an infinite timeout. <br>
      * With the interbyteReadTimeout set to a non zero
-     * ({@code INFINITE_TIMEOUT}) value the port will wait     * for more incoming bytes within this time span. A value of zero as not to
-     * wait for more bytes. <br>
+     * ({@code INFINITE_TIMEOUT}) value the port will wait * for more incoming
+     * bytes within this time span. A value of zero as not to wait for more
+     * bytes. <br>
      * The options <B>must</B> be enabled prior to entering the blocking
      * operation to have effect.
      *
@@ -498,9 +499,9 @@ public interface SerialPortConfiguration extends Channel {
      * @param interByteReadTimeout the specified inter byte read timeout, in
      * milliseconds. 0 is not to wait.
      * @param overallReadTimeout the overall read timeout, in milliseconds. 0
-     * ({@code INFINITE_TIMEOUT}) is     * wait infinite.
+     * ({@code INFINITE_TIMEOUT}) is * wait infinite.
      * @param overallWriteTimeout the overall write timeout, in milliseconds. 0
-     * ({@code INFINITE_TIMEOUT})     * is wait infinite.
+     * ({@code INFINITE_TIMEOUT}) * is wait infinite.
      *
      * @throws IOException if value can't be set, port is closed or an error at
      * OS level occurred.

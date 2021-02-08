@@ -35,10 +35,10 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-    
+
 #define PORT_FD_IDX 0
 #define CLOSE_FD_IDX 1
-    
+
     int32_t readBuffer(JNIEnv *env, jobject sps, void *buff, int32_t len) {
         struct pollfd fds[2];
         fds[PORT_FD_IDX].fd = (*env)->GetIntField(env, sps, spsw_fd);
@@ -84,7 +84,7 @@ extern "C" {
 
 
         if (nread == 0) {
-            //Nothing read yet so use the pollReadTimeout to wait for any data 
+            //Nothing read yet so use the pollReadTimeout to wait for any data
             // a guard is needed for len == 0 so we do not wait here...
             int poll_result = poll(fds, 2, pollTimeout);
 
@@ -142,7 +142,7 @@ extern "C" {
         //Loop over poll and read to aquire as much bytes as possible either
         // a poll timeout, the overallReadTimeout a full read buffer or an error
         // breaks the loop
-        while (overallRead < len) {
+        do {
 
             int poll_result;
             if (pollTimeout == -1) {
@@ -205,7 +205,7 @@ extern "C" {
                     return -1;
                 }
             }
-        }
+        } while (overallRead < len);
         //We reached this, because the read buffer is full.
         return (int32_t) overallRead;
     }

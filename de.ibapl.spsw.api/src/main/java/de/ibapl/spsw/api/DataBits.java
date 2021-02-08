@@ -25,65 +25,69 @@ import org.osgi.annotation.versioning.ProviderType;
 
 /**
  * The number of data bits in each character encoded as enum constants.
- * <li>Fife bits in character are for the baudot code.</li>
+ * <ul>
+ * <li>Fife bits in character are for the
+ * <a href="https://wikipedia.org/wiki/Baudot_code">baudot code</a>.</li>
  * <li>Six bits are uncommon, but some devices supports it.</li>
- * <li>Seven bits are for 7bit ASCII.</li>
- * <li>Eight bits are for bytes.</li>
- * 
+ * <li>Seven bits are for 7bit
+ * <a href="https://wikipedia.org/wiki/ASCII">ASCII</a>.</li>
+ * <li>Eight bits are for 8 bit
+ * <a href="https://wikipedia.org/wiki/Byte">bytes</a>.</li>
+ * </ul>
+ *
  * @author Arne Plöse
  */
 @ProviderType
 public enum DataBits {
 
-	/**
-	 * Fife data bits. Valid stop bits are 1 and 1.5 bit.
-	 */
-	DB_5(5),
-	/**
-	 * Six data bits. Valid stop bits are 1 and 2 bit.
-	 */
-	DB_6(6),
-	/**
-	 * Seven data bits. Valid stop bits are 1 and 2 bit.
-	 */
-	DB_7(7),
-	/**
-	 * Eight data bits. Valid stop bits are 1 and 2 bit.
-	 */
-	DB_8(8);
+    /**
+     * Fife data bits. Valid stop bits are 1 and 1.5 bit.
+     */
+    DB_5(5),
+    /**
+     * Six data bits. Valid stop bits are 1 and 2 bit.
+     */
+    DB_6(6),
+    /**
+     * Seven data bits. Valid stop bits are 1 and 2 bit.
+     */
+    DB_7(7),
+    /**
+     * Eight data bits. Valid stop bits are 1 and 2 bit.
+     */
+    DB_8(8);
 
-	/**
-	 * Returns the enum constants of DataBits of the given bits in each character.
-	 * 
-	 * @param nativeValue
-	 *            the number of bits to convert.
-	 * @return the converted number of bits.
-	 * @throws IllegalArgumentException
-	 *             if the number is out of range.
-	 */
-	public static DataBits fromNative(int nativeValue) {
-		switch (nativeValue) {
-		case 5:
-			return DB_5;
-		case 6:
-			return DB_6;
-		case 7:
-			return DB_7;
-		case 8:
-			return DB_8;
-		default:
-			throw new IllegalArgumentException("No enum constant for: " + nativeValue + " data bits");
+    /**
+     * Returns the enum constants of DataBits of the given bits in each
+     * character.
+     *
+     * @param nativeValue the number of bits to convert.
+     * @return the converted number of bits.
+     * @throws IllegalArgumentException if the number is out of range.
+     */
+    public static DataBits fromNative(int nativeValue) {
+        switch (nativeValue) {
+            case 5:
+                return DB_5;
+            case 6:
+                return DB_6;
+            case 7:
+                return DB_7;
+            case 8:
+                return DB_8;
+            default:
+                throw new IllegalArgumentException("No enum constant for: " + nativeValue + " data bits");
 
-		}
-	}
+        }
+    }
 
-	/**
-	 * The number of data bits as int value.
-	 */
-	public final int value;
+    /**
+     * The number of data bits as int value.
+     */
+    public final int value;
 
-	private DataBits(int dataBits) {
-		this.value = dataBits;
-	}
+    private DataBits(int dataBits) {
+        this.value = dataBits;
+    }
 
 }

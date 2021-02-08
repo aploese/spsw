@@ -69,7 +69,7 @@ public class MockSerialPortFactory implements SerialPortSocketFactory {
     public List<String> getPortNames(String portToInclude, boolean hideBusyPorts) {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
-    
+
     public boolean allRequestsHandled() {
         return data.isEmpty();
     }
@@ -123,7 +123,7 @@ public class MockSerialPortFactory implements SerialPortSocketFactory {
         return data.getFirst();
     }
 
-    MockRequest<?>  removeDataFirst() {
+    MockRequest<?> removeDataFirst() {
         return data.removeFirst();
     }
 
@@ -136,6 +136,5 @@ public class MockSerialPortFactory implements SerialPortSocketFactory {
     public AsyncSerialPortSocket openAsync(String portName, Speed speed, DataBits dataBits, StopBits stopBits, Parity parity, Set<FlowControl> flowControls, ExecutorService executor) throws IOException {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
-
 
 }

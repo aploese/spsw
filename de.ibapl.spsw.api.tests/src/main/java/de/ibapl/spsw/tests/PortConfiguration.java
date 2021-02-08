@@ -33,39 +33,40 @@ import de.ibapl.spsw.api.StopBits;
 
 /**
  * Helper class for iterative tests.
- * 
+ *
  * @author Arne Plöse
  *
  */
 public interface PortConfiguration {
-	final static int TEST_TIMEOUT_OFFSET = 1000;
-	final static int TEST_TIMEOUT_MULTIPLYER = 20;
 
-	Speed getSpeed();
+    final static int TEST_TIMEOUT_OFFSET = 1000;
+    final static int TEST_TIMEOUT_MULTIPLYER = 20;
 
-	DataBits getDataBits();
+    Speed getSpeed();
 
-	Parity getParity();
+    DataBits getDataBits();
 
-	StopBits getStopBits();
+    Parity getParity();
 
-	Set<FlowControl> getFlowControl();
+    StopBits getStopBits();
 
-	int getInterByteReadTimeout();
+    Set<FlowControl> getFlowControl();
 
-	int getOverallWriteTimeout();
+    int getInterByteReadTimeout();
 
-	int getOverallReadTimeout();
+    int getOverallWriteTimeout();
 
-	int getBufferSize();
+    int getOverallReadTimeout();
 
-	default int calcMaxTransferTime() {
-		return TEST_TIMEOUT_OFFSET + SerialPortConfiguration.calculateMillisForCharacters(getBufferSize(), getSpeed(),
-				getDataBits(), getStopBits(), getParity());
-	}
+    int getBufferSize();
 
-	default long getTestTimeout() {
-		return calcMaxTransferTime() * TEST_TIMEOUT_MULTIPLYER;
-	}
+    default int calcMaxTransferTime() {
+        return TEST_TIMEOUT_OFFSET + SerialPortConfiguration.calculateMillisForCharacters(getBufferSize(), getSpeed(),
+                getDataBits(), getStopBits(), getParity());
+    }
+
+    default long getTestTimeout() {
+        return calcMaxTransferTime() * TEST_TIMEOUT_MULTIPLYER;
+    }
 
 }

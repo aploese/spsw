@@ -20,12 +20,12 @@
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
 module de.ibapl.spsw.api {
-	requires osgi.annotation;
-	
-	exports de.ibapl.spsw.api;
-	exports de.ibapl.spsw.spi;
-	exports de.ibapl.spsw.logging;
-	exports de.ibapl.spsw.mock;
-	exports de.ibapl.spsw.ser2net;
-	exports de.ibapl.spsw.wrapper;
+    requires osgi.annotation;
+
+    exports de.ibapl.spsw.api;
+    exports de.ibapl.spsw.spi;
+    exports de.ibapl.spsw.logging;
+    exports de.ibapl.spsw.mock;
+    exports de.ibapl.spsw.ser2net;
+    exports de.ibapl.spsw.wrapper;
 }

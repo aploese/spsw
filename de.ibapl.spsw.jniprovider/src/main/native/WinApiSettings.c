@@ -820,15 +820,15 @@ extern "C" {
             //This fits best for wait a timeout and have no interByteReadTimeout see also getInterbyteReadTimeout for reading back
             lpCommTimeouts.ReadIntervalTimeout = MAXDWORD;
             lpCommTimeouts.ReadTotalTimeoutMultiplier = MAXDWORD;
-            lpCommTimeouts.ReadTotalTimeoutConstant = (uint32_t)overallReadTimeout;
+            lpCommTimeouts.ReadTotalTimeoutConstant = (uint32_t) overallReadTimeout;
         } else {
-            lpCommTimeouts.ReadIntervalTimeout = (uint32_t)interByteReadTimeout;
+            lpCommTimeouts.ReadIntervalTimeout = (uint32_t) interByteReadTimeout;
             lpCommTimeouts.ReadTotalTimeoutMultiplier = 0;
-            lpCommTimeouts.ReadTotalTimeoutConstant = (uint32_t)overallReadTimeout;
+            lpCommTimeouts.ReadTotalTimeoutConstant = (uint32_t) overallReadTimeout;
         }
 
         lpCommTimeouts.WriteTotalTimeoutMultiplier = 0;
-        lpCommTimeouts.WriteTotalTimeoutConstant = (uint32_t)overallWriteTimeout;
+        lpCommTimeouts.WriteTotalTimeoutConstant = (uint32_t) overallWriteTimeout;
 
         if (!SetCommTimeouts(hFile, &lpCommTimeouts)) {
             if (GetLastError() == ERROR_INVALID_PARAMETER) {

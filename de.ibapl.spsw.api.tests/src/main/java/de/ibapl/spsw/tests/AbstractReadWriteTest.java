@@ -29,11 +29,11 @@ import org.junit.jupiter.api.TestInfo;
  */
 public abstract class AbstractReadWriteTest extends AbstractPortTest {
 
-	@Override
-	@BeforeEach
-	public void setUp(TestInfo testInfo) throws Exception {
-		super.setUp(testInfo);
-		assumeRWTest();
-	}
+    @Override
+    @BeforeEach
+    public void setUp(TestInfo testInfo) throws Exception {
+        super.setUp(testInfo);
+        assumeRWTest();
+    }
 
 }

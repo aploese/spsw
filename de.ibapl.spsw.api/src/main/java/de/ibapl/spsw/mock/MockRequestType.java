@@ -27,5 +27,5 @@ package de.ibapl.spsw.mock;
  */
 public enum MockRequestType {
     READ, WRITE
-    
+
 }

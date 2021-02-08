@@ -57,6 +57,11 @@ public class StreamWriteDemoMain {
      * @param args the command line arguments
      */
     public static void main(String[] args) {
+        if (args.length != 1) {
+            System.err.println("only one ars is allowed - the portname.");
+            System.exit(1);
+        }
+
         final SerialPortSocketFactory spsf = getSerialPortSocketFactory();
 
         OutputStream os;
@@ -71,7 +76,7 @@ public class StreamWriteDemoMain {
 
         try {
             while (true) {
-                String textToSent = String.format("%s: the quick brown fox jumps over the lazy dog!\r\n", LocalDateTime.now());
+                String textToSent = String.format("%s: the quick brown fox jumps over the lazy dog!\r%n", LocalDateTime.now());
                 os.write(textToSent.getBytes());
             }
         } catch (IOException ex) {

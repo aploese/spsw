@@ -232,36 +232,37 @@ public abstract class AbstractAsyncChannelTests extends AbstractAsyncSerialPortS
         byte b[] = new byte[len];
         assertTrue(writeSpc.isOpen());
 
-        EXECUTOR_SERVICE.submit(() -> {
+        final Future<Boolean> isClosed = EXECUTOR_SERVICE.submit(() -> {
             try {
                 Thread.sleep(100);
                 LOG.log(Level.INFO, "Will now close the port: {0}", writeSpc);
                 writeSpc.close();
-                assertFalse(writeSpc.isOpen(), "Port was not closed!");
                 LOG.log(Level.INFO, "Port is closed");
             } catch (Exception e) {
                 e.printStackTrace();
-                fail("Exception occured: " + e);
             }
+            return !writeSpc.isOpen();
         });
 
         AsynchronousCloseException ace = assertThrows(AsynchronousCloseException.class, () -> {
-            ByteBuffer out = ByteBuffer.allocateDirect(1024*1024);
+            ByteBuffer out = ByteBuffer.allocateDirect(1024 * 1024);
             assertTimeoutPreemptively(Duration.ofMillis(1000), () -> {
                 LOG.log(Level.INFO, "Will write {0} bytes in one second to fill the output buffer", len);
                 //Loop to fill the outputbuffer until it blocks...
                 while (true) {
                     out.position(0);
                     out.limit(out.capacity());
-                    writeSpc.writeAsync(out, (buf, ioEx)->{
-                    if (ioEx == null) {
-                        LOG.log(Level.SEVERE, "Unexpected Written: {0} bytes", buf.position());
-                    }
+                    writeSpc.writeAsync(out, (buf, ioEx) -> {
+                        if (ioEx == null) {
+                            LOG.log(Level.SEVERE, "Unexpected Written: {0} bytes", buf.position());
+                        }
                     });
                 }
             });
         });
         LOG.log(Level.INFO, "Port closed msg: {0}", ace.getMessage());
+
+        assertFalse(isClosed.get(), "Port was not closed!");
 
         assertFalse(writeSpc.isOpen(), "Port was not closed!");
         // Allow 200ms to recover on win the next executed test may fail with port busy

@@ -91,7 +91,7 @@ public class SendDataMain {
                 try {
                     long i = 0;
                     while (true) {
-                        String s = String.format("%10d The quick brown fox jumps over the lazy dog\n", i++);
+                        String s = String.format("%10d The quick brown fox jumps over the lazy dog%n", i++);
                         Thread.sleep(50);
                         if (writeSingle) {
                             for (byte b : s.getBytes()) {

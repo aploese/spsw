@@ -39,7 +39,7 @@ extern "C" {
         overlapped.OffsetHigh = 0;
         overlapped.hEvent = CreateEventA(NULL, TRUE, FALSE, NULL);
 
-        if (!ReadFile(hFile, buff, (uint32_t)len, NULL, &overlapped)) {
+        if (!ReadFile(hFile, buff, (uint32_t) len, NULL, &overlapped)) {
 
             if (GetLastError() != ERROR_IO_PENDING) {
                 if ((HANDLE) (uintptr_t) (*env)->GetLongField(env, sps, spsw_fd) == INVALID_HANDLE_VALUE) {
@@ -49,7 +49,7 @@ extern "C" {
                             "Error readBytes(GetLastError)");
                 }
                 CloseHandle(overlapped.hEvent);
-                return (int32_t)dwBytesRead;
+                return (int32_t) dwBytesRead;
             }
 
             //overlapped path
@@ -61,7 +61,7 @@ extern "C" {
                             "Error readBytes (WaitForSingleObject)");
                 }
                 CloseHandle(overlapped.hEvent);
-                return(int32_t)dwBytesRead;
+                return (int32_t) dwBytesRead;
             }
 
         }
@@ -74,14 +74,14 @@ extern "C" {
                 throw_InterruptedIOExceptionWithError(env, dwBytesRead,
                         "Error readBytes (GetOverlappedResult)");
             }
-            return (int32_t)dwBytesRead;
+            return (int32_t) dwBytesRead;
         }
 
         CloseHandle(overlapped.hEvent);
 
         if (dwBytesRead > 0) {
             //Success
-            return (int32_t)dwBytesRead;
+            return (int32_t) dwBytesRead;
         } else if (dwBytesRead == 0) {
             if ((HANDLE) (uintptr_t) (*env)->GetLongField(env, sps, spsw_fd) == INVALID_HANDLE_VALUE) {
                 throw_AsynchronousCloseException(env);
@@ -92,12 +92,12 @@ extern "C" {
         } else {
             throw_IOException_NativeError(env,
                     "Should never happen! readBytes dwBytes < 0");
-            return (int32_t)dwBytesRead;
+            return (int32_t) dwBytesRead;
         }
 
         throw_IOException_NativeError(env,
                 "Should never happen! readBytes fall trough");
-        return (int32_t)dwBytesRead;
+        return (int32_t) dwBytesRead;
     }
 
     /*
@@ -120,7 +120,7 @@ extern "C" {
             return;
         }
 
-        Sleep((uint32_t)duration);
+        Sleep((uint32_t) duration);
 
         if (!ClearCommBreak(hFile)) {
             throw_ClosedOrNativeException(env, sps, "sendBreak ClearCommBreak");
@@ -136,7 +136,7 @@ extern "C" {
         overlapped.Offset = 0;
         overlapped.OffsetHigh = 0;
         overlapped.hEvent = CreateEventA(NULL, TRUE, FALSE, NULL);
-        if (!WriteFile(hFile, buff, (uint32_t)len, NULL, &overlapped)) {
+        if (!WriteFile(hFile, buff, (uint32_t) len, NULL, &overlapped)) {
 
             if (GetLastError() != ERROR_IO_PENDING) {
                 CloseHandle(overlapped.hEvent);
@@ -145,7 +145,7 @@ extern "C" {
                 } else {
                     throw_InterruptedIOExceptionWithError(env, 0, "unknown port error 1 writeBytes");
                 }
-                return (int32_t)dwBytesWritten;
+                return (int32_t) dwBytesWritten;
             }
 
             if (WaitForSingleObject(overlapped.hEvent, INFINITE) != WAIT_OBJECT_0) {
@@ -155,7 +155,7 @@ extern "C" {
                 } else {
                     throw_InterruptedIOExceptionWithError(env, 0, "Error writeBytes (WaitForSingleObject)");
                 }
-                return (int32_t)dwBytesWritten;
+                return (int32_t) dwBytesWritten;
             }
 
         }
@@ -167,25 +167,25 @@ extern "C" {
             } else {
                 throw_InterruptedIOExceptionWithError(env, 0, "Error writeBytes (GetOverlappedResult)");
             }
-            return (int32_t)dwBytesWritten;
+            return (int32_t) dwBytesWritten;
         }
 
         CloseHandle(overlapped.hEvent);
-        if (dwBytesWritten != (uint32_t)len) {
+        if (dwBytesWritten != (uint32_t) len) {
             if ((HANDLE) (uintptr_t) (*env)->GetLongField(env, sps, spsw_fd) == INVALID_HANDLE_VALUE) {
                 throw_AsynchronousCloseException(env);
-                return (int32_t)dwBytesWritten;
+                return (int32_t) dwBytesWritten;
             } else {
                 if (GetLastError() == ERROR_IO_PENDING) {
                     throw_TimeoutIOException(env, dwBytesWritten, "Timeout writeBuffer overlapped");
                 } else {
                     throw_InterruptedIOExceptionWithError(env, dwBytesWritten, "Error writeBytes too view written");
                 }
-                return (int32_t)dwBytesWritten;
+                return (int32_t) dwBytesWritten;
             }
         }
         //Success
-        return (int32_t)dwBytesWritten;
+        return (int32_t) dwBytesWritten;
     }
 
     /*

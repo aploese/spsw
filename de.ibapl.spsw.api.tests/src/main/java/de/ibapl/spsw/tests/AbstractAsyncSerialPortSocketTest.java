@@ -91,12 +91,12 @@ public class AbstractAsyncSerialPortSocketTest extends SetupAndTeardownTests<Asy
                     writeSpc = wrapWriteSpc(factory.openAsync(writeSerialPortName, speed, dataBits, stopBits, parity, flowControl, EXECUTOR_SERVICE));
                 } catch (Exception e) {
                     LOG.log(Level.SEVERE, "Error during writeSpc.open(" + speed + ", " + dataBits + ", " + stopBits + ", " + parity + ", " + flowControl + ");", e);
-                try {
-                    writeSpc = wrapWriteSpc(new AsyncSerialPortSocketThreadPoolWrapper(factory.open(writeSerialPortName, speed, dataBits, stopBits, parity, flowControl), EXECUTOR_SERVICE));
-                } catch (Exception ex) {
-                    LOG.log(Level.SEVERE, "Error during writeSpc.open(" + speed + ", " + dataBits + ", " + stopBits + ", " + parity + ", " + flowControl + ");", ex);
-                    throw ex;
-                }
+                    try {
+                        writeSpc = wrapWriteSpc(new AsyncSerialPortSocketThreadPoolWrapper(factory.open(writeSerialPortName, speed, dataBits, stopBits, parity, flowControl), EXECUTOR_SERVICE));
+                    } catch (Exception ex) {
+                        LOG.log(Level.SEVERE, "Error during writeSpc.open(" + speed + ", " + dataBits + ", " + stopBits + ", " + parity + ", " + flowControl + ");", ex);
+                        throw ex;
+                    }
                 }
                 assertEquals(0, writeSpc.getOutBufferBytesCount(), "Can't start test: OutBuffer is not empty");
                 while (writeSpc.getInBufferBytesCount() > 0) {

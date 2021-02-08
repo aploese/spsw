@@ -26,9 +26,9 @@ package de.ibapl.spsw.logging;
  * @author aploese
  */
 public interface LogExplainWrite {
-    
+
     void explainWrite(String fmt, Object... args);
-    
+
     void explainWrite(Throwable t);
-    
+
 }

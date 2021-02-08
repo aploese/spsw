@@ -187,7 +187,7 @@ public class Ser2NetProvider extends AbstractInterruptibleChannel implements Ser
             throw new IOException(PORT_IS_CLOSED);
         }
     }
-    
+
     @Override
     public void drainOutputBuffer() throws IOException {
     }
@@ -240,7 +240,7 @@ public class Ser2NetProvider extends AbstractInterruptibleChannel implements Ser
     }
 
     @Override
-    protected void implCloseChannel() throws IOException {
+    protected synchronized void implCloseChannel() throws IOException {
 
         final Socket s = dataSocket;
         dataSocket = null;

@@ -28,9 +28,9 @@ import java.io.IOException;
  * @author aploese
  */
 public class MockExceptionRequest extends MockRequest<IOException> {
-    
+
     MockExceptionRequest(IOException payload, MockRequestType requestType) {
         super(payload, requestType);
     }
-    
+
 }

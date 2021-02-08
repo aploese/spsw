@@ -20,15 +20,15 @@
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
 module de.ibapl.spsw.api.test {
-	requires java.logging;
-	requires de.ibapl.spsw.api;
-	requires org.junit.jupiter.api;
-	requires org.junit.jupiter.params;
-	requires de.ibapl.jnhw.libloader;
-	requires rxtx;
-	
-        uses de.ibapl.spsw.api.SerialPortSocketFactory;
-        
-	exports de.ibapl.spsw.tests;
-	exports de.ibapl.spsw.tests.tags;
+    requires java.logging;
+    requires de.ibapl.spsw.api;
+    requires org.junit.jupiter.api;
+    requires org.junit.jupiter.params;
+    requires de.ibapl.jnhw.libloader;
+    requires rxtx;
+
+    uses de.ibapl.spsw.api.SerialPortSocketFactory;
+
+    exports de.ibapl.spsw.tests;
+    exports de.ibapl.spsw.tests.tags;
 }

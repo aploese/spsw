@@ -47,6 +47,7 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
+import java.util.concurrent.Future;
 import java.util.logging.Level;
 import org.junit.jupiter.api.Assertions;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -592,7 +593,7 @@ public abstract class AbstractOnePortTest extends AbstractPortTest {
 
     public void writeChunk(int chunksize, Speed speed, int writeTimeout) throws Exception {
         assumeWTest();
-        LOG.log(Level.INFO, "run testWriteBytesTimeout writeTO: {0} speed: {1} chunksize: {2}", new Object[] {writeTimeout, speed, chunksize});
+        LOG.log(Level.INFO, "run testWriteBytesTimeout writeTO: {0} speed: {1} chunksize: {2}", new Object[]{writeTimeout, speed, chunksize});
         if (writeTimeout == -1) {
             LOG.log(Level.INFO, "infinite timeout");
         } else {
@@ -814,7 +815,7 @@ public abstract class AbstractOnePortTest extends AbstractPortTest {
     public void testParity(Parity p) throws Exception {
         LOG.log(Level.INFO, "run testParity({0}) - BaselineTest", p);
         openDefault();
-        if ((p == Parity.SPACE || p == Parity.MARK) && (de.ibapl.jnhw.libloader.OS.FREE_BSD == new MultiarchTupelBuilder().getOS())) {
+        if ((p == Parity.SPACE || p == Parity.MARK) && (de.ibapl.jnhw.libloader.OS.FREE_BSD == MULTIARCHTUPEL_BUILDER.getOS())) {
             Assertions.assertThrows(IllegalArgumentException.class, () -> readSpc.setParity(p));
         } else {
             readSpc.setParity(p);
@@ -1110,20 +1111,36 @@ public abstract class AbstractOnePortTest extends AbstractPortTest {
         openDefault();
         readSpc.setTimeouts(100, 1000, 1000);
         ByteBuffer b = ByteBuffer.allocateDirect(_1MB);
-        final List<ClosedByInterruptException> exL = new LinkedList();
+        final List<Throwable> exL = new LinkedList();
 
         Thread t = new Thread(() -> {
-            exL.add(assertThrows(ClosedByInterruptException.class, () -> {
+            try {
                 readSpc.read(b);
-            }));
+            } catch (Throwable thr) {
+                synchronized (exL) {
+                    exL.add(thr);
+                    exL.notifyAll();
+                }
+            }
         });
         t.start();
+
         //Wait for the thread to run
         Thread.sleep(100);
+
         t.interrupt();
-        //Wait for the thread to finish...
-        Thread.sleep(100);
+
+        synchronized (exL) {
+            if (exL.isEmpty()) {
+                //Wait for the thread to finish...
+                exL.wait(1000);
+            }
+        }
         Assertions.assertFalse(exL.isEmpty(), "Expected to get an ClosedByInterruptException!");
+        if (exL.get(0) instanceof ClosedByInterruptException) {
+        } else {
+            fail((Throwable) exL.get(0));
+        }
 //TODO Write sendBreak drainBuffer too
     }
 
@@ -1237,12 +1254,13 @@ public abstract class AbstractOnePortTest extends AbstractPortTest {
         LOG.log(Level.INFO, "run testCloseDuringSingleRead");
         open(Speed._2400_BPS, DataBits.DB_8, StopBits.SB_1, Parity.EVEN, FlowControl.getFC_NONE());
 
-        EXECUTOR_SERVICE.submit(() -> {
+        final Future<Object> closedResult = EXECUTOR_SERVICE.submit(() -> {
             try {
                 Thread.sleep(100);
                 readSpc.close();
+                return !readSpc.isOpen();
             } catch (InterruptedException | IOException e) {
-                fail("Exception occured");
+                return e;
             }
         });
 
@@ -1251,7 +1269,15 @@ public abstract class AbstractOnePortTest extends AbstractPortTest {
             return readSpc.getInputStream().read();
         });
         assertEquals(-1, result);
+
+        Object o = closedResult.get();
+        if (o instanceof Boolean) {
+            assertTrue((Boolean) o);
+        } else {
+            Assertions.fail("closeResult is not an Boolean but: " + o);
+        }
         assertFalse(readSpc.isOpen());
+
         // Allow PORT_RECOVERY_TIME_MS to recover -on win the next executed test may fail wit port buy
         // otherwise
         Thread.sleep(PORT_RECOVERY_TIME_MS);
@@ -1264,14 +1290,13 @@ public abstract class AbstractOnePortTest extends AbstractPortTest {
         LOG.log(Level.INFO, "run testCloseDuringBytesRead");
         open(Speed._2400_BPS, DataBits.DB_8, StopBits.SB_1, Parity.EVEN, FlowControl.getFC_NONE());
 
-        EXECUTOR_SERVICE.submit(() -> {
+        final Future<Object> closedResult = EXECUTOR_SERVICE.submit(() -> {
             try {
                 Thread.sleep(100);
                 readSpc.close();
-                LOG.log(Level.INFO, "Closed readSpc");
+                return !readSpc.isOpen();
             } catch (InterruptedException | IOException e) {
-                e.printStackTrace();
-                fail("Exception occured");
+                return e;
             }
         });
 
@@ -1284,7 +1309,14 @@ public abstract class AbstractOnePortTest extends AbstractPortTest {
         LOG.log(Level.INFO, "Bytes read: " + result);
         assertEquals(-1, result);
 
+        Object o = closedResult.get();
+        if (o instanceof Boolean) {
+            assertTrue((Boolean) o);
+        } else {
+            Assertions.fail("closeResult is not an Boolean but: " + o);
+        }
         assertFalse(readSpc.isOpen());
+
         // Allow PORT_RECOVERY_TIME_MS to recover -on win the next executed test may fail with port busy
         // otherwise (FTDI on win)
         Thread.sleep(PORT_RECOVERY_TIME_MS);
@@ -1308,16 +1340,13 @@ public abstract class AbstractOnePortTest extends AbstractPortTest {
         byte b[] = new byte[len];
         assertTrue(writeSpc.isOpen());
 
-        EXECUTOR_SERVICE.submit(() -> {
+        final Future<Object> closedResult = EXECUTOR_SERVICE.submit(() -> {
             try {
                 Thread.sleep(100);
-                LOG.log(Level.INFO, "Will now close the port: {0}", writeSpc);
                 writeSpc.close();
-                assertFalse(writeSpc.isOpen(), "Port was not closed!");
-                LOG.log(Level.INFO, "Port is closed");
+                return !writeSpc.isOpen();
             } catch (Exception e) {
-                e.printStackTrace();
-                fail("Exception occured: " + e);
+                return e;
             }
         });
 
@@ -1333,6 +1362,12 @@ public abstract class AbstractOnePortTest extends AbstractPortTest {
         });
         LOG.log(Level.INFO, "Port closed msg: {0}", ace.getMessage());
 
+        Object o = closedResult.get();
+        if (o instanceof Boolean) {
+            assertTrue((Boolean) o);
+        } else {
+            Assertions.fail("closeResult is not an Boolean but: " + o);
+        }
         assertFalse(writeSpc.isOpen(), "Port was not closed!");
         // Allow PORT_RECOVERY_TIME_MS to recover on win the next executed test may fail with port busy
         // otherwise (FTDI on win)

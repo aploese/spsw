@@ -440,7 +440,7 @@ extern "C" {
 
         //DataBits
         if (paramBitSet & SPSW_DATA_BITS_MASK) {
-            settings->c_cflag &= (tcflag_t)~CSIZE;
+            settings->c_cflag &= (tcflag_t) ~CSIZE;
             switch (paramBitSet & SPSW_DATA_BITS_MASK) {
                 case SPSW_DATA_BITS_DB5:
                     settings->c_cflag |= CS5;
@@ -465,7 +465,7 @@ extern "C" {
             switch (paramBitSet & SPSW_STOP_BITS_MASK) {
                 case SPSW_STOP_BITS_1:
                     //1 stop bit (for info see ->> MSDN)
-                    settings->c_cflag &= (tcflag_t)~CSTOPB;
+                    settings->c_cflag &= (tcflag_t) ~CSTOPB;
                     break;
                 case SPSW_STOP_BITS_1_5:
                     if ((settings->c_cflag & CSIZE) == CS5) {
@@ -494,16 +494,16 @@ extern "C" {
         //Parity
         if (paramBitSet & SPSW_PARITY_MASK) {
 #ifdef PAREXT
-            settings->c_cflag &= (tcflag_t)~(PARENB | PARODD | PAREXT); //Clear parity settings
+            settings->c_cflag &= (tcflag_t) ~(PARENB | PARODD | PAREXT); //Clear parity settings
 #elif defined CMSPAR
-            settings->c_cflag &= (tcflag_t)~(PARENB | PARODD | CMSPAR); //Clear parity settings
+            settings->c_cflag &= (tcflag_t) ~(PARENB | PARODD | CMSPAR); //Clear parity settings
 #else
-            settings->c_cflag &= (tcflag_t)~(PARENB | PARODD); //Clear parity settings
+            settings->c_cflag &= (tcflag_t) ~(PARENB | PARODD); //Clear parity settings
 #endif
             switch (paramBitSet & SPSW_PARITY_MASK) {
                 case SPSW_PARITY_NONE:
                     //Parity NONE
-                    settings->c_iflag &= (tcflag_t)~INPCK; // switch parity input checking off
+                    settings->c_iflag &= (tcflag_t) ~INPCK; // switch parity input checking off
                     break;
                 case SPSW_PARITY_ODD:
                     //Parity ODD
@@ -548,8 +548,8 @@ extern "C" {
         //FlowControl
         if (paramBitSet & SPSW_FLOW_CONTROL_MASK) {
             jint mask = paramBitSet & SPSW_FLOW_CONTROL_MASK;
-            settings->c_cflag &= (tcflag_t)~CRTSCTS;
-            settings->c_iflag &= (tcflag_t)~(IXON | IXOFF);
+            settings->c_cflag &= (tcflag_t) ~CRTSCTS;
+            settings->c_iflag &= (tcflag_t) ~(IXON | IXOFF);
             if (mask != SPSW_FLOW_CONTROL_NONE) {
                 if (((mask & SPSW_FLOW_CONTROL_RTS_CTS_IN)
                         == SPSW_FLOW_CONTROL_RTS_CTS_IN)
@@ -830,7 +830,7 @@ extern "C" {
             throw_ClosedOrNativeException(env, sps, "setXOFFChar tcgetattr");
             return;
         }
-        settings.c_cc[VSTOP] = (uint8_t)c;
+        settings.c_cc[VSTOP] = (uint8_t) c;
 
         if (tcsetattr(fd, TCSANOW, &settings)) {
             throw_ClosedOrNativeException(env, sps, "setXOFFChar tcsetattr");
@@ -852,7 +852,7 @@ extern "C" {
             throw_ClosedOrNativeException(env, sps, "setXONChar tcgetattr");
             return;
         }
-        settings.c_cc[VSTART] = (uint8_t)c;
+        settings.c_cc[VSTART] = (uint8_t) c;
 
         if (tcsetattr(fd, TCSANOW, &settings)) {
             //TODO EBADF == errno

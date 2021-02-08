@@ -41,7 +41,7 @@ import static org.junit.jupiter.api.Assertions.fail;
  */
 public abstract class AbstractPortTest extends AbstractSerialPortSocketTest {
 
-    public class Receiver implements Runnable {
+    public static class Receiver implements Runnable {
 
         final SocketIoType socketIoType;
         final SerialPortSocket sps;
@@ -213,7 +213,7 @@ public abstract class AbstractPortTest extends AbstractSerialPortSocketTest {
 
     }
 
-    public class Sender implements Runnable {
+    public static class Sender implements Runnable {
 
         final SocketIoType socketIoType;
         boolean done;

@@ -24,21 +24,24 @@ package de.ibapl.spsw.api;
 import java.nio.channels.InterruptibleChannel;
 
 /**
- * An asynchronous IO socket.
- * This should be an for async IO optimized socket.
- * If the data can be read/written without waiting they should read/write with the calling thread. If not, an internal thread reads/writes the data.
- * All callbacks should be done with the currently used thread.
- * 
- * If a read/write finishes wihtout waiting, the calling thread of the callback is the thread that called read/write.
- * If an internal thread was used that thread calls the callbacks.
- * 
- * So if you just need to "fast" process the read/written data, use the thread that calls the callback. If you need "more time" - use some different thread to do so.
- * 
+ * An asynchronous IO socket. This should be an for async IO optimized socket.
+ * If the data can be read/written without waiting they should read/write with
+ * the calling thread. If not, an internal thread reads/writes the data. All
+ * callbacks should be done with the currently used thread.
+ *
+ * If a read/write finishes wihtout waiting, the calling thread of the callback
+ * is the thread that called read/write. If an internal thread was used that
+ * thread calls the callbacks.
+ *
+ * So if you just need to "fast" process the read/written data, use the thread
+ * that calls the callback. If you need "more time" - use some different thread
+ * to do so.
+ *
  * This interface is experimental.
- * 
+ *
  * @author aploese
- * 
+ *
  */
 public interface AsyncSerialPortSocket extends SerialPortConfiguration, AsyncByteChannel, InterruptibleChannel {
-    
+
 }

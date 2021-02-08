@@ -41,7 +41,7 @@ import java.util.EnumSet;
  */
 public class PortConfigurationFactory {
 
-    class PortConfigurationImpl implements PortConfiguration {
+    static class PortConfigurationImpl implements PortConfiguration {
 
         private int bufferSize = 1024;
         private DataBits dataBits = DataBits.DB_8;

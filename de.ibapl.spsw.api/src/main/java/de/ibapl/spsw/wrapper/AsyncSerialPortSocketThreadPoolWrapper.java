@@ -31,6 +31,7 @@ import de.ibapl.spsw.api.StopBits;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.util.Set;
+import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
@@ -43,22 +44,20 @@ import java.util.function.Consumer;
  * @author aploese
  */
 public class AsyncSerialPortSocketThreadPoolWrapper implements AsyncSerialPortSocket {
-    
+
     final private ExecutorService es;
     final private SerialPortSocket serialPortSocket;
 
-    
     public AsyncSerialPortSocketThreadPoolWrapper(SerialPortSocket serialPortSocket) {
         this.es = Executors.newCachedThreadPool();
         this.serialPortSocket = serialPortSocket;
     }
 
-
     public AsyncSerialPortSocketThreadPoolWrapper(SerialPortSocket serialPortSocket, ExecutorService es) {
         this.es = es;
         this.serialPortSocket = serialPortSocket;
     }
-    
+
     /**
      *
      * @param dst
@@ -91,7 +90,7 @@ public class AsyncSerialPortSocketThreadPoolWrapper implements AsyncSerialPortSo
             }
         });
     }
-    
+
     @Override
     public void readAsync(ByteBuffer dst, BiConsumer<ByteBuffer, IOException> callback) {
         if (dst == null) {
@@ -114,13 +113,13 @@ public class AsyncSerialPortSocketThreadPoolWrapper implements AsyncSerialPortSo
             }
         });
     }
-    
+
     @Override
     public Future<ByteBuffer> readAsync(ByteBuffer dst) {
         if (dst == null) {
             throw new NullPointerException("dst is null");
         }
-        FutureTask<ByteBuffer> result = new FutureTask<>(() -> {
+        return (Future<ByteBuffer>) es.submit(() -> {
             try {
                 serialPortSocket.read(dst);
                 return dst;
@@ -129,14 +128,7 @@ public class AsyncSerialPortSocketThreadPoolWrapper implements AsyncSerialPortSo
             } catch (Throwable t) {
                 throw new Exception(t);
             }
-        }) {
-            @Override
-            public boolean cancel(boolean mayInterruptIfRunning) {
-                return super.cancel(false);
-            }
-        };
-        es.submit(result);
-        return result;
+        });
     }
 
     /**
@@ -155,7 +147,7 @@ public class AsyncSerialPortSocketThreadPoolWrapper implements AsyncSerialPortSo
         if (src == null) {
             throw new NullPointerException("src is null");
         }
-        FutureTask<ByteBuffer> result = new FutureTask<>(() -> {
+        return es.submit(() -> {
             try {
                 serialPortSocket.write(src);
                 return src;
@@ -164,16 +156,9 @@ public class AsyncSerialPortSocketThreadPoolWrapper implements AsyncSerialPortSo
             } catch (Throwable t) {
                 throw new Exception(t);
             }
-        }) {
-            @Override
-            public boolean cancel(boolean mayInterruptIfRunning) {
-                return super.cancel(false);
-            }
-        };
-        es.submit(result);
-        return result;
+        });
     }
-    
+
     @Override
     public void writeAsync(ByteBuffer src, Consumer<ByteBuffer> callbackOnSuccess, Consumer<IOException> callbackOnFailure) {
         if (src == null) {
@@ -196,7 +181,7 @@ public class AsyncSerialPortSocketThreadPoolWrapper implements AsyncSerialPortSo
             }
         }).start();
     }
-    
+
     @Override
     public void writeAsync(ByteBuffer src, BiConsumer<ByteBuffer, IOException> callback) {
         if (src == null) {
@@ -219,167 +204,167 @@ public class AsyncSerialPortSocketThreadPoolWrapper implements AsyncSerialPortSo
             }
         });
     }
-    
+
     @Override
     public DataBits getDatatBits() throws IOException {
         return serialPortSocket.getDatatBits();
     }
-    
+
     @Override
     public Set<FlowControl> getFlowControl() throws IOException {
         return serialPortSocket.getFlowControl();
     }
-    
+
     @Override
     public int getInBufferBytesCount() throws IOException {
         return serialPortSocket.getInBufferBytesCount();
     }
-    
+
     @Override
     public int getInterByteReadTimeout() throws IOException {
         return serialPortSocket.getInterByteReadTimeout();
     }
-    
+
     @Override
     public int getOutBufferBytesCount() throws IOException {
         return serialPortSocket.getOutBufferBytesCount();
     }
-    
+
     @Override
     public int getOverallReadTimeout() throws IOException {
         return serialPortSocket.getOverallReadTimeout();
     }
-    
+
     @Override
     public int getOverallWriteTimeout() throws IOException {
         return serialPortSocket.getOverallWriteTimeout();
     }
-    
+
     @Override
     public Parity getParity() throws IOException {
         return serialPortSocket.getParity();
     }
-    
+
     @Override
     public String getPortName() {
         return serialPortSocket.getPortName();
     }
-    
+
     @Override
     public Speed getSpeed() throws IOException {
         return serialPortSocket.getSpeed();
     }
-    
+
     @Override
     public StopBits getStopBits() throws IOException {
         return serialPortSocket.getStopBits();
     }
-    
+
     @Override
     public char getXOFFChar() throws IOException {
         return serialPortSocket.getXOFFChar();
     }
-    
+
     @Override
     public char getXONChar() throws IOException {
         return serialPortSocket.getXONChar();
     }
-    
+
     @Override
     public boolean isCTS() throws IOException {
         return serialPortSocket.isCTS();
     }
-    
+
     @Override
     public boolean isDCD() throws IOException {
         return serialPortSocket.isDCD();
     }
-    
+
     @Override
     public boolean isDSR() throws IOException {
         return serialPortSocket.isDSR();
     }
-    
+
     @Override
     public boolean isOpen() {
         return serialPortSocket.isOpen();
     }
-    
+
     @Override
     public boolean isRI() throws IOException {
         return serialPortSocket.isRI();
     }
-    
+
     @Override
     public void sendBreak(int duration) throws IOException {
         serialPortSocket.sendBreak(duration);
     }
-    
+
     @Override
     public void sendXOFF() throws IOException {
         serialPortSocket.sendXOFF();
     }
-    
+
     @Override
     public void sendXON() throws IOException {
         serialPortSocket.sendXON();
     }
-    
+
     @Override
     public void setBreak(boolean value) throws IOException {
         serialPortSocket.setBreak(value);
     }
-    
+
     @Override
     public void setDataBits(DataBits dataBits) throws IOException {
         serialPortSocket.setDataBits(dataBits);
     }
-    
+
     @Override
     public void setDTR(boolean value) throws IOException {
         serialPortSocket.setDTR(value);
     }
-    
+
     @Override
     public void setFlowControl(Set<FlowControl> flowControls) throws IOException {
         serialPortSocket.setFlowControl(flowControls);
     }
-    
+
     @Override
     public void setParity(Parity parity) throws IOException {
         serialPortSocket.setParity(parity);
     }
-    
+
     @Override
     public void setRTS(boolean value) throws IOException {
         serialPortSocket.setRTS(value);
     }
-    
+
     @Override
     public void setSpeed(Speed speed) throws IOException {
         serialPortSocket.setSpeed(speed);
     }
-    
+
     @Override
     public void setStopBits(StopBits stopBits) throws IOException {
         serialPortSocket.setStopBits(stopBits);
     }
-    
+
     @Override
     public void setTimeouts(int interByteReadTimeout, int overallReadTimeout, int overallWriteTimeout) throws IOException {
         serialPortSocket.setTimeouts(interByteReadTimeout, overallReadTimeout, overallWriteTimeout);
     }
-    
+
     @Override
     public void setXOFFChar(char c) throws IOException {
         serialPortSocket.setXOFFChar(c);
     }
-    
+
     @Override
     public void setXONChar(char c) throws IOException {
         serialPortSocket.setXONChar(c);
     }
-    
+
     @Override
     public void close() throws IOException {
         serialPortSocket.close();
@@ -389,5 +374,5 @@ public class AsyncSerialPortSocketThreadPoolWrapper implements AsyncSerialPortSo
     public void drainOutputBuffer() throws IOException {
         serialPortSocket.drainOutputBuffer();
     }
-    
+
 }

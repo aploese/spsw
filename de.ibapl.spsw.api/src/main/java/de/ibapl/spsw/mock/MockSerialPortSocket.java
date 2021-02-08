@@ -132,17 +132,18 @@ public class MockSerialPortSocket extends AbstractInterruptibleChannel implement
             if (factory.isDataEmpty()) {
                 return 0;
             }
-            if (factory.getDataFirst().requestType != MockRequestType.READ) {
+            final MockRequest<?> firstRequest = factory.getDataFirst();
+            if (firstRequest.requestType != MockRequestType.READ) {
                 return 0;
             }
-            if (factory.getDataFirst() instanceof MockExceptionRequest) {
+            if (firstRequest instanceof MockExceptionRequest) {
                 return 0;
             }
-            if (factory.getDataFirst() instanceof MockDataRequest) {
-                final MockDataRequest dataRequest = (MockDataRequest) factory.getDataFirst();
+            if (firstRequest instanceof MockDataRequest) {
+                final MockDataRequest dataRequest = (MockDataRequest) firstRequest;
                 return dataRequest.payload.length - readPtr;
             } else {
-                throw new UnexpectedRequestError("No read data request", factory.getDataFirst().stackException);
+                throw new UnexpectedRequestError("No read data request", firstRequest.stackException);
             }
         }
 
@@ -157,16 +158,17 @@ public class MockSerialPortSocket extends AbstractInterruptibleChannel implement
             if (factory.isDataEmpty()) {
                 throw new UnexpectedRequestError("data is empty");
             }
-            if (factory.getDataFirst().requestType != MockRequestType.READ) {
-                throw new UnexpectedRequestError("No Read request", factory.getDataFirst().stackException);
+            final MockRequest<?> firstRequest = factory.getDataFirst();
+            if (firstRequest.requestType != MockRequestType.READ) {
+                throw new UnexpectedRequestError("No Read request", firstRequest.stackException);
             }
-            if (factory.getDataFirst() instanceof MockExceptionRequest) {
-                final MockExceptionRequest exceptionRequest = (MockExceptionRequest) factory.getDataFirst();
+            if (firstRequest instanceof MockExceptionRequest) {
+                final MockExceptionRequest exceptionRequest = (MockExceptionRequest) firstRequest;
                 factory.removeDataFirst();
                 throw exceptionRequest.payload;
             }
-            if (factory.getDataFirst() instanceof MockDataRequest) {
-                final MockDataRequest dataRequest = (MockDataRequest) factory.getDataFirst();
+            if (firstRequest instanceof MockDataRequest) {
+                final MockDataRequest dataRequest = (MockDataRequest) firstRequest;
                 int result = dataRequest.payload[readPtr++];
                 if (readPtr == dataRequest.payload.length) {
                     readPtr = 0;
@@ -174,7 +176,7 @@ public class MockSerialPortSocket extends AbstractInterruptibleChannel implement
                 }
                 return result;
             } else {
-                throw new UnexpectedRequestError("No read data request", factory.getDataFirst().stackException);
+                throw new UnexpectedRequestError("No read data request", firstRequest.stackException);
             }
         }
 
@@ -184,16 +186,17 @@ public class MockSerialPortSocket extends AbstractInterruptibleChannel implement
             if (factory.isDataEmpty()) {
                 throw new UnexpectedRequestError("data is empty");
             }
-            if (factory.getDataFirst().requestType != MockRequestType.READ) {
-                throw new UnexpectedRequestError("No Read request", factory.getDataFirst().stackException);
+            final MockRequest<?> firstRequest = factory.getDataFirst();
+            if (firstRequest.requestType != MockRequestType.READ) {
+                throw new UnexpectedRequestError("No Read request", firstRequest.stackException);
             }
-            if (factory.getDataFirst() instanceof MockExceptionRequest) {
-                final MockExceptionRequest exceptionRequest = (MockExceptionRequest) factory.getDataFirst();
+            if (firstRequest instanceof MockExceptionRequest) {
+                final MockExceptionRequest exceptionRequest = (MockExceptionRequest) firstRequest;
                 factory.removeDataFirst();
                 throw exceptionRequest.payload;
             }
-            if (factory.getDataFirst() instanceof MockDataRequest) {
-                final MockDataRequest dataRequest = (MockDataRequest) factory.getDataFirst();
+            if (firstRequest instanceof MockDataRequest) {
+                final MockDataRequest dataRequest = (MockDataRequest) firstRequest;
                 int count = dataRequest.payload.length - readPtr;
                 if (len < count) {
                     count = len;
@@ -206,7 +209,7 @@ public class MockSerialPortSocket extends AbstractInterruptibleChannel implement
                 }
                 return count;
             } else {
-                throw new UnexpectedRequestError("No read data request", factory.getDataFirst().stackException);
+                throw new UnexpectedRequestError("No read data request", firstRequest.stackException);
             }
         }
 
@@ -227,33 +230,33 @@ public class MockSerialPortSocket extends AbstractInterruptibleChannel implement
             if (factory.isDataEmpty()) {
                 throw new UnexpectedRequestError("data is empty");
             }
-            if (factory.getDataFirst().requestType != MockRequestType.WRITE) {
-                throw new UnexpectedRequestError("No Write request", factory.getDataFirst().stackException);
+            final MockRequest<?> firstRequest = factory.getDataFirst();
+            if (firstRequest.requestType != MockRequestType.WRITE) {
+                throw new UnexpectedRequestError("No Write request", firstRequest.stackException);
             }
-            if (factory.getDataFirst() instanceof MockExceptionRequest) {
-                final MockExceptionRequest exceptionRequest = (MockExceptionRequest) factory.getDataFirst();
+            if (firstRequest instanceof MockExceptionRequest) {
+                final MockExceptionRequest exceptionRequest = (MockExceptionRequest) firstRequest;
                 factory.removeDataFirst();
                 throw exceptionRequest.payload;
             }
-            if (factory.getDataFirst() instanceof MockDataRequest) {
-                final MockDataRequest dataRequest = (MockDataRequest) factory.getDataFirst();
+            if (firstRequest instanceof MockDataRequest) {
+                final MockDataRequest dataRequest = (MockDataRequest) firstRequest;
                 if (b != dataRequest.payload[writePtr++]) {
                     throw new UnexpectedRequestError("Not expected write data at " + (writePtr - 1),
-                            factory.getDataFirst().stackException);
+                            firstRequest.stackException);
                 }
                 if (writePtr == dataRequest.payload.length) {
                     writePtr = 0;
                     factory.removeDataFirst();
                 }
             } else {
-                throw new UnexpectedRequestError("No read data request", factory.getDataFirst().stackException);
+                throw new UnexpectedRequestError("No read data request", firstRequest.stackException);
             }
         }
 
     }
 
-
-    public class UnexpectedRequestError extends Error {
+    public static class UnexpectedRequestError extends Error {
 
         /**
          *
@@ -299,7 +302,7 @@ public class MockSerialPortSocket extends AbstractInterruptibleChannel implement
     private MockOutputStream os;
     private final MockSerialPortFactory factory;
     private final String portname;
-    
+
     private int overallReadTimeout;
 
     private int overallWriteTimeout;
@@ -444,11 +447,11 @@ public class MockSerialPortSocket extends AbstractInterruptibleChannel implement
         this.flowControl = flowControls;
     }
 
-    public MockSerialPortSocket(MockSerialPortFactory factory, String portName, ExecutorService executor) throws IOException {
-        this(factory, portName);
+    public MockSerialPortSocket(MockSerialPortFactory factory, String portname, ExecutorService executor) throws IOException {
+        this(factory, portname);
         this.executor = executor;
     }
-    
+
     @Override
     public void sendBreak(int duration) throws IOException {
         ensureOpen();

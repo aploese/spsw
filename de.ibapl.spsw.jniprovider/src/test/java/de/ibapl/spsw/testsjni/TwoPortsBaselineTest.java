@@ -24,7 +24,7 @@ package de.ibapl.spsw.testsjni;
 import de.ibapl.spsw.tests.AbstractReadWriteBaselineTest;
 
 /**
- * 
+ *
  * @author Arne Plöse
  *
  */

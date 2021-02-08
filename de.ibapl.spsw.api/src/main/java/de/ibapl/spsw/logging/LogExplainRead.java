@@ -28,7 +28,7 @@ package de.ibapl.spsw.logging;
 public interface LogExplainRead {
 
     void explainRead(String format, Object... args);
-    
+
     void explainRead(Throwable t);
-    
+
 }

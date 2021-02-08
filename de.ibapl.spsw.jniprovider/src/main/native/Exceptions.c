@@ -183,12 +183,12 @@ extern "C" {
                 strerror(errno));
         const jobject iioeEx = (*env)->NewObject(env, InterruptedIOExceptionClass,
                 InterruptedIOExceptionInit, (*env)->NewStringUTF(env, buf));
-        (*env)->SetIntField(env, iioeEx, InterruptedIOException_bytesTransferred, (int32_t)bytesTransferred);
+        (*env)->SetIntField(env, iioeEx, InterruptedIOException_bytesTransferred, (int32_t) bytesTransferred);
         (*env)->Throw(env, iioeEx);
     }
 
     void throw_TimeoutIOException(JNIEnv *env, size_t bytesTransferred, const char* msg) {
-        const jobject tioeEx = (*env)->NewObject(env, TimeoutIOExceptionClass, TimeoutIOExceptionInit, (*env)->NewStringUTF(env, msg), (int32_t)bytesTransferred);
+        const jobject tioeEx = (*env)->NewObject(env, TimeoutIOExceptionClass, TimeoutIOExceptionInit, (*env)->NewStringUTF(env, msg), (int32_t) bytesTransferred);
         (*env)->Throw(env, tioeEx);
     }
 

@@ -32,7 +32,7 @@ import org.junit.jupiter.api.Tag;
 
 /**
  * Tags all (very) long running test.
- * 
+ *
  * @author Arne Plöse
  *
  */

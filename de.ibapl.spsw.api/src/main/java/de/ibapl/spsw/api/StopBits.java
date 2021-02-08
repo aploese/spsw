@@ -27,33 +27,34 @@ import org.osgi.annotation.versioning.ProviderType;
  * The number of stopbits to use. Valid combinations are one stopbit for any
  * number of databits. One and a halve stopbit for 5 databits. And two stop bits
  * for 6,7 and 8 databits.
- * 
+ *
  * @author Arne Plöse
  */
 @ProviderType
 public enum StopBits {
 
-	/**
-	 * One stop bit. Valid for 5,6,7,8 data bits.
-	 */
-	SB_1(1),
-	/**
-	 * One and a half stop bit. Only valid for 5 data bits.
-	 */
-	SB_1_5(1.5f),
-	/**
-	 * Two stop bits. Only valid for 6,7,8 data bits.
-	 */
-	SB_2(2);
+    /**
+     * One stop bit. Valid for 5,6,7,8 data bits.
+     */
+    SB_1(1),
+    /**
+     * One and a half stop bit. Only valid for 5 data bits.
+     */
+    SB_1_5(1.5f),
+    /**
+     * Two stop bits. Only valid for 6,7,8 data bits.
+     */
+    SB_2(2);
 
-	/**
-	 * The number of bits.
-	 */
-	public final float value;
+    /**
+     * The number of bits.
+     */
+    public final float value;
 
-	private StopBits(float value) {
-		this.value = value;
-	}
+    private StopBits(float value) {
+        this.value = value;
+    }
+
     /**
      *
      * @param stopbits
@@ -65,7 +66,9 @@ public enum StopBits {
             return SB_1_5;
         } else if (stopbits == 2.0) {
             return SB_2;
-        } else throw  new IllegalArgumentException("Unrecocnized number of stopbits: " + stopbits);
+        } else {
+            throw new IllegalArgumentException("Unrecocnized number of stopbits: " + stopbits);
+        }
     }
 
 }

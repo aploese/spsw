@@ -26,7 +26,7 @@ package de.ibapl.spsw.mock;
  * @author aploese
  */
 public class MockRequestStackException extends Exception {
-    
+
     /**
      *
      */
@@ -34,5 +34,5 @@ public class MockRequestStackException extends Exception {
 
     public MockRequestStackException() {
     }
-    
+
 }

@@ -25,8 +25,9 @@ import java.io.IOException;
 
 /**
  * The IO operation was cancelled by another thread.
+ *
  * @author aploese
  */
 public class AsynchronousCancelException extends IOException {
-    
+
 }

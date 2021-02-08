@@ -48,7 +48,7 @@ extern "C" {
         jbyte stackBuf[len > MAX_STACK_BUF_SIZE ? 0 : len];
         jbyte *_buf = NULL;
         if (len > MAX_STACK_BUF_SIZE) {
-            _buf = malloc((uint32_t)len);
+            _buf = malloc((uint32_t) len);
             if (_buf == NULL) {
                 throw_OutOfMemoryError(env, "Can`t aquire native memory");
                 return 0;
@@ -100,7 +100,7 @@ extern "C" {
                 return readBuff & 0xFF;
             default:
                 throw_IllegalArgumentException(env, "Saveguard for Java_de_ibapl_spsw_jniprovider_AbstractSerialPortSocket_readSingle read single returnd unexpected result.");
-                return (int32_t)result;
+                return (int32_t) result;
         }
     }
 
@@ -121,10 +121,10 @@ extern "C" {
      */
     JNIEXPORT void JNICALL Java_de_ibapl_spsw_jniprovider_AbstractSerialPortSocket_writeBytes_1ArgsOK___3BII
     (JNIEnv *env, jobject sps, jbyteArray bytes, jint off, jint len) {
-        jbyte stackBuf[len > MAX_STACK_BUF_SIZE ? 0 : len]; 
+        jbyte stackBuf[len > MAX_STACK_BUF_SIZE ? 0 : len];
         jbyte *_buf = NULL;
         if (len > MAX_STACK_BUF_SIZE) {
-            _buf = malloc((uint32_t)len);
+            _buf = malloc((uint32_t) len);
             if (_buf == NULL) {
                 throw_OutOfMemoryError(env, "Can`t aquire native memory");
                 return;

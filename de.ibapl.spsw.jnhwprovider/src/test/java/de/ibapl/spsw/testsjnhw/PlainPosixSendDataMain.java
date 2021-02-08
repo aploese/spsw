@@ -21,11 +21,9 @@
  */
 package de.ibapl.spsw.testsjnhw;
 
-import de.ibapl.jnhw.Define;
-import de.ibapl.jnhw.Defined;
-import de.ibapl.jnhw.NativeErrorException;
-import de.ibapl.jnhw.NotDefinedException;
-import de.ibapl.jnhw.OpaqueMemory32;
+import de.ibapl.jnhw.common.exception.NativeErrorException;
+import de.ibapl.jnhw.common.memory.Memory32Heap;
+import de.ibapl.jnhw.common.memory.OpaqueMemory32;
 import de.ibapl.jnhw.posix.Errno;
 import static de.ibapl.jnhw.posix.Fcntl.O_NOCTTY;
 import static de.ibapl.jnhw.posix.Fcntl.O_RDWR;
@@ -77,22 +75,20 @@ import java.util.Arrays;
 public class PlainPosixSendDataMain {
 
     final static int BUFFER_SIZE = 512;
-    final static int SPEED = Defined.getValueOr(Termios::B1500000, Termios.B0());
+    final static int SPEED = B1500000.isDefined() ? B1500000.get() : Termios.B0;
     final static int BITS_PER_TRANSFERRED_BYTE = 10; //1 start + 8 data + 0 parity + 1 stopp  
     private static final int CMSPAR_OR_PAREXT;
     static volatile boolean doExit = false;
 
     static {
         int value = 0;
-        try {
-            value = CMSPAR();
-        } catch (NotDefinedException nde) {
-            try {
-                value = PAREXT();
-            } catch (NotDefinedException nde1) {
-                //This is for FreeBSD No Parity SPACE and MARK
-                System.err.println("Parites SPACE and MARK will not work!");
-            }
+        if (CMSPAR.isDefined()) {
+            value = CMSPAR.get();
+        } else if (PAREXT.isDefined()) {
+            value = PAREXT.get();
+        } else {
+            //This is for FreeBSD No Parity SPACE and MARK
+            System.err.println("Parites SPACE and MARK will not work!");
         }
         CMSPAR_OR_PAREXT = value;
     }
@@ -112,29 +108,20 @@ public class PlainPosixSendDataMain {
 
     private static int openSerialPort(String portName, int bitrate) {
         try {
-            int fd = open(portName, O_RDWR() | O_NOCTTY());
+            int fd = open(portName, O_RDWR | O_NOCTTY);
             final StructTermios termios = new StructTermios();
 
             tcgetattr(fd, termios);
             System.err.println("Termios: " + termios.toString());
 
             //Make RAW like cfmakeraw
-            if (Defined.defined(Termios::PARMRK)) {
-            try {
-                termios.c_iflag(termios.c_iflag() & ~(IGNBRK() | BRKINT() | PARMRK() | ISTRIP() | INLCR() | IGNCR() | ICRNL() | IXON()));
-            } catch (NotDefinedException nde) {
-                //PARMRK not defined
-                throw new RuntimeException(nde);
-            }
-            } else {
-                                termios.c_iflag(termios.c_iflag() & ~(IGNBRK() | BRKINT() | ISTRIP() | INLCR() | IGNCR() | ICRNL() | IXON()));
-            }
-            termios.c_oflag(termios.c_oflag() & ~OPOST());
-            termios.c_lflag(termios.c_lflag() & ~(ECHO() | ECHONL() | ICANON() | ISIG() | IEXTEN()));
+            termios.c_iflag(termios.c_iflag() & ~(IGNBRK | BRKINT | PARMRK | ISTRIP | INLCR | IGNCR | ICRNL | IXON));
+            termios.c_oflag(termios.c_oflag() & ~OPOST);
+            termios.c_lflag(termios.c_lflag() & ~(ECHO | ECHONL | ICANON | ISIG | IEXTEN));
             //Make sure CLOCAL is set otherwise opening the port later won't work without Fcntl.O_NONBLOCK()
-            termios.c_cflag(termios.c_cflag() & ~(CSIZE() | PARENB()) | CS8() | CREAD() | CLOCAL() | HUPCL());
-            termios.c_cc(VMIN(), (byte) 1); // read at least 1 char
-            termios.c_cc(VTIME(), (byte) 100);// 1 s inter char timeout ;-)
+            termios.c_cflag(termios.c_cflag() & ~(CSIZE | PARENB) | CS8 | CREAD | CLOCAL | HUPCL);
+            termios.c_cc(VMIN, (byte) 1); // read at least 1 char
+            termios.c_cc(VTIME, (byte) 100);// 1 s inter char timeout ;-)
             cfsetspeed(termios, bitrate);
 
             /*
@@ -159,8 +146,8 @@ public class PlainPosixSendDataMain {
         termios.c_iflag(termios.c_iflag() & ~(IXON() | IXOFF()));
              */
             System.err.println("Termios: " + termios.toString());
-            tcsetattr(fd, TCSANOW(), termios);
-            tcflush(fd, TCIOFLUSH());
+            tcsetattr(fd, TCSANOW, termios);
+            tcflush(fd, TCIOFLUSH);
             return fd;
         } catch (NativeErrorException nee) {
             nee.printStackTrace();
@@ -189,7 +176,7 @@ public class PlainPosixSendDataMain {
                         overallRead += currentRead;
                         for (int i = 0; i < currentRead; i++) {
                             final byte data = recBuffer[i];
-//                            System.err.format("%d: 0x%02x 0x%02x\n", currBytePos++, currentData, data);
+//                            System.err.format("%d: 0x%02x 0x%02x%n", currBytePos++, currentData, data);
                             if (currentData != data) {
                                 throw new RuntimeException("REC wrong");
                             }
@@ -198,7 +185,7 @@ public class PlainPosixSendDataMain {
 //                        System.err.println("XXXXXXXXXXXXXXXXXXX");
 
                         Arrays.fill(recBuffer, (byte) 0);
-                        System.out.format("rec: %d bps @%d\n", ((overallRead * 1000L * BITS_PER_TRANSFERRED_BYTE) / (System.currentTimeMillis() - start)), currentRead);
+                        System.out.format("rec: %d bps @%d%n", ((overallRead * 1000L * BITS_PER_TRANSFERRED_BYTE) / (System.currentTimeMillis() - start)), currentRead);
                         System.out.flush();
                     }
                 } catch (Throwable throwable) {
@@ -215,7 +202,7 @@ public class PlainPosixSendDataMain {
                 try {
                     write(fd, sendBuffer);
                     i++;
-                    System.out.format("send: %d bps\n", ((i * BUFFER_SIZE * 1000L * BITS_PER_TRANSFERRED_BYTE) / (System.currentTimeMillis() - start)));
+                    System.out.format("send: %d bps%n", ((i * BUFFER_SIZE * 1000L * BITS_PER_TRANSFERRED_BYTE) / (System.currentTimeMillis() - start)));
                     System.out.flush();
                 } catch (Throwable throwable) {
                     throwable.printStackTrace();
@@ -225,7 +212,7 @@ public class PlainPosixSendDataMain {
                 }
             }
         } finally {
-            tcflush(fd, TCIOFLUSH());
+            tcflush(fd, TCIOFLUSH);
             close(fd);
             System.err.println("end doExit: " + doExit);
             System.err.flush();
@@ -253,7 +240,7 @@ public class PlainPosixSendDataMain {
                         recBuffer.flip();
                         while (recBuffer.hasRemaining()) {
                             final byte data = recBuffer.get();
-//                            System.err.format("%d: 0x%02x 0x%02x\n", currBytePos++, currentData, data);
+//                            System.err.format("%d: 0x%02x 0x%02x%n", currBytePos++, currentData, data);
                             if (currentData != data) {
                                 throw new RuntimeException("REC wrong");
                             }
@@ -262,7 +249,7 @@ public class PlainPosixSendDataMain {
 //                        System.err.println("XXXXXXXXXXXXXXXXXXX");
 
                         recBuffer.clear();
-                        System.out.format("rec: %d bps @%d\n", ((overallRead * 1000L * BITS_PER_TRANSFERRED_BYTE) / (System.currentTimeMillis() - start)), currentRead);
+                        System.out.format("rec: %d bps @%d%n", ((overallRead * 1000L * BITS_PER_TRANSFERRED_BYTE) / (System.currentTimeMillis() - start)), currentRead);
                         System.out.flush();
                     }
                 } catch (Throwable throwable) {
@@ -280,7 +267,7 @@ public class PlainPosixSendDataMain {
                     write(fd, sendBuffer);
                     sendBuffer.flip();
                     i++;
-                    System.out.format("send: %d bps\n", ((i * BUFFER_SIZE * 1000L * BITS_PER_TRANSFERRED_BYTE) / (System.currentTimeMillis() - start)));
+                    System.out.format("send: %d bps%n", ((i * BUFFER_SIZE * 1000L * BITS_PER_TRANSFERRED_BYTE) / (System.currentTimeMillis() - start)));
                     System.out.flush();
                 } catch (Throwable throwable) {
                     throwable.printStackTrace();
@@ -290,7 +277,7 @@ public class PlainPosixSendDataMain {
                 }
             }
         } finally {
-            tcflush(fd, TCIOFLUSH());
+            tcflush(fd, TCIOFLUSH);
             close(fd);
             System.err.println("end doExit: " + doExit);
             System.err.flush();
@@ -298,14 +285,14 @@ public class PlainPosixSendDataMain {
     }
 
     public static void sendOpaqueMemory(int fd) throws Exception {
-        final OpaqueMemory32 sendBuffer = new OpaqueMemory32(BUFFER_SIZE, false);
+        final Memory32Heap sendBuffer = new Memory32Heap(BUFFER_SIZE, false);
         for (int i = 0; i < BUFFER_SIZE; i++) {
             OpaqueMemory32.setByte(sendBuffer, i, (byte) i);
         }
         try {
 
             Thread thread = new Thread(() -> {
-                final OpaqueMemory32 recBuffer = new OpaqueMemory32(BUFFER_SIZE, true);
+                final OpaqueMemory32 recBuffer = new Memory32Heap(BUFFER_SIZE, true);
                 byte currentData = 0;
                 try {
                     int overallRead = 0;
@@ -316,7 +303,7 @@ public class PlainPosixSendDataMain {
                         overallRead += currentRead;
                         for (int i = 0; i < currentRead; i++) {
                             final byte data = OpaqueMemory32.getByte(recBuffer, i);
-//                            System.err.format("%d: 0x%02x 0x%02x\n", currBytePos++, currentData, data);
+//                            System.err.format("%d: 0x%02x 0x%02x%n", currBytePos++, currentData, data);
                             if (currentData != data) {
                                 throw new RuntimeException("REC wrong");
                             }
@@ -325,7 +312,7 @@ public class PlainPosixSendDataMain {
 //                        System.err.println("XXXXXXXXXXXXXXXXXXX");
 
                         OpaqueMemory32.clear(recBuffer);
-                        System.out.format("rec: %d bps @%d\n", ((overallRead * 1000L * BITS_PER_TRANSFERRED_BYTE) / (System.currentTimeMillis() - start)), currentRead);
+                        System.out.format("rec: %d bps @%d%n", ((overallRead * 1000L * BITS_PER_TRANSFERRED_BYTE) / (System.currentTimeMillis() - start)), currentRead);
                         System.out.flush();
                     }
                 } catch (Throwable throwable) {
@@ -342,7 +329,7 @@ public class PlainPosixSendDataMain {
                 try {
                     write(fd, sendBuffer);
                     i++;
-                    System.out.format("send: %d bps\n", ((i * BUFFER_SIZE * 1000L * BITS_PER_TRANSFERRED_BYTE) / (System.currentTimeMillis() - start)));
+                    System.out.format("send: %d bps%n", ((i * BUFFER_SIZE * 1000L * BITS_PER_TRANSFERRED_BYTE) / (System.currentTimeMillis() - start)));
                     System.out.flush();
                 } catch (Throwable throwable) {
                     throwable.printStackTrace();
@@ -352,7 +339,7 @@ public class PlainPosixSendDataMain {
                 }
             }
         } finally {
-            tcflush(fd, TCIOFLUSH());
+            tcflush(fd, TCIOFLUSH);
             close(fd);
             System.err.println("end doExit: " + doExit);
             System.err.flush();

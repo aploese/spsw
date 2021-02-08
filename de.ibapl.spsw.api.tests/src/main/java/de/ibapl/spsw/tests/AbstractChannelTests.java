@@ -26,6 +26,8 @@ import de.ibapl.spsw.tests.tags.BaselineTest;
 import de.ibapl.spsw.tests.tags.ByteChannelTest;
 import java.nio.ByteBuffer;
 import java.util.LinkedList;
+import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 import org.junit.jupiter.api.Assertions;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -89,18 +91,11 @@ public abstract class AbstractChannelTests extends AbstractSerialPortSocketTest 
 
         final ByteBuffer dst = ByteBuffer.allocateDirect(BYTES_TO_TRANSFER * 3);
 
-        final LinkedList readResult = new LinkedList();
-
-        EXECUTOR_SERVICE.submit(() -> {
+        final Future<Object> readResult = EXECUTOR_SERVICE.submit(() -> {
             try {
-                final Integer result = readSpc.read(dst);
-                readResult.add(result);
+                return readSpc.read(dst);
             } catch (Throwable t) {
-                readResult.add(t);
-            } finally {
-                synchronized (readResult) {
-                    readResult.notifyAll();
-                }
+                return t;
             }
         });
 
@@ -114,16 +109,14 @@ public abstract class AbstractChannelTests extends AbstractSerialPortSocketTest 
 
         Assertions.assertEquals(BYTES_TO_TRANSFER, src.position(), "BYTES_TO_TRANSFER != src.position()");
 
-        synchronized (readResult) {
-            if (readResult.isEmpty()) {
-                readResult.wait(2000);
-            }
+        Object o = readResult.get(2, TimeUnit.SECONDS);
+        if (o instanceof Integer) {
+            int transferred = (Integer) o;
+            Assertions.assertEquals(BYTES_TO_TRANSFER, transferred, "BYTES_TO_TRANSFER != (Integer)readResult");
+            Assertions.assertEquals(BYTES_TO_TRANSFER, dst.position(), "BYTES_TO_TRANSFER != dst.position()");
+        } else {
+            Assertions.fail("readResult is not an Integer but: " + o.getClass());
         }
-
-        Assertions.assertEquals(1, readResult.size());
-        Assertions.assertEquals(Integer.class, readResult.getFirst().getClass());
-        Assertions.assertEquals(BYTES_TO_TRANSFER, readResult.getFirst(), "BYTES_TO_TRANSFER != readResult.getFirst()");
-        Assertions.assertEquals(BYTES_TO_TRANSFER, dst.position(), "BYTES_TO_TRANSFER != dst.position()");
 
     }
 
@@ -140,18 +133,11 @@ public abstract class AbstractChannelTests extends AbstractSerialPortSocketTest 
 
         final ByteBuffer dst = ByteBuffer.allocateDirect(BYTES_TO_TRANSFER * 3);
 
-        final LinkedList readResult = new LinkedList();
-
-        EXECUTOR_SERVICE.submit(() -> {
+        final Future<Object> readResult = EXECUTOR_SERVICE.submit(() -> {
             try {
-                final Integer result = readSpc.read(dst);
-                readResult.add(result);
+                return readSpc.read(dst);
             } catch (Throwable t) {
-                readResult.add(t);
-            } finally {
-                synchronized (readResult) {
-                    readResult.notifyAll();
-                }
+                return t;
             }
         });
 
@@ -165,16 +151,14 @@ public abstract class AbstractChannelTests extends AbstractSerialPortSocketTest 
 
         Assertions.assertEquals(BYTES_TO_TRANSFER, src.position(), "BYTES_TO_TRANSFER != src.position()");
 
-        synchronized (readResult) {
-            if (readResult.isEmpty()) {
-                readResult.wait(2000);
-            }
+        Object o = readResult.get(2, TimeUnit.SECONDS);
+        if (o instanceof Integer) {
+            int transferred = (Integer) o;
+            Assertions.assertEquals(BYTES_TO_TRANSFER, transferred, "BYTES_TO_TRANSFER != (Integer)readResult");
+            Assertions.assertEquals(BYTES_TO_TRANSFER, dst.position(), "BYTES_TO_TRANSFER != dst.position()");
+        } else {
+            Assertions.fail("readResult is not an Integer but: " + o.getClass());
         }
-
-        Assertions.assertEquals(1, readResult.size());
-        Assertions.assertEquals(Integer.class, readResult.getFirst().getClass());
-        Assertions.assertEquals(BYTES_TO_TRANSFER, readResult.getFirst(), "BYTES_TO_TRANSFER != readResult.getFirst()");
-        Assertions.assertEquals(BYTES_TO_TRANSFER, dst.position(), "BYTES_TO_TRANSFER != dst.position()");
 
     }
 }

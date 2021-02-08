@@ -20,11 +20,11 @@
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
 module de.ibapl.spsw.jniprovider {
-	requires java.logging;
-	requires osgi.annotation;
-	requires org.osgi.service.component.annotations;
-	requires de.ibapl.spsw.api;
-	requires de.ibapl.jnhw.libloader;
-	
-	provides de.ibapl.spsw.api.SerialPortSocketFactory with de.ibapl.spsw.jniprovider.SerialPortSocketFactoryImpl;
+    requires java.logging;
+    requires osgi.annotation;
+    requires org.osgi.service.component.annotations;
+    requires de.ibapl.spsw.api;
+    requires de.ibapl.jnhw.libloader;
+
+    provides de.ibapl.spsw.api.SerialPortSocketFactory with de.ibapl.spsw.jniprovider.SerialPortSocketFactoryImpl;
 }

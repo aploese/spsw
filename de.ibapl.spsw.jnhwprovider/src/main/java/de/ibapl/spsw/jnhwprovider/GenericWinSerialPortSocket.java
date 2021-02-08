@@ -21,8 +21,8 @@
  */
 package de.ibapl.spsw.jnhwprovider;
 
-import de.ibapl.jnhw.IntRef;
-import de.ibapl.jnhw.NativeErrorException;
+import de.ibapl.jnhw.common.references.IntRef;
+import de.ibapl.jnhw.common.exception.NativeErrorException;
 import de.ibapl.jnhw.libloader.LoadState;
 import de.ibapl.jnhw.util.winapi.LibJnhwWinApiLoader;
 import static de.ibapl.jnhw.winapi.Fileapi.CreateFileW;
@@ -120,9 +120,9 @@ public class GenericWinSerialPortSocket extends StreamSerialPortSocket<GenericWi
      */
     static class HFileCleaner implements Runnable {
 
-        HANDLE hFile = Handleapi.INVALID_HANDLE_VALUE();
-        HANDLE readEvent = Handleapi.INVALID_HANDLE_VALUE();
-        HANDLE writeEvent = Handleapi.INVALID_HANDLE_VALUE();
+        HANDLE hFile = Handleapi.INVALID_HANDLE_VALUE;
+        HANDLE readEvent = Handleapi.INVALID_HANDLE_VALUE;
+        HANDLE writeEvent = Handleapi.INVALID_HANDLE_VALUE;
 
         @Override
         public void run() {
@@ -166,7 +166,7 @@ public class GenericWinSerialPortSocket extends StreamSerialPortSocket<GenericWi
     private HANDLE readEvent = HANDLE.INVALID_HANDLE_VALUE;
     private HANDLE writeEvent = HANDLE.INVALID_HANDLE_VALUE;
     private ExecutorService executor;
-    
+
     private void setReadEvent(HANDLE readEvent) {
         this.readEvent = readEvent;
         this.readOverlapped.hEvent(readEvent);
@@ -186,7 +186,7 @@ public class GenericWinSerialPortSocket extends StreamSerialPortSocket<GenericWi
         PHKEY phkResult = new PHKEY();
         String lpSubKey = "HARDWARE\\DEVICEMAP\\SERIALCOMM\\";
         try {
-            RegOpenKeyExW(HKEY_LOCAL_MACHINE(), lpSubKey, 0, KEY_READ(), phkResult);
+            RegOpenKeyExW(HKEY_LOCAL_MACHINE, lpSubKey, 0, KEY_READ, phkResult);
         } catch (NativeErrorException nee) {
             throw new RuntimeException("Could not open registry errorCode: " + nee.errno, nee);
         }
@@ -199,11 +199,11 @@ public class GenericWinSerialPortSocket extends StreamSerialPortSocket<GenericWi
             lpData.clear();
             try {
                 long errorCode = RegEnumValueW(phkResult.dereference(), dwIndex, lpValueName, lpType, lpData);
-                if (errorCode == Winerror.ERROR_SUCCESS()) {
+                if (errorCode == Winerror.ERROR_SUCCESS) {
                     result.add(LPWSTR.stringValueOfNullTerminated(lpData));
                     dwIndex++;
                     lpValueName.clear();
-                } else if (errorCode == Winerror.ERROR_NO_MORE_ITEMS()) {
+                } else if (errorCode == Winerror.ERROR_NO_MORE_ITEMS) {
                     collecting = false;
                 } else {
                     throw new RuntimeException("Should never happen! Unknown Error in getWindowsBasedPortNames RegEnumValueW errorCode: " + errorCode);
@@ -292,7 +292,7 @@ public class GenericWinSerialPortSocket extends StreamSerialPortSocket<GenericWi
 
     private Set<FlowControl> getFlowControl(DCB dcb) throws IOException {
         Set<FlowControl> result = EnumSet.noneOf(FlowControl.class);
-        if (dcb.fRtsControl() == RTS_CONTROL_HANDSHAKE()) {
+        if (dcb.fRtsControl() == RTS_CONTROL_HANDSHAKE) {
             result.add(FlowControl.RTS_CTS_IN);
         }
         if (dcb.fOutxCtsFlow()) {
@@ -337,10 +337,10 @@ public class GenericWinSerialPortSocket extends StreamSerialPortSocket<GenericWi
     @Override
     public int getInterByteReadTimeout() throws IOException {
         final COMMTIMEOUTS lpCommTimeouts = getCOMMTIMEOUTS();
-        if ((lpCommTimeouts.ReadIntervalTimeout() & lpCommTimeouts.ReadTotalTimeoutMultiplier() & MAXDWORD()) == MAXDWORD()) {
+        if ((lpCommTimeouts.ReadIntervalTimeout() & lpCommTimeouts.ReadTotalTimeoutMultiplier() & MAXDWORD) == MAXDWORD) {
             return 0;
         } else {
-            final int result = (int)lpCommTimeouts.ReadIntervalTimeout();
+            final int result = (int) lpCommTimeouts.ReadIntervalTimeout();
             if (result < 0) {
                 throw new RuntimeException("COMMTIMEOUTS.ReadIntervalTimeout overflow from long to int occured");
             }
@@ -355,20 +355,20 @@ public class GenericWinSerialPortSocket extends StreamSerialPortSocket<GenericWi
 
     @Override
     public int getOverallReadTimeout() throws IOException {
-            final int result = (int)getCOMMTIMEOUTS().ReadTotalTimeoutConstant();
-            if (result < 0) {
-                throw new RuntimeException("COMMTIMEOUTS.ReadTotalTimeoutConstant overflow from long to int occured");
-            }
-            return result;
+        final int result = (int) getCOMMTIMEOUTS().ReadTotalTimeoutConstant();
+        if (result < 0) {
+            throw new RuntimeException("COMMTIMEOUTS.ReadTotalTimeoutConstant overflow from long to int occured");
+        }
+        return result;
     }
 
     @Override
     public int getOverallWriteTimeout() throws IOException {
-            final int result = (int)getCOMMTIMEOUTS().WriteTotalTimeoutConstant();
-            if (result < 0) {
-                throw new RuntimeException("COMMTIMEOUTS.WriteTotalTimeoutConstant overflow from long to int occured");
-            }
-            return result;
+        final int result = (int) getCOMMTIMEOUTS().WriteTotalTimeoutConstant();
+        if (result < 0) {
+            throw new RuntimeException("COMMTIMEOUTS.WriteTotalTimeoutConstant overflow from long to int occured");
+        }
+        return result;
     }
 
     @Override
@@ -377,15 +377,15 @@ public class GenericWinSerialPortSocket extends StreamSerialPortSocket<GenericWi
     }
 
     private Parity getParity(byte parity) throws IOException {
-        if (parity == NOPARITY()) {
+        if (parity == NOPARITY) {
             return Parity.NONE;
-        } else if (parity == ODDPARITY()) {
+        } else if (parity == ODDPARITY) {
             return Parity.ODD;
-        } else if (parity == EVENPARITY()) {
+        } else if (parity == EVENPARITY) {
             return Parity.EVEN;
-        } else if (parity == MARKPARITY()) {
+        } else if (parity == MARKPARITY) {
             return Parity.MARK;
-        } else if (parity == SPACEPARITY()) {
+        } else if (parity == SPACEPARITY) {
             return Parity.SPACE;
         } else {
             throw new IllegalArgumentException("getParity unknown Parity");
@@ -472,11 +472,11 @@ public class GenericWinSerialPortSocket extends StreamSerialPortSocket<GenericWi
     }
 
     private StopBits getStopBits(byte stopBits) throws IOException {
-        if (stopBits == ONESTOPBIT()) {
+        if (stopBits == ONESTOPBIT) {
             return StopBits.SB_1;
-        } else if (stopBits == ONE5STOPBITS()) {
+        } else if (stopBits == ONE5STOPBITS) {
             return StopBits.SB_1_5;
-        } else if (stopBits == TWOSTOPBITS()) {
+        } else if (stopBits == TWOSTOPBITS) {
             return StopBits.SB_2;
         } else {
             throw new IllegalArgumentException("getStopBits Unknown stopbits");
@@ -503,7 +503,7 @@ public class GenericWinSerialPortSocket extends StreamSerialPortSocket<GenericWi
         try {
             Ioapiset.CancelIo(_hFile);
         } catch (NativeErrorException nee) {
-            if (nee.errno != Winerror.ERROR_NOT_FOUND()) {
+            if (nee.errno != Winerror.ERROR_NOT_FOUND) {
                 hFile = _hFile;
                 throw new IOException("Can't cancel IO for closing", nee);
             }
@@ -549,22 +549,22 @@ public class GenericWinSerialPortSocket extends StreamSerialPortSocket<GenericWi
 
     @Override
     public boolean isCTS() throws IOException {
-        return getCommModemStatus(MS_CTS_ON());
+        return getCommModemStatus(MS_CTS_ON);
     }
 
     @Override
     public boolean isDCD() throws IOException {
-        return getCommModemStatus(MS_RLSD_ON());
+        return getCommModemStatus(MS_RLSD_ON);
     }
 
     @Override
     public boolean isDSR() throws IOException {
-        return getCommModemStatus(MS_DSR_ON());
+        return getCommModemStatus(MS_DSR_ON);
     }
 
     @Override
     public boolean isRI() throws IOException {
-        return getCommModemStatus(MS_RING_ON());
+        return getCommModemStatus(MS_RING_ON);
     }
 
     private void setParams(DCB dcb, Speed speed, DataBits dataBits, StopBits stopBits, Parity parity,
@@ -580,17 +580,17 @@ public class GenericWinSerialPortSocket extends StreamSerialPortSocket<GenericWi
             dcb.ByteSize((byte) dataBits.value);
             switch (dataBits) {
                 case DB_5:
-                    if (dcb.StopBits() == TWOSTOPBITS()) {
+                    if (dcb.StopBits() == TWOSTOPBITS) {
                         //Fix stopBits
-                        dcb.StopBits(ONE5STOPBITS());
+                        dcb.StopBits(ONE5STOPBITS);
                     }
                     break;
                 case DB_6: //fall trough
                 case DB_7: //fall trough
                 case DB_8:
-                    if (dcb.StopBits() == ONE5STOPBITS()) {
+                    if (dcb.StopBits() == ONE5STOPBITS) {
                         //Fix stopBits
-                        dcb.StopBits(TWOSTOPBITS());
+                        dcb.StopBits(TWOSTOPBITS);
                     }
                     break;
                 default:
@@ -603,11 +603,11 @@ public class GenericWinSerialPortSocket extends StreamSerialPortSocket<GenericWi
 
             switch (stopBits) {
                 case SB_1:
-                    dcb.StopBits(ONESTOPBIT());
+                    dcb.StopBits(ONESTOPBIT);
                     break;
                 case SB_1_5:
                     if (dcb.ByteSize() == 5) {
-                        dcb.StopBits(ONE5STOPBITS());
+                        dcb.StopBits(ONE5STOPBITS);
                     } else {
                         throw new IllegalArgumentException("setParams setStopBits to 1.5: only for 5 dataBits 1.5 stoppbits are supported");
                     }
@@ -616,7 +616,7 @@ public class GenericWinSerialPortSocket extends StreamSerialPortSocket<GenericWi
                     if (dcb.ByteSize() == 5) {
                         throw new IllegalArgumentException("setParams setStopBits to 2: 5 dataBits only 1.5 stoppbits are supported");
                     } else {
-                        dcb.StopBits(TWOSTOPBITS());
+                        dcb.StopBits(TWOSTOPBITS);
                     }
                     break;
                 default:
@@ -630,19 +630,19 @@ public class GenericWinSerialPortSocket extends StreamSerialPortSocket<GenericWi
 
             switch (parity) {
                 case NONE:
-                    dcb.Parity(NOPARITY()); // switch parity input checking off
+                    dcb.Parity(NOPARITY); // switch parity input checking off
                     break;
                 case ODD:
-                    dcb.Parity(ODDPARITY());
+                    dcb.Parity(ODDPARITY);
                     break;
                 case EVEN:
-                    dcb.Parity(EVENPARITY());
+                    dcb.Parity(EVENPARITY);
                     break;
                 case MARK:
-                    dcb.Parity(MARKPARITY());
+                    dcb.Parity(MARKPARITY);
                     break;
                 case SPACE:
-                    dcb.Parity(SPACEPARITY());
+                    dcb.Parity(SPACEPARITY);
                     break;
                 default:
                     throw new IllegalArgumentException("setParams Wrong Parity");
@@ -652,12 +652,12 @@ public class GenericWinSerialPortSocket extends StreamSerialPortSocket<GenericWi
 
         //FlowControl
         if (flowControls != null) {
-            dcb.fRtsControl(RTS_CONTROL_DISABLE());
+            dcb.fRtsControl(RTS_CONTROL_DISABLE);
             dcb.fOutxCtsFlow(false);
             dcb.fOutX(false);
             dcb.fInX(false);
             if (flowControls.contains(FlowControl.RTS_CTS_IN)) {
-                dcb.fRtsControl(RTS_CONTROL_HANDSHAKE());
+                dcb.fRtsControl(RTS_CONTROL_HANDSHAKE);
             }
             if (flowControls.contains(FlowControl.RTS_CTS_OUT)) {
                 dcb.fOutxCtsFlow(true);
@@ -673,9 +673,9 @@ public class GenericWinSerialPortSocket extends StreamSerialPortSocket<GenericWi
         try {
             SetCommState(hFile, dcb);
         } catch (NativeErrorException nee) {
-            if (nee.errno == ERROR_INVALID_PARAMETER()) {
+            if (nee.errno == ERROR_INVALID_PARAMETER) {
                 throw new IllegalArgumentException("setParams: Wrong params\n GetLastError() == ERROR_INVALID_PARAMETER");
-            } else if (nee.errno == ERROR_GEN_FAILURE()) {
+            } else if (nee.errno == ERROR_GEN_FAILURE) {
                 throw new IllegalArgumentException("setParams: Wrong params\n GetLastError() == ERROR_GEN_FAILURE");
             } else {
                 throw createClosedOrNativeException(nee.errno, "setParams SetCommState");
@@ -721,18 +721,18 @@ public class GenericWinSerialPortSocket extends StreamSerialPortSocket<GenericWi
 
         try {
             hFile = CreateFileW(portFullName,
-                    GENERIC_READ() | GENERIC_WRITE(),
+                    GENERIC_READ | GENERIC_WRITE,
                     0,
                     null,
-                    OPEN_EXISTING(),
-                    FILE_FLAG_OVERLAPPED(),
+                    OPEN_EXISTING,
+                    FILE_FLAG_OVERLAPPED,
                     null);
 
         } catch (NativeErrorException nee) {
 
-            if (nee.errno == ERROR_ACCESS_DENIED()) {
+            if (nee.errno == ERROR_ACCESS_DENIED) {
                 throw new IOException(String.format("Port is busy: \"%s\"", portName));
-            } else if (nee.errno == ERROR_FILE_NOT_FOUND()) {
+            } else if (nee.errno == ERROR_FILE_NOT_FOUND) {
                 throw new IOException(String.format("Port not found: \"%s\"", portName));
             } else {
                 throw new IOException(String.format("Open: Unknown port error %d", nee.errno));
@@ -854,12 +854,12 @@ public class GenericWinSerialPortSocket extends StreamSerialPortSocket<GenericWi
 
     @Override
     public void setBreak(boolean value) throws IOException {
-        int dwFunc = value ? SETBREAK() : CLRBREAK();
+        int dwFunc = value ? SETBREAK : CLRBREAK;
 
         try {
             EscapeCommFunction(hFile, dwFunc);
         } catch (NativeErrorException nee) {
-            if (nee.errno == ERROR_INVALID_PARAMETER()) {
+            if (nee.errno == ERROR_INVALID_PARAMETER) {
                 throw new IllegalArgumentException("setBreak: Wrong value");
             } else {
                 throw createClosedOrNativeException(nee.errno, "Can't set/clear BREAK");
@@ -874,12 +874,12 @@ public class GenericWinSerialPortSocket extends StreamSerialPortSocket<GenericWi
 
     @Override
     public void setDTR(boolean value) throws IOException {
-        int dwFunc = value ? SETDTR() : CLRDTR();
+        int dwFunc = value ? SETDTR : CLRDTR;
 
         try {
             EscapeCommFunction(hFile, dwFunc);
         } catch (NativeErrorException nee) {
-            if (nee.errno == ERROR_INVALID_PARAMETER()) {
+            if (nee.errno == ERROR_INVALID_PARAMETER) {
                 throw new IllegalArgumentException("setDTR: Wrong value");
             } else {
                 throw createClosedOrNativeException(nee.errno, "Can't set/clear DTR");
@@ -899,12 +899,12 @@ public class GenericWinSerialPortSocket extends StreamSerialPortSocket<GenericWi
 
     @Override
     public void setRTS(boolean value) throws IOException {
-        int dwFunc = value ? SETRTS() : CLRRTS();
+        int dwFunc = value ? SETRTS : CLRRTS;
 
         try {
             EscapeCommFunction(hFile, dwFunc);
         } catch (NativeErrorException nee) {
-            if (nee.errno == ERROR_INVALID_PARAMETER()) {
+            if (nee.errno == ERROR_INVALID_PARAMETER) {
                 throw new IllegalArgumentException("setRTS: Wrong value");
             } else {
                 throw createClosedOrNativeException(nee.errno, "Can't set/clear RTS");
@@ -941,8 +941,8 @@ public class GenericWinSerialPortSocket extends StreamSerialPortSocket<GenericWi
 
         if ((interByteReadTimeout == 0) && (overallReadTimeout > 0)) {
             //This fits best for wait a timeout and have no interByteReadTimeout see also getInterbyteReadTimeout for reading back
-            commTimeouts.ReadIntervalTimeout(MAXDWORD());
-            commTimeouts.ReadTotalTimeoutMultiplier(MAXDWORD());
+            commTimeouts.ReadIntervalTimeout(MAXDWORD);
+            commTimeouts.ReadTotalTimeoutMultiplier(MAXDWORD);
             commTimeouts.ReadTotalTimeoutConstant(overallReadTimeout);
         } else {
             commTimeouts.ReadIntervalTimeout(interByteReadTimeout);
@@ -956,7 +956,7 @@ public class GenericWinSerialPortSocket extends StreamSerialPortSocket<GenericWi
         try {
             SetCommTimeouts(hFile, commTimeouts);
         } catch (NativeErrorException nee) {
-            if (nee.errno == ERROR_INVALID_PARAMETER()) {
+            if (nee.errno == ERROR_INVALID_PARAMETER) {
                 throw new IllegalArgumentException("setTimeouts: Wrong Timeouts");
             } else {
                 throw createClosedOrNativeException(nee.errno, "setTimeouts SetCommTimeouts");
@@ -979,9 +979,9 @@ public class GenericWinSerialPortSocket extends StreamSerialPortSocket<GenericWi
         try {
             SetCommState(hFile, dcb);
         } catch (NativeErrorException nee) {
-            if (nee.errno == ERROR_INVALID_PARAMETER()) {
+            if (nee.errno == ERROR_INVALID_PARAMETER) {
                 throw new IllegalArgumentException("etXOFFChar: Wrong value\n GetLastError() == ERROR_INVALID_PARAMETER");
-            } else if (nee.errno == ERROR_GEN_FAILURE()) {
+            } else if (nee.errno == ERROR_GEN_FAILURE) {
                 throw new IllegalArgumentException("etXOFFChar: Wrong value\n GetLastError() == ERROR_GEN_FAILURE");
             } else {
                 throw createClosedOrNativeException(nee.errno, "setXOFFChar SetCommState");
@@ -1004,9 +1004,9 @@ public class GenericWinSerialPortSocket extends StreamSerialPortSocket<GenericWi
         try {
             SetCommState(hFile, dcb);
         } catch (NativeErrorException nee) {
-            if (nee.errno == ERROR_INVALID_PARAMETER()) {
+            if (nee.errno == ERROR_INVALID_PARAMETER) {
                 throw new IllegalArgumentException("setXONChar: Wrong value\n GetLastError() == ERROR_INVALID_PARAMETER");
-            } else if (nee.errno == ERROR_GEN_FAILURE()) {
+            } else if (nee.errno == ERROR_GEN_FAILURE) {
                 throw new IllegalArgumentException("setXONChar: Wrong value\n GetLastError() == ERROR_GEN_FAILURE");
             } else {
                 throw createClosedOrNativeException(nee.errno, "setXONChar SetCommState");
@@ -1048,7 +1048,7 @@ public class GenericWinSerialPortSocket extends StreamSerialPortSocket<GenericWi
             try {
                 ReadFile(hFile, dst, readOverlapped);
             } catch (NativeErrorException nee) {
-                if (nee.errno != ERROR_IO_PENDING()) {
+                if (nee.errno != ERROR_IO_PENDING) {
                     if (hFile.isNot_INVALID_HANDLE_VALUE()) {
                         throw new InterruptedIOException("Error readBytes(GetLastError):" + nee.errno);
                     } else {
@@ -1063,8 +1063,8 @@ public class GenericWinSerialPortSocket extends StreamSerialPortSocket<GenericWi
 
                 //overlapped path
                 try {
-                    final long waitResult = WaitForSingleObject(readEvent, INFINITE());
-                    if (waitResult != WAIT_OBJECT_0()) {
+                    final long waitResult = WaitForSingleObject(readEvent, INFINITE);
+                    if (waitResult != WAIT_OBJECT_0) {
                         if (hFile.isNot_INVALID_HANDLE_VALUE()) {
                             completed = true;
                             throw new InterruptedIOException("Error readBytes (WaitForSingleObject): " + waitResult);
@@ -1136,7 +1136,7 @@ public class GenericWinSerialPortSocket extends StreamSerialPortSocket<GenericWi
                 WriteFile(hFile, src, writeOverlapped);
             } catch (NativeErrorException nee) {
 
-                if (nee.errno != ERROR_IO_PENDING()) {
+                if (nee.errno != ERROR_IO_PENDING) {
                     if (hFile.isNot_INVALID_HANDLE_VALUE()) {
                         throw new InterruptedIOException("Error writeBytes (GetLastError): " + nee.errno);
                     } else {
@@ -1151,9 +1151,9 @@ public class GenericWinSerialPortSocket extends StreamSerialPortSocket<GenericWi
                 begin();
 
                 try {
-                    final long waitResult = WaitForSingleObject(writeEvent, INFINITE());
+                    final long waitResult = WaitForSingleObject(writeEvent, INFINITE);
 
-                    if (waitResult != WAIT_OBJECT_0()) {
+                    if (waitResult != WAIT_OBJECT_0) {
                         if (hFile.isNot_INVALID_HANDLE_VALUE()) {
                             completed = true;
                             throw new InterruptedIOException("Error writeBytes (WaitForSingleObject): " + waitResult);

@@ -19,7 +19,7 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-package de.ibapl.spsw.demo.stram.read;
+package de.ibapl.spsw.demo.stream.read;
 
 import de.ibapl.spsw.api.DataBits;
 import de.ibapl.spsw.api.FlowControl;
@@ -58,6 +58,11 @@ public class StreamReadDemoMain {
      * @param args the only arg acceptes is the portname
      */
     public static void main(String[] args) {
+        if (args.length != 1) {
+            System.err.println("only one ars is allowed - the portname.");
+            System.exit(1);
+        }
+
         final SerialPortSocketFactory spsf = getSerialPortSocketFactory();
 
         InputStream is;

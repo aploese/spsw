@@ -25,37 +25,37 @@ import org.osgi.annotation.versioning.ProviderType;
 
 /**
  * The parity encoded as enum constatnts.
- * 
+ *
  * @author Arne Plöse
  */
 @ProviderType
 public enum Parity {
 
-	/**
-	 * No parity, no parity bit will be transmitted.
-	 */
-	NONE,
-	/**
-	 * Parity is calculated, that the number of 1 data bits and the the parity bit
-	 * is odd.
-	 */
-	ODD,
-	/**
-	 * Parity is calculated, that the number of 1 data bits and the parity bit is
-	 * even.
-	 */
-	EVEN,
-	/**
-	 * 
-	 * No parity, the parity bit is always the mark signal condition (logical 1).
-         * Not available on all platforms (no POSIX). Not on MacOS and FreeBSD.
-	 */
-	MARK,
-	/**
-	 * No parity, the parity bit is always the space signal condition (logical 0).
-         * Not available on all platforms (no POSIX). Not on MacOS and FreeBSD.
-         * 
-	 */
-	SPACE;
+    /**
+     * No parity, no parity bit will be transmitted.
+     */
+    NONE,
+    /**
+     * Parity is calculated, that the number of 1 data bits and the the parity
+     * bit is odd.
+     */
+    ODD,
+    /**
+     * Parity is calculated, that the number of 1 data bits and the parity bit
+     * is even.
+     */
+    EVEN,
+    /**
+     *
+     * No parity, the parity bit is always the mark signal condition (logical
+     * 1). Not available on all platforms (no POSIX). Not on MacOS and FreeBSD.
+     */
+    MARK,
+    /**
+     * No parity, the parity bit is always the space signal condition (logical
+     * 0). Not available on all platforms (no POSIX). Not on MacOS and FreeBSD.
+     *
+     */
+    SPACE;
 
 }

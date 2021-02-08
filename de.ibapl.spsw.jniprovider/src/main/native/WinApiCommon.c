@@ -292,12 +292,12 @@ extern "C" {
             do {
                 lpcchValueName = 256;
                 lpcbData = 256;
-                result = RegEnumValueW(phkResult, dwIndex, (LPWSTR) &lpValueName,
+                result = RegEnumValueW(phkResult, dwIndex, (LPWSTR) & lpValueName,
                         &lpcchValueName, NULL, &lpType, (LPBYTE) & lpData, &lpcbData);
                 if (result == ERROR_SUCCESS) {
                     if (lpType == REG_SZ) {
                         jvalue pName;
-                        pName.l = (*env)->NewString(env, (uint16_t*) lpData, (int32_t)(lpcbData / sizeof (WCHAR) - 1));
+                        pName.l = (*env)->NewString(env, (uint16_t*) lpData, (int32_t) (lpcbData / sizeof (WCHAR) - 1));
                         if (pName.l == NULL) {
                             return;
                         }

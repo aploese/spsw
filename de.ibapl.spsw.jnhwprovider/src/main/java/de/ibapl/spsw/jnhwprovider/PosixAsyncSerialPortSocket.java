@@ -21,9 +21,8 @@
  */
 package de.ibapl.spsw.jnhwprovider;
 
-import de.ibapl.jnhw.IntRef;
-import de.ibapl.jnhw.NativeErrorException;
-import de.ibapl.jnhw.NotDefinedException;
+import de.ibapl.jnhw.common.references.IntRef;
+import de.ibapl.jnhw.common.exception.NativeErrorException;
 import de.ibapl.jnhw.libloader.LoadState;
 import de.ibapl.jnhw.linux.sys.Eventfd;
 import static de.ibapl.jnhw.linux.sys.Eventfd.EFD_NONBLOCK;
@@ -40,10 +39,7 @@ import static de.ibapl.jnhw.posix.Poll.POLLNVAL;
 import static de.ibapl.jnhw.posix.Poll.POLLOUT;
 import de.ibapl.jnhw.posix.Poll.PollFds;
 import static de.ibapl.jnhw.posix.Poll.poll;
-import de.ibapl.jnhw.posix.Termios;
-import static de.ibapl.jnhw.posix.Termios.TCIOFLUSH;
-import static de.ibapl.jnhw.posix.Termios.tcdrain;
-import static de.ibapl.jnhw.posix.Termios.tcflush;
+import static de.ibapl.jnhw.posix.Termios.*;
 import de.ibapl.jnhw.posix.Time;
 import de.ibapl.jnhw.posix.Unistd;
 import static de.ibapl.jnhw.unix.sys.Ioctl.TIOCCBRK;
@@ -60,8 +56,6 @@ import static de.ibapl.spsw.api.SerialPortConfiguration.PORT_IS_CLOSED;
 import de.ibapl.spsw.api.Speed;
 import de.ibapl.spsw.api.StopBits;
 import de.ibapl.spsw.api.TimeoutIOException;
-import static de.ibapl.spsw.jnhwprovider.PosixConfiguration.INVALID_FD;
-import java.io.IOError;
 import java.io.IOException;
 import java.io.InterruptedIOException;
 import java.lang.ref.Cleaner;
@@ -130,7 +124,7 @@ public class PosixAsyncSerialPortSocket extends AbstractSerialPortSocket<PosixAs
 
     private final static int POLL_INFINITE_TIMEOUT = -1;
 
-    //TODO nix zu schreiben oder zu lesen, aber blockiert 
+    //TODO nix zu schreiben oder zu lesen, aber blockiert
     @Override
     public void readAsync(ByteBuffer dst, Consumer<ByteBuffer> callbackOnSuccess, Consumer<IOException> callbackOnFailure) {
         int nread;
@@ -240,7 +234,7 @@ public class PosixAsyncSerialPortSocket extends AbstractSerialPortSocket<PosixAs
                         readSemaphore.release();
                         return dst;
                     }
-                }catch (Exception e) {
+                } catch (Exception e) {
                     readSemaphore.release();
                     throw e;
                 }
@@ -316,11 +310,11 @@ public class PosixAsyncSerialPortSocket extends AbstractSerialPortSocket<PosixAs
                 int wrote = continueWrite(src, written1);
                 callbackOnSuccess.accept(src);
                 return;
-            }catch (IOException ioe) {
+            } catch (IOException ioe) {
                 writeSemaphore.release();
                 callbackOnFailure.accept(ioe);
                 return;
-            }catch (Exception e) {
+            } catch (Exception e) {
                 writeSemaphore.release();
                 callbackOnFailure.accept(new IOException(e));
                 return;
@@ -374,7 +368,7 @@ public class PosixAsyncSerialPortSocket extends AbstractSerialPortSocket<PosixAs
                         writeSemaphore.release();
                         return src;
                     }
-                }catch (Exception e) {
+                } catch (Exception e) {
                     writeSemaphore.release();
                     throw e;
                 }
@@ -421,15 +415,15 @@ public class PosixAsyncSerialPortSocket extends AbstractSerialPortSocket<PosixAs
                         // Timeout
                         throw new TimeoutIOException();
                     } else {
-                        if (writePollFds.get(CANCEL_FD_IDX).revents() == POLLIN()) {
+                        if (writePollFds.get(CANCEL_FD_IDX).revents() == POLLIN) {
                             // we can read from close_event_ds => port is closing
                             throw new IOException(PORT_IS_CLOSED);
-                        } else if (writePollFds.get(PORT_FD_IDX).revents() == POLLOUT()) {
+                        } else if (writePollFds.get(PORT_FD_IDX).revents() == POLLOUT) {
                             // Happy path all is right... no-op
-                        } else if ((writePollFds.get(PORT_FD_IDX).revents() & POLLHUP()) == POLLHUP()) {
+                        } else if ((writePollFds.get(PORT_FD_IDX).revents() & POLLHUP) == POLLHUP) {
                             //i.e. happens when the USB to serial adapter is removed
                             throw new IOException(PORT_FD_INVALID);
-                        } else if ((writePollFds.get(PORT_FD_IDX).revents() & POLLNVAL()) == POLLNVAL()) {
+                        } else if ((writePollFds.get(PORT_FD_IDX).revents() & POLLNVAL) == POLLNVAL) {
                             completed = true;
                             if (fd == INVALID_FD) {
                                 throw new AsynchronousCloseException();
@@ -577,7 +571,7 @@ public class PosixAsyncSerialPortSocket extends AbstractSerialPortSocket<PosixAs
     private final PollFds readPollFds = new PollFds(2);
     private final PollFds writePollFds = new PollFds(2);
 
-    private static final boolean JNHW_HAVE_SYS_EVENTFD_H = Eventfd.HAVE_SYS_EVENTFD_H();
+    private static final boolean JNHW_HAVE_SYS_EVENTFD_H = Eventfd.HAVE_SYS_EVENTFD_H;
 
     PosixAsyncSerialPortSocket(String portName) throws IOException {
         this(portName, null, null, null, null, null);
@@ -629,7 +623,7 @@ public class PosixAsyncSerialPortSocket extends AbstractSerialPortSocket<PosixAs
             }
 
             try {
-                tcflush(tempFd, TCIOFLUSH());
+                tcflush(tempFd, TCIOFLUSH);
             } catch (NativeErrorException nee) {
                 LOG.log(Level.SEVERE, "Native Error flushing " + Errno.getErrnoSymbol(nee.errno), nee);
             } catch (Throwable t) {
@@ -639,7 +633,7 @@ public class PosixAsyncSerialPortSocket extends AbstractSerialPortSocket<PosixAs
             try {
                 Unistd.close(tempFd);
                 fdCleaner.fd = INVALID_FD;
-                //leave the close_event_write_fd and close_event_read_fd open for now. So poll can digest the events... 
+                //leave the close_event_write_fd and close_event_read_fd open for now. So poll can digest the events...
                 //closing close_event_write_fd and close_event_read_fd will be don by fdCleaner
                 cancel_read_event__read_fd = INVALID_FD;
                 cancel_read_event__write_fd = INVALID_FD;
@@ -730,9 +724,9 @@ public class PosixAsyncSerialPortSocket extends AbstractSerialPortSocket<PosixAs
 
     private boolean isFdValid() {
         try {
-            return Fcntl.fcntl(fd, Fcntl.F_GETFL()) != INVALID_FD;
+            return Fcntl.fcntl(fd, Fcntl.F_GETFL) != INVALID_FD;
         } catch (NativeErrorException nee) {
-            if (nee.errno == EBADF()) {
+            if (nee.errno == EBADF) {
                 LOG.log(Level.SEVERE, "Port {0} has invalid file descriptor", portName);
                 return false;
             } else {
@@ -755,9 +749,9 @@ public class PosixAsyncSerialPortSocket extends AbstractSerialPortSocket<PosixAs
         try {
             if (JNHW_HAVE_SYS_EVENTFD_H) {
                 //Create EventFD
-                cancel_read_event__read_fd = eventfd(0, EFD_NONBLOCK());// counter is zero so nothing to read is available
+                cancel_read_event__read_fd = eventfd(0, EFD_NONBLOCK);// counter is zero so nothing to read is available
                 cancel_read_event__write_fd = cancel_read_event__read_fd;
-                cancel_write_event__read_fd = eventfd(0, EFD_NONBLOCK());// counter is zero so nothing to read is available
+                cancel_write_event__read_fd = eventfd(0, EFD_NONBLOCK);// counter is zero so nothing to read is available
                 cancel_write_event__write_fd = cancel_write_event__read_fd;
             } else {
                 //Create pipe
@@ -767,14 +761,14 @@ public class PosixAsyncSerialPortSocket extends AbstractSerialPortSocket<PosixAs
                 Unistd.pipe(read_fd, write_fd);
                 cancel_read_event__read_fd = read_fd.value;
                 cancel_read_event__write_fd = write_fd.value;
-                Fcntl.fcntl(cancel_read_event__read_fd, F_SETFL(), O_NONBLOCK());
-                Fcntl.fcntl(cancel_read_event__write_fd, F_SETFL(), O_NONBLOCK());
+                Fcntl.fcntl(cancel_read_event__read_fd, F_SETFL, O_NONBLOCK);
+                Fcntl.fcntl(cancel_read_event__write_fd, F_SETFL, O_NONBLOCK);
                 //write
                 Unistd.pipe(read_fd, write_fd);
                 cancel_write_event__read_fd = read_fd.value;
                 cancel_write_event__write_fd = write_fd.value;
-                Fcntl.fcntl(cancel_write_event__read_fd, F_SETFL(), O_NONBLOCK());
-                Fcntl.fcntl(cancel_write_event__write_fd, F_SETFL(), O_NONBLOCK());
+                Fcntl.fcntl(cancel_write_event__read_fd, F_SETFL, O_NONBLOCK);
+                Fcntl.fcntl(cancel_write_event__write_fd, F_SETFL, O_NONBLOCK);
             }
         } catch (NativeErrorException nee) {
             try {
@@ -783,13 +777,6 @@ public class PosixAsyncSerialPortSocket extends AbstractSerialPortSocket<PosixAs
             } catch (NativeErrorException nee1) {
             }
             throw new IOException("Can't create close_event_fd");
-        } catch (NotDefinedException nde) {
-            try {
-                Unistd.close(fd);
-                fd = INVALID_FD;
-            } catch (NativeErrorException nee1) {
-            }
-            throw new RuntimeException(nde);
         }
         fdCleaner.fd = fd;
         fdCleaner.cancel_read_event__read_fd = cancel_read_event__read_fd;
@@ -798,13 +785,13 @@ public class PosixAsyncSerialPortSocket extends AbstractSerialPortSocket<PosixAs
         fdCleaner.cancel_write_event__write_fd = cancel_write_event__write_fd;
         CLEANER.register(this, fdCleaner);
         writePollFds.get(PORT_FD_IDX).fd(fd);
-        writePollFds.get(PORT_FD_IDX).events(POLLOUT());
+        writePollFds.get(PORT_FD_IDX).events(POLLOUT);
         writePollFds.get(CANCEL_FD_IDX).fd(cancel_write_event__read_fd);
-        writePollFds.get(CANCEL_FD_IDX).events(POLLIN());
+        writePollFds.get(CANCEL_FD_IDX).events(POLLIN);
         readPollFds.get(PORT_FD_IDX).fd(fd);
-        readPollFds.get(PORT_FD_IDX).events(POLLIN());
+        readPollFds.get(PORT_FD_IDX).events(POLLIN);
         readPollFds.get(CANCEL_FD_IDX).fd(cancel_read_event__read_fd);
-        readPollFds.get(CANCEL_FD_IDX).events(POLLIN());
+        readPollFds.get(CANCEL_FD_IDX).events(POLLIN);
     }
 
     @Override
@@ -823,7 +810,7 @@ public class PosixAsyncSerialPortSocket extends AbstractSerialPortSocket<PosixAs
             try {
                 begin();
                 try {
-                    ioctl(fd, TIOCSBRK());
+                    ioctl(fd, TIOCSBRK);
                 } catch (NativeErrorException nee) {
                     completed = true;
                     throw new IOException(formatMsg(nee, "Can't set Break "));
@@ -832,7 +819,7 @@ public class PosixAsyncSerialPortSocket extends AbstractSerialPortSocket<PosixAs
                     Thread.sleep(duration);
                 } catch (InterruptedException ie) {
                     try {
-                        ioctl(fd, TIOCCBRK());
+                        ioctl(fd, TIOCCBRK);
                     } catch (NativeErrorException nee) {
                         completed = true;
                         throw new IOException(formatMsg(nee, "Can't clear Break after aborted wait"), ie);
@@ -841,7 +828,7 @@ public class PosixAsyncSerialPortSocket extends AbstractSerialPortSocket<PosixAs
                     throw new RuntimeException("Wait interrupted", ie);
                 }
                 try {
-                    ioctl(fd, TIOCCBRK());
+                    ioctl(fd, TIOCCBRK);
                 } catch (NativeErrorException nee) {
                     completed = true;
                     throw new IOException(formatMsg(nee, "Can't clear Break "));
@@ -875,9 +862,9 @@ public class PosixAsyncSerialPortSocket extends AbstractSerialPortSocket<PosixAs
         try {
             int arg;
             if (enabled) {
-                arg = TIOCSBRK();
+                arg = TIOCSBRK;
             } else {
-                arg = TIOCCBRK();
+                arg = TIOCCBRK;
             }
             try {
                 ioctl(fd, arg);
@@ -976,11 +963,11 @@ public class PosixAsyncSerialPortSocket extends AbstractSerialPortSocket<PosixAs
         try {
             return Unistd.write(fd, src);
         } catch (NativeErrorException nee) {
-            if (nee.errno == EAGAIN()) {
+            if (nee.errno == EAGAIN) {
                 return 0;
             } else if (fd == INVALID_FD) {
                 throw new AsynchronousCloseException();
-            } else if (nee.errno == EBADF()) {
+            } else if (nee.errno == EBADF) {
                 throw new InterruptedIOException(PORT_FD_INVALID);
             } else {
                 throw new InterruptedIOException(formatMsg(nee, "unknown port error write "));
@@ -994,7 +981,7 @@ public class PosixAsyncSerialPortSocket extends AbstractSerialPortSocket<PosixAs
         //endTime holds the now the start time, the real end time will be calculated if needed
         try {
             if (pollWriteTimeout != POLL_INFINITE_TIMEOUT) {
-                Time.clock_gettime(Time.CLOCK_MONOTONIC(), endTime);
+                Time.clock_gettime(Time.CLOCK_MONOTONIC, endTime);
                 endTime.tv_sec(endTime.tv_sec() + pollWriteTimeout / 1000); //full seconds
                 endTime.tv_nsec(endTime.tv_nsec() + (pollWriteTimeout % 1000) * 1000000); // reminder goes to nanos
                 if (endTime.tv_nsec() > 1000000000) {
@@ -1022,7 +1009,7 @@ public class PosixAsyncSerialPortSocket extends AbstractSerialPortSocket<PosixAs
                         poll_result = poll(writePollFds, POLL_TIMEOUT_INFINITE);
                     } else {
                         final Time.Timespec currentTime = new Time.Timespec();
-                        Time.clock_gettime(Time.CLOCK_MONOTONIC(), currentTime);
+                        Time.clock_gettime(Time.CLOCK_MONOTONIC, currentTime);
                         final int remainingTimeOut = (int) (endTime.tv_sec() - currentTime.tv_sec()) * 1000 + (int) ((endTime.tv_nsec() - currentTime.tv_nsec()) / 1000000L);
                         if (remainingTimeOut < 0) {
                             throw new TimeoutIOException();
@@ -1037,7 +1024,7 @@ public class PosixAsyncSerialPortSocket extends AbstractSerialPortSocket<PosixAs
                         completed = true;
                         throw tioe;
                     } else {
-                        if (writePollFds.get(CANCEL_FD_IDX).revents() == POLLIN()) {
+                        if (writePollFds.get(CANCEL_FD_IDX).revents() == POLLIN) {
                             // we can read from close_event_fd => port is closing
                             completed = true;
                             if (fd == INVALID_FD) {
@@ -1045,13 +1032,13 @@ public class PosixAsyncSerialPortSocket extends AbstractSerialPortSocket<PosixAs
                             } else {
                                 throw new AsynchronousCancelException();
                             }
-                        } else if (writePollFds.get(PORT_FD_IDX).revents() == POLLOUT()) {
+                        } else if (writePollFds.get(PORT_FD_IDX).revents() == POLLOUT) {
                             // Happy path all is right...
-                        } else if ((writePollFds.get(PORT_FD_IDX).revents() & POLLHUP()) == POLLHUP()) {
+                        } else if ((writePollFds.get(PORT_FD_IDX).revents() & POLLHUP) == POLLHUP) {
                             //i.e. happens when the USB to serial adapter is removed
                             completed = true;
                             throw new InterruptedIOException(PORT_FD_INVALID);
-                        } else if ((writePollFds.get(PORT_FD_IDX).revents() & POLLNVAL()) == POLLNVAL()) {
+                        } else if ((writePollFds.get(PORT_FD_IDX).revents() & POLLNVAL) == POLLNVAL) {
                             completed = true;
                             if (fd == INVALID_FD) {
                                 throw new AsynchronousCloseException();
@@ -1084,7 +1071,7 @@ public class PosixAsyncSerialPortSocket extends AbstractSerialPortSocket<PosixAs
                         } else {
                             throw new AsynchronousCancelException();
                         }
-                    } else if (nee.errno == EBADF()) {
+                    } else if (nee.errno == EBADF) {
                         completed = true;
                         throw new InterruptedIOException(PORT_FD_INVALID);
                     } else {
@@ -1114,9 +1101,9 @@ public class PosixAsyncSerialPortSocket extends AbstractSerialPortSocket<PosixAs
         } catch (NativeErrorException nee) {
             if (fd == INVALID_FD) {
                 throw new AsynchronousCloseException();
-            } else if (nee.errno == EAGAIN()) {
+            } else if (nee.errno == EAGAIN) {
                 return 0;
-            } else if (nee.errno == EBADF()) {
+            } else if (nee.errno == EBADF) {
                 throw new InterruptedIOException(PORT_FD_INVALID);
             } else {
                 throw new InterruptedIOException(
@@ -1138,7 +1125,7 @@ public class PosixAsyncSerialPortSocket extends AbstractSerialPortSocket<PosixAs
         final Time.Timespec endTime = pollReadTimeout != POLL_INFINITE_TIMEOUT ? new Time.Timespec() : null;
         try {
             if (pollReadTimeout != POLL_INFINITE_TIMEOUT) {
-                Time.clock_gettime(Time.CLOCK_MONOTONIC(), endTime);
+                Time.clock_gettime(Time.CLOCK_MONOTONIC, endTime);
                 endTime.tv_sec(endTime.tv_sec() + pollReadTimeout / 1000); //full seconds
                 endTime.tv_nsec(endTime.tv_nsec() + (pollReadTimeout % 1000) * 1_000_000); // reminder goes to nanos
                 if (endTime.tv_nsec() > 1_000_000_000) {
@@ -1168,7 +1155,7 @@ public class PosixAsyncSerialPortSocket extends AbstractSerialPortSocket<PosixAs
                         completed = true;
                         throw new TimeoutIOException();
                     } else {
-                        if (readPollFds.get(CANCEL_FD_IDX).revents() == POLLIN()) {
+                        if (readPollFds.get(CANCEL_FD_IDX).revents() == POLLIN) {
                             // we can read from close_event_fd => port is closing
                             completed = true;
                             if (fd == INVALID_FD) {
@@ -1176,7 +1163,7 @@ public class PosixAsyncSerialPortSocket extends AbstractSerialPortSocket<PosixAs
                             } else {
                                 throw new AsynchronousCancelException();
                             }
-                        } else if (readPollFds.get(PORT_FD_IDX).revents() == POLLIN()) {
+                        } else if (readPollFds.get(PORT_FD_IDX).revents() == POLLIN) {
                             // Happy path just check if its the right event...
                             try {
                                 nread = Unistd.read(fd, dst);
@@ -1192,7 +1179,7 @@ public class PosixAsyncSerialPortSocket extends AbstractSerialPortSocket<PosixAs
                                     } else {
                                         throw new AsynchronousCancelException();
                                     }
-                                } else if (nee.errno == EBADF()) {
+                                } else if (nee.errno == EBADF) {
                                     completed = true;
                                     throw new InterruptedIOException(PORT_FD_INVALID);
                                 } else {
@@ -1200,11 +1187,11 @@ public class PosixAsyncSerialPortSocket extends AbstractSerialPortSocket<PosixAs
                                     throw new IOException("Readed " + nread + " bytes.  Unknown Error: " + Errno.getErrnoSymbol(nee.errno));
                                 }
                             }
-                        } else if ((readPollFds.get(PORT_FD_IDX).revents() & POLLHUP()) == POLLHUP()) {
+                        } else if ((readPollFds.get(PORT_FD_IDX).revents() & POLLHUP) == POLLHUP) {
                             //i.e. happens when the USB to serial adapter is removed
                             completed = true;
                             throw new InterruptedIOException(PORT_FD_INVALID);
-                        } else if ((readPollFds.get(PORT_FD_IDX).revents() & POLLNVAL()) == POLLNVAL()) {
+                        } else if ((readPollFds.get(PORT_FD_IDX).revents() & POLLNVAL) == POLLNVAL) {
                             completed = true;
                             if (fd == INVALID_FD) {
                                 throw new AsynchronousCloseException();
@@ -1234,7 +1221,7 @@ public class PosixAsyncSerialPortSocket extends AbstractSerialPortSocket<PosixAs
                         poll_result = poll(readPollFds, interByteReadTimeout);
                     } else {
                         final Time.Timespec currentTime = new Time.Timespec();
-                        Time.clock_gettime(Time.CLOCK_MONOTONIC(), currentTime);
+                        Time.clock_gettime(Time.CLOCK_MONOTONIC, currentTime);
                         final int remainingTimeOut = (int) (endTime.tv_sec() - currentTime.tv_sec()) * 1000 + (int) ((endTime.tv_nsec() - currentTime.tv_nsec()) / 1_000_000L);
                         if (remainingTimeOut < 0) {
                             //interbyte timeout or overalll timeout, something was read - do return whats read
@@ -1249,17 +1236,17 @@ public class PosixAsyncSerialPortSocket extends AbstractSerialPortSocket<PosixAs
                         completed = true;
                         return overallRead; // TODO overflow???
                     } else {
-                        if (readPollFds.get(CANCEL_FD_IDX).revents() == POLLIN()) {
+                        if (readPollFds.get(CANCEL_FD_IDX).revents() == POLLIN) {
                             // we can read from close_event_fd => port is closing
                             completed = true;
                             return -1;
-                        } else if (readPollFds.get(PORT_FD_IDX).revents() == POLLIN()) {
+                        } else if (readPollFds.get(PORT_FD_IDX).revents() == POLLIN) {
                             // Happy path
-                        } else if ((readPollFds.get(PORT_FD_IDX).revents() & POLLHUP()) == POLLHUP()) {
+                        } else if ((readPollFds.get(PORT_FD_IDX).revents() & POLLHUP) == POLLHUP) {
                             //i.e. happens when the USB to serial adapter is removed
                             completed = true;
                             throw new InterruptedIOException(PORT_FD_INVALID);
-                        } else if ((readPollFds.get(PORT_FD_IDX).revents() & POLLNVAL()) == POLLNVAL()) {
+                        } else if ((readPollFds.get(PORT_FD_IDX).revents() & POLLNVAL) == POLLNVAL) {
                             completed = true;
                             if (fd == INVALID_FD) {
                                 throw new AsynchronousCloseException();
@@ -1287,7 +1274,7 @@ public class PosixAsyncSerialPortSocket extends AbstractSerialPortSocket<PosixAs
                         } else {
                             throw new AsynchronousCancelException();
                         }
-                    } else if (nee.errno == EBADF()) {
+                    } else if (nee.errno == EBADF) {
                         completed = true;
                         throw new InterruptedIOException(PORT_FD_INVALID);
                     } else {

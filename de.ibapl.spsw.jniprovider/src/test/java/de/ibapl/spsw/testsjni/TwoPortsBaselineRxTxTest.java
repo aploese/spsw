@@ -25,7 +25,7 @@ import de.ibapl.spsw.tests.AbstractTwoPortsBaselineRxTxTest;
 import org.junit.jupiter.api.Disabled;
 
 /**
- * 
+ *
  * @author Arne Plöse
  *
  */

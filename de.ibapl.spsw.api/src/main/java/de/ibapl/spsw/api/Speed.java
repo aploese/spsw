@@ -71,7 +71,6 @@ public enum Speed {
     _3500000_BPS(3500000),
     _4000000_BPS(4000000);
 
-
     /**
      *
      * @param speed in bit/s

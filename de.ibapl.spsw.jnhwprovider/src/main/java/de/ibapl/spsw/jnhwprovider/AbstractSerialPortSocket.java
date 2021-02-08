@@ -26,10 +26,10 @@ import java.io.IOException;
 import java.nio.channels.spi.AbstractInterruptibleChannel;
 
 /**
- * Currently its more effective to buffer arrays in a ByteBuffer instead
- * of unwrap each array in the native part - we do not know how much we can
- * write or read so the whole array is copied for each call for instahnce
- * (POSIX) Unistd.write.
+ * Currently its more effective to buffer arrays in a ByteBuffer instead of
+ * unwrap each array in the native part - we do not know how much we can write
+ * or read so the whole array is copied for each call for instahnce (POSIX)
+ * Unistd.write.
  *
  * @author aploese
  * @param <T>

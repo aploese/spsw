@@ -24,7 +24,7 @@ package de.ibapl.spsw.mock;
 import java.util.Arrays;
 
 public class MockRequest<T> {
-    
+
     public final T payload;
     public final MockRequestType requestType;
     public final MockRequestStackException stackException;
@@ -41,5 +41,5 @@ public class MockRequest<T> {
         final StackTraceElement[] st = this.stackException.getStackTrace();
         this.stackException.setStackTrace(Arrays.copyOfRange(st, 3, st.length - 3));
     }
-    
+
 }

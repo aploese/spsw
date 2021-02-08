@@ -38,8 +38,9 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
  *
  * @author aploese
  */
-public class AbstractSerialPortSocketTest extends SetupAndTeardownTests<SerialPortSocket>{
-        protected void openDefault() throws IOException {
+public class AbstractSerialPortSocketTest extends SetupAndTeardownTests<SerialPortSocket> {
+
+    protected void openDefault() throws IOException {
         open(Speed._9600_BPS, DataBits.DB_8, StopBits.SB_1, Parity.NONE, FlowControl.getFC_NONE());
     }
 
@@ -103,6 +104,5 @@ public class AbstractSerialPortSocketTest extends SetupAndTeardownTests<SerialPo
         open(pc.getSpeed(), pc.getDataBits(), pc.getStopBits(), pc.getParity(), pc.getFlowControl());
         setTimeouts(pc.getInterByteReadTimeout(), pc.getOverallReadTimeout(), pc.getOverallWriteTimeout());
     }
-
 
 }

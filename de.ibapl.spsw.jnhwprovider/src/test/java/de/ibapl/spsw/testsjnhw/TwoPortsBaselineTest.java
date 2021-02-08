@@ -24,7 +24,7 @@ package de.ibapl.spsw.testsjnhw;
 import de.ibapl.spsw.tests.AbstractReadWriteBaselineTest;
 
 /**
- * 
+ *
  * @author Arne Plöse
  *
  */
@@ -33,6 +33,5 @@ public class TwoPortsBaselineTest extends AbstractReadWriteBaselineTest {
     public static void main(String[] args) {
 
     }
-
 
 }

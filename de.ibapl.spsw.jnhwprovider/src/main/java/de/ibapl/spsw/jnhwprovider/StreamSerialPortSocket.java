@@ -29,10 +29,10 @@ import java.io.InputStream;
 import java.io.OutputStream;
 
 /**
- * Currently its more effective to buffer arrays in a ByteBuffer instead
- * of unwrap each array in the native part - we do not know how much we can
- * write or read so the whole array is copied for each call for instahnce
- * (POSIX) Unistd.write.
+ * Currently its more effective to buffer arrays in a ByteBuffer instead of
+ * unwrap each array in the native part - we do not know how much we can write
+ * or read so the whole array is copied for each call for instahnce (POSIX)
+ * Unistd.write.
  *
  * @author aploese
  * @param <T>
@@ -41,7 +41,6 @@ public abstract class StreamSerialPortSocket<T extends StreamSerialPortSocket<T>
 
     protected SerialInputStream<T> is;
     protected SerialOutputStream<T> os;
-
 
     /**
      * Creates a new Instance and checks read/write permissions with the

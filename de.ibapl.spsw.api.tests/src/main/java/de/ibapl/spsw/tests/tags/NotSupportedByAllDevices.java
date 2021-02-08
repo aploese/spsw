@@ -32,7 +32,7 @@ import org.junit.jupiter.api.Tag;
 
 /**
  * Tags all test that are known not ro run on all OS and/or all devices.
- * 
+ *
  * @author Arne Plöse
  *
  */

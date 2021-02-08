@@ -58,6 +58,11 @@ public class ChannelWriteDemoMain {
      * @param args the command line arguments
      */
     public static void main(String[] args) {
+        if (args.length != 1) {
+            System.err.println("only one ars is allowed - the portname.");
+            System.exit(1);
+        }
+
         final SerialPortSocketFactory spsf = getSerialPortSocketFactory();
 
         try (SerialPortSocket sps = spsf.open(args[0], Speed._9600_BPS, DataBits.DB_8, StopBits.SB_1, Parity.NONE, FlowControl.getFC_NONE())) {
@@ -66,7 +71,7 @@ public class ChannelWriteDemoMain {
             ByteBuffer buffer = ByteBuffer.allocateDirect(2048);
             try {
                 while (true) {
-                    String textToSent = String.format("%s: the quick brown fox jumps over the lazy dog!\r\n", LocalDateTime.now());
+                    String textToSent = String.format("%s: the quick brown fox jumps over the lazy dog!\r%n", LocalDateTime.now());
                     buffer.clear();
                     buffer.put(textToSent.getBytes(), 0, textToSent.length());
                     buffer.flip();

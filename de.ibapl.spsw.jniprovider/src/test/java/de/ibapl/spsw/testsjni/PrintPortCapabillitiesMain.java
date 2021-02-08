@@ -33,84 +33,84 @@ import de.ibapl.spsw.api.StopBits;
 import de.ibapl.spsw.jniprovider.SerialPortSocketFactoryImpl;
 
 /**
- * 
+ *
  * @author Arne Plöse
  *
  */
 public class PrintPortCapabillitiesMain {
 
-	public static void main(String[] args) throws Exception {
-		String serialPortName;
-		try (InputStream is = PrintPortCapabillitiesMain.class.getClassLoader()
-				.getResourceAsStream("junit-spsw-config.properties")) {
-			if (is == null) {
-				serialPortName = null;
-			} else {
-				Properties p = new Properties();
-				p.load(is);
-				serialPortName = p.getProperty("writePort");
-			}
-		}
-		try (SerialPortSocket serialPortSocket = new SerialPortSocketFactoryImpl().open(serialPortName)) {
-		System.out.println("Use device: " + serialPortSocket.getPortName());
-		System.out.println(String.format("%-20s%-20s%-20s%-20s", "Speed", "DataBits", "StopBits", "Parity"));
+    public static void main(String[] args) throws Exception {
+        String serialPortName;
+        try (InputStream is = PrintPortCapabillitiesMain.class.getClassLoader()
+                .getResourceAsStream("junit-spsw-config.properties")) {
+            if (is == null) {
+                serialPortName = null;
+            } else {
+                Properties p = new Properties();
+                p.load(is);
+                serialPortName = p.getProperty("writePort");
+            }
+        }
+        try (SerialPortSocket serialPortSocket = new SerialPortSocketFactoryImpl().open(serialPortName)) {
+            System.out.println("Use device: " + serialPortSocket.getPortName());
+            System.out.println(String.format("%-20s%-20s%-20s%-20s", "Speed", "DataBits", "StopBits", "Parity"));
 
-		for (Speed br : Speed.values()) {
-			for (DataBits db : DataBits.values()) {
-				for (StopBits sb : StopBits.values()) {
-					for (Parity p : Parity.values()) {
-						try {
-							serialPortSocket.setSpeed(br);
-						} catch (IllegalArgumentException e) {
-							System.err.println("Can't set Speed to: " + br);
-						} catch (IOException spe) {
-							System.err.println("Error: set Speed to: " + br);
-							System.err.println(spe);
-						}
-						try {
-							serialPortSocket.setDataBits(db);
-						} catch (IllegalArgumentException e) {
-							System.err.println("Can't set DataBits to: " + db);
-						} catch (IOException spe) {
-							System.err.println("Error: set DataBits to: " + db);
-							System.err.println(spe);
-						}
-						try {
-							serialPortSocket.setStopBits(sb);
-						} catch (IllegalArgumentException e) {
-							System.err.println("Can't set StopBits to: " + sb);
-						} catch (IOException spe) {
-							System.err.println("Error: set StopBits to: " + sb);
-							System.err.println(spe);
-						}
-						try {
-							serialPortSocket.setParity(p);
-						} catch (IllegalArgumentException e) {
-							System.err.println("Can't set Parity to: " + p);
-						} catch (IOException spe) {
-							System.err.println("Error: set Parity to: " + p);
-							System.err.println(spe);
-						}
-                                                System.err.flush();
-						printPort(serialPortSocket);
-					}
-				}
-				// @5 Databis 1 or 1.5 Stopbits otherwise only 1 or 2 Stopbits...
-				try {
-					serialPortSocket.setStopBits(StopBits.SB_1);
-				} catch (Exception e) {
-					System.err.println("Error: set StopBits to: " + StopBits.SB_1);
-					System.err.println(e);
-				}
-			}
-		}
+            for (Speed br : Speed.values()) {
+                for (DataBits db : DataBits.values()) {
+                    for (StopBits sb : StopBits.values()) {
+                        for (Parity p : Parity.values()) {
+                            try {
+                                serialPortSocket.setSpeed(br);
+                            } catch (IllegalArgumentException e) {
+                                System.err.println("Can't set Speed to: " + br);
+                            } catch (IOException spe) {
+                                System.err.println("Error: set Speed to: " + br);
+                                System.err.println(spe);
+                            }
+                            try {
+                                serialPortSocket.setDataBits(db);
+                            } catch (IllegalArgumentException e) {
+                                System.err.println("Can't set DataBits to: " + db);
+                            } catch (IOException spe) {
+                                System.err.println("Error: set DataBits to: " + db);
+                                System.err.println(spe);
+                            }
+                            try {
+                                serialPortSocket.setStopBits(sb);
+                            } catch (IllegalArgumentException e) {
+                                System.err.println("Can't set StopBits to: " + sb);
+                            } catch (IOException spe) {
+                                System.err.println("Error: set StopBits to: " + sb);
+                                System.err.println(spe);
+                            }
+                            try {
+                                serialPortSocket.setParity(p);
+                            } catch (IllegalArgumentException e) {
+                                System.err.println("Can't set Parity to: " + p);
+                            } catch (IOException spe) {
+                                System.err.println("Error: set Parity to: " + p);
+                                System.err.println(spe);
+                            }
+                            System.err.flush();
+                            printPort(serialPortSocket);
+                        }
+                    }
+                    // @5 Databis 1 or 1.5 Stopbits otherwise only 1 or 2 Stopbits...
+                    try {
+                        serialPortSocket.setStopBits(StopBits.SB_1);
+                    } catch (Exception e) {
+                        System.err.println("Error: set StopBits to: " + StopBits.SB_1);
+                        System.err.println(e);
+                    }
                 }
-	}
+            }
+        }
+    }
 
-	private static void printPort(SerialPortSocket sPort) throws IOException {
-		System.out.println(String.format("%-20d%-20d%-20f%-20s", sPort.getSpeed().value, sPort.getDatatBits().value,
-				sPort.getStopBits().value, sPort.getParity().name()));
-                System.out.flush();
-	}
+    private static void printPort(SerialPortSocket sPort) throws IOException {
+        System.out.println(String.format("%-20d%-20d%-20f%-20s", sPort.getSpeed().value, sPort.getDatatBits().value,
+                sPort.getStopBits().value, sPort.getParity().name()));
+        System.out.flush();
+    }
 
 }
