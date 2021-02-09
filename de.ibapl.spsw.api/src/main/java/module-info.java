@@ -20,7 +20,7 @@
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
 module de.ibapl.spsw.api {
-    requires org.osgi.annotation;
+    requires transitive org.osgi.annotation;
 
     exports de.ibapl.spsw.api;
     exports de.ibapl.spsw.spi;

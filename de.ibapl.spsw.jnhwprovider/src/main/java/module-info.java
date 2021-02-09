@@ -21,8 +21,10 @@
  */
 module de.ibapl.spsw.jnhwprovider {
     requires java.logging;
-    requires org.osgi.annotation;
-    requires org.osgi.service.component.annotations;
+
+    requires transitive org.osgi.annotation;
+    requires transitive org.osgi.service.component.annotations;
+
     requires de.ibapl.spsw.api;
     requires de.ibapl.jnhw.posix;
     requires de.ibapl.jnhw.winapi;
