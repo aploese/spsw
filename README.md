@@ -1,10 +1,10 @@
 # SPSW Serial Port Socket Wrapper
 
 Access the serial device like UART, usb to serial converter or even a TCP bridge to an serial device on a different machine.
-It implements ByteChannel and InterruptableChannel so any IO-operation can be interruped with ioThread.interrupt(). 
-This results then in an ClosedByInterruptException. Where ioTread is the thread that handles the IO.
-Any read operations are synchronized as well as all write operations.
-Closing an socket with pending IO operations will unblock said operations ant throw an AsynchonousCloseException
+It implements ByteChannel and InterruptableChannel so any IO-operation can be interruped calling interrupt() on the thread
+that does the I/O operations. This results then in an ClosedByInterruptException.
+Any read operations are synchronized as well as all write operations.  
+Closing an socket with pending IO operations will unblock said operations and throw an AsynchonousCloseException.
 
 ## Maven Dependencies
 
@@ -41,7 +41,7 @@ or
 ### Load SerialPortSocketFactory
 
 #### OSGi
-Just use the OSGi annotation @Reference. 
+Just use the OSGi annotation @Reference.
 ```java
 @Reference
 List<SerialPortSocketFactory> loader;
@@ -102,13 +102,13 @@ try {
 ```
 
 ### Setting Timeouts
-Set the `interByteReadTimeout` to 100 ms. The `interByteReadTimeout` is the time to wait after data has been received before return from wait. 
+Set the `interByteReadTimeout` to 100 ms. The `interByteReadTimeout` is the time to wait after data has been received before return from wait.
 
-Set the `overallReadTimeout` to 1000 ms. The `overallReadTimeout` is the time to wait if no data is received before return from wait. 
+Set the `overallReadTimeout` to 1000 ms. The `overallReadTimeout` is the time to wait if no data is received before return from wait.
 
 Set the `overallWriteTimeout` to 2000 ms.
 
-Be aware that the read amount of wait time is implementation dependant.  
+Be aware that the read amount of wait time is implementation dependant.
 
 ```java
 try {
@@ -170,9 +170,8 @@ First go to the [subdirectory it](./it) and execute `mvn package` to build all d
 
 ### Print ports to standard out
 
-Go to the subdirectory it/print-ports and execute  
-`mvn exec:java -Dexec.mainClass="de.ibapl.spsw.demo.print.PrintPortsDemoMain"`  
+Go to the subdirectory it/print-ports and execute
+`mvn exec:java -Dexec.mainClass="de.ibapl.spsw.demo.print.PrintPortsDemoMain"`
 to list all ports and their state.
 
 
- 
