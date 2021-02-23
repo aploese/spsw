@@ -3,12 +3,12 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>de.ibapl.spsw.demo</groupId>
     <artifactId>AsciiDemo</artifactId>
-    <version>3.0.1-SNAPSHOT</version>
+    <version>3.0.1</version>
     <packaging>jar</packaging>
     <parent>
         <groupId>de.ibapl.spsw.demo</groupId>
         <artifactId>spsw-demos</artifactId>
-        <version>3.0.1-SNAPSHOT</version>
+        <version>3.0.1</version>
         <relativePath>../</relativePath>
     </parent>
     <name>SPSW :: Demos :: AsciiDemo</name>

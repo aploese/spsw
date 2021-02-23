@@ -4,7 +4,7 @@
     <groupId>de.ibapl.spsw</groupId>
     <artifactId>spsw-project</artifactId>
     <packaging>pom</packaging>
-    <version>3.0.1-SNAPSHOT</version>
+    <version>3.0.1</version>
     <name>SPSW</name>
     <url>https://github.com/aploese/spsw</url>
     <inceptionYear>2009</inceptionYear>
@@ -111,7 +111,7 @@
         <url>https://github.com/aploese/spsw</url>
         <connection>scm:git:https://github.com/aploese/spsw.git</connection>
         <developerConnection>scm:git:git@github.com:aploese/spsw.git</developerConnection>
-      <tag>HEAD</tag>
+      <tag>spsw-project-3.0.1</tag>
   </scm>
 
 
