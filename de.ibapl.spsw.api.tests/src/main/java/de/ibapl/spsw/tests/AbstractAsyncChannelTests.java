@@ -40,6 +40,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTimeoutPreemptively;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 /**
@@ -223,6 +224,7 @@ public abstract class AbstractAsyncChannelTests extends AbstractAsyncSerialPortS
 
     //TODO @BaselineTest
     @Test
+    @Disabled
     public void testCloseDuringBytesWrite() throws Exception {
         assumeWTest();
         LOG.log(Level.INFO, "run testCloseDuringBytesRead");
