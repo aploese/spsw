@@ -5,7 +5,7 @@
     <parent>
         <groupId>de.ibapl.spsw</groupId>
         <artifactId>spsw-project</artifactId>
-        <version>3.0.1</version>
+        <version>3.0.2-SNAPSHOT</version>
     </parent>
 
     <artifactId>de.ibapl.spsw.jnhwprovider</artifactId>
@@ -23,7 +23,7 @@
         <dependency>
             <groupId>de.ibapl.spsw</groupId>
             <artifactId>de.ibapl.spsw.api</artifactId>
-            <version>3.0.1</version>
+            <version>3.0.2-SNAPSHOT</version>
         </dependency>
         <dependency>
             <groupId>de.ibapl.jnhw</groupId>
@@ -36,7 +36,7 @@
         <dependency>
             <groupId>de.ibapl.spsw</groupId>
             <artifactId>de.ibapl.spsw.api.test</artifactId>
-            <version>3.0.1</version>
+            <version>3.0.2-SNAPSHOT</version>
             <scope>test</scope>
         </dependency>
         <dependency>
