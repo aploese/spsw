@@ -22,7 +22,10 @@
 package de.ibapl.spsw.jnhwprovider;
 
 import de.ibapl.jnhw.common.exception.NativeErrorException;
+import de.ibapl.jnhw.common.memory.AbstractNativeMemory;
+import static de.ibapl.jnhw.common.memory.AbstractNativeMemory.MEM_UNINITIALIZED;
 import de.ibapl.jnhw.common.memory.Memory32Heap;
+import de.ibapl.jnhw.common.memory.layout.Alignment;
 import de.ibapl.jnhw.common.references.IntRef;
 import de.ibapl.jnhw.libloader.LoadState;
 import de.ibapl.jnhw.linux.sys.Eventfd;
@@ -35,6 +38,7 @@ import de.ibapl.jnhw.posix.Fcntl;
 import static de.ibapl.jnhw.posix.Fcntl.F_GETFL;
 import static de.ibapl.jnhw.posix.Fcntl.F_SETFL;
 import static de.ibapl.jnhw.posix.Fcntl.O_NONBLOCK;
+import de.ibapl.jnhw.posix.Poll;
 import static de.ibapl.jnhw.posix.Poll.POLLHUP;
 import static de.ibapl.jnhw.posix.Poll.POLLIN;
 import static de.ibapl.jnhw.posix.Poll.POLLNVAL;
@@ -184,13 +188,30 @@ public class PosixSerialPortSocket extends StreamSerialPortSocket<PosixSerialPor
     /**
      * Cached pollfds to avoid getting native mem for each read/write operation
      */
-    private final Memory32Heap nativeMemoryBlock = new Memory32Heap(1024, true);
-    private final PollFds readPollFds = new PollFds(nativeMemoryBlock, 0, 2);
-    private final PollFds writePollFds = new PollFds(nativeMemoryBlock, readPollFds, 2);
-    private final Time.Timespec readTimeout = new Time.Timespec(nativeMemoryBlock, writePollFds);
-    private final Time.Timespec writeTimeout = new Time.Timespec(nativeMemoryBlock, readTimeout);
-    private final Time.Timespec currentReadTime = new Time.Timespec(nativeMemoryBlock, writeTimeout);
-    private final Time.Timespec currentWriteTime = new Time.Timespec(nativeMemoryBlock, currentReadTime);
+    private final Memory32Heap nativeMemoryBlock = new Memory32Heap(null, 0L, 1024, AbstractNativeMemory.SET_MEM_TO_0);
+    private final PollFds readPollFds;
+    private final PollFds writePollFds;
+    private final Time.Timespec readTimeout;
+    private final Time.Timespec writeTimeout;
+    private final Time.Timespec currentReadTime;
+    private final Time.Timespec currentWriteTime;
+
+    {
+        long offset = 0;
+        readPollFds = new PollFds(nativeMemoryBlock, offset, 2);
+        offset = nativeMemoryBlock.nextOffset(readPollFds, Poll.PollFd.LAYOUT.alignment);
+        writePollFds = new PollFds(nativeMemoryBlock, offset, 2);
+        offset = nativeMemoryBlock.nextOffset(writePollFds, Poll.PollFd.LAYOUT.alignment);
+        readTimeout = new Time.Timespec(nativeMemoryBlock, offset, MEM_UNINITIALIZED);
+        offset = nativeMemoryBlock.nextOffset(readTimeout, Poll.PollFd.LAYOUT.alignment);
+        writeTimeout = new Time.Timespec(nativeMemoryBlock, offset, MEM_UNINITIALIZED);
+        offset = nativeMemoryBlock.nextOffset(writeTimeout, Poll.PollFd.LAYOUT.alignment);
+        currentReadTime = new Time.Timespec(nativeMemoryBlock, offset, MEM_UNINITIALIZED);
+        offset = nativeMemoryBlock.nextOffset(currentReadTime, Poll.PollFd.LAYOUT.alignment);
+        currentWriteTime = new Time.Timespec(nativeMemoryBlock, offset, MEM_UNINITIALIZED);
+        offset = nativeMemoryBlock.nextOffset(currentWriteTime, Alignment.AT_1);
+
+    }
 
     private static final boolean JNHW_HAVE_SYS_EVENTFD_H = Eventfd.HAVE_SYS_EVENTFD_H;
 

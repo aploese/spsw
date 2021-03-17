@@ -23,6 +23,7 @@ package de.ibapl.spsw.jnhwprovider;
 
 import de.ibapl.jnhw.common.references.IntRef;
 import de.ibapl.jnhw.common.exception.NativeErrorException;
+import static de.ibapl.jnhw.common.memory.AbstractNativeMemory.MEM_UNINITIALIZED;
 import de.ibapl.jnhw.libloader.LoadState;
 import de.ibapl.jnhw.linux.sys.Eventfd;
 import static de.ibapl.jnhw.linux.sys.Eventfd.EFD_NONBLOCK;
@@ -977,7 +978,7 @@ public class PosixAsyncSerialPortSocket extends AbstractSerialPortSocket<PosixAs
 
     private int continueWrite(ByteBuffer src, int written) throws IOException {
         //calc endTime only if write all to buff failed.
-        final Time.Timespec endTime = pollWriteTimeout != POLL_INFINITE_TIMEOUT ? new Time.Timespec() : null;
+        final Time.Timespec endTime = pollWriteTimeout != POLL_INFINITE_TIMEOUT ? new Time.Timespec(MEM_UNINITIALIZED) : null;
         //endTime holds the now the start time, the real end time will be calculated if needed
         try {
             if (pollWriteTimeout != POLL_INFINITE_TIMEOUT) {
@@ -1008,7 +1009,7 @@ public class PosixAsyncSerialPortSocket extends AbstractSerialPortSocket<PosixAs
                     if (pollWriteTimeout == POLL_INFINITE_TIMEOUT) {
                         poll_result = poll(writePollFds, POLL_TIMEOUT_INFINITE);
                     } else {
-                        final Time.Timespec currentTime = new Time.Timespec();
+                        final Time.Timespec currentTime = new Time.Timespec(MEM_UNINITIALIZED);
                         Time.clock_gettime(Time.CLOCK_MONOTONIC, currentTime);
                         final int remainingTimeOut = (int) (endTime.tv_sec() - currentTime.tv_sec()) * 1000 + (int) ((endTime.tv_nsec() - currentTime.tv_nsec()) / 1000000L);
                         if (remainingTimeOut < 0) {
@@ -1122,7 +1123,7 @@ public class PosixAsyncSerialPortSocket extends AbstractSerialPortSocket<PosixAs
      */
     private int continueRead(ByteBuffer dst, int nread) throws IOException {
         //read from buffer did not read all, so the overall time out may be needed
-        final Time.Timespec endTime = pollReadTimeout != POLL_INFINITE_TIMEOUT ? new Time.Timespec() : null;
+        final Time.Timespec endTime = pollReadTimeout != POLL_INFINITE_TIMEOUT ? new Time.Timespec(MEM_UNINITIALIZED) : null;
         try {
             if (pollReadTimeout != POLL_INFINITE_TIMEOUT) {
                 Time.clock_gettime(Time.CLOCK_MONOTONIC, endTime);
@@ -1220,7 +1221,7 @@ public class PosixAsyncSerialPortSocket extends AbstractSerialPortSocket<PosixAs
                     if (pollReadTimeout == POLL_TIMEOUT_INFINITE) {
                         poll_result = poll(readPollFds, interByteReadTimeout);
                     } else {
-                        final Time.Timespec currentTime = new Time.Timespec();
+                        final Time.Timespec currentTime = new Time.Timespec(MEM_UNINITIALIZED);
                         Time.clock_gettime(Time.CLOCK_MONOTONIC, currentTime);
                         final int remainingTimeOut = (int) (endTime.tv_sec() - currentTime.tv_sec()) * 1000 + (int) ((endTime.tv_nsec() - currentTime.tv_nsec()) / 1_000_000L);
                         if (remainingTimeOut < 0) {

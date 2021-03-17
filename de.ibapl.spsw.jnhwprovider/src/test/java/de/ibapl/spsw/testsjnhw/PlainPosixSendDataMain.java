@@ -22,6 +22,7 @@
 package de.ibapl.spsw.testsjnhw;
 
 import de.ibapl.jnhw.common.exception.NativeErrorException;
+import de.ibapl.jnhw.common.memory.AbstractNativeMemory;
 import de.ibapl.jnhw.common.memory.Memory32Heap;
 import de.ibapl.jnhw.common.memory.OpaqueMemory32;
 import de.ibapl.jnhw.posix.Errno;
@@ -76,7 +77,7 @@ public class PlainPosixSendDataMain {
 
     final static int BUFFER_SIZE = 512;
     final static int SPEED = B1500000.isDefined() ? B1500000.get() : Termios.B0;
-    final static int BITS_PER_TRANSFERRED_BYTE = 10; //1 start + 8 data + 0 parity + 1 stopp  
+    final static int BITS_PER_TRANSFERRED_BYTE = 10; //1 start + 8 data + 0 parity + 1 stopp
     private static final int CMSPAR_OR_PAREXT;
     static volatile boolean doExit = false;
 
@@ -134,9 +135,9 @@ public class PlainPosixSendDataMain {
         termios.c_cc(VTIME(), (byte) 10);// 1 s inter char timeout ;-)
         //bitrate
         cfsetspeed(termios, bitrate);
-        // 8 data bits    
+        // 8 data bits
         termios.c_cflag(termios.c_cflag() & ~CSIZE() | Termios.CS8());
-        //1 stop bit        
+        //1 stop bit
         termios.c_cflag(termios.c_cflag() & ~CSTOPB());
         //no parity checking
         termios.c_cflag(termios.c_cflag() & ~(PARENB() | PARODD() | CMSPAR_OR_PAREXT)); // Clear parity settings
@@ -285,14 +286,14 @@ public class PlainPosixSendDataMain {
     }
 
     public static void sendOpaqueMemory(int fd) throws Exception {
-        final Memory32Heap sendBuffer = new Memory32Heap(BUFFER_SIZE, false);
+        final Memory32Heap sendBuffer = new Memory32Heap(null, 0L, BUFFER_SIZE, AbstractNativeMemory.MEM_UNINITIALIZED);
         for (int i = 0; i < BUFFER_SIZE; i++) {
             OpaqueMemory32.setByte(sendBuffer, i, (byte) i);
         }
         try {
 
             Thread thread = new Thread(() -> {
-                final OpaqueMemory32 recBuffer = new Memory32Heap(BUFFER_SIZE, true);
+                final OpaqueMemory32 recBuffer = new Memory32Heap(null, 0L, BUFFER_SIZE, AbstractNativeMemory.MEM_UNINITIALIZED);
                 byte currentData = 0;
                 try {
                     int overallRead = 0;

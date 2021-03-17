@@ -23,6 +23,8 @@ package de.ibapl.spsw.jnhwprovider;
 
 import de.ibapl.jnhw.common.references.IntRef;
 import de.ibapl.jnhw.common.exception.NativeErrorException;
+import static de.ibapl.jnhw.common.memory.AbstractNativeMemory.SET_MEM_TO_0;
+import static de.ibapl.jnhw.common.memory.AbstractNativeMemory.MEM_UNINITIALIZED;
 import de.ibapl.jnhw.libloader.LoadState;
 import de.ibapl.jnhw.util.winapi.LibJnhwWinApiLoader;
 import static de.ibapl.jnhw.winapi.Fileapi.CreateFileW;
@@ -191,8 +193,8 @@ public class GenericWinSerialPortSocket extends StreamSerialPortSocket<GenericWi
             throw new RuntimeException("Could not open registry errorCode: " + nee.errno, nee);
         }
         int dwIndex = 0;
-        LPWSTR lpValueName = new LPWSTR(256, true);
-        LPBYTE lpData = new LPBYTE(256, false);
+        LPWSTR lpValueName = new LPWSTR(256, MEM_UNINITIALIZED);
+        LPBYTE lpData = new LPBYTE(256, MEM_UNINITIALIZED);
         IntRef lpType = new IntRef();
         boolean collecting = true;
         do {
@@ -200,7 +202,7 @@ public class GenericWinSerialPortSocket extends StreamSerialPortSocket<GenericWi
             try {
                 long errorCode = RegEnumValueW(phkResult.dereference(), dwIndex, lpValueName, lpType, lpData);
                 if (errorCode == Winerror.ERROR_SUCCESS) {
-                    result.add(LPWSTR.stringValueOfNullTerminated(lpData));
+                    result.add(LPBYTE.getUnicodeString(lpData, true));
                     dwIndex++;
                     lpValueName.clear();
                 } else if (errorCode == Winerror.ERROR_NO_MORE_ITEMS) {
@@ -255,7 +257,7 @@ public class GenericWinSerialPortSocket extends StreamSerialPortSocket<GenericWi
      *
      */
     private DCB getDCB() throws IOException {
-        DCB result = new DCB(true);//TODO needed to clear mem?
+        DCB result = new DCB(SET_MEM_TO_0);//TODO needed to clear mem?
         try {
             GetCommState(hFile, result);
             return result;
@@ -309,7 +311,7 @@ public class GenericWinSerialPortSocket extends StreamSerialPortSocket<GenericWi
 
     private COMSTAT getCOMSTAT() throws IOException {
         IntRef lpErrors = new IntRef(0);
-        COMSTAT result = new COMSTAT(true); //TODO need to clear mem?
+        COMSTAT result = new COMSTAT(SET_MEM_TO_0); //TODO need to clear mem?
 
         try {
             ClearCommError(hFile, lpErrors, result);
@@ -740,7 +742,7 @@ public class GenericWinSerialPortSocket extends StreamSerialPortSocket<GenericWi
         }
         // The port is open, but maybe not configured ... setParam and getParam needs this to be set for their field access
 
-        DCB dcb = new DCB(true);//TODO need to clear mem?
+        DCB dcb = new DCB(SET_MEM_TO_0);//TODO need to clear mem?
         try {
             GetCommState(hFile, dcb);
         } catch (NativeErrorException nee) {
@@ -966,7 +968,7 @@ public class GenericWinSerialPortSocket extends StreamSerialPortSocket<GenericWi
 
     @Override
     public void setXOFFChar(char c) throws IOException {
-        DCB dcb = new DCB(true);//TODO need to clear mem?
+        DCB dcb = new DCB(SET_MEM_TO_0);//TODO need to clear mem?
 
         try {
             GetCommState(hFile, dcb);
@@ -991,7 +993,7 @@ public class GenericWinSerialPortSocket extends StreamSerialPortSocket<GenericWi
 
     @Override
     public void setXONChar(char c) throws IOException {
-        DCB dcb = new DCB(true);//TODO need to clear mem?
+        DCB dcb = new DCB(SET_MEM_TO_0);//TODO need to clear mem?
 
         try {
             GetCommState(hFile, dcb);
