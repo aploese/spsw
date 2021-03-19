@@ -322,7 +322,7 @@ public class GenericWinSerialPortSocket extends StreamSerialPortSocket<GenericWi
     }
 
     private COMMTIMEOUTS getCOMMTIMEOUTS() throws IOException {
-        COMMTIMEOUTS result = new COMMTIMEOUTS(true);//TODO need to clear mem?
+        COMMTIMEOUTS result = new COMMTIMEOUTS(SET_MEM_TO_0);//TODO need to clear mem?
         try {
             GetCommTimeouts(hFile, result);
             return result;
@@ -675,12 +675,13 @@ public class GenericWinSerialPortSocket extends StreamSerialPortSocket<GenericWi
         try {
             SetCommState(hFile, dcb);
         } catch (NativeErrorException nee) {
-            if (nee.errno == ERROR_INVALID_PARAMETER) {
-                throw new IllegalArgumentException("setParams: Wrong params\n GetLastError() == ERROR_INVALID_PARAMETER");
-            } else if (nee.errno == ERROR_GEN_FAILURE) {
-                throw new IllegalArgumentException("setParams: Wrong params\n GetLastError() == ERROR_GEN_FAILURE");
-            } else {
-                throw createClosedOrNativeException(nee.errno, "setParams SetCommState");
+            switch (nee.errno) {
+                case ERROR_INVALID_PARAMETER:
+                    throw new IllegalArgumentException("setParams: Wrong params\n GetLastError() == ERROR_INVALID_PARAMETER");
+                case ERROR_GEN_FAILURE:
+                    throw new IllegalArgumentException("setParams: Wrong params\n GetLastError() == ERROR_GEN_FAILURE");
+                default:
+                    throw createClosedOrNativeException(nee.errno, "setParams SetCommState");
             }
         }
 
@@ -766,7 +767,7 @@ public class GenericWinSerialPortSocket extends StreamSerialPortSocket<GenericWi
             throw t;
         }
 
-        COMMTIMEOUTS lpCommTimeouts = new COMMTIMEOUTS(true);//TODO need to clear mem?
+        COMMTIMEOUTS lpCommTimeouts = new COMMTIMEOUTS(SET_MEM_TO_0);//TODO need to clear mem?
         try {
             GetCommTimeouts(hFile, lpCommTimeouts);
         } catch (NativeErrorException nee) {
@@ -939,7 +940,7 @@ public class GenericWinSerialPortSocket extends StreamSerialPortSocket<GenericWi
             throw new IllegalArgumentException("setReadTimeouts: interByteReadTimeout must >= 0");
         }
 
-        COMMTIMEOUTS commTimeouts = new COMMTIMEOUTS(true);
+        COMMTIMEOUTS commTimeouts = new COMMTIMEOUTS(SET_MEM_TO_0);
 
         if ((interByteReadTimeout == 0) && (overallReadTimeout > 0)) {
             //This fits best for wait a timeout and have no interByteReadTimeout see also getInterbyteReadTimeout for reading back
