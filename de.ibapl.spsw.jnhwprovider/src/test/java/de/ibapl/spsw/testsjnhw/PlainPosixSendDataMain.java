@@ -22,7 +22,7 @@
 package de.ibapl.spsw.testsjnhw;
 
 import de.ibapl.jnhw.common.exception.NativeErrorException;
-import de.ibapl.jnhw.common.memory.AbstractNativeMemory;
+import de.ibapl.jnhw.common.memory.AbstractNativeMemory.SetMem;
 import de.ibapl.jnhw.common.memory.Memory32Heap;
 import de.ibapl.jnhw.common.memory.OpaqueMemory32;
 import de.ibapl.jnhw.posix.Errno;
@@ -286,14 +286,14 @@ public class PlainPosixSendDataMain {
     }
 
     public static void sendOpaqueMemory(int fd) throws Exception {
-        final Memory32Heap sendBuffer = new Memory32Heap(null, 0L, BUFFER_SIZE, AbstractNativeMemory.MEM_UNINITIALIZED);
+        final Memory32Heap sendBuffer = new Memory32Heap(null, 0L, BUFFER_SIZE, SetMem.DO_NOT_SET);
         for (int i = 0; i < BUFFER_SIZE; i++) {
             OpaqueMemory32.setByte(sendBuffer, i, (byte) i);
         }
         try {
 
             Thread thread = new Thread(() -> {
-                final OpaqueMemory32 recBuffer = new Memory32Heap(null, 0L, BUFFER_SIZE, AbstractNativeMemory.MEM_UNINITIALIZED);
+                final OpaqueMemory32 recBuffer = new Memory32Heap(null, 0L, BUFFER_SIZE, SetMem.DO_NOT_SET);
                 byte currentData = 0;
                 try {
                     int overallRead = 0;
