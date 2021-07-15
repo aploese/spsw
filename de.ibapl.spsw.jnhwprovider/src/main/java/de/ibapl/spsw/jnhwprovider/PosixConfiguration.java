@@ -22,7 +22,6 @@
 package de.ibapl.spsw.jnhwprovider;
 
 import de.ibapl.jnhw.common.exception.NativeErrorException;
-import de.ibapl.jnhw.common.memory.Int32_t;
 import de.ibapl.jnhw.posix.Errno;
 import static de.ibapl.jnhw.posix.Errno.*;
 import de.ibapl.jnhw.posix.Fcntl;
@@ -387,9 +386,7 @@ class PosixConfiguration {
 
     int getInBufferBytesCount() throws IOException {
         try {
-            Int32_t returnValueRef = new Int32_t();
-            ioctl(fd, FIONREAD, returnValueRef);
-            return returnValueRef.int32_t();
+            return ioctl_ReturnValue(fd, FIONREAD, 0);
         } catch (NativeErrorException nee) {
             throw new IOException(formatMsg(nee, "Can't read in buffer size "));
         }
@@ -397,9 +394,7 @@ class PosixConfiguration {
 
     int getOutBufferBytesCount() throws IOException {
         try {
-            Int32_t returnValueRef = new Int32_t();
-            ioctl(fd, TIOCOUTQ, returnValueRef);
-            return returnValueRef.int32_t();
+            return ioctl_ReturnValue(fd, TIOCOUTQ, 0);
         } catch (NativeErrorException nee) {
             throw new IOException(formatMsg(nee, "Can't read out buffer size "));
         }
@@ -690,29 +685,28 @@ class PosixConfiguration {
     }
 
     boolean getLineStatus(int bitMask) throws IOException {
-        Int32_t lineStatusRef = new Int32_t();
         try {
-            ioctl(fd, TIOCMGET, lineStatusRef);
+            final int lineStatusRef = ioctl_ReturnValue(fd, TIOCMGET, 0);
+            return (lineStatusRef & bitMask) == bitMask;
         } catch (NativeErrorException nee) {
             throw new IOException(formatMsg(nee, "Can't get line status "));
         }
-        return (lineStatusRef.int32_t() & bitMask) == bitMask;
     }
 
     void setLineStatus(boolean enabled, int bitMask) throws IOException {
-        Int32_t lineStatusRef = new Int32_t();
+        int lineStatusRef;
         try {
-            ioctl(fd, TIOCMGET, lineStatusRef);
+            lineStatusRef = ioctl_ReturnValue(fd, TIOCMGET, 0);
         } catch (NativeErrorException nee) {
             throw new IOException(formatMsg(nee, "Can't get line status "));
         }
         if (enabled) {
-            lineStatusRef.int32_t(lineStatusRef.int32_t() | bitMask);
+            lineStatusRef |= bitMask;
         } else {
-            lineStatusRef.int32_t(lineStatusRef.int32_t() & ~bitMask);
+            lineStatusRef &= ~bitMask;
         }
         try {
-            ioctl(fd, TIOCMSET, lineStatusRef);
+            ioctl_ReturnValue(fd, TIOCMSET, lineStatusRef);
         } catch (NativeErrorException nee) {
             throw new IOException(formatMsg(nee, "Can't set line status"));
         }
