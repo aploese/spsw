@@ -21,9 +21,10 @@
  */
 package de.ibapl.spsw.jnhwprovider;
 
-import de.ibapl.jnhw.common.references.IntRef;
 import de.ibapl.jnhw.common.exception.NativeErrorException;
 import de.ibapl.jnhw.common.memory.AbstractNativeMemory.SetMem;
+import de.ibapl.jnhw.common.memory.Int32_t;
+import de.ibapl.jnhw.common.memory.OpaqueMemory32;
 import de.ibapl.jnhw.libloader.LoadState;
 import de.ibapl.jnhw.util.winapi.LibJnhwWinApiLoader;
 import static de.ibapl.jnhw.winapi.Fileapi.CreateFileW;
@@ -37,16 +38,16 @@ import de.ibapl.jnhw.winapi.Ioapiset;
 import static de.ibapl.jnhw.winapi.Ioapiset.GetOverlappedResult;
 import de.ibapl.jnhw.winapi.Minwinbase.OVERLAPPED;
 import de.ibapl.jnhw.winapi.WinDef.LPBYTE;
-import de.ibapl.jnhw.winapi.WinDef.PHKEY;
 import de.ibapl.jnhw.winapi.Synchapi;
 import static de.ibapl.jnhw.winapi.Synchapi.CreateEventW;
 import static de.ibapl.jnhw.winapi.Synchapi.WaitForSingleObject;
+import de.ibapl.jnhw.winapi.WinDef;
+import static de.ibapl.jnhw.winapi.Winbase.ClearCommBreak;
 import static de.ibapl.jnhw.winapi.Winbase.CLRBREAK;
 import static de.ibapl.jnhw.winapi.Winbase.CLRDTR;
 import static de.ibapl.jnhw.winapi.Winbase.CLRRTS;
 import de.ibapl.jnhw.winapi.Winbase.COMMTIMEOUTS;
 import de.ibapl.jnhw.winapi.Winbase.COMSTAT;
-import static de.ibapl.jnhw.winapi.Winbase.ClearCommBreak;
 import static de.ibapl.jnhw.winapi.Winbase.ClearCommError;
 import de.ibapl.jnhw.winapi.Winbase.DCB;
 import static de.ibapl.jnhw.winapi.Winbase.EVENPARITY;
@@ -184,24 +185,25 @@ public class GenericWinSerialPortSocket extends StreamSerialPortSocket<GenericWi
         }
         LinkedList<String> result = new LinkedList<>();
 
-        PHKEY phkResult = new PHKEY();
+        final WinDef.RegistryHKEY phkResult;
         String lpSubKey = "HARDWARE\\DEVICEMAP\\SERIALCOMM\\";
         try {
-            RegOpenKeyExW(HKEY_LOCAL_MACHINE, lpSubKey, 0, KEY_READ, phkResult);
+            phkResult = RegOpenKeyExW(HKEY_LOCAL_MACHINE, lpSubKey, 0, KEY_READ);
         } catch (NativeErrorException nee) {
             throw new RuntimeException("Could not open registry errorCode: " + nee.errno, nee);
         }
         int dwIndex = 0;
         LPWSTR lpValueName = new LPWSTR(256, SetMem.DO_NOT_SET);
         LPBYTE lpData = new LPBYTE(256, SetMem.DO_NOT_SET);
-        IntRef lpType = new IntRef();
+        WinDef.LPDWORD lpcchValueName = new WinDef.LPDWORD();
+        WinDef.LPDWORD lpccData = new WinDef.LPDWORD();
+        WinDef.LPDWORD lpType = new WinDef.LPDWORD();
         boolean collecting = true;
         do {
-            lpData.clear();
             try {
-                long errorCode = RegEnumValueW(phkResult.dereference(), dwIndex, lpValueName, lpType, lpData);
+                long errorCode = RegEnumValueW(phkResult, dwIndex, lpValueName, lpcchValueName, lpType, lpData, lpccData);
                 if (errorCode == Winerror.ERROR_SUCCESS) {
-                    result.add(LPBYTE.getUnicodeString(lpData, true));
+                    result.add(LPBYTE.getUnicodeString(lpData, true, lpccData.uint32_t()));
                     dwIndex++;
                     lpValueName.clear();
                 } else if (errorCode == Winerror.ERROR_NO_MORE_ITEMS) {
@@ -214,7 +216,7 @@ public class GenericWinSerialPortSocket extends StreamSerialPortSocket<GenericWi
             }
         } while (collecting);
         try {
-            Winreg.RegCloseKey(phkResult.dereference());
+            Winreg.RegCloseKey(phkResult);
         } catch (NativeErrorException nee) {
         }
         return result;
@@ -309,14 +311,15 @@ public class GenericWinSerialPortSocket extends StreamSerialPortSocket<GenericWi
     }
 
     private COMSTAT getCOMSTAT() throws IOException {
-        IntRef lpErrors = new IntRef(0);
-        COMSTAT result = new COMSTAT(SetMem.TO_0x00); //TODO need to clear mem?
+        Int32_t lpErrors = new Int32_t();
+        OpaqueMemory32.clear(lpErrors);//TODO need to clear mem?
+        COMSTAT result = new COMSTAT(SetMem.TO_0x00);//TODO need to clear mem?
 
         try {
             ClearCommError(hFile, lpErrors, result);
             return result;
         } catch (NativeErrorException nee) {
-            throw createClosedOrNativeException(nee.errno, "native call ClearCommError lpError 0x%08x", lpErrors.value);
+            throw createClosedOrNativeException(nee.errno, "native call ClearCommError lpError 0x%08x", lpErrors.int32_t());
         }
     }
 
@@ -538,11 +541,11 @@ public class GenericWinSerialPortSocket extends StreamSerialPortSocket<GenericWi
     }
 
     private boolean getCommModemStatus(int bitMask) throws IOException {
-        IntRef lpModemStat = new IntRef(0);
-
+        Int32_t lpModemStat = new Int32_t();
+        OpaqueMemory32.clear(lpModemStat);//TODO clear needed?
         try {
             GetCommModemStatus(hFile, lpModemStat);
-            return (lpModemStat.value & bitMask) == bitMask;
+            return (lpModemStat.int32_t() & bitMask) == bitMask;
         } catch (NativeErrorException nee) {
             throw createClosedOrNativeException(nee.errno, "Can't get GetCommModemStatus");
         }

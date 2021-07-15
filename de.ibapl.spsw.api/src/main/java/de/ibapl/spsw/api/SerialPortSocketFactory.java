@@ -54,13 +54,13 @@ import org.osgi.annotation.versioning.ProviderType;
 public interface SerialPortSocketFactory {
 
     /**
-     * {@value #DEFAULT_LINUX_DEVICE_PATH}
+     * {@value #DEFAULT_DARWIN_DEVICE_PATH}
      */
-    public final String DEFAULT_LINUX_DEVICE_PATH = "/dev/";
+    public final String DEFAULT_DARWIN_DEVICE_PATH = "/dev/";
     /**
-     * {@value #DEFAULT_LINUX_PORTNAME_PATTERN}
+     * {@value #DEFAULT_DARWIN_PORTNAME_PATTERN}
      */
-    public final String DEFAULT_LINUX_PORTNAME_PATTERN = "(ttyS|ttyUSB|ttyACM|ttyAMA|rfcomm|ttyO)[0-9]{1,3}";
+    public final String DEFAULT_DARWIN_PORTNAME_PATTERN = "tty.(serial|usbserial|usbmodem).*";
     /**
      * {@value #DEFAULT_FREE_BSD_DEVICE_PATH}
      */
@@ -70,13 +70,21 @@ public interface SerialPortSocketFactory {
      */
     public final String DEFAULT_FREE_BSD_PORTNAME_PATTERN = "(cua|cuaU)[0-9]{1,3}";
     /**
-     * {@value #DEFAULT_MACOS_DEVICE_PATH}
+     * {@value #DEFAULT_OPEN_BSD_DEVICE_PATH}
      */
-    public final String DEFAULT_MACOS_DEVICE_PATH = "/dev/";
+    public final String DEFAULT_OPEN_BSD_DEVICE_PATH = "/dev/";
     /**
-     * {@value #DEFAULT_MACOS_PORTNAME_PATTERN}
+     * {@value #DEFAULT_OPEN_BSD_PORTNAME_PATTERN}
      */
-    public final String DEFAULT_MACOS_PORTNAME_PATTERN = "tty.(serial|usbserial|usbmodem).*";
+    public final String DEFAULT_OPEN_BSD_PORTNAME_PATTERN = "(cua|cuaU)[0-9]{1,3}";
+    /**
+     * {@value #DEFAULT_LINUX_DEVICE_PATH}
+     */
+    public final String DEFAULT_LINUX_DEVICE_PATH = "/dev/";
+    /**
+     * {@value #DEFAULT_LINUX_PORTNAME_PATTERN}
+     */
+    public final String DEFAULT_LINUX_PORTNAME_PATTERN = "(ttyS|ttyUSB|ttyACM|ttyAMA|rfcomm|ttyO)[0-9]{1,3}";
     /**
      * {@value #DEFAULT_SUNOS_DEVICE_PATH}
      */

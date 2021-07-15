@@ -60,9 +60,10 @@ public class SerialPortSocketFactoryImpl implements SerialPortSocketFactory {
     @Override
     public SerialPortSocket open(String portName) throws IOException {
         switch (MULTIARCH_TUPEL_BUILDER.getOS()) {
-            case LINUX:
-                return new PosixSerialPortSocket(portName);
+            case DARWIN:
             case FREE_BSD:
+            case OPEN_BSD:
+            case LINUX:
                 return new PosixSerialPortSocket(portName);
             case WINDOWS:
                 return new GenericWinSerialPortSocket(portName);
@@ -75,6 +76,9 @@ public class SerialPortSocketFactoryImpl implements SerialPortSocketFactory {
     public SerialPortSocket open(String portName, Speed speed, DataBits dataBits, StopBits stopBits, Parity parity,
             Set<FlowControl> flowControls) throws IOException {
         switch (MULTIARCH_TUPEL_BUILDER.getOS()) {
+            case DARWIN:
+            case FREE_BSD:
+            case OPEN_BSD:
             case LINUX:
                 return new PosixSerialPortSocket(portName, speed, dataBits, stopBits, parity, flowControls);
             case WINDOWS:
@@ -87,6 +91,9 @@ public class SerialPortSocketFactoryImpl implements SerialPortSocketFactory {
     @Override
     public AsyncSerialPortSocket openAsync(String portName, ExecutorService executor) throws IOException, IllegalStateException {
         switch (MULTIARCH_TUPEL_BUILDER.getOS()) {
+            case DARWIN:
+            case FREE_BSD:
+            case OPEN_BSD:
             case LINUX:
                 return new PosixAsyncSerialPortSocket(portName, executor);
             default:
@@ -97,6 +104,9 @@ public class SerialPortSocketFactoryImpl implements SerialPortSocketFactory {
     @Override
     public AsyncSerialPortSocket openAsync(String portName, Speed speed, DataBits dataBits, StopBits stopBits, Parity parity, Set<FlowControl> flowControls, ExecutorService executor) throws IOException {
         switch (MULTIARCH_TUPEL_BUILDER.getOS()) {
+            case DARWIN:
+            case FREE_BSD:
+            case OPEN_BSD:
             case LINUX:
                 return new PosixAsyncSerialPortSocket(portName, speed, dataBits, stopBits, parity, flowControls, executor);
             default:
@@ -169,14 +179,16 @@ public class SerialPortSocketFactoryImpl implements SerialPortSocketFactory {
 
     protected String getPortnamesPath() {
         switch (MULTIARCH_TUPEL_BUILDER.getOS()) {
-            case LINUX:
-                return DEFAULT_LINUX_DEVICE_PATH;
+            case DARWIN:
+                return DEFAULT_DARWIN_DEVICE_PATH;
             case FREE_BSD:
                 return DEFAULT_FREE_BSD_DEVICE_PATH;
+            case OPEN_BSD:
+                return DEFAULT_OPEN_BSD_DEVICE_PATH;
+            case LINUX:
+                return DEFAULT_LINUX_DEVICE_PATH;
             case SOLARIS:
                 return DEFAULT_SUNOS_DEVICE_PATH;
-            case MAC_OS_X:
-                return DEFAULT_MACOS_DEVICE_PATH;
             case WINDOWS:
                 return DEFAULT_WINDOWS_DEVICE_PATH;
             default:
@@ -188,14 +200,16 @@ public class SerialPortSocketFactoryImpl implements SerialPortSocketFactory {
 
     protected Pattern getPortnamesRegExp() {
         switch (MULTIARCH_TUPEL_BUILDER.getOS()) {
-            case LINUX:
-                return Pattern.compile(DEFAULT_LINUX_PORTNAME_PATTERN);
+            case DARWIN:
+                return Pattern.compile(DEFAULT_DARWIN_PORTNAME_PATTERN);
             case FREE_BSD:
                 return Pattern.compile(DEFAULT_FREE_BSD_PORTNAME_PATTERN);
+            case OPEN_BSD:
+                return Pattern.compile(DEFAULT_OPEN_BSD_PORTNAME_PATTERN);
+            case LINUX:
+                return Pattern.compile(DEFAULT_LINUX_PORTNAME_PATTERN);
             case SOLARIS:
                 return Pattern.compile(DEFAULT_SUNOS_PORTNAME_PATTERN);
-            case MAC_OS_X:
-                return Pattern.compile(DEFAULT_MACOS_PORTNAME_PATTERN);
             case WINDOWS:
                 return Pattern.compile(DEFAULT_WINDOWS_PORTNAME_PATTERN);
             default:

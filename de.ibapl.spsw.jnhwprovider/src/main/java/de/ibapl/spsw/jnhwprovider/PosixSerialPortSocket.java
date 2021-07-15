@@ -22,11 +22,10 @@
 package de.ibapl.spsw.jnhwprovider;
 
 import de.ibapl.jnhw.common.exception.NativeErrorException;
-import de.ibapl.jnhw.common.memory.AbstractNativeMemory;
 import de.ibapl.jnhw.common.memory.AbstractNativeMemory.SetMem;
+import de.ibapl.jnhw.common.memory.Int32_t;
 import de.ibapl.jnhw.common.memory.Memory32Heap;
 import de.ibapl.jnhw.common.memory.layout.Alignment;
-import de.ibapl.jnhw.common.references.IntRef;
 import de.ibapl.jnhw.libloader.LoadState;
 import de.ibapl.jnhw.linux.sys.Eventfd;
 import static de.ibapl.jnhw.linux.sys.Eventfd.EFD_NONBLOCK;
@@ -199,15 +198,15 @@ public class PosixSerialPortSocket extends StreamSerialPortSocket<PosixSerialPor
     {
         long offset = 0;
         readPollFds = new PollFds(nativeMemoryBlock, offset, 2);
-        offset = nativeMemoryBlock.nextOffset(readPollFds, Poll.PollFd.LAYOUT.alignment);
+        offset = nativeMemoryBlock.nextOffset(readPollFds, Poll.PollFd.alignof);
         writePollFds = new PollFds(nativeMemoryBlock, offset, 2);
-        offset = nativeMemoryBlock.nextOffset(writePollFds, Poll.PollFd.LAYOUT.alignment);
+        offset = nativeMemoryBlock.nextOffset(writePollFds, Poll.PollFd.alignof);
         readTimeout = new Time.Timespec(nativeMemoryBlock, offset, SetMem.DO_NOT_SET);
-        offset = nativeMemoryBlock.nextOffset(readTimeout, Poll.PollFd.LAYOUT.alignment);
+        offset = nativeMemoryBlock.nextOffset(readTimeout, Poll.PollFd.alignof);
         writeTimeout = new Time.Timespec(nativeMemoryBlock, offset, SetMem.DO_NOT_SET);
-        offset = nativeMemoryBlock.nextOffset(writeTimeout, Poll.PollFd.LAYOUT.alignment);
+        offset = nativeMemoryBlock.nextOffset(writeTimeout, Poll.PollFd.alignof);
         currentReadTime = new Time.Timespec(nativeMemoryBlock, offset, SetMem.DO_NOT_SET);
-        offset = nativeMemoryBlock.nextOffset(currentReadTime, Poll.PollFd.LAYOUT.alignment);
+        offset = nativeMemoryBlock.nextOffset(currentReadTime, Poll.PollFd.alignof);
         currentWriteTime = new Time.Timespec(nativeMemoryBlock, offset, SetMem.DO_NOT_SET);
         offset = nativeMemoryBlock.nextOffset(currentWriteTime, Alignment.AT_1);
 
@@ -390,18 +389,18 @@ public class PosixSerialPortSocket extends StreamSerialPortSocket<PosixSerialPor
                 cancel_write_event__write_fd = cancel_write_event__read_fd;
             } else {
                 //Create pipe
-                IntRef read_fd = new IntRef();
-                IntRef write_fd = new IntRef();
+                Int32_t read_fd = new Int32_t();
+                Int32_t write_fd = new Int32_t();
                 //read
                 Unistd.pipe(read_fd, write_fd);
-                cancel_read_event__read_fd = read_fd.value;
-                cancel_read_event__write_fd = write_fd.value;
+                cancel_read_event__read_fd = read_fd.int32_t();
+                cancel_read_event__write_fd = write_fd.int32_t();
                 Fcntl.fcntl(cancel_read_event__read_fd, F_SETFL, O_NONBLOCK);
                 Fcntl.fcntl(cancel_read_event__write_fd, F_SETFL, O_NONBLOCK);
                 //write
                 Unistd.pipe(read_fd, write_fd);
-                cancel_write_event__read_fd = read_fd.value;
-                cancel_write_event__write_fd = write_fd.value;
+                cancel_write_event__read_fd = read_fd.int32_t();
+                cancel_write_event__write_fd = write_fd.int32_t();
                 Fcntl.fcntl(cancel_write_event__read_fd, F_SETFL, O_NONBLOCK);
                 Fcntl.fcntl(cancel_write_event__write_fd, F_SETFL, O_NONBLOCK);
             }

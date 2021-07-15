@@ -111,9 +111,10 @@ public class SerialPortSocketFactoryImpl implements SerialPortSocketFactory {
         touchNativeLib();
 
         switch (NativeLibResolver.getOS()) {
-            case LINUX:
-                return new GenericTermiosSerialPortSocket(portName);
+            case DARWIN:
             case FREE_BSD:
+            case LINUX:
+            case OPEN_BSD:
                 return new GenericTermiosSerialPortSocket(portName);
             case WINDOWS:
                 return new GenericWinSerialPortSocket(portName);
@@ -124,17 +125,20 @@ public class SerialPortSocketFactoryImpl implements SerialPortSocketFactory {
 
     protected String getPortnamesPath() {
         switch (NativeLibResolver.getOS()) {
-            case LINUX: {
-                return DEFAULT_LINUX_DEVICE_PATH;
+            case DARWIN: {
+                return DEFAULT_DARWIN_DEVICE_PATH;
             }
             case FREE_BSD: {
                 return DEFAULT_FREE_BSD_DEVICE_PATH;
             }
+            case LINUX: {
+                return DEFAULT_LINUX_DEVICE_PATH;
+            }
+            case OPEN_BSD: {
+                return DEFAULT_OPEN_BSD_DEVICE_PATH;
+            }
             case SOLARIS: {
                 return DEFAULT_SUNOS_DEVICE_PATH;
-            }
-            case MAC_OS_X: {
-                return DEFAULT_MACOS_DEVICE_PATH;
             }
             case WINDOWS: {
                 return DEFAULT_WINDOWS_DEVICE_PATH;
@@ -149,17 +153,20 @@ public class SerialPortSocketFactoryImpl implements SerialPortSocketFactory {
 
     protected Pattern getPortnamesRegExp() {
         switch (NativeLibResolver.getOS()) {
-            case LINUX: {
-                return Pattern.compile(DEFAULT_LINUX_PORTNAME_PATTERN);
+            case DARWIN: {
+                return Pattern.compile(DEFAULT_DARWIN_PORTNAME_PATTERN);
             }
             case FREE_BSD: {
                 return Pattern.compile(DEFAULT_FREE_BSD_PORTNAME_PATTERN);
             }
+            case LINUX: {
+                return Pattern.compile(DEFAULT_LINUX_PORTNAME_PATTERN);
+            }
+            case OPEN_BSD: {
+                return Pattern.compile(DEFAULT_OPEN_BSD_PORTNAME_PATTERN);
+            }
             case SOLARIS: {
                 return Pattern.compile(DEFAULT_SUNOS_PORTNAME_PATTERN);
-            }
-            case MAC_OS_X: {
-                return Pattern.compile(DEFAULT_MACOS_PORTNAME_PATTERN);
             }
             case WINDOWS: {
                 return Pattern.compile(DEFAULT_WINDOWS_PORTNAME_PATTERN);
@@ -282,9 +289,10 @@ public class SerialPortSocketFactoryImpl implements SerialPortSocketFactory {
         touchNativeLib();
 
         switch (NativeLibResolver.getOS()) {
-            case LINUX:
-                return new GenericTermiosSerialPortSocket(portName, speed, dataBits, stopBits, parity, flowControls);
+            case DARWIN:
             case FREE_BSD:
+            case LINUX:
+            case OPEN_BSD:
                 return new GenericTermiosSerialPortSocket(portName, speed, dataBits, stopBits, parity, flowControls);
             case WINDOWS:
                 return new GenericWinSerialPortSocket(portName, speed, dataBits, stopBits, parity, flowControls);

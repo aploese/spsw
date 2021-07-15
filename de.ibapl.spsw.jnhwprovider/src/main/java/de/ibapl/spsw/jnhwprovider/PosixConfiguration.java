@@ -22,7 +22,7 @@
 package de.ibapl.spsw.jnhwprovider;
 
 import de.ibapl.jnhw.common.exception.NativeErrorException;
-import de.ibapl.jnhw.common.references.IntRef;
+import de.ibapl.jnhw.common.memory.Int32_t;
 import de.ibapl.jnhw.posix.Errno;
 import static de.ibapl.jnhw.posix.Errno.*;
 import de.ibapl.jnhw.posix.Fcntl;
@@ -387,9 +387,9 @@ class PosixConfiguration {
 
     int getInBufferBytesCount() throws IOException {
         try {
-            IntRef returnValueRef = new IntRef();
+            Int32_t returnValueRef = new Int32_t();
             ioctl(fd, FIONREAD, returnValueRef);
-            return returnValueRef.value;
+            return returnValueRef.int32_t();
         } catch (NativeErrorException nee) {
             throw new IOException(formatMsg(nee, "Can't read in buffer size "));
         }
@@ -397,9 +397,9 @@ class PosixConfiguration {
 
     int getOutBufferBytesCount() throws IOException {
         try {
-            IntRef returnValueRef = new IntRef();
+            Int32_t returnValueRef = new Int32_t();
             ioctl(fd, TIOCOUTQ, returnValueRef);
-            return returnValueRef.value;
+            return returnValueRef.int32_t();
         } catch (NativeErrorException nee) {
             throw new IOException(formatMsg(nee, "Can't read out buffer size "));
         }
@@ -434,8 +434,8 @@ class PosixConfiguration {
     }
 
     private Speed getSpeed(StructTermios termios) throws IOException {
-        int inSpeed = cfgetispeed(termios);
-        int outSpeed = cfgetospeed(termios);
+        long inSpeed = cfgetispeed(termios);
+        long outSpeed = cfgetospeed(termios);
         if (inSpeed != outSpeed) {
             throw new IOException(
                     "In and out speed mismatch In:" + speed_t2speed(inSpeed) + " Out: " + speed_t2speed(outSpeed));
@@ -448,7 +448,7 @@ class PosixConfiguration {
         return (char) termios.c_cc(VSTOP);
     }
 
-    static Speed speed_t2speed(int speed_t) {
+    static Speed speed_t2speed(long speed_t) {
         if (speed_t == B0) {
             return Speed._0_BPS;
         } else if (speed_t == B50) {
@@ -690,26 +690,26 @@ class PosixConfiguration {
     }
 
     boolean getLineStatus(int bitMask) throws IOException {
-        IntRef lineStatusRef = new IntRef();
+        Int32_t lineStatusRef = new Int32_t();
         try {
             ioctl(fd, TIOCMGET, lineStatusRef);
         } catch (NativeErrorException nee) {
             throw new IOException(formatMsg(nee, "Can't get line status "));
         }
-        return (lineStatusRef.value & bitMask) == bitMask;
+        return (lineStatusRef.int32_t() & bitMask) == bitMask;
     }
 
     void setLineStatus(boolean enabled, int bitMask) throws IOException {
-        IntRef lineStatusRef = new IntRef();
+        Int32_t lineStatusRef = new Int32_t();
         try {
             ioctl(fd, TIOCMGET, lineStatusRef);
         } catch (NativeErrorException nee) {
             throw new IOException(formatMsg(nee, "Can't get line status "));
         }
         if (enabled) {
-            lineStatusRef.value |= bitMask;
+            lineStatusRef.int32_t(lineStatusRef.int32_t() | bitMask);
         } else {
-            lineStatusRef.value &= ~bitMask;
+            lineStatusRef.int32_t(lineStatusRef.int32_t() & ~bitMask);
         }
         try {
             ioctl(fd, TIOCMSET, lineStatusRef);
