@@ -641,6 +641,7 @@ USE_WIN_API_TRUE
 JNI_HEADER_DIR
 JNHW_RESOURCES_DIR
 JNHW_STRIP_FLAG
+JNHW_LIBTOOL_LIB_SUFFIX
 JNHW_LIB_SUFFIX
 JNHW_LIB_PREFIX
 JNHW_MULTIARCH_TUPEL
@@ -2450,12 +2451,7 @@ program_transform_name=`$as_echo "$program_transform_name" | sed "$ac_script"`
 am_aux_dir=`cd "$ac_aux_dir" && pwd`
 
 if test x"${MISSING+set}" != xset; then
-  case $am_aux_dir in
-  *\ * | *\	*)
-    MISSING="\${SHELL} \"$am_aux_dir/missing\"" ;;
-  *)
-    MISSING="\${SHELL} $am_aux_dir/missing" ;;
-  esac
+  MISSING="\${SHELL} '$am_aux_dir/missing'"
 fi
 # Use eval to expand $SHELL
 if eval "$MISSING --is-lightweight"; then
@@ -5760,7 +5756,7 @@ esac
 fi
 
 : ${AR=ar}
-: ${AR_FLAGS=cru}
+: ${AR_FLAGS=cr}
 
 
 
@@ -7481,8 +7477,8 @@ int forced_loaded() { return 2;}
 _LT_EOF
       echo "$LTCC $LTCFLAGS -c -o conftest.o conftest.c" >&5
       $LTCC $LTCFLAGS -c -o conftest.o conftest.c 2>&5
-      echo "$AR cru libconftest.a conftest.o" >&5
-      $AR cru libconftest.a conftest.o 2>&5
+      echo "$AR cr libconftest.a conftest.o" >&5
+      $AR cr libconftest.a conftest.o 2>&5
       echo "$RANLIB libconftest.a" >&5
       $RANLIB libconftest.a 2>&5
       cat > conftest.c << _LT_EOF
@@ -8609,6 +8605,12 @@ lt_prog_compiler_static=
       ecc*)
 	lt_prog_compiler_wl='-Wl,'
 	lt_prog_compiler_pic='-KPIC'
+	lt_prog_compiler_static='-static'
+        ;;
+      # flang / f18. f95 an alias for gfortran or flang on Debian
+      flang* | f18* | f95*)
+	lt_prog_compiler_wl='-Wl,'
+	lt_prog_compiler_pic='-fPIC'
 	lt_prog_compiler_static='-static'
         ;;
       # icc used to be incompatible with GCC.
@@ -13077,10 +13079,10 @@ case "$host_os" in
             ;;
         esac
     ;;
-    darwin)
+    darwin*)
 	case "$host_cpu" in
 	x86_64)
-        	JNHW_MULTIARCH_TUPEL="x86_64-macosx-bsd"
+        	JNHW_MULTIARCH_TUPEL="x86_64-darwin-bsd"
 	;;
 	*)
         	fail not supported
@@ -13091,6 +13093,19 @@ case "$host_os" in
 	case "$host_cpu" in
 	x86_64)
         	JNHW_MULTIARCH_TUPEL="x86_64-freebsd-bsd"
+	;;
+	*)
+        	fail not supported
+	;;
+	esac
+    ;;
+    openbsd*)
+	case "$host_cpu" in
+	x86_64)
+        	JNHW_MULTIARCH_TUPEL="x86_64-openbsd-bsd"
+	;;
+	aarch64)
+        	JNHW_MULTIARCH_TUPEL="aarch64-openbsd-bsd"
 	;;
 	*)
         	fail not supported
@@ -13117,18 +13132,21 @@ esac
 
 case "$host_os" in
     mingw32*)
-        JNHW_LIB_SUFFIX="-\$(JNHW_VERSION).dll"
         JNHW_LIB_PREFIX="lib"
+        JNHW_LIB_SUFFIX="-\$(JNHW_VERSION).dll"
+        JNHW_LIBTOOL_LIB_SUFFIX="-\$(JNHW_VERSION).dll"
         JNHW_STRIP_FLAG="-s"
     ;;
-    darwin)
-        JNHW_LIB_SUFFIX=".\$(JNHW_VERSION).dylib"
+    darwin*)
         JNHW_LIB_PREFIX="lib"
+        JNHW_LIB_SUFFIX=".\$(JNHW_VERSION).dylib"
+        JNHW_LIBTOOL_LIB_SUFFIX=".\$(JNHW_LIBTOOL_LIB_VERSION).dylib"
         JNHW_STRIP_FLAG="-S"
     ;;
     *)
         JNHW_LIB_PREFIX="lib"
         JNHW_LIB_SUFFIX=".so.\$(JNHW_VERSION)"
+        JNHW_LIBTOOL_LIB_SUFFIX=".so.\$(JNHW_LIBTOOL_LIB_VERSION)"
         JNHW_STRIP_FLAG="-s"
     ;;
 esac
@@ -13138,10 +13156,11 @@ esac
 
 
 
+
 JNHW_RESOURCES_DIR="\$(top_builddir)/src/main/resources/lib/\$(JNHW_MULTIARCH_TUPEL)"
 
 
-JNI_HEADER_DIR="\$(top_builddir)/target/generated-sources/include"
+JNI_HEADER_DIR="\$(top_builddir)/src/main/native/include"
 
 
 # Checks for libraries.
@@ -14910,7 +14929,9 @@ $as_echo X/"$am_mf" |
     { { $as_echo "$as_me:${as_lineno-$LINENO}: error: in \`$ac_pwd':" >&5
 $as_echo "$as_me: error: in \`$ac_pwd':" >&2;}
 as_fn_error $? "Something went wrong bootstrapping makefile fragments
-    for automatic dependency tracking.  Try re-running configure with the
+    for automatic dependency tracking.  If GNU make was not used, consider
+    re-running the configure script with MAKE=\"gmake\" (or whatever is
+    necessary).  You can also try re-running configure with the
     '--disable-dependency-tracking' option to at least be able to build
     the package (albeit without support for automatic dependency tracking).
 See \`config.log' for more details" "$LINENO" 5; }

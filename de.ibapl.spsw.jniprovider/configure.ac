@@ -41,7 +41,7 @@ JW_LIB_PREFIX_SUFFIX()
 JNHW_RESOURCES_DIR="\$(top_builddir)/src/main/resources/lib/\$(JNHW_MULTIARCH_TUPEL)"
 AC_SUBST(JNHW_RESOURCES_DIR)
 
-JNI_HEADER_DIR="\$(top_builddir)/target/generated-sources/include"
+JNI_HEADER_DIR="\$(top_builddir)/src/main/native/include"
 AC_SUBST(JNI_HEADER_DIR)
 
 # Checks for libraries.
