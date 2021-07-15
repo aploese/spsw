@@ -645,6 +645,7 @@ JNHW_LIBTOOL_LIB_SUFFIX
 JNHW_LIB_SUFFIX
 JNHW_LIB_PREFIX
 JNHW_MULTIARCH_TUPEL
+JNHW_LIBTOOL_LIB_VERSION
 JNHW_VERSION
 JNHW_VERSION_INFO
 JNI_INCLUDE_FLAGS
@@ -13063,6 +13064,18 @@ done
 JNHW_VERSION_INFO="1:0:0"
 
 JNHW_VERSION="1"
+
+
+#todo generate automatically from JNHW_VERSION_INFO
+case "$host_os" in
+    openbsd*)
+        JNHW_LIBTOOL_LIB_VERSION="1.0"
+    ;;
+    *)
+        JNHW_LIBTOOL_LIB_VERSION="1"
+    ;;
+esac
+
 
 
 case "$host_os" in
