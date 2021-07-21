@@ -100,10 +100,6 @@ public abstract class AbstractSerialPortSocket<T extends AbstractSerialPortSocke
      */
     protected native int getParameters(int parameterBitSetMask) throws IOException;
 
-    protected native int getInSpeed0() throws IOException;
-
-    protected native int getOutSpeed0() throws IOException;
-
     @Override
     public native int getInBufferBytesCount() throws IOException;
 
@@ -120,9 +116,6 @@ public abstract class AbstractSerialPortSocket<T extends AbstractSerialPortSocke
      * @throws IOException
      */
     protected native void setParameters(int parameterBitSet) throws IOException;
-
-    protected native void setInSpeed0(int parameterBitSet) throws IOException;
-    protected native void setOutSpeed0(int parameterBitSet) throws IOException;
 
     @Override
     public native void setXOFFChar(char c) throws IOException;
@@ -823,16 +816,6 @@ public abstract class AbstractSerialPortSocket<T extends AbstractSerialPortSocke
     }
 
     @Override
-    public Speed getInSpeed() throws IOException {
-        return speedFromBitSet(getInSpeed0());
-    }
-
-    @Override
-    public Speed getOutSpeed() throws IOException {
-        return speedFromBitSet(getOutSpeed0());
-    }
-
-    @Override
     public DataBits getDatatBits() throws IOException {
         return dataBitsFromBitSet(getParameters(DATA_BITS_MASK));
     }
@@ -925,24 +908,6 @@ public abstract class AbstractSerialPortSocket<T extends AbstractSerialPortSocke
             setParameters(toBitSet(speed));
         } catch (IllegalArgumentException ex) {
             throw new IllegalArgumentException("Can't set speed " + speed + " on port: " + getPortName(), ex);
-        }
-    }
-
-    @Override
-    public void setInSpeed(Speed speed) throws IOException {
-        try {
-            setInSpeed0(toBitSet(speed));
-        } catch (IllegalArgumentException ex) {
-            throw new IllegalArgumentException("Can't set inSpeed " + speed + " on port: " + getPortName(), ex);
-        }
-    }
-
-    @Override
-    public void setOutSpeed(Speed speed) throws IOException {
-        try {
-            setOutSpeed0(toBitSet(speed));
-        } catch (IllegalArgumentException ex) {
-            throw new IllegalArgumentException("Can't set outSpeed " + speed + " on port: " + getPortName(), ex);
         }
     }
 

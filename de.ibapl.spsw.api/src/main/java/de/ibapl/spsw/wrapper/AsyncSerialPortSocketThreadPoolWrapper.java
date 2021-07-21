@@ -254,16 +254,6 @@ public class AsyncSerialPortSocketThreadPoolWrapper implements AsyncSerialPortSo
     }
 
     @Override
-    public Speed getInSpeed() throws IOException {
-        return serialPortSocket.getInSpeed();
-    }
-
-    @Override
-    public Speed getOutSpeed() throws IOException {
-        return serialPortSocket.getOutSpeed();
-    }
-
-    @Override
     public StopBits getStopBits() throws IOException {
         return serialPortSocket.getStopBits();
     }
@@ -351,16 +341,6 @@ public class AsyncSerialPortSocketThreadPoolWrapper implements AsyncSerialPortSo
     @Override
     public void setSpeed(Speed speed) throws IOException {
         serialPortSocket.setSpeed(speed);
-    }
-
-    @Override
-    public void setInSpeed(Speed speed) throws IOException {
-        serialPortSocket.setInSpeed(speed);
-    }
-
-    @Override
-    public void setOutSpeed(Speed speed) throws IOException {
-        serialPortSocket.setOutSpeed(speed);
     }
 
     @Override

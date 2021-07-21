@@ -347,32 +347,6 @@ public class LoggingSerialPortSocket implements SerialPortSocket, LogExplainRead
     }
 
     @Override
-    public Speed getInSpeed() throws IOException {
-        logWriter.beforeGetInSpeed(Instant.now());
-        try {
-            final Speed result = serialPortSocket.getInSpeed();
-            logWriter.afterGetInSpeed(Instant.now(), result);
-            return result;
-        } catch (IOException e) {
-            logWriter.afterGetInSpeed(Instant.now(), e);
-            throw e;
-        }
-    }
-
-    @Override
-    public Speed getOutSpeed() throws IOException {
-        logWriter.beforeGetOutSpeed(Instant.now());
-        try {
-            final Speed result = serialPortSocket.getOutSpeed();
-            logWriter.afterGetOutSpeed(Instant.now(), result);
-            return result;
-        } catch (IOException e) {
-            logWriter.afterGetOutSpeed(Instant.now(), e);
-            throw e;
-        }
-    }
-
-    @Override
     public DataBits getDatatBits() throws IOException {
         logWriter.beforeGetDatatBits(Instant.now());
         try {
@@ -648,30 +622,6 @@ public class LoggingSerialPortSocket implements SerialPortSocket, LogExplainRead
             logWriter.afterSetSpeed(Instant.now());
         } catch (IOException e) {
             logWriter.afterSetSpeed(Instant.now(), e);
-            throw e;
-        }
-    }
-
-    @Override
-    public void setInSpeed(Speed speed) throws IOException {
-        logWriter.beforeSetInSpeed(Instant.now(), speed);
-        try {
-            serialPortSocket.setInSpeed(speed);
-            logWriter.afterSetInSpeed(Instant.now());
-        } catch (IOException e) {
-            logWriter.afterSetInSpeed(Instant.now(), e);
-            throw e;
-        }
-    }
-
-    @Override
-    public void setOutSpeed(Speed speed) throws IOException {
-        logWriter.beforeSetOutSpeed(Instant.now(), speed);
-        try {
-            serialPortSocket.setOutSpeed(speed);
-            logWriter.afterSetOutSpeed(Instant.now());
-        } catch (IOException e) {
-            logWriter.afterSetOutSpeed(Instant.now(), e);
             throw e;
         }
     }

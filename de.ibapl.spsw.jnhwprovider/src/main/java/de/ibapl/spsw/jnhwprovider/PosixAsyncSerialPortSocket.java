@@ -51,6 +51,7 @@ import de.ibapl.spsw.api.AsyncSerialPortSocket;
 import de.ibapl.spsw.api.AsynchronousCancelException;
 import de.ibapl.spsw.api.DataBits;
 import de.ibapl.spsw.api.FlowControl;
+import de.ibapl.spsw.api.InOutSpeedConfiguration;
 import de.ibapl.spsw.api.Parity;
 import static de.ibapl.spsw.api.SerialPortConfiguration.PORT_FD_INVALID;
 import static de.ibapl.spsw.api.SerialPortConfiguration.PORT_IS_CLOSED;
@@ -76,7 +77,7 @@ import java.util.function.Consumer;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-public class PosixAsyncSerialPortSocket extends AbstractSerialPortSocket<PosixAsyncSerialPortSocket> implements AsyncSerialPortSocket {
+public class PosixAsyncSerialPortSocket extends AbstractSerialPortSocket<PosixAsyncSerialPortSocket> implements AsyncSerialPortSocket, InOutSpeedConfiguration {
 
     private static class FutureDone<V extends Object> implements Future<V> {
 

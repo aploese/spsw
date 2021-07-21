@@ -237,22 +237,6 @@ JNIEXPORT jint JNICALL Java_de_ibapl_spsw_jniprovider_AbstractSerialPortSocket_g
 
 /*
  * Class:     de_ibapl_spsw_jniprovider_AbstractSerialPortSocket
- * Method:    getInSpeed0
- * Signature: ()I
- */
-JNIEXPORT jint JNICALL Java_de_ibapl_spsw_jniprovider_AbstractSerialPortSocket_getInSpeed0
-  (JNIEnv *, jobject);
-
-/*
- * Class:     de_ibapl_spsw_jniprovider_AbstractSerialPortSocket
- * Method:    getOutSpeed0
- * Signature: ()I
- */
-JNIEXPORT jint JNICALL Java_de_ibapl_spsw_jniprovider_AbstractSerialPortSocket_getOutSpeed0
-  (JNIEnv *, jobject);
-
-/*
- * Class:     de_ibapl_spsw_jniprovider_AbstractSerialPortSocket
  * Method:    getInBufferBytesCount
  * Signature: ()I
  */
@@ -281,22 +265,6 @@ JNIEXPORT void JNICALL Java_de_ibapl_spsw_jniprovider_AbstractSerialPortSocket_s
  * Signature: (I)V
  */
 JNIEXPORT void JNICALL Java_de_ibapl_spsw_jniprovider_AbstractSerialPortSocket_setParameters
-  (JNIEnv *, jobject, jint);
-
-/*
- * Class:     de_ibapl_spsw_jniprovider_AbstractSerialPortSocket
- * Method:    setInSpeed0
- * Signature: (I)V
- */
-JNIEXPORT void JNICALL Java_de_ibapl_spsw_jniprovider_AbstractSerialPortSocket_setInSpeed0
-  (JNIEnv *, jobject, jint);
-
-/*
- * Class:     de_ibapl_spsw_jniprovider_AbstractSerialPortSocket
- * Method:    setOutSpeed0
- * Signature: (I)V
- */
-JNIEXPORT void JNICALL Java_de_ibapl_spsw_jniprovider_AbstractSerialPortSocket_setOutSpeed0
   (JNIEnv *, jobject, jint);
 
 /*

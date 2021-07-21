@@ -401,16 +401,6 @@ public class GenericWinSerialPortSocket extends StreamSerialPortSocket<GenericWi
         return getSpeed(getDCB());
     }
 
-    @Override
-    public Speed getInSpeed() throws IOException {
-        return getSpeed(getDCB());
-    }
-
-    @Override
-    public Speed getOutSpeed() throws IOException {
-        return getSpeed(getDCB());
-    }
-
     private Speed getSpeed(DCB dcb) throws IOException {
         switch (dcb.BaudRate()) {
             case 0:
@@ -930,16 +920,6 @@ public class GenericWinSerialPortSocket extends StreamSerialPortSocket<GenericWi
     @Override
     public void setSpeed(Speed speed) throws IOException {
         setParams(getDCB(), speed, null, null, null, null);
-    }
-
-    @Override
-    public void setInSpeed(Speed speed) throws IOException {
-        throw new IllegalArgumentException("Can't set input speed!");
-    }
-
-    @Override
-    public void setOutSpeed(Speed speed) throws IOException {
-        throw new IllegalArgumentException("Can't set input speed!");
     }
 
     @Override

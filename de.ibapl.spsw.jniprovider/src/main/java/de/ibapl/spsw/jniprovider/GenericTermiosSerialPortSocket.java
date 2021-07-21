@@ -23,6 +23,7 @@ package de.ibapl.spsw.jniprovider;
 
 import de.ibapl.spsw.api.DataBits;
 import de.ibapl.spsw.api.FlowControl;
+import de.ibapl.spsw.api.InOutSpeedConfiguration;
 import de.ibapl.spsw.api.Parity;
 import de.ibapl.spsw.api.Speed;
 import de.ibapl.spsw.api.StopBits;
@@ -38,7 +39,7 @@ import java.util.Set;
  * @author scream3r
  * @author Arne Plöse
  */
-public class GenericTermiosSerialPortSocket extends AbstractSerialPortSocket<GenericTermiosSerialPortSocket> {
+public class GenericTermiosSerialPortSocket extends AbstractSerialPortSocket<GenericTermiosSerialPortSocket> implements InOutSpeedConfiguration {
 
     private final static int INVALID_FD = -1;
     public final static Cleaner CLEANER = Cleaner.create();
@@ -104,7 +105,7 @@ public class GenericTermiosSerialPortSocket extends AbstractSerialPortSocket<Gen
         super.implCloseChannel();
         close0();
         fdCleaner.fd = INVALID_FD;
-        //leave the close_event_write_fd and close_event_read_fd open for now. So poll can digest the events... 
+        //leave the close_event_write_fd and close_event_read_fd open for now. So poll can digest the events...
         //closing close_event_write_fd and close_event_read_fd will be don by fdCleaner
     }
 
@@ -131,6 +132,20 @@ public class GenericTermiosSerialPortSocket extends AbstractSerialPortSocket<Gen
     @Override
     public int getOverallWriteTimeout() throws IOException {
         return pollWriteTimeout == -1 ? 0 : pollWriteTimeout;
+    }
+
+    private native int getInSpeed0() throws IOException;
+
+    private native int getOutSpeed0() throws IOException;
+
+    @Override
+    public Speed getInSpeed() throws IOException {
+        return speedFromBitSet(getInSpeed0());
+    }
+
+    @Override
+    public Speed getOutSpeed() throws IOException {
+        return speedFromBitSet(getOutSpeed0());
     }
 
     public native boolean isDTR() throws IOException;
@@ -161,6 +176,28 @@ public class GenericTermiosSerialPortSocket extends AbstractSerialPortSocket<Gen
         this.interByteReadTimeout = interByteReadTimeout;
         this.pollReadTimeout = overallReadTimeout == 0 ? -1 : overallReadTimeout;
         this.pollWriteTimeout = overallWriteTimeout == 0 ? -1 : overallWriteTimeout;
+    }
+
+    protected native void setInSpeed0(int parameterBitSet) throws IOException;
+
+    protected native void setOutSpeed0(int parameterBitSet) throws IOException;
+
+    @Override
+    public void setInSpeed(Speed speed) throws IOException {
+        try {
+            setInSpeed0(toBitSet(speed));
+        } catch (IllegalArgumentException ex) {
+            throw new IllegalArgumentException("Can't set inSpeed " + speed + " on port: " + getPortName(), ex);
+        }
+    }
+
+    @Override
+    public void setOutSpeed(Speed speed) throws IOException {
+        try {
+            setOutSpeed0(toBitSet(speed));
+        } catch (IllegalArgumentException ex) {
+            throw new IllegalArgumentException("Can't set outSpeed " + speed + " on port: " + getPortName(), ex);
+        }
     }
 
 }

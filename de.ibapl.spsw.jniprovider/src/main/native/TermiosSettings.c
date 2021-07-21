@@ -420,11 +420,11 @@ extern "C" {
     }
 
     /*
-     * Class:     de_ibapl_spsw_jniprovider_AbstractSerialPortSocket
+     * Class:     de_ibapl_spsw_jniprovider_GenericTermiosSerialPortSocket
      * Method:    getInSpeed0
      * Signature: ()I
      */
-    JNIEXPORT jint JNICALL Java_de_ibapl_spsw_jniprovider_AbstractSerialPortSocket_getInSpeed0
+    JNIEXPORT jint JNICALL Java_de_ibapl_spsw_jniprovider_GenericTermiosSerialPortSocket_getInSpeed0
     (JNIEnv *env, jobject sps) {
         int fd = (*env)->GetIntField(env, sps, spsw_fd);
         struct termios settings;
@@ -437,11 +437,11 @@ extern "C" {
     }
 
     /*
-     * Class:     de_ibapl_spsw_jniprovider_AbstractSerialPortSocket
+     * Class:     de_ibapl_spsw_jniprovider_GenericTermiosSerialPortSocket
      * Method:    getOutSpeed0
      * Signature: ()I
      */
-    JNIEXPORT jint JNICALL Java_de_ibapl_spsw_jniprovider_AbstractSerialPortSocket_getOutSpeed0
+    JNIEXPORT jint JNICALL Java_de_ibapl_spsw_jniprovider_GenericTermiosSerialPortSocket_getOutSpeed0
     (JNIEnv *env, jobject sps) {
         int fd = (*env)->GetIntField(env, sps, spsw_fd);
         struct termios settings;
@@ -676,11 +676,11 @@ extern "C" {
     }
 
     /*
-     * Class:     de_ibapl_spsw_jniprovider_AbstractSerialPortSocket
+     * Class:     de_ibapl_spsw_jniprovider_GenericTermiosSerialPortSocket
      * Method:    setInSpeed0
      * Signature: (I)V
      */
-    JNIEXPORT void JNICALL Java_de_ibapl_spsw_jniprovider_AbstractSerialPortSocket_setInSpeed0
+    JNIEXPORT void JNICALL Java_de_ibapl_spsw_jniprovider_GenericTermiosSerialPortSocket_setInSpeed0
     (JNIEnv *env, jobject sps, jint speedValue) {
         int fd = (*env)->GetIntField(env, sps, spsw_fd);
         struct termios settings;
@@ -725,11 +725,11 @@ extern "C" {
     }
 
     /*
-     * Class:     de_ibapl_spsw_jniprovider_AbstractSerialPortSocket
+     * Class:     de_ibapl_spsw_jniprovider_GenericTermiosSerialPortSocket
      * Method:    setOutSpeed0
      * Signature: (I)V
      */
-    JNIEXPORT void JNICALL Java_de_ibapl_spsw_jniprovider_AbstractSerialPortSocket_setOutSpeed0
+    JNIEXPORT void JNICALL Java_de_ibapl_spsw_jniprovider_GenericTermiosSerialPortSocket_setOutSpeed0
     (JNIEnv *env, jobject sps, jint speedValue) {
         int fd = (*env)->GetIntField(env, sps, spsw_fd);
         struct termios settings;

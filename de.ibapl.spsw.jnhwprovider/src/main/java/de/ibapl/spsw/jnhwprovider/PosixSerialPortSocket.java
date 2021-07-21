@@ -56,6 +56,7 @@ import de.ibapl.jnhw.util.posix.LibJnhwPosixLoader;
 import de.ibapl.spsw.api.AsynchronousCancelException;
 import de.ibapl.spsw.api.DataBits;
 import de.ibapl.spsw.api.FlowControl;
+import de.ibapl.spsw.api.InOutSpeedConfiguration;
 import de.ibapl.spsw.api.Parity;
 import de.ibapl.spsw.api.Speed;
 import de.ibapl.spsw.api.StopBits;
@@ -74,7 +75,7 @@ import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-public class PosixSerialPortSocket extends StreamSerialPortSocket<PosixSerialPortSocket> {
+public class PosixSerialPortSocket extends StreamSerialPortSocket<PosixSerialPortSocket> implements InOutSpeedConfiguration {
 
     private final static int POLL_INFINITE_TIMEOUT = -1;
 

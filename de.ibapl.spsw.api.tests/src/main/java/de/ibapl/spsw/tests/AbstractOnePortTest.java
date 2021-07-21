@@ -23,6 +23,7 @@ package de.ibapl.spsw.tests;
 
 import de.ibapl.spsw.api.DataBits;
 import de.ibapl.spsw.api.FlowControl;
+import de.ibapl.spsw.api.InOutSpeedConfiguration;
 import de.ibapl.spsw.api.Parity;
 import de.ibapl.spsw.api.SerialPortConfiguration;
 import de.ibapl.spsw.api.SerialPortSocket;
@@ -849,13 +850,18 @@ public abstract class AbstractOnePortTest extends AbstractPortTest {
             try {
                 readSpc.setSpeed(b);
                 //OpenBSD sets _0_BPS only for the outspeed!
-                Assertions.assertAll(
-                        () -> {
-                            assertEquals(b, readSpc.getOutSpeed(), "test outSpeed");
-                        },
-                        () -> {
-                            assertEquals(b, readSpc.getInSpeed(), "test inSpeed");
-                        });
+                if (readSpc instanceof InOutSpeedConfiguration) {
+                    Assertions.assertAll(
+                            () -> {
+                                assertEquals(b, ((InOutSpeedConfiguration) readSpc).getOutSpeed(), "test outSpeed");
+                            },
+                            () -> {
+                                assertEquals(b, ((InOutSpeedConfiguration) readSpc).getInSpeed(), "test inSpeed");
+                            });
+                } else {
+                    assertEquals(b, readSpc.getSpeed(), "test outSpeed");
+
+                }
             } catch (IllegalArgumentException iae) {
                 switch (b) {
                     case _0_BPS:
@@ -881,8 +887,14 @@ public abstract class AbstractOnePortTest extends AbstractPortTest {
                     case _3000000_BPS:
                     case _3500000_BPS:
                     case _4000000_BPS:
-                        if (b != readSpc.getOutSpeed() || b != readSpc.getInSpeed()) {
-                            LOG.warning("Can't set speed to " + b);
+                        if (readSpc instanceof InOutSpeedConfiguration) {
+                            if (b != ((InOutSpeedConfiguration) readSpc).getOutSpeed() || b != ((InOutSpeedConfiguration) readSpc).getInSpeed()) {
+                                LOG.warning("Can't set speed to " + b);
+                            }
+                        } else {
+                            if (b != readSpc.getSpeed()) {
+                                LOG.warning("Can't set speed to " + b);
+                            }
                         }
                         break;
                     default:

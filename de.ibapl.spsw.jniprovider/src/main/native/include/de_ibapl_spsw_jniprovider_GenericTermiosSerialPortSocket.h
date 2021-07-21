@@ -143,6 +143,22 @@ JNIEXPORT void JNICALL Java_de_ibapl_spsw_jniprovider_GenericTermiosSerialPortSo
 
 /*
  * Class:     de_ibapl_spsw_jniprovider_GenericTermiosSerialPortSocket
+ * Method:    getInSpeed0
+ * Signature: ()I
+ */
+JNIEXPORT jint JNICALL Java_de_ibapl_spsw_jniprovider_GenericTermiosSerialPortSocket_getInSpeed0
+  (JNIEnv *, jobject);
+
+/*
+ * Class:     de_ibapl_spsw_jniprovider_GenericTermiosSerialPortSocket
+ * Method:    getOutSpeed0
+ * Signature: ()I
+ */
+JNIEXPORT jint JNICALL Java_de_ibapl_spsw_jniprovider_GenericTermiosSerialPortSocket_getOutSpeed0
+  (JNIEnv *, jobject);
+
+/*
+ * Class:     de_ibapl_spsw_jniprovider_GenericTermiosSerialPortSocket
  * Method:    isDTR
  * Signature: ()Z
  */
@@ -172,6 +188,22 @@ JNIEXPORT void JNICALL Java_de_ibapl_spsw_jniprovider_GenericTermiosSerialPortSo
  */
 JNIEXPORT void JNICALL Java_de_ibapl_spsw_jniprovider_GenericTermiosSerialPortSocket_sendXON
   (JNIEnv *, jobject);
+
+/*
+ * Class:     de_ibapl_spsw_jniprovider_GenericTermiosSerialPortSocket
+ * Method:    setInSpeed0
+ * Signature: (I)V
+ */
+JNIEXPORT void JNICALL Java_de_ibapl_spsw_jniprovider_GenericTermiosSerialPortSocket_setInSpeed0
+  (JNIEnv *, jobject, jint);
+
+/*
+ * Class:     de_ibapl_spsw_jniprovider_GenericTermiosSerialPortSocket
+ * Method:    setOutSpeed0
+ * Signature: (I)V
+ */
+JNIEXPORT void JNICALL Java_de_ibapl_spsw_jniprovider_GenericTermiosSerialPortSocket_setOutSpeed0
+  (JNIEnv *, jobject, jint);
 
 #ifdef __cplusplus
 }
