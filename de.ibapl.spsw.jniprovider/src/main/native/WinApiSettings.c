@@ -532,7 +532,6 @@ extern "C" {
         return parameterBitSetMask;
     }
 
-    TODO impement In / OutSpeed
     /*
      * Class:     de_ibapl_spsw_jniprovider_AbstractSerialPortSocket
      * Method:    getXOFFChar
