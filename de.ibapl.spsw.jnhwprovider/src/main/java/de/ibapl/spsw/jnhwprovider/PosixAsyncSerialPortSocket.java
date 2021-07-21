@@ -694,6 +694,16 @@ public class PosixAsyncSerialPortSocket extends AbstractSerialPortSocket<PosixAs
     }
 
     @Override
+    public Speed getInSpeed() throws IOException {
+        return posixConfiguration.getInSpeed();
+    }
+
+    @Override
+    public Speed getOutSpeed() throws IOException {
+        return posixConfiguration.getOutSpeed();
+    }
+
+    @Override
     public StopBits getStopBits() throws IOException {
         return posixConfiguration.getStopBits();
     }
@@ -905,6 +915,16 @@ public class PosixAsyncSerialPortSocket extends AbstractSerialPortSocket<PosixAs
     @Override
     public void setSpeed(Speed speed) throws IOException {
         posixConfiguration.setParams(speed, null, null, null, null);
+    }
+
+    @Override
+    public void setInSpeed(Speed speed) throws IOException {
+        posixConfiguration.setInSpeed(speed);
+    }
+
+    @Override
+    public void setOutSpeed(Speed speed) throws IOException {
+        posixConfiguration.setOutSpeed(speed);
     }
 
     @Override

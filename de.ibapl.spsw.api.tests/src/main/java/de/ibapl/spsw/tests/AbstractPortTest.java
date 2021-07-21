@@ -81,7 +81,7 @@ public abstract class AbstractPortTest extends AbstractSerialPortSocketTest {
                             if (data >= 0) {
                                 recBuffer.put((byte) data);
                                 assertEquals(sendBuffer.get(currentRecOffset), recBuffer.get(currentRecOffset), () -> {
-                                    return String.format("Arrays differ @%d expected %02x, but was %02x", currentRecOffset, sendBuffer.get(currentRecOffset), recBuffer.get(currentRecOffset));
+                                    return String.format("Arrays differ @%d expected 0x%02x, but was 0x%02x", currentRecOffset, sendBuffer.get(currentRecOffset), recBuffer.get(currentRecOffset));
                                 });
                                 currentRecOffset++;
                             } else {
@@ -101,7 +101,7 @@ public abstract class AbstractPortTest extends AbstractSerialPortSocketTest {
                                 for (int i = 0; i < count; i++) {
                                     final int pos = currentRecOffset + i;
                                     assertEquals(sendBuffer.get(currentRecOffset), recBuffer.get(currentRecOffset), () -> {
-                                        return String.format("Arrays differ @%d expected %02x, but was %02x", pos,
+                                        return String.format("Arrays differ @%d expected 0x%02x, but was 0x%02x", pos,
                                                 sendBuffer.get(pos), recBuffer.get(pos));
                                     });
                                 }
@@ -128,7 +128,7 @@ public abstract class AbstractPortTest extends AbstractSerialPortSocketTest {
                                 for (int i = 0; i < count; i++) {
                                     final int pos = currentRecOffset + i;
                                     assertEquals(sendBuffer.get(pos), recBuffer.get(pos), () -> {
-                                        return String.format("Arrays differ @%d expected %02x, but was %02x", pos,
+                                        return String.format("Arrays differ @%d expected 0x%02x, but was 0x%02x", pos,
                                                 sendBuffer.get(pos), recBuffer.get(pos));
                                     });
                                 }

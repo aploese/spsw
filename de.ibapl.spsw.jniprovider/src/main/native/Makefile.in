@@ -91,11 +91,12 @@ host_triplet = @host@
 subdir = src/main/native
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
 am__aclocal_m4_deps = $(top_srcdir)/m4/ax_jni_include_dir.m4 \
-	$(top_srcdir)/m4/jw_lib_prefix_suffix.m4 \
-	$(top_srcdir)/m4/jw_multiarchtupel.m4 \
 	$(top_srcdir)/m4/libtool.m4 $(top_srcdir)/m4/ltoptions.m4 \
 	$(top_srcdir)/m4/ltsugar.m4 $(top_srcdir)/m4/ltversion.m4 \
-	$(top_srcdir)/m4/lt~obsolete.m4 $(top_srcdir)/configure.ac
+	$(top_srcdir)/m4/lt~obsolete.m4 \
+	$(top_srcdir)/m4/sw_lib_prefix_suffix.m4 \
+	$(top_srcdir)/m4/sw_multiarchtupel.m4 \
+	$(top_srcdir)/configure.ac
 am__configure_deps = $(am__aclocal_m4_deps) $(CONFIGURE_DEPENDENCIES) \
 	$(ACLOCAL_M4)
 DIST_COMMON = $(srcdir)/Makefile.am $(am__DIST_COMMON)
@@ -256,15 +257,6 @@ INSTALL_DATA = @INSTALL_DATA@
 INSTALL_PROGRAM = @INSTALL_PROGRAM@
 INSTALL_SCRIPT = @INSTALL_SCRIPT@
 INSTALL_STRIP_PROGRAM = @INSTALL_STRIP_PROGRAM@
-JNHW_LIBTOOL_LIB_SUFFIX = @JNHW_LIBTOOL_LIB_SUFFIX@
-JNHW_LIBTOOL_LIB_VERSION = @JNHW_LIBTOOL_LIB_VERSION@
-JNHW_LIB_PREFIX = @JNHW_LIB_PREFIX@
-JNHW_LIB_SUFFIX = @JNHW_LIB_SUFFIX@
-JNHW_MULTIARCH_TUPEL = @JNHW_MULTIARCH_TUPEL@
-JNHW_RESOURCES_DIR = @JNHW_RESOURCES_DIR@
-JNHW_STRIP_FLAG = @JNHW_STRIP_FLAG@
-JNHW_VERSION = @JNHW_VERSION@
-JNHW_VERSION_INFO = @JNHW_VERSION_INFO@
 JNI_HEADER_DIR = @JNI_HEADER_DIR@
 JNI_INCLUDE_DIRS = @JNI_INCLUDE_DIRS@
 JNI_INCLUDE_FLAGS = @JNI_INCLUDE_FLAGS@
@@ -299,6 +291,15 @@ RANLIB = @RANLIB@
 SED = @SED@
 SET_MAKE = @SET_MAKE@
 SHELL = @SHELL@
+SPSW_LIBTOOL_LIB_SUFFIX = @SPSW_LIBTOOL_LIB_SUFFIX@
+SPSW_LIBTOOL_LIB_VERSION = @SPSW_LIBTOOL_LIB_VERSION@
+SPSW_LIB_PREFIX = @SPSW_LIB_PREFIX@
+SPSW_LIB_SUFFIX = @SPSW_LIB_SUFFIX@
+SPSW_MULTIARCH_TUPEL = @SPSW_MULTIARCH_TUPEL@
+SPSW_RESOURCES_DIR = @SPSW_RESOURCES_DIR@
+SPSW_STRIP_FLAG = @SPSW_STRIP_FLAG@
+SPSW_VERSION = @SPSW_VERSION@
+SPSW_VERSION_INFO = @SPSW_VERSION_INFO@
 STRIP = @STRIP@
 VERSION = @VERSION@
 _ACJNI_JAVAC = @_ACJNI_JAVAC@
@@ -357,9 +358,9 @@ top_builddir = @top_builddir@
 top_srcdir = @top_srcdir@
 AM_CPPFLAGS = @JNI_INCLUDE_FLAGS@ -I @JNI_HEADER_DIR@
 AM_CFLAGS = -Wall -Wextra -Wconversion -Werror
-AM_LDFLAGS = -no-undefined -version-info @JNHW_VERSION_INFO@
-LIB_SPSW_NAME = @JNHW_LIB_PREFIX@spsw@JNHW_LIBTOOL_LIB_SUFFIX@
-LIB_SPSW_RES_NAME = @JNHW_RESOURCES_DIR@/@JNHW_LIB_PREFIX@spsw@JNHW_LIB_SUFFIX@
+AM_LDFLAGS = -no-undefined -version-info @SPSW_VERSION_INFO@
+LIB_SPSW_NAME = @SPSW_LIB_PREFIX@spsw@SPSW_LIBTOOL_LIB_SUFFIX@
+LIB_SPSW_RES_NAME = @SPSW_RESOURCES_DIR@/@SPSW_LIB_PREFIX@spsw@SPSW_LIB_SUFFIX@
 lib_LTLIBRARIES = libspsw.la
 @USE_WIN_API_FALSE@noinst_LTLIBRARIES = libtermios-spsw.la
 @USE_WIN_API_TRUE@noinst_LTLIBRARIES = libwin-api-spsw.la
@@ -750,12 +751,12 @@ uninstall-am: uninstall-libLTLIBRARIES
 #hook into make all
 all-local: $(LIB_SPSW_RES_NAME)
 
-install-jnhw-resources: $(LIB_SPSW_RES_NAME)
+install-spsw-resources: $(LIB_SPSW_RES_NAME)
 
 $(LIB_SPSW_RES_NAME): libspsw.la
-	$(MKDIR_P) @JNHW_RESOURCES_DIR@
+	$(MKDIR_P) @SPSW_RESOURCES_DIR@
 	cp ./.libs/$(LIB_SPSW_NAME) $(LIB_SPSW_RES_NAME)
-	$(STRIP) $(JNHW_STRIP_FLAG) $(LIB_SPSW_RES_NAME)
+	$(STRIP) $(SPSW_STRIP_FLAG) $(LIB_SPSW_RES_NAME)
 
 # Tell versions [3.59,3.63) of GNU make to not export all variables.
 # Otherwise a system limit (for SysV at least) may be exceeded.

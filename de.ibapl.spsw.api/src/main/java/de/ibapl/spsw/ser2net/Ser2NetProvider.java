@@ -354,6 +354,16 @@ public class Ser2NetProvider extends AbstractInterruptibleChannel implements Ser
     }
 
     @Override
+    public void setInSpeed(Speed speed) throws IOException {
+        throw new IllegalArgumentException("Can't set input speed!");
+    }
+
+    @Override
+    public void setOutSpeed(Speed speed) throws IOException {
+        throw new IllegalArgumentException("Can't set input speed!");
+    }
+
+    @Override
     public void setDataBits(DataBits dataBits) throws IOException {
         ensureOpen();
         this.dataBits = dataBits;
@@ -373,6 +383,18 @@ public class Ser2NetProvider extends AbstractInterruptibleChannel implements Ser
 
     @Override
     public Speed getSpeed() throws IOException {
+        ensureOpen();
+        return speed;
+    }
+
+    @Override
+    public Speed getInSpeed() throws IOException {
+        ensureOpen();
+        return speed;
+    }
+
+    @Override
+    public Speed getOutSpeed() throws IOException {
         ensureOpen();
         return speed;
     }

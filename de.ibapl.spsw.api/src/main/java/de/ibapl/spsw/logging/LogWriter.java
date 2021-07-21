@@ -132,6 +132,34 @@ public class LogWriter {
         log.flush();
     }
 
+    void afterGetInSpeed(Instant ts, Speed result) {
+        if (!verbose) {
+            return;
+        }
+        log.append(formatTs(ts)).append("SP").append(ACION_RETURN).append(" getInSpeed:\t").println(result);
+        log.flush();
+    }
+
+    void afterGetInSpeed(Instant ts, IOException e) {
+        log.append(formatTs(ts)).append("SP").append(ACION_RETURN).append(" getInSpeed:\t").println(e.toString());
+        e.printStackTrace(log);
+        log.flush();
+    }
+
+    void afterGetOutSpeed(Instant ts, Speed result) {
+        if (!verbose) {
+            return;
+        }
+        log.append(formatTs(ts)).append("SP").append(ACION_RETURN).append(" getOutSpeed:\t").println(result);
+        log.flush();
+    }
+
+    void afterGetOutSpeed(Instant ts, IOException e) {
+        log.append(formatTs(ts)).append("SP").append(ACION_RETURN).append(" getOutSpeed:\t").println(e.toString());
+        e.printStackTrace(log);
+        log.flush();
+    }
+
     void afterGetDatatBits(Instant ts, DataBits result) {
         if (!verbose) {
             return;
@@ -537,6 +565,34 @@ public class LogWriter {
         log.flush();
     }
 
+    void afterSetInSpeed(Instant ts) {
+        if (!verbose) {
+            return;
+        }
+        log.append(formatTs(ts)).append("SP").append(ACION_RETURN).println(" setInSpeed");
+        log.flush();
+    }
+
+    void afterSetInSpeed(Instant ts, IOException e) {
+        log.append(formatTs(ts)).append("SP").append(ACION_RETURN).append(" setInSpeed:\t").println(e.toString());
+        e.printStackTrace(log);
+        log.flush();
+    }
+
+    void afterSetOutSpeed(Instant ts) {
+        if (!verbose) {
+            return;
+        }
+        log.append(formatTs(ts)).append("SP").append(ACION_RETURN).println(" setOutSpeed");
+        log.flush();
+    }
+
+    void afterSetOutSpeed(Instant ts, IOException e) {
+        log.append(formatTs(ts)).append("SP").append(ACION_RETURN).append(" setOutSpeed:\t").println(e.toString());
+        e.printStackTrace(log);
+        log.flush();
+    }
+
     void afterSetBreak(Instant ts) {
         if (!verbose) {
             return;
@@ -836,6 +892,22 @@ public class LogWriter {
         log.flush();
     }
 
+    void beforeGetInSpeed(Instant ts) {
+        if (!verbose) {
+            return;
+        }
+        log.append(formatTs(ts)).append("SP").append(ACION_CALL).println(" getInSpeed");
+        log.flush();
+    }
+
+    void beforeGetOutSpeed(Instant ts) {
+        if (!verbose) {
+            return;
+        }
+        log.append(formatTs(ts)).append("SP").append(ACION_CALL).println(" getOutSpeed");
+        log.flush();
+    }
+
     void beforeGetDatatBits(Instant ts) {
         if (!verbose) {
             return;
@@ -1006,6 +1078,16 @@ public class LogWriter {
 
     void beforeSetSpeed(Instant ts, Speed value) {
         log.append(formatTs(ts)).append("SP").append(ACION_CALL).append(" setSpeed:\t").println(value);
+        log.flush();
+    }
+
+    void beforeSetInSpeed(Instant ts, Speed value) {
+        log.append(formatTs(ts)).append("SP").append(ACION_CALL).append(" setInSpeed:\t").println(value);
+        log.flush();
+    }
+
+    void beforeSetOutSpeed(Instant ts, Speed value) {
+        log.append(formatTs(ts)).append("SP").append(ACION_CALL).append(" setOutSpeed:\t").println(value);
         log.flush();
     }
 

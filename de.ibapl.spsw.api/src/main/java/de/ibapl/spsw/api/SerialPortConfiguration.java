@@ -282,6 +282,20 @@ public interface SerialPortConfiguration extends Channel {
     Speed getSpeed() throws IOException;
 
     /**
+     *
+     * @return the input speed
+     * @throws IOException
+     */
+    Speed getInSpeed() throws IOException;
+
+    /**
+     *
+     * @return the output speed
+     * @throws IOException
+     */
+    Speed getOutSpeed() throws IOException;
+
+    /**
      * Read the number of stop bits from the port.
      *
      * @return the current number of stop bits.
@@ -456,6 +470,22 @@ public interface SerialPortConfiguration extends Channel {
      * speed.
      */
     void setSpeed(Speed speed) throws IOException;
+
+    /**
+     * 
+     * @param speed
+     * @throws IOException 
+     * @throws IllegalArgumentException it the input speed can't be set separately.
+     */
+    void setInSpeed(Speed speed) throws IOException, IllegalArgumentException;
+
+    /**
+     * 
+     * @param speed
+     * @throws IOException 
+     * @throws IllegalArgumentException it the output speed can't be set separately.
+     */
+    void setOutSpeed(Speed speed) throws IOException, IllegalArgumentException;
 
     /**
      * Write the number of stop bits to the port. <br>

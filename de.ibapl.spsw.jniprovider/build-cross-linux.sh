@@ -26,6 +26,7 @@ for d in\
  "mips64-linux-gnuabi64"\
  "mips64el-linux-gnuabi64"\
  "powerpc64le-linux-gnu"\
+ "riscv64-linux-gnu"\
  "s390x-linux-gnu"
 do
 export CC=$d-gcc

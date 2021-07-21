@@ -1,5 +1,5 @@
 
 SUBDIRS = native
 
-install-jnhw-resources:
-	cd src && $(MAKE) install-jnhw-resources
+install-spsw-resources:
+	cd src && $(MAKE) install-spsw-resources

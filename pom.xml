@@ -4,7 +4,7 @@
     <groupId>de.ibapl.spsw</groupId>
     <artifactId>spsw-project</artifactId>
     <packaging>pom</packaging>
-    <version>3.0.2-SNAPSHOT</version>
+    <version>3.1.0-SNAPSHOT</version>
     <name>SPSW</name>
     <url>https://github.com/aploese/spsw</url>
     <inceptionYear>2009</inceptionYear>
@@ -159,19 +159,19 @@
             <dependency>
                 <groupId>org.junit.jupiter</groupId>
                 <artifactId>junit-jupiter-api</artifactId>
-                <version>5.7.1</version>
+                <version>5.7.2</version>
                 <scope>test</scope>
             </dependency>
             <dependency>
                 <groupId>org.junit.jupiter</groupId>
                 <artifactId>junit-jupiter-engine</artifactId>
-                <version>5.7.1</version>
+                <version>5.7.2</version>
                 <scope>test</scope>
             </dependency>
             <dependency>
                 <groupId>org.junit.jupiter</groupId>
                 <artifactId>junit-jupiter-params</artifactId>
-                <version>5.7.1</version>
+                <version>5.7.2</version>
                 <scope>test</scope>
             </dependency>
         </dependencies>
@@ -199,7 +199,7 @@
                 <plugin>
                     <groupId>com.mycila</groupId>
                     <artifactId>license-maven-plugin</artifactId>
-                    <version>3.0</version>
+                    <version>4.1</version>
                 </plugin>
 
                 <plugin>
@@ -215,7 +215,7 @@
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-release-plugin</artifactId>
-                    <version>2.5.3</version>
+                    <version>3.0.0-M4</version>
                     <configuration>
                         <localCheckout>true</localCheckout>
                         <pushChanges>false</pushChanges>
@@ -224,7 +224,7 @@
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-gpg-plugin</artifactId>
-                    <version>1.6</version>
+                    <version>3.0.1</version>
                     <executions>
                         <execution>
                             <id>sign-artifacts</id>
@@ -239,7 +239,7 @@
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-javadoc-plugin</artifactId>
-                    <version>3.2.0</version>
+                    <version>3.3.0</version>
                 </plugin>
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
@@ -275,7 +275,7 @@
                 <plugin>
                     <groupId>com.github.spotbugs</groupId>
                     <artifactId>spotbugs-maven-plugin</artifactId>
-                    <version>4.2.2</version>
+                    <version>4.3.0</version>
                 </plugin>
             </plugins>
 
@@ -358,6 +358,7 @@
                             </includes>
                             <excludes>
                                 <exclude>**/jni-includes/**</exclude>
+                                <exclude>**/.ccls-cache/**</exclude>
                                 <exclude>de.ibapl.spsw.jniprovider/config.h</exclude>
                                 <exclude>de.ibapl.spsw.jniprovider/src/main/native/include/*.h</exclude>
                             </excludes>

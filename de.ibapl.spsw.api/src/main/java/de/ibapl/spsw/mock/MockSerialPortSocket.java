@@ -318,6 +318,18 @@ public class MockSerialPortSocket extends AbstractInterruptibleChannel implement
     }
 
     @Override
+    public Speed getInSpeed() throws IOException {
+        ensureOpen();
+        return speed;
+    }
+
+    @Override
+    public Speed getOutSpeed() throws IOException {
+        ensureOpen();
+        return speed;
+    }
+
+    @Override
     public DataBits getDatatBits() throws IOException {
         ensureOpen();
         return dataBits;
@@ -474,6 +486,16 @@ public class MockSerialPortSocket extends AbstractInterruptibleChannel implement
     public void setSpeed(Speed speed) throws IOException {
         ensureOpen();
         this.speed = speed;
+    }
+
+    @Override
+    public void setInSpeed(Speed speed) throws IOException {
+        throw new IllegalArgumentException("Can't set input speed!");
+    }
+
+    @Override
+    public void setOutSpeed(Speed speed) throws IOException {
+        throw new IllegalArgumentException("Can't set input speed!");
     }
 
     @Override

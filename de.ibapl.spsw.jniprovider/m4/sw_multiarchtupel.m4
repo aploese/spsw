@@ -1,12 +1,12 @@
-AC_DEFUN([JW_MULTIARCHTUPEL],
+AC_DEFUN([SW_MULTIARCHTUPEL],
 [case "$host_os" in
     mingw32*)
         case "$host_cpu" in
             x86_64)
-                JNHW_MULTIARCH_TUPEL="x86_64-windows-pe32+"
+                SPSW_MULTIARCH_TUPEL="x86_64-windows-pe32+"
             ;;
             i686)
-                JNHW_MULTIARCH_TUPEL="x86-windows-pe32"
+                SPSW_MULTIARCH_TUPEL="x86-windows-pe32"
             ;;
             *)
                 fail Unknown CPU
@@ -16,7 +16,7 @@ AC_DEFUN([JW_MULTIARCHTUPEL],
     darwin*)
 	case "$host_cpu" in
 	x86_64)
-        	JNHW_MULTIARCH_TUPEL="x86_64-darwin-bsd"
+        	SPSW_MULTIARCH_TUPEL="x86_64-darwin-bsd"
 	;;
 	*)
         	fail not supported
@@ -26,7 +26,7 @@ AC_DEFUN([JW_MULTIARCHTUPEL],
     freebsd*)
 	case "$host_cpu" in
 	x86_64)
-        	JNHW_MULTIARCH_TUPEL="x86_64-freebsd-bsd"
+        	SPSW_MULTIARCH_TUPEL="x86_64-freebsd-bsd"
 	;;
 	*)
         	fail not supported
@@ -36,10 +36,10 @@ AC_DEFUN([JW_MULTIARCHTUPEL],
     openbsd*)
 	case "$host_cpu" in
 	x86_64)
-        	JNHW_MULTIARCH_TUPEL="x86_64-openbsd-bsd"
+        	SPSW_MULTIARCH_TUPEL="x86_64-openbsd-bsd"
 	;;
 	aarch64)
-        	JNHW_MULTIARCH_TUPEL="aarch64-openbsd-bsd"
+        	SPSW_MULTIARCH_TUPEL="aarch64-openbsd-bsd"
 	;;
 	*)
         	fail not supported
@@ -49,18 +49,18 @@ AC_DEFUN([JW_MULTIARCHTUPEL],
     *)
 	case "$host_cpu" in
 	i686)
-        	JNHW_MULTIARCH_TUPEL="i386-\$(host_os)"
+        	SPSW_MULTIARCH_TUPEL="i386-\$(host_os)"
 	;;
 	arm*)
-		JNHW_MULTIARCH_TUPEL="arm-\$(host_os)"
+		SPSW_MULTIARCH_TUPEL="arm-\$(host_os)"
 	;;
 	*)
-        	JNHW_MULTIARCH_TUPEL="\$(host_cpu)-\$(host_os)"
+        	SPSW_MULTIARCH_TUPEL="\$(host_cpu)-\$(host_os)"
 	;;
 	esac
     ;;
 esac
 
-AC_SUBST(JNHW_MULTIARCH_TUPEL)
+AC_SUBST(SPSW_MULTIARCH_TUPEL)
 
 ])

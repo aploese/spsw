@@ -315,6 +315,48 @@ extern "C" {
 
     }
 
+    /*
+     * Class:     de_ibapl_spsw_jniprovider_AbstractSerialPortSocket
+     * Method:    getInSpeed0
+     * Signature: ()I
+     */
+    JNIEXPORT jint JNICALL Java_de_ibapl_spsw_jniprovider_AbstractSerialPortSocket_getInSpeed0
+    (JNIEnv *env, jobject sps) {
+        jint result = 0;
+        DCB dcb;
+        dcb.DCBlength = sizeof (DCB);
+
+        HANDLE hFile = (HANDLE) (uintptr_t) (*env)->GetLongField(env, sps, spsw_fd);
+
+        if (!GetCommState(hFile, &dcb)) {
+            throw_ClosedOrNativeException(env, sps, "getInSpeed0 GetCommState");
+            return -1;
+        }
+
+        return DCB_BaudrateToSpswSpeed(env, dcb.BaudRate);
+    }
+
+    /*
+     * Class:     de_ibapl_spsw_jniprovider_AbstractSerialPortSocket
+     * Method:    getOutSpeed0
+     * Signature: ()I
+     */
+    JNIEXPORT jint JNICALL Java_de_ibapl_spsw_jniprovider_AbstractSerialPortSocket_getOutSpeed0
+    (JNIEnv *env, jobject sps) {
+        jint result = 0;
+        DCB dcb;
+        dcb.DCBlength = sizeof (DCB);
+
+        HANDLE hFile = (HANDLE) (uintptr_t) (*env)->GetLongField(env, sps, spsw_fd);
+
+        if (!GetCommState(hFile, &dcb)) {
+            throw_ClosedOrNativeException(env, sps, "getOutSpeed0 GetCommState");
+            return -1;
+        }
+
+        return DCB_BaudrateToSpswSpeed(env, dcb.BaudRate);
+    }
+
     int setParams(JNIEnv *env, jobject sps, DCB *dcb, jint paramBitSet) {
 
         //Speed
@@ -521,6 +563,28 @@ extern "C" {
 
     /*
      * Class:     de_ibapl_spsw_jniprovider_AbstractSerialPortSocket
+     * Method:    setInSpeed0
+     * Signature: (I)V
+     */
+    JNIEXPORT void JNICALL Java_de_ibapl_spsw_jniprovider_AbstractSerialPortSocket_setInSpeed0
+    (JNIEnv *env, jobject sps, jint speedValue) {
+        IllegalArgumentException("Can't set input speed!");
+        return -1;
+    }
+
+    /*
+     * Class:     de_ibapl_spsw_jniprovider_AbstractSerialPortSocket
+     * Method:    setOutSpeed0
+     * Signature: (I)V
+     */
+    JNIEXPORT void JNICALL Java_de_ibapl_spsw_jniprovider_AbstractSerialPortSocket_setOutSpeed0
+    (JNIEnv *env, jobject sps, jint speedValue) {
+        IllegalArgumentException("Can't set output speed!");
+        return -1;
+    }
+
+    /*
+     * Class:     de_ibapl_spsw_jniprovider_AbstractSerialPortSocket
      * Method:    getParameters
      * Signature: (I)I
      */
@@ -532,6 +596,7 @@ extern "C" {
         return parameterBitSetMask;
     }
 
+    TODO impement In / OutSpeed
     /*
      * Class:     de_ibapl_spsw_jniprovider_AbstractSerialPortSocket
      * Method:    getXOFFChar

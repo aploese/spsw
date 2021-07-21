@@ -47,8 +47,8 @@ public class PortConfigurationFactory {
         private DataBits dataBits = DataBits.DB_8;
         private Set<FlowControl> flowControl = FlowControl.getFC_NONE(); // getFC_RTS_CTS();
         private int interByteReadTimeout = 100;
-        private int overallReadTimeout = 2000;
-        private int overallWriteTimeout = 2000;
+        private int overallReadTimeout = 3000;
+        private int overallWriteTimeout = 3000;
         private Parity parity = Parity.NONE;
         private Speed speed = Speed._9600_BPS;
         private StopBits stopBits = StopBits.SB_1;

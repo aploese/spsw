@@ -31,11 +31,9 @@ import de.ibapl.spsw.api.StopBits;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.util.Set;
-import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
-import java.util.concurrent.FutureTask;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
@@ -256,6 +254,16 @@ public class AsyncSerialPortSocketThreadPoolWrapper implements AsyncSerialPortSo
     }
 
     @Override
+    public Speed getInSpeed() throws IOException {
+        return serialPortSocket.getInSpeed();
+    }
+
+    @Override
+    public Speed getOutSpeed() throws IOException {
+        return serialPortSocket.getOutSpeed();
+    }
+
+    @Override
     public StopBits getStopBits() throws IOException {
         return serialPortSocket.getStopBits();
     }
@@ -343,6 +351,16 @@ public class AsyncSerialPortSocketThreadPoolWrapper implements AsyncSerialPortSo
     @Override
     public void setSpeed(Speed speed) throws IOException {
         serialPortSocket.setSpeed(speed);
+    }
+
+    @Override
+    public void setInSpeed(Speed speed) throws IOException {
+        serialPortSocket.setInSpeed(speed);
+    }
+
+    @Override
+    public void setOutSpeed(Speed speed) throws IOException {
+        serialPortSocket.setOutSpeed(speed);
     }
 
     @Override

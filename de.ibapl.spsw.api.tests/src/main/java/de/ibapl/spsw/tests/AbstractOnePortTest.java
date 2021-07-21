@@ -21,7 +21,6 @@
  */
 package de.ibapl.spsw.tests;
 
-import de.ibapl.jnhw.libloader.MultiarchTupelBuilder;
 import de.ibapl.spsw.api.DataBits;
 import de.ibapl.spsw.api.FlowControl;
 import de.ibapl.spsw.api.Parity;
@@ -48,6 +47,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 import org.junit.jupiter.api.Assertions;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -59,8 +59,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 import static org.junit.jupiter.api.Assumptions.assumeTrue;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.condition.EnabledOnOs;
-import org.junit.jupiter.api.condition.OS;
+import org.junit.jupiter.api.Timeout;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.EnumSource;
 import org.junit.jupiter.params.provider.MethodSource;
@@ -93,36 +92,22 @@ public abstract class AbstractOnePortTest extends AbstractPortTest {
 
         testFlowControl(EnumSet.of(FlowControl.XON_XOFF_IN));
         testFlowControl(EnumSet.of(FlowControl.XON_XOFF_OUT));
-    }
-
-    @BaselineTest
-    @Test
-    @EnabledOnOs({OS.LINUX})
-    public void testFlowControl_LINUX() throws Exception {
-        assumeWTest();
-        LOG.log(Level.INFO, "run testFlowControl");
-        openDefault();
-
-        IllegalArgumentException iae = assertThrows(IllegalArgumentException.class, () -> {
-            testFlowControl(EnumSet.of(FlowControl.RTS_CTS_IN));
-        });
-        assertEquals("Can only set RTS/CTS for both in and out", iae.getMessage());
-        iae = assertThrows(IllegalArgumentException.class, () -> {
-            testFlowControl(EnumSet.of(FlowControl.RTS_CTS_OUT));
-        });
-        assertEquals("Can only set RTS/CTS for both in and out", iae.getMessage());
-    }
-
-    @BaselineTest
-    @Test
-    @EnabledOnOs({OS.WINDOWS})
-    public void testFlowControl_WINDOWS() throws Exception {
-        assumeWTest();
-        LOG.log(Level.INFO, "run testFlowControl");
-        openDefault();
-
-        testFlowControl(EnumSet.of(FlowControl.RTS_CTS_IN));
-        testFlowControl(EnumSet.of(FlowControl.RTS_CTS_OUT));
+        switch (MULTIARCHTUPEL_BUILDER.getOS()) {
+            case WINDOWS:
+                testFlowControl(EnumSet.of(FlowControl.RTS_CTS_IN));
+                testFlowControl(EnumSet.of(FlowControl.RTS_CTS_OUT));
+                break;
+            case LINUX:
+            default:
+                IllegalArgumentException iae = assertThrows(IllegalArgumentException.class, () -> {
+                    testFlowControl(EnumSet.of(FlowControl.RTS_CTS_IN));
+                });
+                assertEquals("Can only set RTS/CTS for both in and out", iae.getMessage());
+                iae = assertThrows(IllegalArgumentException.class, () -> {
+                    testFlowControl(EnumSet.of(FlowControl.RTS_CTS_OUT));
+                });
+                assertEquals("Can only set RTS/CTS for both in and out", iae.getMessage());
+        }
     }
 
     @BaselineTest
@@ -539,14 +524,30 @@ public abstract class AbstractOnePortTest extends AbstractPortTest {
     private final static int _16MB = 1024 * 1024 * 16;
     private final static int _1MB = 1024 * 1024; // Too much for FTDI on Windows there is nothing sent...
     private final static int _256kB = 1024 * 256;
+    private final static int _8kB = 1024 * 8;
 
     @BaselineTest
     @Test
+    @Timeout(unit = TimeUnit.MINUTES, value = 1)
+    public void testWrite8kBChunkInfiniteWrite() throws Exception {
+        writeChunk(_8kB, Speed._230400_BPS, 0);
+    }
+
+    @BaselineTest
+    @Test
+    public void write8kBChunk() throws Exception {
+        writeChunk(_8kB, Speed._230400_BPS, 1000 + 2 * SerialPortConfiguration.calculateMillisForCharacters(_8kB,
+                Speed._230400_BPS, DataBits.DB_8, StopBits.SB_1, Parity.NONE));
+    }
+
+    @NotSupportedByAllDevices
+    @Test
+    @Timeout(unit = TimeUnit.MINUTES, value = 1)
     public void testWrite256kBChunkInfiniteWrite() throws Exception {
         writeChunk(_256kB, Speed._230400_BPS, 0);
     }
 
-    @BaselineTest
+    @NotSupportedByAllDevices
     @Test
     public void write256kBChunk() throws Exception {
         writeChunk(_256kB, Speed._230400_BPS, 1000 + 2 * SerialPortConfiguration.calculateMillisForCharacters(_256kB,
@@ -555,6 +556,7 @@ public abstract class AbstractOnePortTest extends AbstractPortTest {
 
     @NotSupportedByAllDevices
     @Test
+    @Timeout(unit = TimeUnit.MINUTES, value = 2)
     public void testWrite1MBChunkInfiniteWrite() throws Exception {
         writeChunk(_1MB, Speed._1000000_BPS, 0);
     }
@@ -574,6 +576,7 @@ public abstract class AbstractOnePortTest extends AbstractPortTest {
      */
     @NotSupportedByAllDevices
     @Test
+    @Timeout(unit = TimeUnit.MINUTES, value = 4)
     public void testWrite16MBChunkInfiniteWrite() throws Exception {
         writeChunk(_16MB, Speed._1000000_BPS, 0);
     }
@@ -593,11 +596,10 @@ public abstract class AbstractOnePortTest extends AbstractPortTest {
 
     public void writeChunk(int chunksize, Speed speed, int writeTimeout) throws Exception {
         assumeWTest();
-        LOG.log(Level.INFO, "run testWriteBytesTimeout writeTO: {0} speed: {1} chunksize: {2}", new Object[]{writeTimeout, speed, chunksize});
-        if (writeTimeout == -1) {
-            LOG.log(Level.INFO, "infinite timeout");
+        if (writeTimeout == SerialPortSocket.INFINITE_TIMEOUT) {
+            LOG.log(Level.INFO, "run testWriteBytesTimeout writeTO: INFINITE_TIMEOUT speed: {1} chunksize: {2}", new Object[]{speed, chunksize});
         } else {
-            LOG.log(Level.INFO, "timeout in ms:" + writeTimeout);
+            LOG.log(Level.INFO, "run testWriteBytesTimeout writeTO: {0} speed: {1} chunksize: {2}", new Object[]{writeTimeout, speed, chunksize});
         }
 
         // Set a high speed to speed up things
@@ -607,9 +609,13 @@ public abstract class AbstractOnePortTest extends AbstractPortTest {
         byte[] data = new byte[chunksize];
         int dataWritten = 0;
         try {
-            assertTimeoutPreemptively(Duration.ofMillis(writeSpc.calculateMillisForCharacters(data.length * 2)), () -> {
+            if (writeTimeout == SerialPortSocket.INFINITE_TIMEOUT) {
                 writeSpc.getOutputStream().write(data);
-            });
+            } else {
+                assertTimeoutPreemptively(Duration.ofMillis(writeSpc.calculateMillisForCharacters(data.length * 2)), () -> {
+                    writeSpc.getOutputStream().write(data);
+                });
+            }
             dataWritten = data.length;
         } catch (TimeoutIOException e) {
             dataWritten = e.bytesTransferred;
@@ -815,11 +821,20 @@ public abstract class AbstractOnePortTest extends AbstractPortTest {
     public void testParity(Parity p) throws Exception {
         LOG.log(Level.INFO, "run testParity({0}) - BaselineTest", p);
         openDefault();
-        if ((p == Parity.SPACE || p == Parity.MARK) && (de.ibapl.jnhw.libloader.OS.FREE_BSD == MULTIARCHTUPEL_BUILDER.getOS())) {
-            Assertions.assertThrows(IllegalArgumentException.class, () -> readSpc.setParity(p));
-        } else {
-            readSpc.setParity(p);
-            assertEquals(p, readSpc.getParity());
+        switch (MULTIARCHTUPEL_BUILDER.getOS()) {
+            case FREE_BSD:
+            case DARWIN:
+            case OPEN_BSD:
+                if (p == Parity.SPACE || p == Parity.MARK) {
+                    Assertions.assertThrows(IllegalArgumentException.class, () -> readSpc.setParity(p));
+                } else {
+                    readSpc.setParity(p);
+                    assertEquals(p, readSpc.getParity());
+                }
+                break;
+            default:
+                readSpc.setParity(p);
+                assertEquals(p, readSpc.getParity());
         }
     }
 
@@ -833,7 +848,14 @@ public abstract class AbstractOnePortTest extends AbstractPortTest {
         for (Speed b : Speed.values()) {
             try {
                 readSpc.setSpeed(b);
-                assertEquals(b, readSpc.getSpeed(), "test Speed");
+                //OpenBSD sets _0_BPS only for the outspeed!
+                Assertions.assertAll(
+                        () -> {
+                            assertEquals(b, readSpc.getOutSpeed(), "test outSpeed");
+                        },
+                        () -> {
+                            assertEquals(b, readSpc.getInSpeed(), "test inSpeed");
+                        });
             } catch (IllegalArgumentException iae) {
                 switch (b) {
                     case _0_BPS:
@@ -859,7 +881,7 @@ public abstract class AbstractOnePortTest extends AbstractPortTest {
                     case _3000000_BPS:
                     case _3500000_BPS:
                     case _4000000_BPS:
-                        if (b != readSpc.getSpeed()) {
+                        if (b != readSpc.getOutSpeed() || b != readSpc.getInSpeed()) {
                             LOG.warning("Can't set speed to " + b);
                         }
                         break;
@@ -1442,11 +1464,14 @@ public abstract class AbstractOnePortTest extends AbstractPortTest {
 
         // On Windows the GC needs some time - I don't know why... (FTDI on win64 needs
         // the most...)
-        if (System.getProperty("os.name").startsWith("Windows")) {
-            Thread.sleep(200);
-        } else {
-            // termios has a 10ms wait time during close
-            Thread.sleep(10);
+        switch (MULTIARCHTUPEL_BUILDER.getOS()) {
+            case OPEN_BSD:
+            case WINDOWS:
+                Thread.sleep(200);
+                break;
+            default:
+                // termios has a 10ms wait time during close
+                Thread.sleep(10);
         }
 
         readSpc = getSerialPortSocketFactory().open(serialPortName);

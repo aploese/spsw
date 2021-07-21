@@ -1,0 +1,27 @@
+AC_DEFUN([SW_LIB_PREFIX_SUFFIX],
+[case "$host_os" in
+    mingw32*)
+        SPSW_LIB_PREFIX="lib"
+        SPSW_LIB_SUFFIX="-\$(SPSW_VERSION).dll"
+        SPSW_LIBTOOL_LIB_SUFFIX="-\$(SPSW_VERSION).dll"
+        SPSW_STRIP_FLAG="-s"
+    ;;
+    darwin*)
+        SPSW_LIB_PREFIX="lib"
+        SPSW_LIB_SUFFIX=".\$(SPSW_VERSION).dylib"
+        SPSW_LIBTOOL_LIB_SUFFIX=".\$(SPSW_LIBTOOL_LIB_VERSION).dylib"
+        SPSW_STRIP_FLAG="-S"
+    ;;
+    *)
+        SPSW_LIB_PREFIX="lib"
+        SPSW_LIB_SUFFIX=".so.\$(SPSW_VERSION)"
+        SPSW_LIBTOOL_LIB_SUFFIX=".so.\$(SPSW_LIBTOOL_LIB_VERSION)"
+        SPSW_STRIP_FLAG="-s"
+    ;;
+esac
+
+AC_SUBST(SPSW_LIB_PREFIX)
+AC_SUBST(SPSW_LIB_SUFFIX)
+AC_SUBST(SPSW_LIBTOOL_LIB_SUFFIX)
+AC_SUBST(SPSW_STRIP_FLAG)
+])

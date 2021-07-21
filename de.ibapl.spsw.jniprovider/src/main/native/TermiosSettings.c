@@ -419,6 +419,40 @@ extern "C" {
         return 0;
     }
 
+    /*
+     * Class:     de_ibapl_spsw_jniprovider_AbstractSerialPortSocket
+     * Method:    getInSpeed0
+     * Signature: ()I
+     */
+    JNIEXPORT jint JNICALL Java_de_ibapl_spsw_jniprovider_AbstractSerialPortSocket_getInSpeed0
+    (JNIEnv *env, jobject sps) {
+        int fd = (*env)->GetIntField(env, sps, spsw_fd);
+        struct termios settings;
+        if (tcgetattr(fd, &settings)) {
+            throw_ClosedOrNativeException(env, sps, "setParams tcsetattr");
+            return -1;
+        }
+        //Get standard speed from "termios.h"
+        return speed_t2Speed(env, cfgetispeed(&settings));
+    }
+
+    /*
+     * Class:     de_ibapl_spsw_jniprovider_AbstractSerialPortSocket
+     * Method:    getOutSpeed0
+     * Signature: ()I
+     */
+    JNIEXPORT jint JNICALL Java_de_ibapl_spsw_jniprovider_AbstractSerialPortSocket_getOutSpeed0
+    (JNIEnv *env, jobject sps) {
+        int fd = (*env)->GetIntField(env, sps, spsw_fd);
+        struct termios settings;
+        if (tcgetattr(fd, &settings)) {
+            throw_ClosedOrNativeException(env, sps, "setParams tcsetattr");
+            return -1;
+        }
+        //Get standard speed from "termios.h"
+        return speed_t2Speed(env, cfgetospeed(&settings));
+    }
+
     int setParams(JNIEnv *env, jobject sps, struct termios *settings, jint paramBitSet) {
 
         //Speed
@@ -579,21 +613,24 @@ extern "C" {
         int fd = (*env)->GetIntField(env, sps, spsw_fd);
         //Write the changes...
         if (tcsetattr(fd, TCSANOW, settings)) {
-            if (errno == ERANGE) {
-                throw_IllegalArgumentException(env, "setParams tcsetattr Native Error \"ERANGE\"");
-            } else {
-                throw_ClosedOrNativeException(env, sps, "setParams tcsetattr");
+            switch (errno) {
+                case ERANGE:
+                    throw_IllegalArgumentException(env, "setParams tcsetattr Native Error \"ERANGE\"");
+                    break;
+                case EINVAL:
+                    throw_IllegalArgumentException(env, "setParams tcsetattr Native Error \"EINVAL\"");
+                    break;
+                default:
+                    throw_ClosedOrNativeException(env, sps, "setParams tcsetattr");
             }
             return -1;
         }
 
-        jint paramsRead =
-                SPSW_SPEED_MASK & paramBitSet ? SPSW_SPEED_MASK : 0;
+        jint paramsRead = SPSW_SPEED_MASK & paramBitSet ? SPSW_SPEED_MASK : 0;
         paramsRead |= SPSW_DATA_BITS_MASK & paramBitSet ? SPSW_DATA_BITS_MASK : 0;
         paramsRead |= SPSW_STOP_BITS_MASK & paramBitSet ? SPSW_STOP_BITS_MASK : 0;
         paramsRead |= SPSW_PARITY_MASK & paramBitSet ? SPSW_PARITY_MASK : 0;
-        paramsRead |=
-                SPSW_FLOW_CONTROL_MASK & paramBitSet ? SPSW_FLOW_CONTROL_MASK : 0;
+        paramsRead |= SPSW_FLOW_CONTROL_MASK & paramBitSet ? SPSW_FLOW_CONTROL_MASK : 0;
 
         if (getParams(env, sps, &paramsRead)) {
             return -1;
@@ -638,6 +675,104 @@ extern "C" {
         return 0;
     }
 
+    /*
+     * Class:     de_ibapl_spsw_jniprovider_AbstractSerialPortSocket
+     * Method:    setInSpeed0
+     * Signature: (I)V
+     */
+    JNIEXPORT void JNICALL Java_de_ibapl_spsw_jniprovider_AbstractSerialPortSocket_setInSpeed0
+    (JNIEnv *env, jobject sps, jint speedValue) {
+        int fd = (*env)->GetIntField(env, sps, spsw_fd);
+        struct termios settings;
+        if (tcgetattr(fd, &settings)) {
+            throw_ClosedOrNativeException(env, sps, "setInSpeed0 tcsetattr");
+            return;
+        }
+        speed_t speed_tValue;
+        if (speed2speed_t(env, speedValue & SPSW_SPEED_MASK, &speed_tValue) == -1) {
+            //IAE is already thrown...
+            return;
+        }
+
+        //Set standard speed from "termios.h"
+        if (cfsetispeed(&settings, speed_tValue) < 0) {
+            throw_ClosedOrNativeException(env, sps,
+                    "Can't set Speed cfsetispeed(settings, speedValue)");
+            return;
+        }
+        //Write the changes...
+        if (tcsetattr(fd, TCSANOW, &settings)) {
+            switch (errno) {
+                case ERANGE:
+                    throw_IllegalArgumentException(env, "setInSpeed0 tcsetattr Native Error \"ERANGE\"");
+                    break;
+                case EINVAL:
+                    throw_IllegalArgumentException(env, "setInSpeed0 tcsetattr Native Error \"EINVAL\"");
+                    break;
+                default:
+                    throw_ClosedOrNativeException(env, sps, "setInSpeed0 tcsetattr");
+            }
+            return;
+        }
+        if (tcgetattr(fd, &settings)) {
+            throw_ClosedOrNativeException(env, sps, "setInSpeed0 tcsetattr");
+            return;
+        }
+
+        if (speedValue != speed_t2Speed(env, cfgetispeed(&settings))) {
+            throw_IllegalArgumentException(env, "Could not set inSpeed!");
+        }
+    }
+
+    /*
+     * Class:     de_ibapl_spsw_jniprovider_AbstractSerialPortSocket
+     * Method:    setOutSpeed0
+     * Signature: (I)V
+     */
+    JNIEXPORT void JNICALL Java_de_ibapl_spsw_jniprovider_AbstractSerialPortSocket_setOutSpeed0
+    (JNIEnv *env, jobject sps, jint speedValue) {
+        int fd = (*env)->GetIntField(env, sps, spsw_fd);
+        struct termios settings;
+        if (tcgetattr(fd, &settings)) {
+            throw_ClosedOrNativeException(env, sps, "setOutSpeed0 tcsetattr");
+            return;
+        }
+        speed_t speed_tValue;
+        if (speed2speed_t(env, speedValue & SPSW_SPEED_MASK, &speed_tValue) == -1) {
+            //IAE is already thrown...
+            return;
+        }
+
+        //Set standard speed from "termios.h"
+        if (cfsetospeed(&settings, speed_tValue) < 0) {
+            throw_ClosedOrNativeException(env, sps,
+                    "Can't set Speed cfsetospeed(settings, speedValue)");
+            return;
+        }
+        //Write the changes...
+        if (tcsetattr(fd, TCSANOW, &settings)) {
+            switch (errno) {
+                case ERANGE:
+                    throw_IllegalArgumentException(env, "setOutSpeed0 tcsetattr Native Error \"ERANGE\"");
+                    break;
+                case EINVAL:
+                    throw_IllegalArgumentException(env, "setOutSpeed0 tcsetattr Native Error \"EINVAL\"");
+                    break;
+                default:
+                    throw_ClosedOrNativeException(env, sps, "setOutSpeed0 tcsetattr");
+            }
+            return;
+        }
+        if (tcgetattr(fd, &settings)) {
+            throw_ClosedOrNativeException(env, sps, "setOutSpeed0 tcsetattr");
+            return;
+        }
+
+        if (speedValue != speed_t2Speed(env, cfgetispeed(&settings))) {
+            throw_IllegalArgumentException(env, "Could not set outSpeed!");
+        }
+    }
+
     static jboolean getLineStatus(JNIEnv *env, jobject sps, int bitMask) {
         int fd = (*env)->GetIntField(env, sps, spsw_fd);
         int lineStatus;
@@ -648,6 +783,7 @@ extern "C" {
         if ((lineStatus & bitMask) == bitMask) {
             return JNI_TRUE;
         } else {
+
             return JNI_FALSE;
         }
     }
@@ -666,6 +802,7 @@ extern "C" {
             lineStatus &= ~bitMask;
         }
         if (ioctl(fd, TIOCMSET, &lineStatus)) {
+
             throw_ClosedOrNativeException(env, sps, "Can't set line status");
         }
     }
@@ -678,6 +815,7 @@ extern "C" {
     JNIEXPORT jint JNICALL Java_de_ibapl_spsw_jniprovider_AbstractSerialPortSocket_getParameters(
             JNIEnv *env, jobject sps, jint parameterBitSetMask) {
         if (getParams(env, sps, &parameterBitSetMask)) {
+
             return 0;
         }
         return parameterBitSetMask;
@@ -695,6 +833,7 @@ extern "C" {
         struct termios settings;
         if (tcgetattr(fd, &settings)) {
             throw_ClosedOrNativeException(env, sps, "getXOFFChar tcgetattr");
+
             return 0;
         }
         return settings.c_cc[VSTOP];
@@ -713,6 +852,7 @@ extern "C" {
         struct termios settings;
         if (tcgetattr(fd, &settings)) {
             throw_ClosedOrNativeException(env, sps, "getXONChar tcgetattr");
+
             return 0;
         }
         return settings.c_cc[VSTART];
@@ -726,6 +866,7 @@ extern "C" {
      */
     JNIEXPORT jboolean JNICALL Java_de_ibapl_spsw_jniprovider_AbstractSerialPortSocket_isCTS(
             JNIEnv *env, jobject sps) {
+
         return getLineStatus(env, sps, TIOCM_CTS);
     }
 
@@ -736,6 +877,7 @@ extern "C" {
      */
     JNIEXPORT jboolean JNICALL Java_de_ibapl_spsw_jniprovider_AbstractSerialPortSocket_isDSR
     (JNIEnv *env, jobject sps) {
+
         return getLineStatus(env, sps, TIOCM_DSR);
     }
 
@@ -746,6 +888,7 @@ extern "C" {
      */
     JNIEXPORT jboolean JNICALL Java_de_ibapl_spsw_jniprovider_AbstractSerialPortSocket_isDCD
     (JNIEnv *env, jobject sps) {
+
         return getLineStatus(env, sps, TIOCM_CAR);
     }
 
@@ -756,6 +899,7 @@ extern "C" {
      */
     JNIEXPORT jboolean JNICALL Java_de_ibapl_spsw_jniprovider_AbstractSerialPortSocket_isRI
     (JNIEnv *env, jobject sps) {
+
         return getLineStatus(env, sps, TIOCM_RNG);
     }
 
@@ -774,6 +918,7 @@ extern "C" {
             arg = TIOCCBRK;
         }
         if (ioctl(fd, arg)) {
+
             throw_ClosedOrNativeException(env, sps, "Can't set Break");
         }
     }
@@ -785,6 +930,7 @@ extern "C" {
      */
     JNIEXPORT void JNICALL Java_de_ibapl_spsw_jniprovider_AbstractSerialPortSocket_setDTR
     (JNIEnv *env, jobject sps, jboolean enabled) {
+
         setLineStatus(env, sps, enabled, TIOCM_DTR);
     }
 
@@ -800,6 +946,7 @@ extern "C" {
         struct termios settings;
         if (tcgetattr(fd, &settings)) {
             throw_ClosedOrNativeException(env, sps, "setParameters tcgetattr");
+
             return;
         }
 
@@ -813,6 +960,7 @@ extern "C" {
      */
     JNIEXPORT void JNICALL Java_de_ibapl_spsw_jniprovider_AbstractSerialPortSocket_setRTS
     (JNIEnv *env, jobject sps, jboolean enabled) {
+
         setLineStatus(env, sps, enabled, TIOCM_RTS);
     }
 
@@ -833,6 +981,7 @@ extern "C" {
         settings.c_cc[VSTOP] = (uint8_t) c;
 
         if (tcsetattr(fd, TCSANOW, &settings)) {
+
             throw_ClosedOrNativeException(env, sps, "setXOFFChar tcsetattr");
         }
 
@@ -856,6 +1005,7 @@ extern "C" {
 
         if (tcsetattr(fd, TCSANOW, &settings)) {
             //TODO EBADF == errno
+
             throw_ClosedOrNativeException(env, sps, "setXONChar tcsetattr");
         }
 
@@ -868,6 +1018,7 @@ extern "C" {
      */
     JNIEXPORT jboolean JNICALL Java_de_ibapl_spsw_jniprovider_GenericTermiosSerialPortSocket_isDTR(
             JNIEnv *env, jobject sps) {
+
         return getLineStatus(env, sps, TIOCM_DTR);
     }
 

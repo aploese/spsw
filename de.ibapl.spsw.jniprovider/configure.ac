@@ -2,7 +2,7 @@
 # Process this file with autoconf to produce a configure script.
 
 AC_PREREQ([2.69])
-AC_INIT([spsw-jni-provider], [3.0.0], [aploese@gmx.de])
+AC_INIT([spsw-jni-provider], [3.1.0], [aploese@gmx.de])
 AM_INIT_AUTOMAKE([-Wall -Werror foreign])
 AM_MAINTAINER_MODE
 
@@ -30,28 +30,28 @@ do
 done
 AC_SUBST(JNI_INCLUDE_FLAGS)
 
-JNHW_VERSION_INFO="1:0:0"
-AC_SUBST(JNHW_VERSION_INFO)
-JNHW_VERSION="1"
-AC_SUBST(JNHW_VERSION)
+SPSW_VERSION_INFO="3:1:0"
+AC_SUBST(SPSW_VERSION_INFO)
+SPSW_VERSION="3"
+AC_SUBST(SPSW_VERSION)
 
-#todo generate automatically from JNHW_VERSION_INFO
+#todo generate automatically from SPSW_VERSION_INFO
 case "$host_os" in
     openbsd*)
-        JNHW_LIBTOOL_LIB_VERSION="1.0"
+        SPSW_LIBTOOL_LIB_VERSION="3.1"
     ;;
     *)
-        JNHW_LIBTOOL_LIB_VERSION="1"
+        SPSW_LIBTOOL_LIB_VERSION="3"
     ;;
 esac
-AC_SUBST(JNHW_LIBTOOL_LIB_VERSION)
+AC_SUBST(SPSW_LIBTOOL_LIB_VERSION)
 
 
-JW_MULTIARCHTUPEL()
-JW_LIB_PREFIX_SUFFIX()
+SW_MULTIARCHTUPEL()
+SW_LIB_PREFIX_SUFFIX()
 
-JNHW_RESOURCES_DIR="\$(top_builddir)/src/main/resources/lib/\$(JNHW_MULTIARCH_TUPEL)"
-AC_SUBST(JNHW_RESOURCES_DIR)
+SPSW_RESOURCES_DIR="\$(top_builddir)/src/main/resources/lib/\$(SPSW_MULTIARCH_TUPEL)"
+AC_SUBST(SPSW_RESOURCES_DIR)
 
 JNI_HEADER_DIR="\$(top_builddir)/src/main/native/include"
 AC_SUBST(JNI_HEADER_DIR)

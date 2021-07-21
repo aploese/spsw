@@ -73,7 +73,7 @@ public class SerialPortSocketFactoryImpl implements SerialPortSocketFactory {
     private final static Class<TimeoutIOException> T_CLASS = TimeoutIOException.class;
 
     private final static String LIB_SPSW_NAME = "spsw";
-    private final static int LIB_SPSW_VERSION = 1;
+    private final static int LIB_SPSW_VERSION = 3;
     private static LoadResult LIB_SPSW_LOAD_RESULT;
 
     protected static void doSystemLoad(String absoluteLibName) {

@@ -26,6 +26,7 @@ import de.ibapl.jnhw.posix.Errno;
 import static de.ibapl.jnhw.posix.Errno.*;
 import de.ibapl.jnhw.posix.Fcntl;
 import static de.ibapl.jnhw.posix.Fcntl.*;
+import de.ibapl.jnhw.posix.Termios;
 import static de.ibapl.jnhw.posix.Termios.*;
 import de.ibapl.jnhw.posix.Unistd;
 import static de.ibapl.jnhw.unix.sys.Ioctl.*;
@@ -156,6 +157,34 @@ class PosixConfiguration {
         return fd;
     }
 
+    void setInSpeed(Speed speed) throws IOException {
+        StructTermios termios = getTermios();
+        int speedValue = speed2speed_t(speed);
+        // Set standard speed from "termios.h"
+        try {
+            cfsetispeed(termios, speedValue);
+        } catch (NativeErrorException nee) {
+            throw new IllegalArgumentException(formatMsg(nee, "Can't set Speed cfsetispeed(settings, speedValue)"));
+        }
+        if (getInSpeed(termios) != speed) {
+            throw new IllegalArgumentException("Could not set inSpeed to: " + speed + " instead it is: " + getInSpeed(termios));
+        }
+    }
+
+    void setOutSpeed(Speed speed) throws IOException {
+        StructTermios termios = getTermios();
+        int speedValue = speed2speed_t(speed);
+        // Set standard speed from "termios.h"
+        try {
+            cfsetospeed(termios, speedValue);
+        } catch (NativeErrorException nee) {
+            throw new IllegalArgumentException(formatMsg(nee, "Can't set Speed cfsetospeed(settings, speedValue)"));
+        }
+        if (getOutSpeed(termios) != speed) {
+            throw new IllegalArgumentException("Could not set outSpeed to: " + speed + " instead it is: " + getOutSpeed(termios));
+        }
+    }
+
     void setParams(Speed speed, DataBits dataBits, StopBits stopBits, Parity parity,
             Set<FlowControl> flowControls) throws IOException {
         setParams(getTermios(), speed, dataBits, stopBits, parity, flowControls);
@@ -273,7 +302,11 @@ class PosixConfiguration {
         try {
             tcsetattr(fd, TCSANOW, termios);
         } catch (NativeErrorException nee) {
-            if (nee.errno == de.ibapl.jnhw.isoc.Errno.ERANGE) {
+            if (nee.errno == Errno.ERANGE) {
+                throw new IllegalArgumentException(
+                        String.format("Native port error \"%s\" => setParams tcsetattr portname=%s, speed=%s, dataBits=%s, stopBits=%s, parity=%s, flowControls=%s",
+                                Errno.getErrnoSymbol(nee.errno), portName, speed, dataBits, stopBits, parity, flowControls));
+            } else if (nee.errno == Errno.EINVAL) {
                 throw new IllegalArgumentException(
                         String.format("Native port error \"%s\" => setParams tcsetattr portname=%s, speed=%s, dataBits=%s, stopBits=%s, parity=%s, flowControls=%s",
                                 Errno.getErrnoSymbol(nee.errno), portName, speed, dataBits, stopBits, parity, flowControls));
@@ -429,13 +462,29 @@ class PosixConfiguration {
     }
 
     private Speed getSpeed(StructTermios termios) throws IOException {
-        long inSpeed = cfgetispeed(termios);
-        long outSpeed = cfgetospeed(termios);
+        final long inSpeed = cfgetispeed(termios);
+        final long outSpeed = cfgetospeed(termios);
         if (inSpeed != outSpeed) {
             throw new IOException(
                     "In and out speed mismatch In:" + speed_t2speed(inSpeed) + " Out: " + speed_t2speed(outSpeed));
         }
         return speed_t2speed(inSpeed);
+    }
+
+    Speed getInSpeed() throws IOException {
+        return getInSpeed(getTermios());
+    }
+
+    private Speed getInSpeed(StructTermios termios) throws IOException {
+        return speed_t2speed(cfgetispeed(termios));
+    }
+
+    Speed getOutSpeed() throws IOException {
+        return getOutSpeed(getTermios());
+    }
+
+    private Speed getOutSpeed(StructTermios termios) throws IOException {
+        return speed_t2speed(cfgetospeed(termios));
     }
 
     char getXOFFChar() throws IOException {
